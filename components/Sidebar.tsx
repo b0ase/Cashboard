@@ -1,11 +1,10 @@
 import Link from 'next/link';
-import styles from '../styles/Header.module.css';
+import styles from '../styles/Sidebar.module.css';
 
-const Header = () => {
+const Sidebar = () => {
     return (
-        <header className={styles.header}>
-            <h1>Welcome to My Website</h1>
-            <nav className={styles.nav}>
+        <aside className={styles.sidebar}>
+            <nav>
                 <ul>
                     <li><Link href="/">Home</Link></li>
                     <li><Link href="/about">About</Link></li>
@@ -13,8 +12,8 @@ const Header = () => {
                     <li><Link href="/contact">Contact</Link></li>
                 </ul>
             </nav>
-        </header>
+        </aside>
     );
 };
 
-export default Header;
+export default Sidebar;

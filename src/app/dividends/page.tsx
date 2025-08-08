@@ -1,4 +1,4 @@
-import { Plus, DollarSign, Send, Clock, CheckCircle, XCircle, Search } from 'lucide-react'
+import { DollarSign, Send, Clock, CheckCircle, XCircle, Search } from 'lucide-react'
 
 // Mock data for demonstration
 const mockDividends = [

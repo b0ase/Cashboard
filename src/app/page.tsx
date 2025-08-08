@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
-import { Plus, X, DollarSign, Users } from 'lucide-react'
+import { useState, useRef } from 'react'
+import { Plus, X } from 'lucide-react'
 
 interface CashHandle {
   id: string

@@ -1,5 +1,4 @@
-import { Plus, Search, Filter, MoreVertical, Edit, Trash2 } from 'lucide-react'
-import Link from 'next/link'
+import { Plus, Search, Filter, MoreVertical } from 'lucide-react'
 
 // Mock data for demonstration
 const mockCashHandles = [

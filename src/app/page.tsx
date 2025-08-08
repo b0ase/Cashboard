@@ -36,7 +36,9 @@ import {
   Scale,
   Circle,
   Building,
-  PlayCircle
+  PlayCircle,
+  User,
+
 } from 'lucide-react'
 import DemoModal from '../components/DemoModal'
 
@@ -140,7 +142,7 @@ interface ChatMessage {
 }
 
 interface AppState {
-  currentView: 'workflow' | 'organizations' | 'roles' | 'members' | 'instruments' | 'security' | 'integrations'
+  currentView: 'workflow' | 'organizations' | 'roles' | 'members' | 'instruments' | 'security' | 'integrations' | 'settings' | 'profile' | 'billing'
   selectedOrganization: string | null
   sidebarOpen: boolean
   isMobile: boolean
@@ -152,6 +154,53 @@ interface AppState {
   isChatOpen: boolean
   instruments: FinancialInstrument[]
   securityProducts: SecurityProduct[]
+  apiKeys: ApiKey[]
+  sshKeys: SshKey[]
+  mcpServers: McpServer[]
+  userProfile: UserProfile
+}
+
+interface ApiKey {
+  id: string
+  name: string
+  key: string
+  permissions: string[]
+  createdAt: string
+  lastUsed?: string
+  isActive: boolean
+}
+
+interface SshKey {
+  id: string
+  name: string
+  publicKey: string
+  fingerprint: string
+  createdAt: string
+  lastUsed?: string
+  isActive: boolean
+}
+
+interface McpServer {
+  id: string
+  name: string
+  url: string
+  description: string
+  isActive: boolean
+  createdAt: string
+}
+
+interface UserProfile {
+  id: string
+  name: string
+  email: string
+  avatar?: string
+  preferences: {
+    theme: 'light' | 'dark' | 'auto'
+    notifications: boolean
+    autoSave: boolean
+  }
+  createdAt: string
+  updatedAt: string
 }
 
 interface WorkflowViewProps {
@@ -206,7 +255,8 @@ interface FinancialInstrument {
   type: 'equity' | 'debt' | 'derivative' | 'reward' | 'utility' | 'governance' | 'hybrid'
   symbol: string
   description: string
-  organizationId: string
+  organizationId?: string
+  workflowId?: string
   totalSupply: number
   issuedSupply: number
   decimals: number
@@ -227,6 +277,8 @@ interface FinancialInstrument {
     stakingAPY?: number
     governanceWeight?: number
     utilityFunctions?: string[]
+    customWorkflow?: boolean
+    workflowDescription?: string
   }
   status: 'draft' | 'active' | 'paused' | 'matured' | 'liquidated'
   createdAt: string
@@ -449,49 +501,89 @@ export default function Dashboard() {
   ],
   isChatOpen: false,
   isMobile: false,
-  instruments: [
-    {
-      id: '1',
-      name: 'TechCorp Equity Shares',
-      type: 'equity',
-      symbol: 'TECH',
-      description: 'Common equity shares with voting rights',
-      organizationId: '1',
-      totalSupply: 1000000,
-      issuedSupply: 500000,
-      decimals: 18,
-      blockchain: 'Bitcoin SV',
-      contractAddress: '0x1234567890abcdef',
-      metadata: {
-        votingPower: 1,
-        dividendYield: 0.05,
-        governanceWeight: 1
+      instruments: [
+      {
+        id: '1',
+        name: 'TechCorp Equity Shares',
+        type: 'equity',
+        symbol: 'TECH',
+        description: 'Common equity shares with voting rights',
+        organizationId: '1',
+        totalSupply: 1000000,
+        issuedSupply: 500000,
+        decimals: 18,
+        blockchain: 'Bitcoin SV',
+        contractAddress: '0x1234567890abcdef',
+        metadata: {
+          votingPower: 1,
+          dividendYield: 0.05,
+          governanceWeight: 1
+        },
+        status: 'active',
+        createdAt: '2024-01-15',
+        updatedAt: '2024-01-15'
       },
-      status: 'active',
-      createdAt: '2024-01-15',
-      updatedAt: '2024-01-15'
-    },
-    {
-      id: '2',
-      name: 'TechCorp Employee Options',
-      type: 'derivative',
-      symbol: 'TECH-OPT',
-      description: 'Employee stock options with vesting',
-      organizationId: '1',
-      totalSupply: 100000,
-      issuedSupply: 25000,
-      decimals: 18,
-      blockchain: 'Bitcoin SV',
-      metadata: {
-        strikePrice: 10,
-        expiryDate: '2029-01-15',
-        vestingSchedule: '4-year vesting with 1-year cliff'
+      {
+        id: '2',
+        name: 'TechCorp Employee Options',
+        type: 'derivative',
+        symbol: 'TECH-OPT',
+        description: 'Employee stock options with vesting',
+        organizationId: '1',
+        totalSupply: 100000,
+        issuedSupply: 25000,
+        decimals: 18,
+        blockchain: 'Bitcoin SV',
+        metadata: {
+          strikePrice: 10,
+          expiryDate: '2029-01-15',
+          vestingSchedule: '4-year vesting with 1-year cliff'
+        },
+        status: 'active',
+        createdAt: '2024-01-15',
+        updatedAt: '2024-01-15'
       },
-      status: 'active',
-      createdAt: '2024-01-15',
-      updatedAt: '2024-01-15'
-    }
-  ],
+      {
+        id: '3',
+        name: 'DeFi Yield Token',
+        type: 'utility',
+        symbol: 'YIELD',
+        description: 'Yield-generating DeFi token with automated staking',
+        totalSupply: 10000000,
+        issuedSupply: 2000000,
+        decimals: 18,
+        blockchain: 'Bitcoin SV',
+        metadata: {
+          stakingAPY: 0.12,
+          rewardMultiplier: 1.5,
+          customWorkflow: true,
+          workflowDescription: 'Automated yield distribution and staking rewards'
+        },
+        status: 'active',
+        createdAt: '2024-01-20',
+        updatedAt: '2024-01-20'
+      },
+      {
+        id: '4',
+        name: 'Governance DAO Token',
+        type: 'governance',
+        symbol: 'DAO',
+        description: 'Decentralized governance token with voting mechanisms',
+        totalSupply: 5000000,
+        issuedSupply: 1000000,
+        decimals: 18,
+        blockchain: 'Bitcoin SV',
+        metadata: {
+          votingPower: 1,
+          governanceWeight: 1,
+          customWorkflow: true,
+          workflowDescription: 'Proposal creation, voting, and execution workflow'
+        },
+        status: 'active',
+        createdAt: '2024-01-20',
+        updatedAt: '2024-01-20'
+      }
+    ],
   securityProducts: [
     {
       id: '1',
@@ -570,10 +662,63 @@ export default function Dashboard() {
       createdAt: '2024-01-15',
       updatedAt: '2024-01-15'
     }
-  ]
+  ],
+  apiKeys: [
+    {
+      id: '1',
+      name: 'Production API Key',
+      key: 'cash_sk_live_1234567890abcdef',
+      permissions: ['read', 'write', 'admin'],
+      createdAt: '2024-01-15',
+      lastUsed: '2024-01-20',
+      isActive: true
+    }
+  ],
+  sshKeys: [
+    {
+      id: '1',
+      name: 'MacBook Pro',
+      publicKey: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC...',
+      fingerprint: 'SHA256:abcdef1234567890',
+      createdAt: '2024-01-15',
+      lastUsed: '2024-01-20',
+      isActive: true
+    }
+  ],
+  mcpServers: [
+    {
+      id: '1',
+      name: 'Supabase MCP',
+      url: 'https://supabase.com/mcp',
+      description: 'Supabase database and authentication services',
+      isActive: true,
+      createdAt: '2024-01-15'
+    },
+    {
+      id: '2',
+      name: 'Hugging Face MCP',
+      url: 'https://huggingface.co/mcp',
+      description: 'AI models and datasets',
+      isActive: true,
+      createdAt: '2024-01-15'
+    }
+  ],
+  userProfile: {
+    id: '1',
+    name: 'John Doe',
+    email: 'john@example.com',
+    avatar: undefined,
+    preferences: {
+      theme: 'dark',
+      notifications: true,
+      autoSave: true
+    },
+    createdAt: '2024-01-15',
+    updatedAt: '2024-01-20'
+  }
 })
 
-  const { workflows, selectedWorkflow, organizations, roles, currentView, selectedOrganization, sidebarOpen, chatMessages, isChatOpen, instruments } = appState
+  const { workflows, selectedWorkflow, organizations, roles, currentView, selectedOrganization, sidebarOpen, chatMessages, isChatOpen, instruments, apiKeys, sshKeys, mcpServers, userProfile } = appState
 
   const boardRef = useRef<HTMLDivElement>(null)
   
@@ -682,6 +827,55 @@ export default function Dashboard() {
     setCanvasScale(1)
     setCanvasOffset({ x: 0, y: 0 })
   }
+
+  // Keyboard shortcuts for zoom controls
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Only handle zoom shortcuts when in workflow view
+      if (currentView !== 'workflow' || !currentWorkflow) return
+
+      // Check for Ctrl/Cmd key combinations
+      if (e.ctrlKey || e.metaKey) {
+        switch (e.key) {
+          case '=':
+          case '+':
+            e.preventDefault()
+            setCanvasScale(prev => Math.min(3, prev + 0.25))
+            break
+          case '-':
+            e.preventDefault()
+            setCanvasScale(prev => Math.max(0.25, prev - 0.25))
+            break
+          case '0':
+            e.preventDefault()
+            resetCanvasView()
+            break
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [currentView, currentWorkflow])
+
+  // Mouse wheel zoom support
+  useEffect(() => {
+    const handleWheel = (e: WheelEvent) => {
+      // Only handle zoom when in workflow view and Ctrl/Cmd is pressed
+      if (currentView !== 'workflow' || !currentWorkflow || !(e.ctrlKey || e.metaKey)) return
+
+      e.preventDefault()
+      
+      const delta = e.deltaY > 0 ? -0.1 : 0.1
+      setCanvasScale(prev => Math.max(0.25, Math.min(3, prev + delta)))
+    }
+
+    const canvasElement = boardRef.current
+    if (canvasElement) {
+      canvasElement.addEventListener('wheel', handleWheel, { passive: false })
+      return () => canvasElement.removeEventListener('wheel', handleWheel)
+    }
+  }, [currentView, currentWorkflow, boardRef])
 
   const getNodeIcon = (type: string) => {
     const iconSize = isMobile ? "w-3 h-3" : "w-4 h-4"
@@ -978,6 +1172,112 @@ export default function Dashboard() {
     }))
   }
 
+  const updateWorkflow = (workflowId: string, updates: Partial<WorkflowState>) => {
+    setAppState(prev => ({
+      ...prev,
+      workflows: prev.workflows.map(w => 
+        w.id === workflowId 
+          ? { ...w, ...updates, updatedAt: new Date().toISOString() }
+          : w
+      )
+    }))
+  }
+
+  // API Key management functions
+  const createApiKey = (name: string, permissions: string[]) => {
+    const newApiKey: ApiKey = {
+      id: Date.now().toString(),
+      name,
+      key: `cash_sk_${Math.random().toString(36).substring(2, 15)}`,
+      permissions,
+      createdAt: new Date().toISOString(),
+      isActive: true
+    }
+
+    setAppState(prev => ({
+      ...prev,
+      apiKeys: [...prev.apiKeys, newApiKey]
+    }))
+  }
+
+  const deleteApiKey = (apiKeyId: string) => {
+    setAppState(prev => ({
+      ...prev,
+      apiKeys: prev.apiKeys.filter(key => key.id !== apiKeyId)
+    }))
+  }
+
+  // SSH Key management functions
+  const createSshKey = (name: string, publicKey: string) => {
+    const newSshKey: SshKey = {
+      id: Date.now().toString(),
+      name,
+      publicKey,
+      fingerprint: `SHA256:${Math.random().toString(36).substring(2, 15)}`,
+      createdAt: new Date().toISOString(),
+      isActive: true
+    }
+
+    setAppState(prev => ({
+      ...prev,
+      sshKeys: [...prev.sshKeys, newSshKey]
+    }))
+  }
+
+  const deleteSshKey = (sshKeyId: string) => {
+    setAppState(prev => ({
+      ...prev,
+      sshKeys: prev.sshKeys.filter(key => key.id !== sshKeyId)
+    }))
+  }
+
+  // MCP Server management functions
+  const createMcpServer = (name: string, url: string, description: string) => {
+    const newMcpServer: McpServer = {
+      id: Date.now().toString(),
+      name,
+      url,
+      description,
+      isActive: true,
+      createdAt: new Date().toISOString()
+    }
+
+    setAppState(prev => ({
+      ...prev,
+      mcpServers: [...prev.mcpServers, newMcpServer]
+    }))
+  }
+
+  const deleteMcpServer = (mcpServerId: string) => {
+    setAppState(prev => ({
+      ...prev,
+      mcpServers: prev.mcpServers.filter(server => server.id !== mcpServerId)
+    }))
+  }
+
+  const toggleMcpServer = (mcpServerId: string) => {
+    setAppState(prev => ({
+      ...prev,
+      mcpServers: prev.mcpServers.map(server => 
+        server.id === mcpServerId 
+          ? { ...server, isActive: !server.isActive }
+          : server
+      )
+    }))
+  }
+
+  // User Profile management functions
+  const updateUserProfile = (updates: Partial<UserProfile>) => {
+    setAppState(prev => ({
+      ...prev,
+      userProfile: {
+        ...prev.userProfile,
+        ...updates,
+        updatedAt: new Date().toISOString()
+      }
+    }))
+  }
+
   // Organization Management Functions
   const createOrganization = (name: string, description: string, tokenSymbol: string) => {
     const newOrg: Organization = {
@@ -1271,6 +1571,56 @@ export default function Dashboard() {
               </button>
             </nav>
 
+            {/* Account & Billing Section */}
+            <div className="mt-auto pt-8 border-t border-white/10">
+              <div className="mb-4">
+                <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">Account</h3>
+                <nav className="space-y-2">
+                  <button
+                    onClick={() => setCurrentView('billing')}
+                    className={`w-full text-left px-4 py-3 rounded-lg transition-all ${
+                      currentView === 'billing' 
+                        ? 'bg-white/20 text-white' 
+                        : 'text-gray-400 hover:text-white hover:bg-white/10'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <CreditCard className="w-5 h-5" />
+                      <span>Billing & Plans</span>
+                    </div>
+                  </button>
+                  
+                  <button
+                    onClick={() => setCurrentView('settings')}
+                    className={`w-full text-left px-4 py-3 rounded-lg transition-all ${
+                      currentView === 'settings' 
+                        ? 'bg-white/20 text-white' 
+                        : 'text-gray-400 hover:text-white hover:bg-white/10'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <Settings className="w-5 h-5" />
+                      <span>Settings</span>
+                    </div>
+                  </button>
+                  
+                  <button
+                    onClick={() => setCurrentView('profile')}
+                    className={`w-full text-left px-4 py-3 rounded-lg transition-all ${
+                      currentView === 'profile' 
+                        ? 'bg-white/20 text-white' 
+                        : 'text-gray-400 hover:text-white hover:bg-white/10'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <User className="w-5 h-5" />
+                      <span>Profile</span>
+                    </div>
+                  </button>
+                </nav>
+              </div>
+            </div>
+
             {/* Selected Organization */}
             {selectedOrganization && (
               <div className="mt-8 p-4 bg-white/10 rounded-lg">
@@ -1301,7 +1651,7 @@ export default function Dashboard() {
               }`}>
                 <h1 className={`font-bold text-white tracking-wider font-mono ${
                   isMobile ? 'text-lg' : 'text-2xl'
-                }`}>CASHBOARD</h1>
+                }`}>$CASHBOARD</h1>
               </div>
               
               {/* Demo Button */}
@@ -1401,6 +1751,7 @@ export default function Dashboard() {
             onCreateWorkflow={createWorkflow}
             onOpenWorkflow={openWorkflow}
             onDeleteWorkflow={deleteWorkflow}
+            onUpdateWorkflow={updateWorkflow}
             isMobile={isMobile}
           />
         )}
@@ -1501,6 +1852,32 @@ export default function Dashboard() {
 
         {currentView === 'integrations' && (
           <IntegrationsView />
+        )}
+
+        {currentView === 'settings' && (
+          <SettingsView 
+            apiKeys={apiKeys}
+            sshKeys={sshKeys}
+            mcpServers={mcpServers}
+            onCreateApiKey={createApiKey}
+            onDeleteApiKey={deleteApiKey}
+            onCreateSshKey={createSshKey}
+            onDeleteSshKey={deleteSshKey}
+            onCreateMcpServer={createMcpServer}
+            onDeleteMcpServer={deleteMcpServer}
+            onToggleMcpServer={toggleMcpServer}
+          />
+        )}
+
+        {currentView === 'profile' && (
+          <ProfileView 
+            userProfile={userProfile}
+            onUpdateProfile={updateUserProfile}
+          />
+        )}
+
+        {currentView === 'billing' && (
+          <BillingView />
         )}
       </div>
 
@@ -1833,6 +2210,7 @@ function WorkflowsView({
   onCreateWorkflow, 
   onOpenWorkflow, 
   onDeleteWorkflow,
+  onUpdateWorkflow: _onUpdateWorkflow,
   isMobile 
 }: {
   workflows: WorkflowState[]
@@ -1840,12 +2218,12 @@ function WorkflowsView({
   onCreateWorkflow: (name: string, description: string) => void
   onOpenWorkflow: (workflowId: string) => void
   onDeleteWorkflow: (workflowId: string) => void
+  onUpdateWorkflow: (workflowId: string, updates: Partial<WorkflowState>) => void
   isMobile: boolean
 }) {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [newWorkflowName, setNewWorkflowName] = useState('')
   const [newWorkflowDescription, setNewWorkflowDescription] = useState('')
-
   const handleCreate = () => {
     if (newWorkflowName.trim()) {
       onCreateWorkflow(newWorkflowName.trim(), newWorkflowDescription.trim())
@@ -2111,32 +2489,86 @@ function WorkflowView({
         </div>
       </div>
 
-      {/* Mobile Canvas Controls */}
-      {isMobile && (
-        <div className="absolute top-4 right-4 z-30 flex space-x-2">
+      {/* Canvas Zoom Controls */}
+      <div className="absolute top-4 right-4 z-30 flex flex-col space-y-2">
+        {/* Zoom Controls */}
+        <div className="bg-black/60 backdrop-blur-xl border border-white/20 rounded-lg overflow-hidden">
           <button
-            onClick={resetCanvasView}
-            className="p-2 bg-black/60 backdrop-blur-xl border border-white/20 rounded-lg text-white hover:bg-white/10 transition-all"
-            title="Reset View"
-          >
-            <RotateCcw className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => setCanvasScale(prev => Math.min(2, prev + 0.2))}
-            className="p-2 bg-black/60 backdrop-blur-xl border border-white/20 rounded-lg text-white hover:bg-white/10 transition-all"
+            onClick={() => setCanvasScale(prev => Math.min(3, prev + 0.25))}
+            className="block w-full p-2 text-white hover:bg-white/10 transition-all border-b border-white/10"
             title="Zoom In"
           >
-            <Maximize2 className="w-4 h-4" />
+            <Plus className="w-4 h-4 mx-auto" />
           </button>
+          <div className="px-3 py-2 text-center border-b border-white/10">
+            <span className="text-white text-xs font-medium">
+              {Math.round(canvasScale * 100)}%
+            </span>
+          </div>
           <button
-            onClick={() => setCanvasScale(prev => Math.max(0.5, prev - 0.2))}
-            className="p-2 bg-black/60 backdrop-blur-xl border border-white/20 rounded-lg text-white hover:bg-white/10 transition-all"
+            onClick={() => setCanvasScale(prev => Math.max(0.25, prev - 0.25))}
+            className="block w-full p-2 text-white hover:bg-white/10 transition-all border-b border-white/10"
             title="Zoom Out"
           >
-            <Minimize2 className="w-4 h-4" />
+            <Minimize2 className="w-4 h-4 mx-auto" />
+          </button>
+          <button
+            onClick={resetCanvasView}
+            className="block w-full p-2 text-white hover:bg-white/10 transition-all"
+            title="Reset View (100%)"
+          >
+            <RotateCcw className="w-4 h-4 mx-auto" />
           </button>
         </div>
-      )}
+        
+        {/* Preset Zoom Levels */}
+        <div className="bg-black/60 backdrop-blur-xl border border-white/20 rounded-lg overflow-hidden">
+          <button
+            onClick={() => setCanvasScale(0.5)}
+            className={`block w-full px-3 py-1.5 text-xs transition-all border-b border-white/10 ${
+              Math.abs(canvasScale - 0.5) < 0.01 
+                ? 'bg-blue-500 text-white' 
+                : 'text-gray-300 hover:text-white hover:bg-white/10'
+            }`}
+            title="Zoom to 50%"
+          >
+            50%
+          </button>
+          <button
+            onClick={() => setCanvasScale(1)}
+            className={`block w-full px-3 py-1.5 text-xs transition-all border-b border-white/10 ${
+              Math.abs(canvasScale - 1) < 0.01 
+                ? 'bg-blue-500 text-white' 
+                : 'text-gray-300 hover:text-white hover:bg-white/10'
+            }`}
+            title="Zoom to 100%"
+          >
+            100%
+          </button>
+          <button
+            onClick={() => setCanvasScale(1.5)}
+            className={`block w-full px-3 py-1.5 text-xs transition-all border-b border-white/10 ${
+              Math.abs(canvasScale - 1.5) < 0.01 
+                ? 'bg-blue-500 text-white' 
+                : 'text-gray-300 hover:text-white hover:bg-white/10'
+            }`}
+            title="Zoom to 150%"
+          >
+            150%
+          </button>
+          <button
+            onClick={() => setCanvasScale(2)}
+            className={`block w-full px-3 py-1.5 text-xs transition-all ${
+              Math.abs(canvasScale - 2) < 0.01 
+                ? 'bg-blue-500 text-white' 
+                : 'text-gray-300 hover:text-white hover:bg-white/10'
+            }`}
+            title="Zoom to 200%"
+          >
+            200%
+          </button>
+        </div>
+      </div>
 
       {/* Canvas Area */}
       <div
@@ -3058,6 +3490,710 @@ function MembersView({ organizations, selectedOrganization, onUpdateShareAllocat
             <p className="text-gray-400">Please select an organization to view its members</p>
           </div>
         )}
+      </div>
+    </div>
+  )
+}
+
+// Settings View Component
+function SettingsView({ 
+  apiKeys, 
+  sshKeys, 
+  mcpServers, 
+  onCreateApiKey, 
+  onDeleteApiKey, 
+  onCreateSshKey, 
+  onDeleteSshKey, 
+  onCreateMcpServer, 
+  onDeleteMcpServer, 
+  onToggleMcpServer 
+}: {
+  apiKeys: ApiKey[]
+  sshKeys: SshKey[]
+  mcpServers: McpServer[]
+  onCreateApiKey: (name: string, permissions: string[]) => void
+  onDeleteApiKey: (id: string) => void
+  onCreateSshKey: (name: string, publicKey: string) => void
+  onDeleteSshKey: (id: string) => void
+  onCreateMcpServer: (name: string, url: string, description: string) => void
+  onDeleteMcpServer: (id: string) => void
+  onToggleMcpServer: (id: string) => void
+}) {
+  const [activeTab, setActiveTab] = useState<'api-keys' | 'ssh-keys' | 'mcp-servers'>('api-keys')
+
+  const handleCreateApiKey = () => {
+    const name = prompt('Enter API key name:')
+    if (name) {
+      const permissions = prompt('Enter permissions (comma-separated):')?.split(',').map(p => p.trim()) || []
+      onCreateApiKey(name, permissions)
+    }
+  }
+
+  const handleCreateSshKey = () => {
+    const name = prompt('Enter SSH key name:')
+    const publicKey = prompt('Enter public key:')
+    if (name && publicKey) {
+      onCreateSshKey(name, publicKey)
+    }
+  }
+
+  const handleCreateMcpServer = () => {
+    const name = prompt('Enter MCP server name:')
+    const url = prompt('Enter MCP server URL:')
+    const description = prompt('Enter description:') || ''
+    if (name && url) {
+      onCreateMcpServer(name, url, description)
+    }
+  }
+
+  return (
+    <div className="absolute inset-0 top-24 p-6">
+      <div className="max-w-6xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-white mb-2">Settings</h1>
+          <p className="text-gray-300">Manage your API keys, SSH keys, and MCP servers</p>
+        </div>
+
+        {/* Tab Navigation */}
+        <div className="flex space-x-1 mb-6 bg-black/40 backdrop-blur-xl border border-white/20 rounded-xl p-1">
+          <button
+            onClick={() => setActiveTab('api-keys')}
+            className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
+              activeTab === 'api-keys'
+                ? 'bg-blue-500 text-white'
+                : 'text-gray-300 hover:text-white'
+            }`}
+          >
+            API Keys
+          </button>
+          <button
+            onClick={() => setActiveTab('ssh-keys')}
+            className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
+              activeTab === 'ssh-keys'
+                ? 'bg-blue-500 text-white'
+                : 'text-gray-300 hover:text-white'
+            }`}
+          >
+            SSH Keys
+          </button>
+          <button
+            onClick={() => setActiveTab('mcp-servers')}
+            className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
+              activeTab === 'mcp-servers'
+                ? 'bg-blue-500 text-white'
+                : 'text-gray-300 hover:text-white'
+            }`}
+          >
+            MCP Servers
+          </button>
+        </div>
+
+        {/* API Keys Tab */}
+        {activeTab === 'api-keys' && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold text-white">API Keys</h2>
+              <button
+                onClick={handleCreateApiKey}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Create API Key</span>
+              </button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {apiKeys.map((apiKey) => (
+                <div
+                  key={apiKey.id}
+                  className="bg-black/60 backdrop-blur-xl border border-white/20 rounded-xl p-6"
+                >
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h3 className="text-lg font-semibold text-white">{apiKey.name}</h3>
+                      <p className="text-gray-400 text-sm">Created {new Date(apiKey.createdAt).toLocaleDateString()}</p>
+                    </div>
+                    <div className={`w-3 h-3 rounded-full ${apiKey.isActive ? 'bg-green-500' : 'bg-red-500'}`} />
+                  </div>
+                  <div className="space-y-3">
+                    <div>
+                      <span className="text-gray-400 text-sm">Key:</span>
+                      <p className="text-white text-sm font-mono bg-white/10 p-2 rounded mt-1">{apiKey.key.slice(0, 20)}...</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-400 text-sm">Permissions:</span>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {apiKey.permissions.map((permission) => (
+                          <span
+                            key={permission}
+                            className="bg-blue-500/20 text-blue-400 text-xs px-2 py-1 rounded"
+                          >
+                            {permission}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    {apiKey.lastUsed && (
+                      <div>
+                        <span className="text-gray-400 text-sm">Last used:</span>
+                        <p className="text-white text-sm">{new Date(apiKey.lastUsed).toLocaleString()}</p>
+                      </div>
+                    )}
+                    <button
+                      onClick={() => onDeleteApiKey(apiKey.id)}
+                      className="w-full bg-red-500/20 text-red-400 border border-red-400/30 hover:bg-red-500/30 transition-colors py-2 rounded-lg text-sm"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* SSH Keys Tab */}
+        {activeTab === 'ssh-keys' && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold text-white">SSH Keys</h2>
+              <button
+                onClick={handleCreateSshKey}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Add SSH Key</span>
+              </button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {sshKeys.map((sshKey) => (
+                <div
+                  key={sshKey.id}
+                  className="bg-black/60 backdrop-blur-xl border border-white/20 rounded-xl p-6"
+                >
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h3 className="text-lg font-semibold text-white">{sshKey.name}</h3>
+                      <p className="text-gray-400 text-sm">Created {new Date(sshKey.createdAt).toLocaleDateString()}</p>
+                    </div>
+                    <div className={`w-3 h-3 rounded-full ${sshKey.isActive ? 'bg-green-500' : 'bg-red-500'}`} />
+                  </div>
+                  <div className="space-y-3">
+                    <div>
+                      <span className="text-gray-400 text-sm">Fingerprint:</span>
+                      <p className="text-white text-sm font-mono bg-white/10 p-2 rounded mt-1">{sshKey.fingerprint}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-400 text-sm">Public Key:</span>
+                      <p className="text-white text-sm font-mono bg-white/10 p-2 rounded mt-1 break-all">{sshKey.publicKey}</p>
+                    </div>
+                    {sshKey.lastUsed && (
+                      <div>
+                        <span className="text-gray-400 text-sm">Last used:</span>
+                        <p className="text-white text-sm">{new Date(sshKey.lastUsed).toLocaleString()}</p>
+                      </div>
+                    )}
+                    <button
+                      onClick={() => onDeleteSshKey(sshKey.id)}
+                      className="w-full bg-red-500/20 text-red-400 border border-red-400/30 hover:bg-red-500/30 transition-colors py-2 rounded-lg text-sm"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* MCP Servers Tab */}
+        {activeTab === 'mcp-servers' && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold text-white">MCP Servers</h2>
+              <button
+                onClick={handleCreateMcpServer}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Add MCP Server</span>
+              </button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {mcpServers.map((server) => (
+                <div
+                  key={server.id}
+                  className="bg-black/60 backdrop-blur-xl border border-white/20 rounded-xl p-6"
+                >
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h3 className="text-lg font-semibold text-white">{server.name}</h3>
+                      <p className="text-gray-400 text-sm">Created {new Date(server.createdAt).toLocaleDateString()}</p>
+                    </div>
+                    <button
+                      onClick={() => onToggleMcpServer(server.id)}
+                      className={`w-3 h-3 rounded-full transition-colors ${server.isActive ? 'bg-green-500' : 'bg-red-500'}`}
+                    />
+                  </div>
+                  <div className="space-y-3">
+                    <div>
+                      <span className="text-gray-400 text-sm">URL:</span>
+                      <p className="text-white text-sm font-mono bg-white/10 p-2 rounded mt-1 break-all">{server.url}</p>
+                    </div>
+                    {server.description && (
+                      <div>
+                        <span className="text-gray-400 text-sm">Description:</span>
+                        <p className="text-white text-sm">{server.description}</p>
+                      </div>
+                    )}
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => onToggleMcpServer(server.id)}
+                        className={`flex-1 py-2 rounded-lg text-sm transition-colors ${
+                          server.isActive
+                            ? 'bg-red-500/20 text-red-400 border border-red-400/30 hover:bg-red-500/30'
+                            : 'bg-green-500/20 text-green-400 border border-green-400/30 hover:bg-green-500/30'
+                        }`}
+                      >
+                        {server.isActive ? 'Disable' : 'Enable'}
+                      </button>
+                      <button
+                        onClick={() => onDeleteMcpServer(server.id)}
+                        className="flex-1 bg-red-500/20 text-red-400 border border-red-400/30 hover:bg-red-500/30 transition-colors py-2 rounded-lg text-sm"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// Profile View Component
+function ProfileView({ 
+  userProfile, 
+  onUpdateProfile 
+}: {
+  userProfile: UserProfile
+  onUpdateProfile: (updates: Partial<UserProfile>) => void
+}) {
+  const [isEditing, setIsEditing] = useState(false)
+  const [formData, setFormData] = useState({
+    name: userProfile.name,
+    email: userProfile.email,
+    theme: userProfile.preferences.theme,
+    notifications: userProfile.preferences.notifications,
+    autoSave: userProfile.preferences.autoSave
+  })
+
+  const handleSave = () => {
+    onUpdateProfile({
+      name: formData.name,
+      email: formData.email,
+      preferences: {
+        theme: formData.theme as 'light' | 'dark' | 'auto',
+        notifications: formData.notifications,
+        autoSave: formData.autoSave
+      }
+    })
+    setIsEditing(false)
+  }
+
+  const handleCancel = () => {
+    setFormData({
+      name: userProfile.name,
+      email: userProfile.email,
+      theme: userProfile.preferences.theme,
+      notifications: userProfile.preferences.notifications,
+      autoSave: userProfile.preferences.autoSave
+    })
+    setIsEditing(false)
+  }
+
+  return (
+    <div className="absolute inset-0 top-24 p-6">
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-white mb-2">Profile</h1>
+          <p className="text-gray-300">Manage your account settings and preferences</p>
+        </div>
+
+        <div className="bg-black/60 backdrop-blur-xl border border-white/20 rounded-xl p-8">
+          {/* Profile Header */}
+          <div className="flex items-center space-x-6 mb-8">
+            <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+              <span className="text-white font-bold text-2xl">
+                {userProfile.name.split(' ').map((n) => n[0]).join('')}
+              </span>
+            </div>
+            <div className="flex-1">
+              <h2 className="text-2xl font-semibold text-white">{userProfile.name}</h2>
+              <p className="text-gray-400">{userProfile.email}</p>
+              <p className="text-gray-500 text-sm">Member since {new Date(userProfile.createdAt).toLocaleDateString()}</p>
+            </div>
+            <button
+              onClick={() => setIsEditing(!isEditing)}
+              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
+            >
+              {isEditing ? 'Cancel' : 'Edit Profile'}
+            </button>
+          </div>
+
+          {/* Profile Form */}
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-gray-400 text-sm font-medium mb-2">Name</label>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                ) : (
+                  <p className="text-white">{userProfile.name}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-gray-400 text-sm font-medium mb-2">Email</label>
+                {isEditing ? (
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                ) : (
+                  <p className="text-white">{userProfile.email}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Preferences */}
+            <div className="border-t border-white/20 pt-6">
+              <h3 className="text-lg font-semibold text-white mb-4">Preferences</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-gray-400 text-sm font-medium mb-2">Theme</label>
+                  {isEditing ? (
+                    <select
+                      value={formData.theme}
+                      onChange={(e) => setFormData({ ...formData, theme: e.target.value as 'light' | 'dark' | 'auto' })}
+                      className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="light">Light</option>
+                      <option value="dark">Dark</option>
+                      <option value="auto">Auto</option>
+                    </select>
+                  ) : (
+                    <p className="text-white capitalize">{userProfile.preferences.theme}</p>
+                  )}
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label className="text-gray-400 text-sm font-medium">Notifications</label>
+                    <p className="text-gray-500 text-sm">Receive email notifications</p>
+                  </div>
+                  {isEditing ? (
+                    <input
+                      type="checkbox"
+                      checked={formData.notifications}
+                      onChange={(e) => setFormData({ ...formData, notifications: e.target.checked })}
+                      className="w-4 h-4 text-blue-500 bg-white/10 border-white/20 rounded focus:ring-blue-500"
+                    />
+                  ) : (
+                    <div className={`w-4 h-4 rounded ${userProfile.preferences.notifications ? 'bg-green-500' : 'bg-gray-500'}`} />
+                  )}
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label className="text-gray-400 text-sm font-medium">Auto Save</label>
+                    <p className="text-gray-500 text-sm">Automatically save changes</p>
+                  </div>
+                  {isEditing ? (
+                    <input
+                      type="checkbox"
+                      checked={formData.autoSave}
+                      onChange={(e) => setFormData({ ...formData, autoSave: e.target.checked })}
+                      className="w-4 h-4 text-blue-500 bg-white/10 border-white/20 rounded focus:ring-blue-500"
+                    />
+                  ) : (
+                    <div className={`w-4 h-4 rounded ${userProfile.preferences.autoSave ? 'bg-green-500' : 'bg-gray-500'}`} />
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Save/Cancel Buttons */}
+            {isEditing && (
+              <div className="flex space-x-4 pt-6 border-t border-white/20">
+                <button
+                  onClick={handleSave}
+                  className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg transition-colors"
+                >
+                  Save Changes
+                </button>
+                <button
+                  onClick={handleCancel}
+                  className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Billing View Component
+function BillingView() {
+  const [currentPlan] = useState({
+    name: 'Professional',
+    price: 29,
+    period: 'month',
+    features: [
+      'Unlimited workflows',
+      'Advanced integrations',
+      'Priority support',
+      'Team collaboration',
+      'Custom branding'
+    ]
+  })
+
+  const plans = [
+    {
+      id: 'starter',
+      name: 'Starter',
+      price: 0,
+      period: 'month',
+      description: 'Perfect for individuals getting started',
+      features: [
+        'Up to 5 workflows',
+        'Basic integrations',
+        'Community support',
+        'Standard templates'
+      ],
+      popular: false
+    },
+    {
+      id: 'professional',
+      name: 'Professional',
+      price: 29,
+      period: 'month',
+      description: 'Ideal for growing teams and businesses',
+      features: [
+        'Unlimited workflows',
+        'Advanced integrations',
+        'Priority support',
+        'Team collaboration',
+        'Custom branding',
+        'Analytics dashboard'
+      ],
+      popular: true
+    },
+    {
+      id: 'enterprise',
+      name: 'Enterprise',
+      price: 99,
+      period: 'month',
+      description: 'For large organizations with advanced needs',
+      features: [
+        'Everything in Professional',
+        'Custom integrations',
+        'Dedicated support',
+        'SSO & advanced security',
+        'Custom contracts',
+        'On-premise deployment'
+      ],
+      popular: false
+    }
+  ]
+
+  const billingHistory = [
+    {
+      id: '1',
+      date: '2024-01-01',
+      amount: 29,
+      status: 'paid',
+      description: 'Professional Plan - January 2024'
+    },
+    {
+      id: '2',
+      date: '2023-12-01',
+      amount: 29,
+      status: 'paid',
+      description: 'Professional Plan - December 2023'
+    },
+    {
+      id: '3',
+      date: '2023-11-01',
+      amount: 29,
+      status: 'paid',
+      description: 'Professional Plan - November 2023'
+    }
+  ]
+
+  return (
+    <div className="absolute inset-0 top-24 overflow-y-auto">
+      <div className="max-w-6xl mx-auto p-6 pb-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-white mb-2">Billing & Plans</h1>
+          <p className="text-gray-300">Manage your subscription and billing information</p>
+        </div>
+
+        {/* Current Plan */}
+        <div className="mb-8 bg-black/60 backdrop-blur-xl border border-white/20 rounded-xl p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-xl font-semibold text-white mb-2">Current Plan</h2>
+              <div className="flex items-center space-x-2">
+                <span className="text-2xl font-bold text-white">{currentPlan.name}</span>
+                <span className="bg-green-500/20 text-green-400 px-2 py-1 rounded text-sm">Active</span>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-3xl font-bold text-white">${currentPlan.price}</div>
+              <div className="text-gray-400">per {currentPlan.period}</div>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h3 className="text-lg font-medium text-white mb-3">Plan Features</h3>
+              <ul className="space-y-2">
+                {currentPlan.features.map((feature, index) => (
+                  <li key={index} className="flex items-center space-x-2 text-gray-300">
+                    <CheckCircle className="w-4 h-4 text-green-400" />
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-lg font-medium text-white mb-3">Next Billing</h3>
+              <div className="text-gray-300">
+                <p>Your next billing date is <span className="text-white font-medium">February 1, 2024</span></p>
+                <p className="mt-2">Amount: <span className="text-white font-medium">${currentPlan.price}</span></p>
+              </div>
+              <div className="mt-4 flex space-x-3">
+                <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                  Change Plan
+                </button>
+                <button className="bg-red-500/20 text-red-400 border border-red-400/30 hover:bg-red-500/30 px-4 py-2 rounded-lg transition-colors">
+                  Cancel Subscription
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Available Plans */}
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold text-white mb-6">Available Plans</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {plans.map((plan) => (
+              <div
+                key={plan.id}
+                className={`bg-black/60 backdrop-blur-xl border rounded-xl p-6 relative ${
+                  plan.popular 
+                    ? 'border-blue-500 ring-1 ring-blue-500/50' 
+                    : 'border-white/20'
+                }`}
+              >
+                {plan.popular && (
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                    <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                      Most Popular
+                    </span>
+                  </div>
+                )}
+                
+                <div className="text-center mb-6">
+                  <h3 className="text-xl font-semibold text-white mb-2">{plan.name}</h3>
+                  <p className="text-gray-400 text-sm mb-4">{plan.description}</p>
+                  <div className="mb-4">
+                    <span className="text-3xl font-bold text-white">${plan.price}</span>
+                    <span className="text-gray-400">/{plan.period}</span>
+                  </div>
+                </div>
+
+                <ul className="space-y-3 mb-6">
+                  {plan.features.map((feature, index) => (
+                    <li key={index} className="flex items-center space-x-2 text-gray-300">
+                      <CheckCircle className="w-4 h-4 text-green-400" />
+                      <span className="text-sm">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <button
+                  className={`w-full py-2 px-4 rounded-lg transition-colors ${
+                    plan.id === 'professional'
+                      ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                      : plan.popular
+                      ? 'bg-blue-500 hover:bg-blue-600 text-white'
+                      : 'bg-white/10 hover:bg-white/20 text-white border border-white/20'
+                  }`}
+                  disabled={plan.id === 'professional'}
+                >
+                  {plan.id === 'professional' ? 'Current Plan' : 'Choose Plan'}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Billing History */}
+        <div className="bg-black/60 backdrop-blur-xl border border-white/20 rounded-xl p-6">
+          <h2 className="text-xl font-semibold text-white mb-6">Billing History</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-white/10">
+                  <th className="text-left text-gray-400 font-medium pb-3">Date</th>
+                  <th className="text-left text-gray-400 font-medium pb-3">Description</th>
+                  <th className="text-left text-gray-400 font-medium pb-3">Amount</th>
+                  <th className="text-left text-gray-400 font-medium pb-3">Status</th>
+                  <th className="text-left text-gray-400 font-medium pb-3">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {billingHistory.map((invoice) => (
+                  <tr key={invoice.id} className="border-b border-white/5">
+                    <td className="py-4 text-white">
+                      {new Date(invoice.date).toLocaleDateString()}
+                    </td>
+                    <td className="py-4 text-gray-300">{invoice.description}</td>
+                    <td className="py-4 text-white font-medium">${invoice.amount}</td>
+                    <td className="py-4">
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${
+                        invoice.status === 'paid' 
+                          ? 'bg-green-500/20 text-green-400' 
+                          : 'bg-red-500/20 text-red-400'
+                      }`}>
+                        {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
+                      </span>
+                    </td>
+                    <td className="py-4">
+                      <button className="text-blue-400 hover:text-blue-300 text-sm">
+                        Download
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   )

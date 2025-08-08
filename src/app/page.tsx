@@ -5337,6 +5337,8 @@ function RolesView({ roles, selectedOrganization, onAddMember, onCreateRole, onU
 // Instruments View Component
 function InstrumentsView({ instruments, organizations, selectedOrganization, onCreateInstrument, onDeleteInstrument }: Omit<InstrumentsViewProps, 'onUpdateInstrument'>) {
   const [showCreateForm, setShowCreateForm] = useState(false)
+  const [showTemplates, setShowTemplates] = useState(false)
+  const [selectedCategory, setSelectedCategory] = useState('All')
   const [formData, setFormData] = useState({
     name: '',
     type: 'equity' as FinancialInstrument['type'],
@@ -5344,17 +5346,18 @@ function InstrumentsView({ instruments, organizations, selectedOrganization, onC
     description: '',
     totalSupply: 1000000,
     decimals: 18,
-    blockchain: 'Bitcoin SV'
+    blockchain: 'Bitcoin SV',
+    organizationId: selectedOrganization || ''
   })
 
   const currentOrg = organizations.find((org: Organization) => org.id === selectedOrganization)
   const orgInstruments = instruments.filter(instrument => instrument.organizationId === selectedOrganization)
 
   const handleCreate = () => {
-    if (formData.name && formData.symbol && selectedOrganization) {
+    if (formData.name && formData.symbol) {
       onCreateInstrument({
         ...formData,
-        organizationId: selectedOrganization,
+        organizationId: selectedOrganization || undefined,
         issuedSupply: 0,
         status: 'draft',
         metadata: {}
@@ -5366,7 +5369,8 @@ function InstrumentsView({ instruments, organizations, selectedOrganization, onC
         description: '',
         totalSupply: 1000000,
         decimals: 18,
-        blockchain: 'Bitcoin SV'
+        blockchain: 'Bitcoin SV',
+        organizationId: selectedOrganization || ''
       })
       setShowCreateForm(false)
     }
@@ -5398,6 +5402,83 @@ function InstrumentsView({ instruments, organizations, selectedOrganization, onC
     }
   }
 
+  // Financial Instrument Templates
+  const instrumentTemplates = [
+    // Equity Instruments
+    { id: '1', name: 'Common Stock', category: 'Equity', type: 'equity', symbol: 'COMM', description: 'Traditional common stock with voting rights', totalSupply: 1000000, decimals: 0, blockchain: 'Bitcoin SV', icon: '📈' },
+    { id: '2', name: 'Preferred Shares', category: 'Equity', type: 'equity', symbol: 'PREF', description: 'Preferred stock with dividend priority', totalSupply: 100000, decimals: 0, blockchain: 'Bitcoin SV', icon: '⭐' },
+    { id: '3', name: 'Employee Stock Options', category: 'Equity', type: 'equity', symbol: 'ESOP', description: 'Employee stock option program', totalSupply: 50000, decimals: 0, blockchain: 'Bitcoin SV', icon: '👥' },
+    { id: '4', name: 'Startup Equity', category: 'Equity', type: 'equity', symbol: 'STUP', description: 'Early-stage startup equity shares', totalSupply: 10000000, decimals: 0, blockchain: 'Bitcoin SV', icon: '🚀' },
+    
+    // Debt Instruments
+    { id: '5', name: 'Corporate Bond', category: 'Debt', type: 'debt', symbol: 'BOND', description: 'Fixed-rate corporate bond instrument', totalSupply: 1000, decimals: 2, blockchain: 'Bitcoin SV', icon: '🏛️' },
+    { id: '6', name: 'Convertible Note', category: 'Debt', type: 'debt', symbol: 'CONV', description: 'Convertible debt instrument', totalSupply: 500, decimals: 2, blockchain: 'Bitcoin SV', icon: '🔄' },
+    { id: '7', name: 'Revenue Bond', category: 'Debt', type: 'debt', symbol: 'REVB', description: 'Revenue-backed bond instrument', totalSupply: 2000, decimals: 2, blockchain: 'Bitcoin SV', icon: '💰' },
+    { id: '8', name: 'Green Bond', category: 'Debt', type: 'debt', symbol: 'GREN', description: 'Environmental project funding bond', totalSupply: 1500, decimals: 2, blockchain: 'Bitcoin SV', icon: '🌱' },
+    
+    // Utility Tokens
+    { id: '9', name: 'Platform Utility Token', category: 'Utility', type: 'utility', symbol: 'UTIL', description: 'Platform access and service utility token', totalSupply: 100000000, decimals: 18, blockchain: 'Bitcoin SV', icon: '🔧' },
+    { id: '10', name: 'Gaming Token', category: 'Utility', type: 'utility', symbol: 'GAME', description: 'In-game currency and utility token', totalSupply: 1000000000, decimals: 8, blockchain: 'Bitcoin SV', icon: '🎮' },
+    { id: '11', name: 'Loyalty Points', category: 'Utility', type: 'utility', symbol: 'LOYA', description: 'Customer loyalty and rewards token', totalSupply: 50000000, decimals: 0, blockchain: 'Bitcoin SV', icon: '🎁' },
+    { id: '12', name: 'Access Token', category: 'Utility', type: 'utility', symbol: 'ACCS', description: 'Service access and subscription token', totalSupply: 10000000, decimals: 6, blockchain: 'Bitcoin SV', icon: '🔑' },
+    
+    // Governance Tokens
+    { id: '13', name: 'DAO Governance Token', category: 'Governance', type: 'governance', symbol: 'DAO', description: 'Decentralized governance voting token', totalSupply: 21000000, decimals: 18, blockchain: 'Bitcoin SV', icon: '🗳️' },
+    { id: '14', name: 'Protocol Governance', category: 'Governance', type: 'governance', symbol: 'PROT', description: 'Protocol parameter governance token', totalSupply: 100000000, decimals: 18, blockchain: 'Bitcoin SV', icon: '⚖️' },
+    { id: '15', name: 'Community Token', category: 'Governance', type: 'governance', symbol: 'COMM', description: 'Community decision-making token', totalSupply: 1000000, decimals: 8, blockchain: 'Bitcoin SV', icon: '🏛️' },
+    { id: '16', name: 'Voting Rights', category: 'Governance', type: 'governance', symbol: 'VOTE', description: 'Shareholder voting rights token', totalSupply: 500000, decimals: 0, blockchain: 'Bitcoin SV', icon: '✅' },
+    
+    // Reward Tokens
+    { id: '17', name: 'Cashback Rewards', category: 'Reward', type: 'reward', symbol: 'CASH', description: 'Purchase cashback reward token', totalSupply: 100000000, decimals: 2, blockchain: 'Bitcoin SV', icon: '💸' },
+    { id: '18', name: 'Staking Rewards', category: 'Reward', type: 'reward', symbol: 'STAK', description: 'Network staking reward token', totalSupply: 50000000, decimals: 18, blockchain: 'Bitcoin SV', icon: '📊' },
+    { id: '19', name: 'Achievement Points', category: 'Reward', type: 'reward', symbol: 'ACHV', description: 'Milestone achievement reward token', totalSupply: 10000000, decimals: 0, blockchain: 'Bitcoin SV', icon: '🏆' },
+    { id: '20', name: 'Referral Bonus', category: 'Reward', type: 'reward', symbol: 'REF', description: 'Referral program bonus token', totalSupply: 25000000, decimals: 8, blockchain: 'Bitcoin SV', icon: '🤝' },
+    
+    // Derivative Instruments
+    { id: '21', name: 'Stock Option', category: 'Derivative', type: 'derivative', symbol: 'OPT', description: 'Stock option derivative contract', totalSupply: 100000, decimals: 6, blockchain: 'Bitcoin SV', icon: '📋' },
+    { id: '22', name: 'Futures Contract', category: 'Derivative', type: 'derivative', symbol: 'FUT', description: 'Commodity futures derivative', totalSupply: 10000, decimals: 8, blockchain: 'Bitcoin SV', icon: '⏰' },
+    { id: '23', name: 'Warrant', category: 'Derivative', type: 'derivative', symbol: 'WARR', description: 'Security purchase warrant', totalSupply: 50000, decimals: 4, blockchain: 'Bitcoin SV', icon: '📜' },
+    { id: '24', name: 'Swap Contract', category: 'Derivative', type: 'derivative', symbol: 'SWAP', description: 'Interest rate swap derivative', totalSupply: 1000, decimals: 18, blockchain: 'Bitcoin SV', icon: '🔄' },
+    
+    // Hybrid Instruments
+    { id: '25', name: 'Convertible Preferred', category: 'Hybrid', type: 'hybrid', symbol: 'CPRF', description: 'Convertible preferred stock', totalSupply: 75000, decimals: 0, blockchain: 'Bitcoin SV', icon: '🔀' },
+    { id: '26', name: 'Equity-Linked Note', category: 'Hybrid', type: 'hybrid', symbol: 'ELN', description: 'Equity-linked debt instrument', totalSupply: 5000, decimals: 2, blockchain: 'Bitcoin SV', icon: '🔗' },
+    { id: '27', name: 'Mezzanine Financing', category: 'Hybrid', type: 'hybrid', symbol: 'MEZZ', description: 'Mezzanine debt-equity hybrid', totalSupply: 25000, decimals: 2, blockchain: 'Bitcoin SV', icon: '🏗️' },
+    { id: '28', name: 'REIT Shares', category: 'Hybrid', type: 'hybrid', symbol: 'REIT', description: 'Real Estate Investment Trust shares', totalSupply: 200000, decimals: 4, blockchain: 'Bitcoin SV', icon: '🏢' },
+    
+    // Specialized Instruments
+    { id: '29', name: 'Carbon Credits', category: 'Environmental', type: 'utility', symbol: 'CARB', description: 'Carbon offset credit tokens', totalSupply: 1000000, decimals: 3, blockchain: 'Bitcoin SV', icon: '🌍' },
+    { id: '30', name: 'Renewable Energy Credits', category: 'Environmental', type: 'utility', symbol: 'REC', description: 'Renewable energy certificate tokens', totalSupply: 500000, decimals: 2, blockchain: 'Bitcoin SV', icon: '⚡' },
+    { id: '31', name: 'Intellectual Property Rights', category: 'Rights', type: 'equity', symbol: 'IPR', description: 'Intellectual property ownership tokens', totalSupply: 100000, decimals: 0, blockchain: 'Bitcoin SV', icon: '💡' },
+    { id: '32', name: 'Music Royalties', category: 'Rights', type: 'equity', symbol: 'MUSI', description: 'Music royalty revenue sharing tokens', totalSupply: 1000000, decimals: 8, blockchain: 'Bitcoin SV', icon: '🎵' },
+    
+    // Cryptocurrency & Digital Assets
+    { id: '33', name: 'Stablecoin', category: 'Digital Currency', type: 'utility', symbol: 'STBL', description: 'USD-pegged stablecoin', totalSupply: 1000000000, decimals: 18, blockchain: 'Bitcoin SV', icon: '💵' },
+    { id: '34', name: 'Central Bank Digital Currency', category: 'Digital Currency', type: 'utility', symbol: 'CBDC', description: 'Government-issued digital currency', totalSupply: 10000000000, decimals: 8, blockchain: 'Bitcoin SV', icon: '🏦' },
+    { id: '35', name: 'DeFi Protocol Token', category: 'DeFi', type: 'governance', symbol: 'DEFI', description: 'Decentralized finance protocol token', totalSupply: 100000000, decimals: 18, blockchain: 'Bitcoin SV', icon: '🔗' },
+    { id: '36', name: 'Yield Farming Token', category: 'DeFi', type: 'reward', symbol: 'YILD', description: 'Liquidity mining reward token', totalSupply: 50000000, decimals: 18, blockchain: 'Bitcoin SV', icon: '🌾' }
+  ]
+
+  const instrumentCategories = ['All', 'Equity', 'Debt', 'Utility', 'Governance', 'Reward', 'Derivative', 'Hybrid', 'Environmental', 'Rights', 'Digital Currency', 'DeFi']
+
+  const applyInstrumentTemplate = (template: typeof instrumentTemplates[0]) => {
+    setFormData({
+      name: template.name,
+      type: template.type as FinancialInstrument['type'],
+      symbol: template.symbol,
+      description: template.description,
+      totalSupply: template.totalSupply,
+      decimals: template.decimals,
+      blockchain: template.blockchain,
+      organizationId: selectedOrganization || ''
+    })
+    setShowTemplates(false)
+  }
+
+  const filteredInstrumentTemplates = selectedCategory === 'All' 
+    ? instrumentTemplates 
+    : instrumentTemplates.filter(template => template.category === selectedCategory)
+
   return (
     <div className="absolute inset-0 top-24 p-6">
       <div className="max-w-7xl mx-auto">
@@ -5406,22 +5487,88 @@ function InstrumentsView({ instruments, organizations, selectedOrganization, onC
             <h1 className="text-3xl font-bold text-white mb-2">Financial Instruments</h1>
             <p className="text-gray-300">Create and manage blockchain-based financial instruments</p>
           </div>
-          {selectedOrganization && (
-            <button
-              onClick={() => setShowCreateForm(true)}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg flex items-center space-x-2 transition-colors"
-            >
-              <Plus className="w-5 h-5" />
-              <span>New Instrument</span>
-            </button>
-          )}
+          <button
+            onClick={() => setShowCreateForm(true)}
+            className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg flex items-center space-x-2 transition-colors"
+          >
+            <Plus className="w-5 h-5" />
+            <span>Create Instrument</span>
+          </button>
         </div>
 
         {!selectedOrganization ? (
-          <div className="text-center py-12">
-            <Coins className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">Select an Organization</h3>
-            <p className="text-gray-400">Please select an organization to view and manage its financial instruments</p>
+          <div className="space-y-6">
+            {/* Global Instruments Overview */}
+            <div className="bg-black/60 backdrop-blur-xl border border-white/20 rounded-xl p-6">
+              <h2 className="text-xl font-semibold text-white mb-4">All Financial Instruments - Global View</h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-white/10 rounded-lg p-4">
+                  <div className="text-2xl font-bold text-white">{instruments.length}</div>
+                  <div className="text-gray-400 text-sm">Total Instruments</div>
+                </div>
+                <div className="bg-white/10 rounded-lg p-4">
+                  <div className="text-2xl font-bold text-green-400">
+                    {instruments.filter(i => i.status === 'active').length}
+                  </div>
+                  <div className="text-gray-400 text-sm">Active</div>
+                </div>
+                <div className="bg-white/10 rounded-lg p-4">
+                  <div className="text-2xl font-bold text-white">{organizations.length}</div>
+                  <div className="text-gray-400 text-sm">Organizations</div>
+                </div>
+                <div className="bg-white/10 rounded-lg p-4">
+                  <div className="text-2xl font-bold text-blue-400">
+                    {instruments.filter(i => !i.organizationId).length}
+                  </div>
+                  <div className="text-gray-400 text-sm">Global Instruments</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Global Instruments Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {instruments.map((instrument) => (
+                <div key={instrument.id} className="bg-black/60 backdrop-blur-xl border border-white/20 rounded-xl p-6 hover:border-white/40 transition-all duration-300">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center space-x-3">
+                      {getInstrumentIcon(instrument.type)}
+                      <div>
+                        <h3 className="text-white font-semibold">{instrument.name}</h3>
+                        <p className="text-gray-400 text-sm capitalize">{instrument.type}</p>
+                        <p className="text-gray-500 text-xs">
+                          {instrument.organizationId 
+                            ? organizations.find(org => org.id === instrument.organizationId)?.name || 'Unknown Org'
+                            : 'Global Instrument'
+                          }
+                        </p>
+                      </div>
+                    </div>
+                    <div className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      instrument.status === 'active' ? 'bg-green-500/20 text-green-400' :
+                      instrument.status === 'draft' ? 'bg-yellow-500/20 text-yellow-400' :
+                      'bg-gray-500/20 text-gray-400'
+                    }`}>
+                      {instrument.status.toUpperCase()}
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-400">Symbol:</span>
+                      <span className="text-white font-mono">{instrument.symbol}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-400">Total Supply:</span>
+                      <span className="text-white">{instrument.totalSupply.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-400">Blockchain:</span>
+                      <span className="text-white">{instrument.blockchain}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -5502,73 +5649,214 @@ function InstrumentsView({ instruments, organizations, selectedOrganization, onC
 
         {/* Create Instrument Modal */}
         {showCreateForm && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-            <div className="bg-black/90 backdrop-blur-xl border border-white/20 rounded-xl p-6 w-full max-w-md">
-              <h3 className="text-xl font-semibold text-white mb-4">Create New Instrument</h3>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Name</label>
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="e.g., Employee Stock Options"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Type</label>
-                  <select
-                    value={formData.type}
-                    onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value as FinancialInstrument['type'] }))}
-                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-xl flex items-center justify-center z-50 p-4">
+            <div className="bg-black/90 backdrop-blur-xl border border-white/20 rounded-2xl p-6 w-full max-w-5xl max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-semibold text-white">Create Financial Instrument</h3>
+                <div className="flex items-center space-x-3">
+                  <button
+                    onClick={() => setShowTemplates(!showTemplates)}
+                    className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg text-sm transition-colors"
                   >
-                    <option value="equity">Equity</option>
-                    <option value="debt">Debt</option>
-                    <option value="derivative">Derivative</option>
-                    <option value="reward">Reward</option>
-                    <option value="utility">Utility</option>
-                    <option value="governance">Governance</option>
-                    <option value="hybrid">Hybrid</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Symbol</label>
-                  <input
-                    type="text"
-                    value={formData.symbol}
-                    onChange={(e) => setFormData(prev => ({ ...prev, symbol: e.target.value }))}
-                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="e.g., TECH-OPT"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Description</label>
-                  <textarea
-                    value={formData.description}
-                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Describe the instrument's purpose and terms"
-                    rows={3}
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Total Supply</label>
-                  <input
-                    type="number"
-                    value={formData.totalSupply}
-                    onChange={(e) => setFormData(prev => ({ ...prev, totalSupply: parseInt(e.target.value) }))}
-                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+                    {showTemplates ? 'Hide Templates' : 'Use Template'}
+                  </button>
+                  <button
+                    onClick={() => setShowCreateForm(false)}
+                    className="text-gray-400 hover:text-white transition-colors"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
                 </div>
               </div>
-              
-              <div className="flex items-center space-x-3 mt-6">
+
+              {showTemplates && (
+                <div className="mb-6 p-4 bg-white/5 rounded-lg border border-white/10">
+                  <h4 className="text-lg font-medium text-white mb-4">Choose an Instrument Template</h4>
+                  
+                  {/* Category Filter */}
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {instrumentCategories.map((category) => (
+                      <button
+                        key={category}
+                        onClick={() => setSelectedCategory(category)}
+                        className={`px-3 py-1 rounded-full text-sm transition-colors ${
+                          selectedCategory === category
+                            ? 'bg-blue-500 text-white'
+                            : 'bg-white/10 text-gray-300 hover:bg-white/20'
+                        }`}
+                      >
+                        {category}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Template Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 max-h-64 overflow-y-auto">
+                    {filteredInstrumentTemplates.map((template) => (
+                      <div
+                        key={template.id}
+                        onClick={() => applyInstrumentTemplate(template)}
+                        className="bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/40 rounded-lg p-3 cursor-pointer transition-all"
+                      >
+                        <div className="flex items-center space-x-3 mb-2">
+                          <div className="text-2xl">{template.icon}</div>
+                          <div className="flex-1">
+                            <h5 className="text-white font-medium text-sm">{template.name}</h5>
+                            <p className="text-gray-400 text-xs capitalize">{template.type} • {template.category}</p>
+                          </div>
+                        </div>
+                        <p className="text-gray-300 text-xs line-clamp-2 mb-2">{template.description}</p>
+                        <div className="flex items-center justify-between">
+                          <span className="text-blue-400 text-xs font-mono">{template.symbol}</span>
+                          <span className="text-gray-400 text-xs">{template.totalSupply.toLocaleString()}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Instrument Form */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Basic Information */}
+                <div className="space-y-4">
+                  <h4 className="text-lg font-medium text-white">Basic Information</h4>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Instrument Name</label>
+                    <input
+                      type="text"
+                      value={formData.name}
+                      onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                      placeholder="Common Stock"
+                      className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Instrument Type</label>
+                    <select
+                      value={formData.type}
+                      onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value as FinancialInstrument['type'] }))}
+                      className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="equity">Equity</option>
+                      <option value="debt">Debt</option>
+                      <option value="derivative">Derivative</option>
+                      <option value="reward">Reward</option>
+                      <option value="utility">Utility</option>
+                      <option value="governance">Governance</option>
+                      <option value="hybrid">Hybrid</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Symbol</label>
+                    <input
+                      type="text"
+                      value={formData.symbol}
+                      onChange={(e) => setFormData(prev => ({ ...prev, symbol: e.target.value.toUpperCase() }))}
+                      placeholder="COMM"
+                      maxLength={10}
+                      className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Description</label>
+                    <textarea
+                      value={formData.description}
+                      onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                      placeholder="Describe the instrument's purpose and terms..."
+                      rows={3}
+                      className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                    />
+                  </div>
+                </div>
+
+                {/* Technical Details */}
+                <div className="space-y-4">
+                  <h4 className="text-lg font-medium text-white">Technical Details</h4>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Organization (Optional)</label>
+                    <select
+                      value={formData.organizationId}
+                      onChange={(e) => setFormData(prev => ({ ...prev, organizationId: e.target.value }))}
+                      className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">No Organization (Global Instrument)</option>
+                      {organizations.map((org) => (
+                        <option key={org.id} value={org.id}>{org.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Total Supply</label>
+                      <input
+                        type="number"
+                        value={formData.totalSupply}
+                        onChange={(e) => setFormData(prev => ({ ...prev, totalSupply: parseInt(e.target.value) || 0 }))}
+                        placeholder="1000000"
+                        className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Decimals</label>
+                      <input
+                        type="number"
+                        value={formData.decimals}
+                        onChange={(e) => setFormData(prev => ({ ...prev, decimals: parseInt(e.target.value) || 0 }))}
+                        placeholder="18"
+                        min="0"
+                        max="18"
+                        className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Blockchain</label>
+                    <select
+                      value={formData.blockchain}
+                      onChange={(e) => setFormData(prev => ({ ...prev, blockchain: e.target.value }))}
+                      className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="Bitcoin SV">Bitcoin SV</option>
+                      <option value="Ethereum">Ethereum</option>
+                      <option value="Bitcoin">Bitcoin</option>
+                      <option value="Polygon">Polygon</option>
+                      <option value="Binance Smart Chain">Binance Smart Chain</option>
+                      <option value="Solana">Solana</option>
+                      <option value="Cardano">Cardano</option>
+                    </select>
+                  </div>
+
+                  <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                    <h5 className="text-sm font-medium text-white mb-2">Instrument Preview</h5>
+                    <p className="text-gray-300 text-sm">
+                      {formData.name && formData.symbol ? (
+                        <span>
+                          <strong>{formData.name}</strong> ({formData.symbol})
+                          <br />
+                          <span className="capitalize">{formData.type}</span> • {formData.totalSupply.toLocaleString()} supply
+                          <br />
+                          {formData.organizationId 
+                            ? organizations.find(org => org.id === formData.organizationId)?.name || 'Organization'
+                            : 'Global Instrument'
+                          }
+                        </span>
+                      ) : (
+                        <span className="text-gray-500">Fill in the details to see preview</span>
+                      )}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex space-x-3 pt-6 border-t border-white/20 mt-6">
                 <button
                   onClick={handleCreate}
                   className="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"

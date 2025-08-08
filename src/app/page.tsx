@@ -1,7 +1,42 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
-import { X, DollarSign, FileText, CheckCircle, AlertTriangle, Zap, Users, Target, ArrowRight, Play, Pause, Settings, Building2, UserPlus, Menu, Plus, Crown, TrendingUp, Shield, Palette, BarChart3, Send, Bot, ChevronUp, ChevronDown, ChevronRight, Coins, User, Package, CreditCard, Factory, Megaphone, Scale, Calculator, Server, Circle, Users2, Building } from 'lucide-react'
+import React, { useState, useRef, useEffect } from 'react'
+import { 
+  Menu, 
+  X, 
+  DollarSign, 
+  FileText, 
+  Target, 
+  AlertTriangle, 
+  CheckCircle, 
+  Users, 
+  Zap, 
+  Play, 
+  Pause, 
+  ArrowRight,
+  Building2,
+  Crown,
+  Coins,
+  Bot,
+  ChevronDown,
+  ChevronUp,
+  ChevronRight,
+  Send,
+  Maximize2,
+  Minimize2,
+  RotateCcw,
+  Plus,
+  UserPlus,
+  TrendingUp,
+  BarChart3,
+  Palette,
+  Shield,
+  CreditCard,
+  Settings,
+  Scale,
+  Circle,
+  Building
+} from 'lucide-react'
 
 interface HandCashHandle {
   id: string
@@ -100,6 +135,9 @@ interface WorkflowViewProps {
   onMouseMove: (e: React.MouseEvent) => void
   onMouseUp: () => void
   onMouseDown: (e: React.MouseEvent, id: string) => void
+  onTouchStart: (e: React.TouchEvent) => void
+  onTouchMove: (e: React.TouchEvent) => void
+  onTouchEnd: () => void
   onNodeUpdate: (id: string, updates: Partial<WorkflowNode>) => void
   onNodeDelete: (id: string) => void
   onStartConnection: (fromId: string) => void
@@ -110,6 +148,11 @@ interface WorkflowViewProps {
   getStatusColor: (status: string) => string
   getConnectionColor: (type: string) => string
   getNodePosition: (id: string) => WorkflowNode | undefined
+  isMobile: boolean
+  canvasScale: number
+  canvasOffset: { x: number; y: number }
+  resetCanvasView: () => void
+  setCanvasScale: (scale: number | ((prev: number) => number)) => void
 }
 
 interface OrganizationsViewProps {
@@ -214,14 +257,7 @@ interface SecurityProduct {
   updatedAt: string
 }
 
-interface SecurityViewProps {
-  securityProducts: SecurityProduct[]
-  organizations: Organization[]
-  selectedOrganization: string | null
-  onCreateSecurityProduct: (product: Omit<SecurityProduct, 'id' | 'createdAt' | 'updatedAt'>) => void
-  onUpdateSecurityProduct: (id: string, updates: Partial<SecurityProduct>) => void
-  onDeleteSecurityProduct: (id: string) => void
-}
+
 
 export default function Dashboard() {
   const [appState, setAppState] = useState<AppState>({
@@ -503,19 +539,118 @@ export default function Dashboard() {
   ]
 })
 
-  const { workflow, organizations, roles, currentView, selectedOrganization, sidebarOpen, chatMessages, isChatOpen, instruments, securityProducts } = appState
+  const { workflow, organizations, roles, currentView, selectedOrganization, sidebarOpen, chatMessages, isChatOpen, instruments } = appState
 
   const boardRef = useRef<HTMLDivElement>(null)
+  
+  // Mobile detection and responsive state
+  const [isMobile, setIsMobile] = useState(false)
+  const [canvasScale, setCanvasScale] = useState(1)
+  const [canvasOffset, setCanvasOffset] = useState({ x: 0, y: 0 })
+  const [isDraggingCanvas, setIsDraggingCanvas] = useState(false)
+  const [lastTouchDistance, setLastTouchDistance] = useState(0)
+  const [lastTouchCenter, setLastTouchCenter] = useState({ x: 0, y: 0 })
+
+  // Mobile detection effect
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth <= 768 || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+      setIsMobile(mobile)
+      setAppState(prev => ({ ...prev, isMobile: mobile }))
+      
+      // Adjust initial node positions for mobile
+      if (mobile) {
+        setAppState(prev => ({
+          ...prev,
+          workflow: {
+            ...prev.workflow,
+            nodes: prev.workflow.nodes.map((node, index) => ({
+              ...node,
+              x: 50 + (index * 200),
+              y: 50 + (Math.floor(index / 2) * 120)
+            }))
+          }
+        }))
+      }
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  // Touch event handlers for canvas dragging
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      // Single touch - start canvas dragging
+      setIsDraggingCanvas(true)
+      const touch = e.touches[0]
+      setLastTouchCenter({ x: touch.clientX, y: touch.clientY })
+    } else if (e.touches.length === 2) {
+      // Two touches - prepare for pinch to zoom
+      const touch1 = e.touches[0]
+      const touch2 = e.touches[1]
+      const distance = Math.hypot(touch2.clientX - touch1.clientX, touch2.clientY - touch1.clientY)
+      setLastTouchDistance(distance)
+      setLastTouchCenter({
+        x: (touch1.clientX + touch2.clientX) / 2,
+        y: (touch1.clientY + touch2.clientY) / 2
+      })
+    }
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    e.preventDefault()
+    
+    if (e.touches.length === 1 && isDraggingCanvas) {
+      // Single touch - drag canvas
+      const touch = e.touches[0]
+      const deltaX = touch.clientX - lastTouchCenter.x
+      const deltaY = touch.clientY - lastTouchCenter.y
+      
+      setCanvasOffset(prev => ({
+        x: prev.x + deltaX,
+        y: prev.y + deltaY
+      }))
+      
+      setLastTouchCenter({ x: touch.clientX, y: touch.clientY })
+    } else if (e.touches.length === 2) {
+      // Two touches - pinch to zoom
+      const touch1 = e.touches[0]
+      const touch2 = e.touches[1]
+      const distance = Math.hypot(touch2.clientX - touch1.clientX, touch2.clientY - touch1.clientY)
+      
+      if (lastTouchDistance > 0) {
+        const scale = distance / lastTouchDistance
+        const newScale = Math.max(0.5, Math.min(2, canvasScale * scale))
+        setCanvasScale(newScale)
+      }
+      
+      setLastTouchDistance(distance)
+    }
+  }
+
+  const handleTouchEnd = () => {
+    setIsDraggingCanvas(false)
+    setLastTouchDistance(0)
+  }
+
+  // Reset canvas view
+  const resetCanvasView = () => {
+    setCanvasScale(1)
+    setCanvasOffset({ x: 0, y: 0 })
+  }
 
   const getNodeIcon = (type: string) => {
+    const iconSize = isMobile ? "w-3 h-3" : "w-4 h-4"
     switch (type) {
-      case 'payment': return <DollarSign className="w-4 h-4" />
-      case 'contract': return <FileText className="w-4 h-4" />
-      case 'task': return <Target className="w-4 h-4" />
-      case 'decision': return <AlertTriangle className="w-4 h-4" />
-      case 'milestone': return <CheckCircle className="w-4 h-4" />
-      case 'team': return <Users className="w-4 h-4" />
-      default: return <Zap className="w-4 h-4" />
+      case 'payment': return <DollarSign className={iconSize} />
+      case 'contract': return <FileText className={iconSize} />
+      case 'task': return <Target className={iconSize} />
+      case 'decision': return <AlertTriangle className={iconSize} />
+      case 'milestone': return <CheckCircle className={iconSize} />
+      case 'team': return <Users className={iconSize} />
+      default: return <Zap className={iconSize} />
     }
   }
 
@@ -975,73 +1110,93 @@ export default function Dashboard() {
       {/* Main Content */}
       <div className="flex-1 relative">
         {/* Header */}
-        <div className="absolute top-0 left-0 right-0 z-20 p-6">
+        <div className={`absolute top-0 left-0 right-0 z-20 ${isMobile ? 'p-3' : 'p-6'}`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <button
                 onClick={toggleSidebar}
                 className="p-2 hover:bg-white/10 rounded-lg transition-colors"
               >
-                <Menu className="w-6 h-6 text-white" />
+                <Menu className={`${isMobile ? 'w-5 h-5' : 'w-6 h-6'} text-white`} />
               </button>
-              <div className="bg-black/40 backdrop-blur-xl border border-white/20 rounded-2xl px-6 py-3">
-                <h1 className="text-2xl font-bold text-white tracking-wider font-mono">CASHBOARD</h1>
+              <div className={`bg-black/40 backdrop-blur-xl border border-white/20 rounded-2xl ${
+                isMobile ? 'px-4 py-2' : 'px-6 py-3'
+              }`}>
+                <h1 className={`font-bold text-white tracking-wider font-mono ${
+                  isMobile ? 'text-lg' : 'text-2xl'
+                }`}>CASHBOARD</h1>
               </div>
             {currentView === 'workflow' && (
-              <div className="flex items-center space-x-2">
+              <div className={`flex items-center space-x-2 ${isMobile ? 'flex-wrap gap-1' : ''}`}>
                 <button
                   onClick={toggleWorkflowStatus}
-                  className={`px-3 py-2 rounded-lg flex items-center space-x-2 transition-all ${
+                  className={`rounded-lg flex items-center space-x-2 transition-all ${
                     workflow.workflowStatus === 'running' 
                       ? 'bg-green-500/20 text-green-400 border border-green-400/30' 
                       : 'bg-yellow-500/20 text-yellow-400 border border-yellow-400/30'
-                  }`}
+                  } ${isMobile ? 'px-2 py-1' : 'px-3 py-2'}`}
                 >
-                  {workflow.workflowStatus === 'running' ? <Play className="w-4 h-4" /> : <Pause className="w-4 h-4" />}
-                  <span className="text-sm font-medium">{workflow.workflowStatus === 'running' ? 'Running' : 'Paused'}</span>
+                  {workflow.workflowStatus === 'running' ? <Play className={isMobile ? "w-3 h-3" : "w-4 h-4"} /> : <Pause className={isMobile ? "w-3 h-3" : "w-4 h-4"} />}
+                  {!isMobile && <span className="text-sm font-medium">{workflow.workflowStatus === 'running' ? 'Running' : 'Paused'}</span>}
                 </button>
                 <button
                   onClick={toggleAutoMode}
-                  className={`px-3 py-2 rounded-lg flex items-center space-x-2 transition-all ${
+                  className={`rounded-lg flex items-center space-x-2 transition-all ${
                     workflow.autoMode 
                       ? 'bg-blue-500/20 text-blue-400 border border-blue-400/30' 
                       : 'bg-gray-500/20 text-gray-400 border border-gray-400/30'
-                  }`}
+                  } ${isMobile ? 'px-2 py-1' : 'px-3 py-2'}`}
                 >
-                  <Zap className="w-4 h-4" />
-                  <span className="text-sm font-medium">Auto</span>
+                  <Zap className={isMobile ? "w-3 h-3" : "w-4 h-4"} />
+                  {!isMobile && <span className="text-sm font-medium">Auto</span>}
                 </button>
                 <button
                   onClick={advanceWorkflow}
-                  className="px-3 py-2 rounded-lg bg-white/10 text-white border border-white/20 hover:bg-white/20 transition-all"
+                  className={`rounded-lg bg-white/10 text-white border border-white/20 hover:bg-white/20 transition-all ${
+                    isMobile ? 'px-2 py-1' : 'px-3 py-2'
+                  }`}
                 >
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className={isMobile ? "w-3 h-3" : "w-4 h-4"} />
                 </button>
               </div>
             )}
           </div>
           
           {currentView === 'workflow' && (
-            <div className="flex items-center space-x-2">
-              <div className="bg-black/40 backdrop-blur-xl border border-white/20 rounded-xl p-2">
-                <div className="flex items-center space-x-1">
-                  <button onClick={() => addNode('payment')} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-                    <DollarSign className="w-4 h-4 text-yellow-400" />
+            <div className={`flex items-center space-x-2 ${isMobile ? 'flex-wrap gap-1' : ''}`}>
+              <div className={`bg-black/40 backdrop-blur-xl border border-white/20 rounded-xl ${
+                isMobile ? 'p-1' : 'p-2'
+              }`}>
+                <div className={`flex items-center space-x-1 ${isMobile ? 'flex-wrap gap-1' : ''}`}>
+                  <button onClick={() => addNode('payment')} className={`hover:bg-white/10 rounded-lg transition-colors ${
+                    isMobile ? 'p-1' : 'p-2'
+                  }`}>
+                    <DollarSign className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} text-yellow-400`} />
                   </button>
-                  <button onClick={() => addNode('contract')} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-                    <FileText className="w-4 h-4 text-blue-400" />
+                  <button onClick={() => addNode('contract')} className={`hover:bg-white/10 rounded-lg transition-colors ${
+                    isMobile ? 'p-1' : 'p-2'
+                  }`}>
+                    <FileText className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} text-blue-400`} />
                   </button>
-                  <button onClick={() => addNode('task')} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-                    <Target className="w-4 h-4 text-green-400" />
+                  <button onClick={() => addNode('task')} className={`hover:bg-white/10 rounded-lg transition-colors ${
+                    isMobile ? 'p-1' : 'p-2'
+                  }`}>
+                    <Target className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} text-green-400`} />
                   </button>
-                  <button onClick={() => addNode('decision')} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-                    <AlertTriangle className="w-4 h-4 text-purple-400" />
+                  <button onClick={() => addNode('decision')} className={`hover:bg-white/10 rounded-lg transition-colors ${
+                    isMobile ? 'p-1' : 'p-2'
+                  }`}>
+                    <AlertTriangle className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} text-purple-400`} />
                   </button>
-                  <button onClick={() => addNode('milestone')} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-                    <CheckCircle className="w-4 h-4 text-indigo-400" />
+                  <button onClick={() => addNode('milestone')} className={`hover:bg-white/10 rounded-lg transition-colors ${
+                    isMobile ? 'p-1' : 'p-2'
+                  }`}>
+                    <CheckCircle className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} text-indigo-400`} />
                   </button>
-                  <button onClick={() => addNode('team')} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-                    <Users className="w-4 h-4 text-pink-400" />
+                  <button onClick={() => addNode('team')} className={`hover:bg-white/10 rounded-lg transition-colors ${
+                    isMobile ? 'p-1' : 'p-2'
+                  }`}>
+                    <Users className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} text-pink-400`} />
                   </button>
                 </div>
               </div>
@@ -1058,6 +1213,9 @@ export default function Dashboard() {
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
             onMouseDown={handleMouseDown}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
             onNodeUpdate={updateNode}
             onNodeDelete={deleteNode}
             onStartConnection={startConnection}
@@ -1071,6 +1229,11 @@ export default function Dashboard() {
             getStatusColor={getStatusColor}
             getConnectionColor={getConnectionColor}
             getNodePosition={getNodePosition}
+            isMobile={isMobile}
+            canvasScale={canvasScale}
+            canvasOffset={canvasOffset}
+            resetCanvasView={resetCanvasView}
+            setCanvasScale={setCanvasScale}
             chatMessages={chatMessages}
             isChatOpen={isChatOpen}
             toggleChat={toggleChat}
@@ -1120,16 +1283,6 @@ export default function Dashboard() {
                 instruments: [...prev.instruments, newInstrument]
               }))
             }}
-            onUpdateInstrument={(id: string, updates: Partial<FinancialInstrument>) => {
-              setAppState(prev => ({
-                ...prev,
-                instruments: prev.instruments.map(instrument =>
-                  instrument.id === id 
-                    ? { ...instrument, ...updates, updatedAt: new Date().toISOString() }
-                    : instrument
-                )
-              }))
-            }}
             onDeleteInstrument={(id: string) => {
               setAppState(prev => ({
                 ...prev,
@@ -1154,6 +1307,9 @@ function WorkflowView({
   onMouseMove, 
   onMouseUp, 
   onMouseDown, 
+  onTouchStart,
+  onTouchMove,
+  onTouchEnd,
   onNodeUpdate, 
   onNodeDelete, 
   onStartConnection, 
@@ -1164,11 +1320,15 @@ function WorkflowView({
   getStatusColor,
   getConnectionColor,
   getNodePosition,
+  isMobile,
+  canvasScale,
+  canvasOffset,
+  resetCanvasView,
+  setCanvasScale,
   chatMessages,
   isChatOpen,
   toggleChat,
-  sendMessage,
-  sidebarOpen
+  sendMessage
 }: WorkflowViewProps & {
   chatMessages: ChatMessage[]
   isChatOpen: boolean
@@ -1178,13 +1338,47 @@ function WorkflowView({
 }) {
   return (
     <div className="absolute inset-0 top-24 flex flex-col">
+      {/* Mobile Canvas Controls */}
+      {isMobile && (
+        <div className="absolute top-4 right-4 z-30 flex space-x-2">
+          <button
+            onClick={resetCanvasView}
+            className="p-2 bg-black/60 backdrop-blur-xl border border-white/20 rounded-lg text-white hover:bg-white/10 transition-all"
+            title="Reset View"
+          >
+            <RotateCcw className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => setCanvasScale(prev => Math.min(2, prev + 0.2))}
+            className="p-2 bg-black/60 backdrop-blur-xl border border-white/20 rounded-lg text-white hover:bg-white/10 transition-all"
+            title="Zoom In"
+          >
+            <Maximize2 className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => setCanvasScale(prev => Math.max(0.5, prev - 0.2))}
+            className="p-2 bg-black/60 backdrop-blur-xl border border-white/20 rounded-lg text-white hover:bg-white/10 transition-all"
+            title="Zoom Out"
+          >
+            <Minimize2 className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       {/* Canvas Area */}
       <div
         ref={boardRef}
-        className={`flex-1 cursor-grab active:cursor-grabbing transition-all duration-300 ${isChatOpen ? 'mb-96' : 'mb-16'}`}
+        className={`flex-1 cursor-grab active:cursor-grabbing transition-all duration-300 ${isChatOpen ? (isMobile ? 'mb-64' : 'mb-96') : (isMobile ? 'mb-20' : 'mb-16')}`}
         onMouseMove={onMouseMove}
         onMouseUp={onMouseUp}
         onMouseLeave={onMouseUp}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+        style={{
+          transform: `scale(${canvasScale}) translate(${canvasOffset.x}px, ${canvasOffset.y}px)`,
+          transformOrigin: '0 0'
+        }}
       >
       {/* SVG for connections */}
       <svg className="absolute inset-0 w-full h-full pointer-events-none">
@@ -1249,9 +1443,11 @@ function WorkflowView({
       {workflow.nodes.map((node: WorkflowNode) => (
         <div
           key={node.id}
-          className={`absolute bg-black/60 backdrop-blur-xl border border-white/20 rounded-xl p-4 w-60 cursor-move transition-all duration-300 shadow-2xl hover:shadow-white/5 group ${
+          className={`absolute bg-black/60 backdrop-blur-xl border border-white/20 rounded-xl cursor-move transition-all duration-300 shadow-2xl hover:shadow-white/5 group ${
             workflow.selectedNode === node.id ? 'ring-2 ring-white/30 shadow-white/10' : ''
-          } ${workflow.isConnecting === node.id ? 'ring-2 ring-green-400/50 shadow-green-400/20' : ''}`}
+          } ${workflow.isConnecting === node.id ? 'ring-2 ring-green-400/50 shadow-green-400/20' : ''} ${
+            isMobile ? 'p-2 w-40' : 'p-4 w-60'
+          }`}
           style={{
             left: node.x,
             top: node.y,
@@ -1266,9 +1462,9 @@ function WorkflowView({
           }}
         >
           {/* Header with icon, status, and delete button */}
-          <div className="flex items-center justify-between mb-3">
+          <div className={`flex items-center justify-between ${isMobile ? 'mb-2' : 'mb-3'}`}>
             <div className="flex items-center space-x-2">
-              <div className={`w-2 h-2 ${getStatusColor(node.status)} rounded-full shadow-lg`}></div>
+              <div className={`${isMobile ? 'w-1.5 h-1.5' : 'w-2 h-2'} ${getStatusColor(node.status)} rounded-full shadow-lg`}></div>
               <div className="text-white/60">
                 {getNodeIcon(node.type)}
               </div>
@@ -1278,20 +1474,22 @@ function WorkflowView({
                 e.stopPropagation()
                 onNodeDelete(node.id)
               }}
-              className="text-gray-400 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 hover:scale-110"
+              className={`text-gray-400 hover:text-red-400 transition-colors ${isMobile ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} hover:scale-110`}
             >
-              <X className="w-3 h-3" />
+              <X className={isMobile ? "w-2.5 h-2.5" : "w-3 h-3"} />
             </button>
           </div>
           
           {/* Node content */}
-          <div className="space-y-2">
+          <div className={`space-y-${isMobile ? '1' : '2'}`}>
             <input
               type="text"
               value={node.name}
               onChange={(e) => onNodeUpdate(node.id, { name: e.target.value })}
               placeholder="Node name"
-              className="w-full bg-transparent border-none text-white text-sm font-medium focus:outline-none placeholder-gray-500 focus:placeholder-gray-400 transition-colors"
+              className={`w-full bg-transparent border-none text-white font-medium focus:outline-none placeholder-gray-500 focus:placeholder-gray-400 transition-colors ${
+                isMobile ? 'text-xs' : 'text-sm'
+              }`}
               onClick={(e) => e.stopPropagation()}
             />
             
@@ -1300,7 +1498,9 @@ function WorkflowView({
               value={node.description}
               onChange={(e) => onNodeUpdate(node.id, { description: e.target.value })}
               placeholder="Description"
-              className="w-full bg-transparent border-none text-gray-400 text-xs focus:outline-none placeholder-gray-600 focus:placeholder-gray-500 focus:text-gray-300 transition-colors"
+              className={`w-full bg-transparent border-none text-gray-400 focus:outline-none placeholder-gray-600 focus:placeholder-gray-500 focus:text-gray-300 transition-colors ${
+                isMobile ? 'text-xs' : 'text-xs'
+              }`}
               onClick={(e) => e.stopPropagation()}
             />
 
@@ -1403,40 +1603,47 @@ function WorkflowView({
       </div>
 
       {/* AI Chat Bar */}
-      <div className={`bg-black/90 backdrop-blur-xl border-t border-white/20 transition-all duration-300 ${isChatOpen ? 'h-96' : 'h-16'}`}>
+      <div className={`bg-black/90 backdrop-blur-xl border-t border-white/20 transition-all duration-300 ${
+        isChatOpen ? (isMobile ? 'h-64' : 'h-96') : (isMobile ? 'h-12' : 'h-16')
+      }`}>
         {/* Chat Header */}
-        <div className="flex items-center justify-between p-4 border-b border-white/10">
+        <div className={`flex items-center justify-between border-b border-white/10 ${
+          isMobile ? 'p-2' : 'p-4'
+        }`}>
           <div className="flex items-center space-x-3">
-            <Bot className="w-5 h-5 text-blue-400" />
-            <span className="text-white font-medium">AI Assistant</span>
+            <Bot className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} text-blue-400`} />
+            <span className={`text-white font-medium ${isMobile ? 'text-sm' : ''}`}>AI Assistant</span>
           </div>
           
           {/* Toggle Button - Right side */}
           <button
             onClick={toggleChat}
-            className="bg-blue-500 hover:bg-blue-600 text-white rounded-full p-2 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
+            className="bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
+            style={{ padding: isMobile ? '0.375rem' : '0.5rem' }}
           >
-            {isChatOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
+            {isChatOpen ? <ChevronDown className={isMobile ? "w-3 h-3" : "w-4 h-4"} /> : <ChevronUp className={isMobile ? "w-3 h-3" : "w-4 h-4"} />}
           </button>
         </div>
 
         {/* Chat Messages */}
         {isChatOpen && (
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-64">
+          <div className={`flex-1 overflow-y-auto space-y-4 ${
+            isMobile ? 'p-2 max-h-48' : 'p-4 max-h-64'
+          }`}>
             {chatMessages.map((message) => (
               <div
                 key={message.id}
                 className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                  className={`px-3 py-2 rounded-lg ${
                     message.type === 'user'
                       ? 'bg-blue-500 text-white'
                       : 'bg-white/10 text-white border border-white/20'
-                  }`}
+                  } ${isMobile ? 'max-w-[80%]' : 'max-w-xs lg:max-w-md'}`}
                 >
-                  <p className="text-sm">{message.content}</p>
-                  <p className="text-xs opacity-70 mt-1">
+                  <p className={isMobile ? 'text-xs' : 'text-sm'}>{message.content}</p>
+                  <p className={`text-xs opacity-70 mt-1 ${isMobile ? 'text-xs' : ''}`}>
                     {message.timestamp.toLocaleTimeString()}
                   </p>
                 </div>
@@ -1446,12 +1653,14 @@ function WorkflowView({
         )}
 
         {/* Chat Input */}
-        <div className="p-4 border-t border-white/10">
-          <div className="flex items-center space-x-3">
+        <div className={`border-t border-white/10 ${isMobile ? 'p-2' : 'p-4'}`}>
+          <div className="flex items-center space-x-2">
             <input
               type="text"
-              placeholder="Ask me to create organizations, manage workflows, or automate processes..."
-              className="flex-1 px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder={isMobile ? "Ask me anything..." : "Ask me to create organizations, manage workflows, or automate processes..."}
+              className={`flex-1 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                isMobile ? 'px-3 py-1.5 text-xs' : 'px-4 py-2'
+              }`}
               onKeyPress={(e) => {
                 if (e.key === 'Enter' && e.currentTarget.value.trim()) {
                   sendMessage(e.currentTarget.value.trim())
@@ -1467,9 +1676,11 @@ function WorkflowView({
                   input.value = ''
                 }
               }}
-              className="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+              className={`bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors ${
+                isMobile ? 'p-1.5' : 'p-2'
+              }`}
             >
-              <Send className="w-4 h-4" />
+              <Send className={isMobile ? "w-3 h-3" : "w-4 h-4"} />
             </button>
           </div>
         </div>
@@ -1729,7 +1940,7 @@ function RolesView({ roles, selectedOrganization, onAddMember }: Omit<RolesViewP
 }
 
 // Instruments View Component
-function InstrumentsView({ instruments, organizations, selectedOrganization, onCreateInstrument, onUpdateInstrument, onDeleteInstrument }: InstrumentsViewProps) {
+function InstrumentsView({ instruments, organizations, selectedOrganization, onCreateInstrument, onDeleteInstrument }: Omit<InstrumentsViewProps, 'onUpdateInstrument'>) {
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [formData, setFormData] = useState({
     name: '',

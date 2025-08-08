@@ -8143,6 +8143,7 @@ function ContractsView({ organizations, selectedOrganization, roles = [], instru
   const allMembers = organizations.flatMap(org => org.members)
 
   const contractTemplates = [
+    // Original 8 templates
     { id: '1', name: 'Service Agreement', type: 'service', description: 'Standard service delivery contract', icon: '📋', defaultDuration: 12 },
     { id: '2', name: 'Employment Contract', type: 'employment', description: 'Employee hiring agreement', icon: '👤', defaultDuration: 24 },
     { id: '3', name: 'Partnership Agreement', type: 'partnership', description: 'Business partnership contract', icon: '🤝', defaultDuration: 36 },
@@ -8150,7 +8151,33 @@ function ContractsView({ organizations, selectedOrganization, roles = [], instru
     { id: '5', name: 'NDA', type: 'nda', description: 'Non-disclosure agreement', icon: '🔒', defaultDuration: 24 },
     { id: '6', name: 'Consulting Agreement', type: 'consulting', description: 'Professional consulting contract', icon: '💼', defaultDuration: 6 },
     { id: '7', name: 'Vendor Agreement', type: 'vendor', description: 'Supplier/vendor contract', icon: '🏪', defaultDuration: 12 },
-    { id: '8', name: 'Investment Contract', type: 'investment', description: 'Investment agreement with terms', icon: '💰', defaultDuration: 60 }
+    { id: '8', name: 'Investment Contract', type: 'investment', description: 'Investment agreement with terms', icon: '💰', defaultDuration: 60 },
+    
+    // Additional 24 templates
+    { id: '9', name: 'Software Development Agreement', type: 'service', description: 'Custom software development contract', icon: '💻', defaultDuration: 6 },
+    { id: '10', name: 'Marketing Services Contract', type: 'service', description: 'Digital marketing and advertising services', icon: '📈', defaultDuration: 12 },
+    { id: '11', name: 'Construction Contract', type: 'service', description: 'Building and construction services', icon: '🏗️', defaultDuration: 18 },
+    { id: '12', name: 'Maintenance Agreement', type: 'service', description: 'Ongoing maintenance and support services', icon: '🔧', defaultDuration: 24 },
+    { id: '13', name: 'Freelance Agreement', type: 'employment', description: 'Independent contractor agreement', icon: '👨‍💻', defaultDuration: 3 },
+    { id: '14', name: 'Executive Employment', type: 'employment', description: 'Senior executive employment contract', icon: '👔', defaultDuration: 36 },
+    { id: '15', name: 'Internship Agreement', type: 'employment', description: 'Student internship contract', icon: '🎓', defaultDuration: 3 },
+    { id: '16', name: 'Remote Work Agreement', type: 'employment', description: 'Remote work employment contract', icon: '🌐', defaultDuration: 12 },
+    { id: '17', name: 'Joint Venture Agreement', type: 'joint_venture', description: 'Business joint venture partnership', icon: '🏢', defaultDuration: 24 },
+    { id: '18', name: 'Distribution Agreement', type: 'distribution', description: 'Product distribution partnership', icon: '🚚', defaultDuration: 18 },
+    { id: '19', name: 'Franchise Agreement', type: 'franchise', description: 'Business franchise contract', icon: '🍔', defaultDuration: 60 },
+    { id: '20', name: 'Supply Chain Agreement', type: 'supply', description: 'Supply chain management contract', icon: '📦', defaultDuration: 24 },
+    { id: '21', name: 'Software License', type: 'licensing', description: 'Software licensing agreement', icon: '⚙️', defaultDuration: 12 },
+    { id: '22', name: 'Music Licensing', type: 'licensing', description: 'Music and audio licensing contract', icon: '🎵', defaultDuration: 6 },
+    { id: '23', name: 'Patent License', type: 'licensing', description: 'Patent licensing agreement', icon: '🔬', defaultDuration: 36 },
+    { id: '24', name: 'Trademark License', type: 'licensing', description: 'Trademark usage licensing', icon: '™️', defaultDuration: 24 },
+    { id: '25', name: 'Mutual NDA', type: 'nda', description: 'Bilateral non-disclosure agreement', icon: '🤐', defaultDuration: 12 },
+    { id: '26', name: 'Employee NDA', type: 'nda', description: 'Employee confidentiality agreement', icon: '🔐', defaultDuration: 60 },
+    { id: '27', name: 'Vendor NDA', type: 'nda', description: 'Third-party vendor confidentiality', icon: '🛡️', defaultDuration: 18 },
+    { id: '28', name: 'IT Consulting', type: 'consulting', description: 'Information technology consulting', icon: '🖥️', defaultDuration: 6 },
+    { id: '29', name: 'Management Consulting', type: 'consulting', description: 'Business management consulting', icon: '📊', defaultDuration: 9 },
+    { id: '30', name: 'Legal Consulting', type: 'consulting', description: 'Legal advisory services', icon: '⚖️', defaultDuration: 12 },
+    { id: '31', name: 'Financial Consulting', type: 'consulting', description: 'Financial advisory and planning', icon: '💹', defaultDuration: 6 },
+    { id: '32', name: 'Equipment Lease', type: 'lease', description: 'Equipment leasing agreement', icon: '🏭', defaultDuration: 36 }
   ]
 
   const integrationTemplates = [
@@ -8286,8 +8313,8 @@ function ContractsView({ organizations, selectedOrganization, roles = [], instru
 
         {/* Create Contract Workflow Modal */}
         {showCreateContract && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-xl flex items-center justify-center z-50 p-4">
-            <div className="bg-black/90 backdrop-blur-xl border border-white/20 rounded-2xl p-6 w-full max-w-7xl max-h-[90vh] overflow-y-auto">
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-xl flex items-center justify-center z-50 p-4 overflow-y-auto">
+            <div className="bg-black/90 backdrop-blur-xl border border-white/20 rounded-2xl p-6 w-full max-w-7xl min-h-[90vh] max-h-none my-4 overflow-visible">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-semibold text-white">Create Contract Workflow</h3>
                 <div className="flex items-center space-x-4">
@@ -8315,20 +8342,25 @@ function ContractsView({ organizations, selectedOrganization, roles = [], instru
               {/* Step 1: Contract Template Selection */}
               {currentStep === 1 && (
                 <div>
-                  <h4 className="text-lg font-medium text-white mb-4">Choose Contract Template</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {contractTemplates.map((template) => (
-                      <div
-                        key={template.id}
-                        onClick={() => handleTemplateSelect(template)}
-                        className="bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/40 rounded-lg p-4 cursor-pointer transition-all"
-                      >
-                        <div className="text-3xl mb-3">{template.icon}</div>
-                        <h5 className="text-white font-medium mb-2">{template.name}</h5>
-                        <p className="text-gray-300 text-sm mb-3">{template.description}</p>
-                        <p className="text-blue-400 text-xs">Default: {template.defaultDuration} months</p>
-                      </div>
-                    ))}
+                  <h4 className="text-lg font-medium text-white mb-4">Choose Contract Template ({contractTemplates.length} Available)</h4>
+                  <div className="max-h-[60vh] overflow-y-auto pr-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
+                      {contractTemplates.map((template) => (
+                        <div
+                          key={template.id}
+                          onClick={() => handleTemplateSelect(template)}
+                          className="bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/40 rounded-lg p-4 cursor-pointer transition-all hover:scale-105"
+                        >
+                          <div className="text-3xl mb-3 text-center">{template.icon}</div>
+                          <h5 className="text-white font-medium mb-2 text-sm text-center">{template.name}</h5>
+                          <p className="text-gray-300 text-xs mb-3 line-clamp-2 text-center">{template.description}</p>
+                          <p className="text-blue-400 text-xs text-center">Default: {template.defaultDuration} months</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="mt-4 text-center">
+                    <p className="text-gray-400 text-sm">Select a template to begin creating your contract workflow</p>
                   </div>
                 </div>
               )}

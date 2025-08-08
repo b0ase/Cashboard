@@ -420,86 +420,86 @@ export default function Dashboard() {
       status: 'active',
       createdAt: '2024-01-15',
       updatedAt: '2024-01-15'
-    },
-    securityProducts: [
-      {
-        id: '1',
-        name: 'BlockAuth OAuth',
-        type: 'auth',
-        category: 'authentication',
-        description: 'Blockchain-based OAuth 2.0 compatible authentication service',
-        organizationId: '1',
-        blockchain: 'Bitcoin SV',
-        contractAddress: '0xauth1234567890abcdef',
-        tokenSymbol: 'AUTH',
-        pricing: {
-          model: 'usage-based',
-          price: 0.001,
-          currency: 'BSV',
-          billingCycle: 'per-request'
-        },
-        features: {
-          oauthCompatible: true,
-          multiFactorAuth: true,
-          biometricSupport: false,
-          zeroKnowledgeProofs: false,
-          auditTrail: true,
-          complianceFrameworks: ['GDPR', 'SOC2'],
-          apiEndpoints: ['/oauth/authorize', '/oauth/token', '/userinfo'],
-          sdkSupport: ['JavaScript', 'Python', 'React Native']
-        },
-        metadata: {
-          maxUsers: 1000000,
-          dataRetentionDays: 90,
-          encryptionLevel: 'AES-256',
-          auditLogRetention: 365,
-          complianceCertifications: ['ISO 27001'],
-          uptimeSLA: 99.9,
-          responseTime: 100
-        },
-        status: 'active',
-        createdAt: '2024-01-15',
-        updatedAt: '2024-01-15'
+    }
+  ],
+  securityProducts: [
+    {
+      id: '1',
+      name: 'BlockAuth OAuth',
+      type: 'auth',
+      category: 'authentication',
+      description: 'Blockchain-based OAuth 2.0 compatible authentication service',
+      organizationId: '1',
+      blockchain: 'Bitcoin SV',
+      contractAddress: '0xauth1234567890abcdef',
+      tokenSymbol: 'AUTH',
+      pricing: {
+        model: 'usage-based',
+        price: 0.001,
+        currency: 'BSV',
+        billingCycle: 'per-request'
       },
-      {
-        id: '2',
-        name: 'Immutable Audit Log',
-        type: 'audit',
-        category: 'compliance',
-        description: 'Immutable blockchain audit trail for compliance and governance',
-        organizationId: '1',
-        blockchain: 'Bitcoin SV',
-        contractAddress: '0xaudit1234567890abcdef',
-        pricing: {
-          model: 'subscription',
-          price: 99,
-          currency: 'USD',
-          billingCycle: 'monthly'
-        },
-        features: {
-          oauthCompatible: false,
-          multiFactorAuth: false,
-          biometricSupport: false,
-          zeroKnowledgeProofs: true,
-          auditTrail: true,
-          complianceFrameworks: ['SOX', 'HIPAA', 'PCI-DSS'],
-          apiEndpoints: ['/audit/log', '/audit/verify', '/audit/export'],
-          sdkSupport: ['Java', 'C#', 'Go']
-        },
-        metadata: {
-          maxUsers: 50000,
-          dataRetentionDays: 2555,
-          encryptionLevel: 'SHA-256',
-          auditLogRetention: 2555,
-          complianceCertifications: ['SOC2 Type II'],
-          uptimeSLA: 99.99,
-          responseTime: 50
-        },
-        status: 'active',
-        createdAt: '2024-01-15',
-        updatedAt: '2024-01-15'
-      }
-    ]
+      features: {
+        oauthCompatible: true,
+        multiFactorAuth: true,
+        biometricSupport: false,
+        zeroKnowledgeProofs: false,
+        auditTrail: true,
+        complianceFrameworks: ['GDPR', 'SOC2'],
+        apiEndpoints: ['/oauth/authorize', '/oauth/token', '/userinfo'],
+        sdkSupport: ['JavaScript', 'Python', 'React Native']
+      },
+      metadata: {
+        maxUsers: 1000000,
+        dataRetentionDays: 90,
+        encryptionLevel: 'AES-256',
+        auditLogRetention: 365,
+        complianceCertifications: ['ISO 27001'],
+        uptimeSLA: 99.9,
+        responseTime: 100
+      },
+      status: 'active',
+      createdAt: '2024-01-15',
+      updatedAt: '2024-01-15'
+    },
+    {
+      id: '2',
+      name: 'Immutable Audit Log',
+      type: 'audit',
+      category: 'compliance',
+      description: 'Immutable blockchain audit trail for compliance and governance',
+      organizationId: '1',
+      blockchain: 'Bitcoin SV',
+      contractAddress: '0xaudit1234567890abcdef',
+      pricing: {
+        model: 'subscription',
+        price: 99,
+        currency: 'USD',
+        billingCycle: 'monthly'
+      },
+      features: {
+        oauthCompatible: false,
+        multiFactorAuth: false,
+        biometricSupport: false,
+        zeroKnowledgeProofs: true,
+        auditTrail: true,
+        complianceFrameworks: ['SOX', 'HIPAA', 'PCI-DSS'],
+        apiEndpoints: ['/audit/log', '/audit/verify', '/audit/export'],
+        sdkSupport: ['Java', 'C#', 'Go']
+      },
+      metadata: {
+        maxUsers: 50000,
+        dataRetentionDays: 2555,
+        encryptionLevel: 'SHA-256',
+        auditLogRetention: 2555,
+        complianceCertifications: ['SOC2 Type II'],
+        uptimeSLA: 99.99,
+        responseTime: 50
+      },
+      status: 'active',
+      createdAt: '2024-01-15',
+      updatedAt: '2024-01-15'
+    }
   ]
 })
 

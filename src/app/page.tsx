@@ -116,6 +116,9 @@ interface Connection {
 }
 
 interface WorkflowState {
+  id: string
+  name: string
+  description: string
   nodes: WorkflowNode[]
   connections: Connection[]
   selectedNode: string | null
@@ -123,6 +126,9 @@ interface WorkflowState {
   dragging: string | null
   workflowStatus: 'running' | 'paused' | 'stopped'
   autoMode: boolean
+  createdAt: string
+  updatedAt: string
+  organizationId?: string
 }
 
 interface ChatMessage {
@@ -140,7 +146,8 @@ interface AppState {
   isMobile: boolean
   organizations: Organization[]
   roles: Role[]
-  workflow: WorkflowState
+  workflows: WorkflowState[]
+  selectedWorkflow: string | null
   chatMessages: ChatMessage[]
   isChatOpen: boolean
   instruments: FinancialInstrument[]
@@ -304,124 +311,133 @@ export default function Dashboard() {
       { id: '7', name: 'Designer', description: 'UI/UX design', icon: 'palette', permissions: ['design'], defaultShareAllocation: 6 },
       { id: '8', name: 'Legal', description: 'Legal and compliance', icon: 'shield', permissions: ['legal', 'compliance'], defaultShareAllocation: 4 }
     ],
-    workflow: {
-    nodes: [
+    workflows: [
       {
         id: '1',
-        type: 'payment',
-        name: 'Project Payment',
-        description: 'Initial project funding',
-        x: 100,
-        y: 100,
-        status: 'active',
-        amount: 5000,
-        connections: []
-      },
-      {
-        id: '2',
-        type: 'contract',
-        name: 'Development Contract',
-        description: 'Frontend development agreement',
-        x: 350,
-        y: 100,
-        status: 'pending',
-        deadline: '2024-02-15',
-        connections: []
-      },
-      {
-        id: '3',
-        type: 'task',
-        name: 'UI Implementation',
-        description: 'Build user interface components',
-        x: 600,
-        y: 100,
-        status: 'pending',
-        assignees: ['Alice', 'Bob'],
-        connections: []
-      },
-      {
-        id: '4',
-        type: 'decision',
-        name: 'Code Review',
-        description: 'Quality check decision point',
-        x: 850,
-        y: 100,
-        status: 'pending',
-        conditions: ['Pass', 'Fail'],
-        connections: []
-      },
-      {
-        id: '5',
-        type: 'milestone',
-        name: 'Phase 1 Complete',
-        description: 'First development milestone',
-        x: 1100,
-        y: 100,
-        status: 'pending',
-        connections: []
-      },
-      {
-        id: '6',
-        type: 'team',
-        name: 'Dev Team',
-        description: 'Development team assignment',
-        x: 600,
-        y: 250,
-        status: 'active',
-        assignees: ['Alice', 'Bob', 'Charlie'],
-        memberCount: 3,
-        isExpanded: false,
-        childNodes: [
+        name: 'Development Project Workflow',
+        description: 'Complete development project with payment, contract, and team coordination',
+        nodes: [
           {
-            id: '6-1',
-            type: 'task',
-            name: 'Alice - Frontend',
-            description: 'React component development',
-            x: 500,
-            y: 350,
+            id: '1',
+            type: 'payment',
+            name: 'Project Payment',
+            description: 'Initial project funding',
+            x: 100,
+            y: 100,
             status: 'active',
-            assignees: ['Alice'],
+            amount: 5000,
             connections: []
           },
           {
-            id: '6-2',
-            type: 'task',
-            name: 'Bob - Backend',
-            description: 'API development',
-            x: 700,
-            y: 350,
+            id: '2',
+            type: 'contract',
+            name: 'Development Contract',
+            description: 'Frontend development agreement',
+            x: 350,
+            y: 100,
             status: 'pending',
-            assignees: ['Bob'],
+            deadline: '2024-02-15',
             connections: []
           },
           {
-            id: '6-3',
+            id: '3',
             type: 'task',
-            name: 'Charlie - Testing',
-            description: 'Quality assurance',
+            name: 'UI Implementation',
+            description: 'Build user interface components',
             x: 600,
-            y: 450,
+            y: 100,
             status: 'pending',
-            assignees: ['Charlie'],
+            assignees: ['Alice', 'Bob'],
+            connections: []
+          },
+          {
+            id: '4',
+            type: 'decision',
+            name: 'Code Review',
+            description: 'Quality check decision point',
+            x: 850,
+            y: 100,
+            status: 'pending',
+            conditions: ['Pass', 'Fail'],
+            connections: []
+          },
+          {
+            id: '5',
+            type: 'milestone',
+            name: 'Phase 1 Complete',
+            description: 'First development milestone',
+            x: 1100,
+            y: 100,
+            status: 'pending',
+            connections: []
+          },
+          {
+            id: '6',
+            type: 'team',
+            name: 'Dev Team',
+            description: 'Development team assignment',
+            x: 600,
+            y: 250,
+            status: 'active',
+            assignees: ['Alice', 'Bob', 'Charlie'],
+            memberCount: 3,
+            isExpanded: false,
+            childNodes: [
+              {
+                id: '6-1',
+                type: 'task',
+                name: 'Alice - Frontend',
+                description: 'React component development',
+                x: 500,
+                y: 350,
+                status: 'active',
+                assignees: ['Alice'],
+                connections: []
+              },
+              {
+                id: '6-2',
+                type: 'task',
+                name: 'Bob - Backend',
+                description: 'API development',
+                x: 700,
+                y: 350,
+                status: 'pending',
+                assignees: ['Bob'],
+                connections: []
+              },
+              {
+                id: '6-3',
+                type: 'task',
+                name: 'Charlie - Testing',
+                description: 'Quality assurance',
+                x: 600,
+                y: 450,
+                status: 'pending',
+                assignees: ['Charlie'],
+                connections: []
+              }
+            ],
             connections: []
           }
         ],
-        connections: []
+        connections: [
+          { id: '1-2', from: '1', to: '2', type: 'payment', amount: 5000 },
+          { id: '2-3', from: '2', to: '3', type: 'task' },
+          { id: '3-4', from: '3', to: '4', type: 'conditional' },
+          { id: '4-5', from: '4', to: '5', type: 'success', condition: 'Pass' },
+          { id: '6-3', from: '6', to: '3', type: 'task' }
+        ],
+        selectedNode: null,
+        isConnecting: null,
+        dragging: null,
+        workflowStatus: 'running',
+        autoMode: true,
+        createdAt: '2024-01-15',
+        updatedAt: '2024-01-15',
+        organizationId: '1'
       }
     ],
-    connections: [
-      { id: '1-2', from: '1', to: '2', type: 'payment', amount: 5000 },
-      { id: '2-3', from: '2', to: '3', type: 'task' },
-      { id: '3-4', from: '3', to: '4', type: 'conditional' },
-      { id: '4-5', from: '4', to: '5', type: 'success', condition: 'Pass' },
-      { id: '6-3', from: '6', to: '3', type: 'task' }
-    ],
-    selectedNode: null,
-    isConnecting: null,
-    dragging: null,
-    workflowStatus: 'running',
-    autoMode: true
-  },
+    selectedWorkflow: '1',
   chatMessages: [
     {
       id: '1',
@@ -557,9 +573,16 @@ export default function Dashboard() {
   ]
 })
 
-  const { workflow, organizations, roles, currentView, selectedOrganization, sidebarOpen, chatMessages, isChatOpen, instruments } = appState
+  const { workflows, selectedWorkflow, organizations, roles, currentView, selectedOrganization, sidebarOpen, chatMessages, isChatOpen, instruments } = appState
 
   const boardRef = useRef<HTMLDivElement>(null)
+  
+  // Helper function to get current workflow
+  const getCurrentWorkflow = () => {
+    return selectedWorkflow ? workflows.find(w => w.id === selectedWorkflow) : workflows[0]
+  }
+  
+  const currentWorkflow = getCurrentWorkflow()
   
   // Mobile detection and responsive state
   const [isMobile, setIsMobile] = useState(false)
@@ -581,14 +604,14 @@ export default function Dashboard() {
       if (mobile) {
         setAppState(prev => ({
           ...prev,
-          workflow: {
-            ...prev.workflow,
-            nodes: prev.workflow.nodes.map((node, index) => ({
+          workflows: prev.workflows.map(w => ({
+            ...w,
+            nodes: w.nodes.map((node, index) => ({
               ...node,
               x: 50 + (index * 200),
               y: 50 + (Math.floor(index / 2) * 120)
             }))
-          }
+          }))
         }))
       }
     }
@@ -696,6 +719,8 @@ export default function Dashboard() {
   }
 
   const addNode = (type: WorkflowNode['type']) => {
+    if (!currentWorkflow) return
+    
     const newNode: WorkflowNode = {
       id: Date.now().toString(),
       type,
@@ -715,129 +740,241 @@ export default function Dashboard() {
 
     setAppState(prev => ({
       ...prev,
-      workflow: {
-        ...prev.workflow,
-        nodes: [...prev.workflow.nodes, newNode],
-        selectedNode: newNode.id
-      }
+      workflows: prev.workflows.map(w => 
+        w.id === currentWorkflow.id 
+          ? { 
+              ...w, 
+              nodes: [...w.nodes, newNode],
+              selectedNode: newNode.id,
+              updatedAt: new Date().toISOString()
+            }
+          : w
+      )
     }))
   }
 
   const updateNode = (id: string, updates: Partial<WorkflowNode>) => {
+    if (!currentWorkflow) return
+    
     setAppState(prev => ({
       ...prev,
-      workflow: {
-        ...prev.workflow,
-        nodes: prev.workflow.nodes.map(node => 
-          node.id === id ? { ...node, ...updates } : node
-        )
-      }
+      workflows: prev.workflows.map(w => 
+        w.id === currentWorkflow.id 
+          ? { 
+              ...w, 
+              nodes: w.nodes.map(node => 
+                node.id === id ? { ...node, ...updates } : node
+              ),
+              updatedAt: new Date().toISOString()
+            }
+          : w
+      )
     }))
   }
 
   const deleteNode = (id: string) => {
+    if (!currentWorkflow) return
+    
     setAppState(prev => ({
       ...prev,
-      workflow: {
-        ...prev.workflow,
-        nodes: prev.workflow.nodes.filter(n => n.id !== id),
-        connections: prev.workflow.connections.filter(c => c.from !== id && c.to !== id),
-        selectedNode: prev.workflow.selectedNode === id ? null : prev.workflow.selectedNode
-      }
+      workflows: prev.workflows.map(w => 
+        w.id === currentWorkflow.id 
+          ? { 
+              ...w, 
+              nodes: w.nodes.filter(n => n.id !== id),
+              connections: w.connections.filter(c => c.from !== id && c.to !== id),
+              selectedNode: w.selectedNode === id ? null : w.selectedNode,
+              updatedAt: new Date().toISOString()
+            }
+          : w
+      )
     }))
   }
 
   const startConnection = (fromId: string) => {
-    setAppState(prev => ({ 
-      ...prev, 
-      workflow: { ...prev.workflow, isConnecting: fromId } 
+    if (!currentWorkflow) return
+    
+    setAppState(prev => ({
+      ...prev,
+      workflows: prev.workflows.map(w => 
+        w.id === currentWorkflow.id 
+          ? { ...w, isConnecting: fromId }
+          : w
+      )
     }))
   }
 
   const completeConnection = (toId: string) => {
-    if (workflow.isConnecting && workflow.isConnecting !== toId) {
+    if (!currentWorkflow) return
+    
+    if (currentWorkflow.isConnecting && currentWorkflow.isConnecting !== toId) {
       const newConnection: Connection = {
-        id: `${workflow.isConnecting}-${toId}`,
-        from: workflow.isConnecting,
+        id: `${currentWorkflow.isConnecting}-${toId}`,
+        from: currentWorkflow.isConnecting,
         to: toId,
         type: 'task'
       }
       setAppState(prev => ({
         ...prev,
-        workflow: {
-          ...prev.workflow,
-          connections: [...prev.workflow.connections, newConnection],
-          isConnecting: null
-        }
+        workflows: prev.workflows.map(w => 
+          w.id === currentWorkflow.id 
+            ? { 
+                ...w, 
+                connections: [...w.connections, newConnection],
+                isConnecting: null,
+                updatedAt: new Date().toISOString()
+              }
+            : w
+        )
       }))
     } else {
-      setAppState(prev => ({ 
-        ...prev, 
-        workflow: { ...prev.workflow, isConnecting: null } 
+      setAppState(prev => ({
+        ...prev,
+        workflows: prev.workflows.map(w => 
+          w.id === currentWorkflow.id 
+            ? { ...w, isConnecting: null }
+            : w
+        )
       }))
     }
   }
 
   const handleMouseDown = (e: React.MouseEvent, id: string) => {
-    setAppState(prev => ({ 
-      ...prev, 
-      workflow: { ...prev.workflow, dragging: id, selectedNode: id } 
+    if (!currentWorkflow) return
+    
+    setAppState(prev => ({
+      ...prev,
+      workflows: prev.workflows.map(w => 
+        w.id === currentWorkflow.id 
+          ? { ...w, dragging: id, selectedNode: id }
+          : w
+      )
     }))
     e.stopPropagation()
   }
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (workflow.dragging && boardRef.current) {
-      const rect = boardRef.current.getBoundingClientRect()
-      const x = e.clientX - rect.left
-      const y = e.clientY - rect.top
-      
-      updateNode(workflow.dragging, { x, y })
-    }
+    if (!currentWorkflow || !currentWorkflow.dragging || !boardRef.current) return
+    
+    const rect = boardRef.current.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+    
+    updateNode(currentWorkflow.dragging, { x, y })
   }
 
   const handleMouseUp = () => {
-    setAppState(prev => ({ 
-      ...prev, 
-      workflow: { ...prev.workflow, dragging: null } 
+    if (!currentWorkflow) return
+    
+    setAppState(prev => ({
+      ...prev,
+      workflows: prev.workflows.map(w => 
+        w.id === currentWorkflow.id 
+          ? { ...w, dragging: null }
+          : w
+      )
     }))
   }
 
   const getNodePosition = (id: string) => {
-    return workflow.nodes.find(n => n.id === id)
+    return currentWorkflow?.nodes.find(n => n.id === id)
   }
 
   const toggleWorkflowStatus = () => {
+    if (!currentWorkflow) return
+    
     setAppState(prev => ({
       ...prev,
-      workflow: {
-        ...prev.workflow,
-        workflowStatus: prev.workflow.workflowStatus === 'running' ? 'paused' : 'running'
-      }
+      workflows: prev.workflows.map(w => 
+        w.id === currentWorkflow.id 
+          ? { 
+              ...w, 
+              workflowStatus: w.workflowStatus === 'running' ? 'paused' : 'running',
+              updatedAt: new Date().toISOString()
+            }
+          : w
+      )
     }))
   }
 
   const toggleAutoMode = () => {
-    setAppState(prev => ({ 
-      ...prev, 
-      workflow: { ...prev.workflow, autoMode: !prev.workflow.autoMode } 
+    if (!currentWorkflow) return
+    
+    setAppState(prev => ({
+      ...prev,
+      workflows: prev.workflows.map(w => 
+        w.id === currentWorkflow.id 
+          ? { 
+              ...w, 
+              autoMode: !w.autoMode,
+              updatedAt: new Date().toISOString()
+            }
+          : w
+      )
     }))
   }
 
   const advanceWorkflow = () => {
+    if (!currentWorkflow) return
+    
     setAppState(prev => ({
       ...prev,
-      workflow: {
-        ...prev.workflow,
-        nodes: prev.workflow.nodes.map(node => {
-          if (node.status === 'pending') {
-            return { ...node, status: 'active' }
-          } else if (node.status === 'active') {
-            return { ...node, status: 'completed' }
-          }
-          return node
-        })
-      }
+      workflows: prev.workflows.map(w => 
+        w.id === currentWorkflow.id 
+          ? {
+              ...w,
+              nodes: w.nodes.map(node => {
+                if (node.status === 'pending') {
+                  return { ...node, status: 'active' }
+                } else if (node.status === 'active') {
+                  return { ...node, status: 'completed' }
+                }
+                return node
+              }),
+              updatedAt: new Date().toISOString()
+            }
+          : w
+      )
+    }))
+  }
+
+  // Workflow management functions
+  const createWorkflow = (name: string, description: string) => {
+    const newWorkflow: WorkflowState = {
+      id: Date.now().toString(),
+      name,
+      description,
+      nodes: [],
+      connections: [],
+      selectedNode: null,
+      isConnecting: null,
+      dragging: null,
+      workflowStatus: 'stopped',
+      autoMode: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      organizationId: selectedOrganization || undefined
+    }
+
+    setAppState(prev => ({
+      ...prev,
+      workflows: [...prev.workflows, newWorkflow],
+      selectedWorkflow: newWorkflow.id
+    }))
+  }
+
+  const openWorkflow = (workflowId: string) => {
+    setAppState(prev => ({
+      ...prev,
+      selectedWorkflow: workflowId
+    }))
+  }
+
+  const deleteWorkflow = (workflowId: string) => {
+    setAppState(prev => ({
+      ...prev,
+      workflows: prev.workflows.filter(w => w.id !== workflowId),
+      selectedWorkflow: prev.selectedWorkflow === workflowId ? null : prev.selectedWorkflow
     }))
   }
 
@@ -950,14 +1087,21 @@ export default function Dashboard() {
   }
 
   const toggleNodeExpansion = (nodeId: string) => {
+    if (!currentWorkflow) return
+    
     setAppState(prev => ({
       ...prev,
-      workflow: {
-        ...prev.workflow,
-        nodes: prev.workflow.nodes.map(node => 
-          node.id === nodeId ? { ...node, isExpanded: !node.isExpanded } : node
-        )
-      }
+      workflows: prev.workflows.map(w => 
+        w.id === currentWorkflow.id 
+          ? {
+              ...w,
+              nodes: w.nodes.map(node => 
+                node.id === nodeId ? { ...node, isExpanded: !node.isExpanded } : node
+              ),
+              updatedAt: new Date().toISOString()
+            }
+          : w
+      )
     }))
   }
 
@@ -1170,23 +1314,23 @@ export default function Dashboard() {
                 <PlayCircle className={isMobile ? "w-4 h-4" : "w-5 h-5"} />
                 <span className={isMobile ? 'hidden' : ''}>Watch Demo</span>
               </button>
-            {currentView === 'workflow' && (
+            {currentView === 'workflow' && currentWorkflow && (
               <div className={`flex items-center space-x-2 ${isMobile ? 'flex-wrap gap-1' : ''}`}>
                 <button
                   onClick={toggleWorkflowStatus}
                   className={`rounded-lg flex items-center space-x-2 transition-all ${
-                    workflow.workflowStatus === 'running' 
+                    currentWorkflow.workflowStatus === 'running' 
                       ? 'bg-green-500/20 text-green-400 border border-green-400/30' 
                       : 'bg-yellow-500/20 text-yellow-400 border border-yellow-400/30'
                   } ${isMobile ? 'px-2 py-1' : 'px-3 py-2'}`}
                 >
-                  {workflow.workflowStatus === 'running' ? <Play className={isMobile ? "w-3 h-3" : "w-4 h-4"} /> : <Pause className={isMobile ? "w-3 h-3" : "w-4 h-4"} />}
-                  {!isMobile && <span className="text-sm font-medium">{workflow.workflowStatus === 'running' ? 'Running' : 'Paused'}</span>}
+                  {currentWorkflow.workflowStatus === 'running' ? <Play className={isMobile ? "w-3 h-3" : "w-4 h-4"} /> : <Pause className={isMobile ? "w-3 h-3" : "w-4 h-4"} />}
+                  {!isMobile && <span className="text-sm font-medium">{currentWorkflow.workflowStatus === 'running' ? 'Running' : 'Paused'}</span>}
                 </button>
                 <button
                   onClick={toggleAutoMode}
                   className={`rounded-lg flex items-center space-x-2 transition-all ${
-                    workflow.autoMode 
+                    currentWorkflow.autoMode 
                       ? 'bg-blue-500/20 text-blue-400 border border-blue-400/30' 
                       : 'bg-gray-500/20 text-gray-400 border border-gray-400/30'
                   } ${isMobile ? 'px-2 py-1' : 'px-3 py-2'}`}
@@ -1250,9 +1394,20 @@ export default function Dashboard() {
         </div>
 
         {/* Content Views */}
-        {currentView === 'workflow' && (
+        {currentView === 'workflow' && !currentWorkflow && (
+          <WorkflowsView 
+            workflows={workflows}
+            selectedWorkflow={selectedWorkflow}
+            onCreateWorkflow={createWorkflow}
+            onOpenWorkflow={openWorkflow}
+            onDeleteWorkflow={deleteWorkflow}
+            isMobile={isMobile}
+          />
+        )}
+
+        {currentView === 'workflow' && currentWorkflow && (
           <WorkflowView 
-            workflow={workflow}
+            workflow={currentWorkflow}
             boardRef={boardRef}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
@@ -1264,10 +1419,17 @@ export default function Dashboard() {
             onNodeDelete={deleteNode}
             onStartConnection={startConnection}
             onCompleteConnection={completeConnection}
-            onDoubleClick={(id: string) => setAppState(prev => ({ 
-              ...prev, 
-              workflow: { ...prev.workflow, selectedNode: id } 
-            }))}
+            onDoubleClick={(id: string) => {
+              if (!currentWorkflow) return
+              setAppState(prev => ({
+                ...prev,
+                workflows: prev.workflows.map(w => 
+                  w.id === currentWorkflow.id 
+                    ? { ...w, selectedNode: id }
+                    : w
+                )
+              }))
+            }}
             onToggleExpansion={toggleNodeExpansion}
             getNodeIcon={getNodeIcon}
             getStatusColor={getStatusColor}
@@ -1283,6 +1445,7 @@ export default function Dashboard() {
             toggleChat={toggleChat}
             sendMessage={sendMessage}
             sidebarOpen={sidebarOpen}
+            onBackToWorkflows={() => setAppState(prev => ({ ...prev, selectedWorkflow: null }))}
           />
         )}
 
@@ -1663,6 +1826,237 @@ function IntegrationsView() {
   )
 }
 
+// Workflows List View Component
+function WorkflowsView({ 
+  workflows, 
+  selectedWorkflow, 
+  onCreateWorkflow, 
+  onOpenWorkflow, 
+  onDeleteWorkflow,
+  isMobile 
+}: {
+  workflows: WorkflowState[]
+  selectedWorkflow: string | null
+  onCreateWorkflow: (name: string, description: string) => void
+  onOpenWorkflow: (workflowId: string) => void
+  onDeleteWorkflow: (workflowId: string) => void
+  isMobile: boolean
+}) {
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [newWorkflowName, setNewWorkflowName] = useState('')
+  const [newWorkflowDescription, setNewWorkflowDescription] = useState('')
+
+  const handleCreate = () => {
+    if (newWorkflowName.trim()) {
+      onCreateWorkflow(newWorkflowName.trim(), newWorkflowDescription.trim())
+      setNewWorkflowName('')
+      setNewWorkflowDescription('')
+      setShowCreateModal(false)
+    }
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'running': return 'bg-green-500'
+      case 'paused': return 'bg-yellow-500'
+      case 'stopped': return 'bg-gray-500'
+      default: return 'bg-gray-500'
+    }
+  }
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'running': return 'Running'
+      case 'paused': return 'Paused'
+      case 'stopped': return 'Stopped'
+      default: return 'Unknown'
+    }
+  }
+
+  return (
+    <div className="absolute inset-0 top-24 p-6 overflow-y-auto">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className={`font-bold text-white ${isMobile ? 'text-2xl' : 'text-3xl'} mb-2`}>
+            Workflows
+          </h1>
+          <p className="text-gray-400">
+            Manage your automated business processes and workflows
+          </p>
+        </div>
+        
+        <button
+          onClick={() => setShowCreateModal(true)}
+          className={`bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all duration-200 hover:scale-105 flex items-center space-x-2 ${
+            isMobile ? 'px-3 py-2 text-sm' : 'px-4 py-2'
+          }`}
+        >
+          <Plus className={isMobile ? "w-4 h-4" : "w-5 h-5"} />
+          <span className={isMobile ? 'hidden' : ''}>Create Workflow</span>
+        </button>
+      </div>
+
+      {/* Workflows Grid */}
+      {workflows.length === 0 ? (
+        <div className="text-center py-12">
+          <div className="bg-black/40 backdrop-blur-xl border border-white/20 rounded-2xl p-8 max-w-md mx-auto">
+            <Zap className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-white mb-2">No Workflows Yet</h3>
+            <p className="text-gray-400 mb-6">
+              Create your first workflow to automate business processes and manage team coordination.
+            </p>
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="bg-blue-500 hover:bg-blue-600 text-white rounded-lg px-4 py-2 transition-colors"
+            >
+              Create Your First Workflow
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className={`grid gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
+          {workflows.map((workflow) => (
+            <div
+              key={workflow.id}
+              className={`bg-black/40 backdrop-blur-xl border border-white/20 rounded-xl p-6 hover:bg-black/60 transition-all duration-200 cursor-pointer group ${
+                selectedWorkflow === workflow.id ? 'ring-2 ring-blue-400/50 bg-blue-500/10' : ''
+              }`}
+              onClick={() => onOpenWorkflow(workflow.id)}
+            >
+              {/* Header */}
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-white mb-1 truncate">
+                    {workflow.name}
+                  </h3>
+                  <p className="text-gray-400 text-sm line-clamp-2">
+                    {workflow.description}
+                  </p>
+                </div>
+                
+                {/* Status Badge */}
+                <div className={`flex items-center space-x-2 ml-4`}>
+                  <div className={`w-2 h-2 rounded-full ${getStatusColor(workflow.workflowStatus)}`}></div>
+                  <span className="text-xs text-gray-400">
+                    {getStatusText(workflow.workflowStatus)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Stats */}
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="text-center">
+                  <div className="text-lg font-semibold text-white">
+                    {workflow.nodes.length}
+                  </div>
+                  <div className="text-xs text-gray-400">Nodes</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-lg font-semibold text-white">
+                    {workflow.connections.length}
+                  </div>
+                  <div className="text-xs text-gray-400">Connections</div>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="flex items-center justify-between">
+                <div className="text-xs text-gray-400">
+                  Updated {new Date(workflow.updatedAt).toLocaleDateString()}
+                </div>
+                
+                <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onOpenWorkflow(workflow.id)
+                    }}
+                    className="p-1 text-gray-400 hover:text-white transition-colors"
+                    title="Open Workflow"
+                  >
+                    <Maximize2 className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      if (confirm('Are you sure you want to delete this workflow?')) {
+                        onDeleteWorkflow(workflow.id)
+                      }
+                    }}
+                    className="p-1 text-gray-400 hover:text-red-400 transition-colors"
+                    title="Delete Workflow"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Create Workflow Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-xl flex items-center justify-center z-50 p-4">
+          <div className="bg-black/90 backdrop-blur-xl border border-white/20 rounded-2xl p-6 w-full max-w-md">
+            <h3 className="text-xl font-semibold text-white mb-4">Create New Workflow</h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Workflow Name
+                </label>
+                <input
+                  type="text"
+                  value={newWorkflowName}
+                  onChange={(e) => setNewWorkflowName(e.target.value)}
+                  placeholder="Enter workflow name..."
+                  className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleCreate()
+                    }
+                  }}
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Description
+                </label>
+                <textarea
+                  value={newWorkflowDescription}
+                  onChange={(e) => setNewWorkflowDescription(e.target.value)}
+                  placeholder="Describe your workflow..."
+                  rows={3}
+                  className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                />
+              </div>
+            </div>
+            
+            <div className="flex items-center justify-end space-x-3 mt-6">
+              <button
+                onClick={() => setShowCreateModal(false)}
+                className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreate}
+                disabled={!newWorkflowName.trim()}
+                className="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg px-4 py-2 transition-colors"
+              >
+                Create Workflow
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // Workflow View Component
 function WorkflowView({ 
   workflow, 
@@ -1691,16 +2085,32 @@ function WorkflowView({
   chatMessages,
   isChatOpen,
   toggleChat,
-  sendMessage
+  sendMessage,
+  onBackToWorkflows
 }: WorkflowViewProps & {
   chatMessages: ChatMessage[]
   isChatOpen: boolean
   toggleChat: () => void
   sendMessage: (content: string) => void
   sidebarOpen: boolean
+  onBackToWorkflows: () => void
 }) {
   return (
     <div className="absolute inset-0 top-24 flex flex-col">
+      {/* Workflow Header */}
+      <div className="absolute top-4 left-4 z-30 flex items-center space-x-3">
+        <button
+          onClick={onBackToWorkflows}
+          className="p-2 bg-black/60 backdrop-blur-xl border border-white/20 rounded-lg text-white hover:bg-white/10 transition-all"
+          title="Back to Workflows"
+        >
+          <ArrowRight className="w-4 h-4 rotate-180" />
+        </button>
+        <div className="bg-black/60 backdrop-blur-xl border border-white/20 rounded-lg px-3 py-2">
+          <h2 className="text-white font-medium text-sm">{workflow.name}</h2>
+        </div>
+      </div>
+
       {/* Mobile Canvas Controls */}
       {isMobile && (
         <div className="absolute top-4 right-4 z-30 flex space-x-2">

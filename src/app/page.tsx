@@ -1141,16 +1141,16 @@ function WorkflowView({
       {/* AI Chat Bar */}
       <div className={`bg-black/90 backdrop-blur-xl border-t border-white/20 transition-all duration-300 ${isChatOpen ? 'h-96' : 'h-16'}`}>
         {/* Chat Header */}
-        <div className="relative flex items-center justify-center p-4 border-b border-white/10">
+        <div className="flex items-center justify-between p-4 border-b border-white/10">
           <div className="flex items-center space-x-3">
             <Bot className="w-5 h-5 text-blue-400" />
             <span className="text-white font-medium">AI Assistant</span>
           </div>
           
-          {/* Toggle Button - Centered and More Obvious */}
+          {/* Toggle Button - Right side */}
           <button
             onClick={toggleChat}
-            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-2 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
+            className="bg-blue-500 hover:bg-blue-600 text-white rounded-full p-2 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
           >
             {isChatOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
           </button>

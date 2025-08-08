@@ -650,7 +650,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden">
+    <div className="min-h-screen bg-black relative overflow-hidden flex">
       {/* Animated background gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900/20 to-black">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.02),transparent_50%)]"></div>
@@ -659,7 +659,7 @@ export default function Dashboard() {
 
       {/* Sidebar */}
       {sidebarOpen && (
-        <div className="absolute left-0 top-0 h-full w-64 bg-black/80 backdrop-blur-xl border-r border-white/20 z-30">
+        <div className="relative h-full w-64 bg-black/80 backdrop-blur-xl border-r border-white/20 z-30 flex-shrink-0">
           <div className="p-6">
             <div className="flex items-center justify-between mb-8">
               <h2 className="text-xl font-bold text-white">CASHBOARD</h2>
@@ -744,7 +744,7 @@ export default function Dashboard() {
       )}
 
       {/* Main Content */}
-      <div className={`transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-0'}`}>
+      <div className="flex-1 relative">
         {/* Header */}
         <div className="absolute top-0 left-0 right-0 z-20 p-6">
           <div className="flex items-center justify-between">
@@ -846,6 +846,7 @@ export default function Dashboard() {
             isChatOpen={isChatOpen}
             toggleChat={toggleChat}
             sendMessage={sendMessage}
+            sidebarOpen={sidebarOpen}
           />
         )}
 
@@ -902,12 +903,14 @@ function WorkflowView({
   chatMessages,
   isChatOpen,
   toggleChat,
-  sendMessage
+  sendMessage,
+  sidebarOpen
 }: WorkflowViewProps & {
   chatMessages: ChatMessage[]
   isChatOpen: boolean
   toggleChat: () => void
   sendMessage: (content: string) => void
+  sidebarOpen: boolean
 }) {
   return (
     <div className="absolute inset-0 top-24 flex flex-col">

@@ -499,6 +499,7 @@ interface WorkflowViewProps {
   canvasOffset: { x: number; y: number }
   resetCanvasView: () => void
   setCanvasScale: (scale: number | ((prev: number) => number)) => void
+  setCanvasOffset: (offset: { x: number; y: number } | ((prev: { x: number; y: number }) => { x: number; y: number })) => void
 }
 
 interface OrganizationsViewProps {
@@ -2952,6 +2953,7 @@ export default function Dashboard() {
             canvasOffset={canvasOffset}
             resetCanvasView={resetCanvasView}
             setCanvasScale={setCanvasScale}
+            setCanvasOffset={setCanvasOffset}
             chatMessages={chatMessages}
             isChatOpen={isChatOpen}
             toggleChat={toggleChat}
@@ -3749,6 +3751,7 @@ function WorkflowView({
   canvasOffset,
   resetCanvasView,
   setCanvasScale,
+  setCanvasOffset,
   chatMessages,
   isChatOpen,
   toggleChat,
@@ -3765,7 +3768,7 @@ function WorkflowView({
   // Canvas tools configuration
   const canvasTools: CanvasTool[] = [
     { id: 'select', name: 'Select', icon: <MousePointer className="w-4 h-4" />, description: 'Select and move nodes', shortcut: 'V', active: workflow.currentTool === 'select' },
-    { id: 'pan', name: 'Pan', icon: <Hand className="w-4 h-4" />, description: 'Pan around the canvas', shortcut: 'H', active: workflow.currentTool === 'pan' },
+    { id: 'pan', name: 'Pan', icon: <Hand className="w-4 h-4" />, description: 'Pan around the canvas (or hold Space)', shortcut: 'H', active: workflow.currentTool === 'pan' },
     { id: 'connect', name: 'Connect', icon: <Link className="w-4 h-4" />, description: 'Connect nodes together', shortcut: 'C', active: workflow.currentTool === 'connect' },
     { id: 'delete', name: 'Delete', icon: <Trash2 className="w-4 h-4" />, description: 'Delete nodes and connections', shortcut: 'X', active: workflow.currentTool === 'delete' },
     { id: 'zoom', name: 'Zoom', icon: <ZoomIn className="w-4 h-4" />, description: 'Zoom in/out', shortcut: 'Z', active: workflow.currentTool === 'zoom' }
@@ -3797,54 +3800,107 @@ function WorkflowView({
     }
   }
 
+  // Canvas panning state
+  const [isSpacePressed, setIsSpacePressed] = React.useState(false)
+  const [isPanning, setIsPanning] = React.useState(false)
+  const [panStart, setPanStart] = React.useState({ x: 0, y: 0 })
+
   const handleKeyDown = (e: KeyboardEvent) => {
     // Prevent interference when AI Assistant is open
     if (isChatOpen) return
     
-    // Tool shortcuts
-    switch (e.key.toLowerCase()) {
-      case 'v':
-        onToolChange('select')
-        break
-      case 'h':
-        onToolChange('pan')
-        break
-      case 'c':
-        onToolChange('connect')
-        break
-      case 'x':
-        if (workflow.selectedNodes.length > 0) {
-          onNodesDelete(workflow.selectedNodes)
-        }
-        break
-      case 'delete':
-      case 'backspace':
-        if (workflow.selectedNodes.length > 0) {
-          onNodesDelete(workflow.selectedNodes)
-        }
-        break
-      // Copy/Paste shortcuts
-      case 'c':
-        if (e.ctrlKey || e.metaKey) {
-          e.preventDefault()
-          if (workflow.selectedNodes.length > 0) {
-            onNodesCopy(workflow.selectedNodes)
-          }
-        }
-        break
-      case 'v':
-        if (e.ctrlKey || e.metaKey) {
-          e.preventDefault()
-          onNodesPaste()
-        }
-        break
+    // Handle spacebar for canvas panning
+    if (e.code === 'Space' && !isSpacePressed) {
+      e.preventDefault()
+      setIsSpacePressed(true)
+      return
     }
+    
+    // Tool shortcuts (only when space is not pressed)
+    if (!isSpacePressed) {
+      switch (e.key.toLowerCase()) {
+        case 'v':
+          onToolChange('select')
+          break
+        case 'h':
+          onToolChange('pan')
+          break
+        case 'c':
+          onToolChange('connect')
+          break
+        case 'x':
+          if (workflow.selectedNodes.length > 0) {
+            onNodesDelete(workflow.selectedNodes)
+          }
+          break
+        case 'delete':
+        case 'backspace':
+          if (workflow.selectedNodes.length > 0) {
+            onNodesDelete(workflow.selectedNodes)
+          }
+          break
+        // Copy/Paste shortcuts
+        case 'c':
+          if (e.ctrlKey || e.metaKey) {
+            e.preventDefault()
+            if (workflow.selectedNodes.length > 0) {
+              onNodesCopy(workflow.selectedNodes)
+            }
+          }
+          break
+        case 'v':
+          if (e.ctrlKey || e.metaKey) {
+            e.preventDefault()
+            onNodesPaste()
+          }
+          break
+      }
+    }
+  }
+
+  const handleKeyUp = (e: KeyboardEvent) => {
+    if (e.code === 'Space') {
+      e.preventDefault()
+      setIsSpacePressed(false)
+      setIsPanning(false)
+    }
+  }
+
+  const handleCanvasPanStart = (e: React.MouseEvent) => {
+    if (isSpacePressed) {
+      e.preventDefault()
+      setIsPanning(true)
+      setPanStart({ x: e.clientX, y: e.clientY })
+    }
+  }
+
+  const handleCanvasPanMove = (e: React.MouseEvent) => {
+    if (isPanning && isSpacePressed) {
+      e.preventDefault()
+      const deltaX = e.clientX - panStart.x
+      const deltaY = e.clientY - panStart.y
+      
+      setCanvasOffset(prev => ({
+        x: prev.x + deltaX / canvasScale,
+        y: prev.y + deltaY / canvasScale
+      }))
+      
+      setPanStart({ x: e.clientX, y: e.clientY })
+    }
+  }
+
+  const handleCanvasPanEnd = () => {
+    setIsPanning(false)
   }
 
   React.useEffect(() => {
     document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [workflow.selectedNodes, isChatOpen])
+    document.addEventListener('keyup', handleKeyUp)
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      document.removeEventListener('keyup', handleKeyUp)
+    }
+  }, [workflow.selectedNodes, isChatOpen, isSpacePressed])
 
   return (
     <div className="absolute inset-0 top-24 flex flex-col">
@@ -3891,6 +3947,15 @@ function WorkflowView({
             ))}
           </div>
         </div>
+
+        {/* Spacebar Panning Indicator */}
+        {isSpacePressed && (
+          <div className="bg-blue-500/90 backdrop-blur-xl border border-blue-400/30 rounded-xl p-3 flex items-center space-x-2 shadow-lg">
+            <Hand className="w-4 h-4 text-white" />
+            <span className="text-white text-sm font-medium">Pan Mode Active</span>
+            <span className="text-blue-200 text-xs">Hold Space + Drag</span>
+          </div>
+        )}
       </div>
 
       {/* Workflow Header */}
@@ -3994,15 +4059,29 @@ function WorkflowView({
         className={`flex-1 relative overflow-hidden transition-all duration-300 ${
           isChatOpen ? (isMobile ? 'mb-64' : 'mb-96') : (isMobile ? 'mb-20' : 'mb-16')
         } ${
+          isSpacePressed || isPanning ? 'cursor-grab active:cursor-grabbing' :
           workflow.currentTool === 'pan' ? 'cursor-grab active:cursor-grabbing' :
           workflow.currentTool === 'connect' ? 'cursor-crosshair' :
           workflow.currentTool === 'delete' ? 'cursor-not-allowed' :
-          'cursor-default'
+          'cursor-grab hover:cursor-grab'
         }`}
         onClick={handleCanvasClick}
-        onMouseMove={onMouseMove}
-        onMouseUp={onMouseUp}
-        onMouseLeave={onMouseUp}
+        onMouseDown={(e) => {
+          handleCanvasPanStart(e)
+          onMouseDown(e)
+        }}
+        onMouseMove={(e) => {
+          handleCanvasPanMove(e)
+          onMouseMove(e)
+        }}
+        onMouseUp={(e) => {
+          handleCanvasPanEnd()
+          onMouseUp()
+        }}
+        onMouseLeave={(e) => {
+          handleCanvasPanEnd()
+          onMouseUp()
+        }}
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
@@ -4352,6 +4431,16 @@ function WorkflowView({
         <div className="bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl p-2 text-center">
           <div className="text-xs text-gray-300">Nodes</div>
           <div className="text-sm font-medium text-white">{workflow.nodes.length}</div>
+        </div>
+
+        {/* Canvas Instructions */}
+        <div className="bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl p-2 text-center max-w-32">
+          <div className="text-xs text-gray-300 mb-1">Quick Pan</div>
+          <div className="text-xs text-white flex items-center justify-center space-x-1">
+            <span className="bg-white/20 px-1 rounded text-xs">Space</span>
+            <span>+</span>
+            <Hand className="w-3 h-3" />
+          </div>
         </div>
       </div>
 

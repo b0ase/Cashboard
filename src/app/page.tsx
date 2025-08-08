@@ -35,8 +35,26 @@ import {
   Settings,
   Scale,
   Circle,
-  Building
+  Building,
+  PlayCircle
 } from 'lucide-react'
+import DemoModal from '../components/DemoModal'
+
+// Client-side only time display component to prevent hydration errors
+function TimeDisplay({ timestamp }: { timestamp: Date }) {
+  const [timeString, setTimeString] = useState<string>('')
+
+  useEffect(() => {
+    setTimeString(timestamp.toLocaleTimeString('en-US', { 
+      hour: 'numeric', 
+      minute: '2-digit', 
+      second: '2-digit',
+      hour12: true 
+    }))
+  }, [timestamp])
+
+  return <span>{timeString}</span>
+}
 
 interface HandCashHandle {
   id: string
@@ -116,7 +134,7 @@ interface ChatMessage {
 }
 
 interface AppState {
-  currentView: 'workflow' | 'organizations' | 'roles' | 'members' | 'instruments' | 'security'
+  currentView: 'workflow' | 'organizations' | 'roles' | 'members' | 'instruments' | 'security' | 'integrations'
   selectedOrganization: string | null
   sidebarOpen: boolean
   isMobile: boolean
@@ -550,6 +568,7 @@ export default function Dashboard() {
   const [isDraggingCanvas, setIsDraggingCanvas] = useState(false)
   const [lastTouchDistance, setLastTouchDistance] = useState(0)
   const [lastTouchCenter, setLastTouchCenter] = useState({ x: 0, y: 0 })
+  const [showDemoModal, setShowDemoModal] = useState(false)
 
   // Mobile detection effect
   useEffect(() => {
@@ -1092,6 +1111,20 @@ export default function Dashboard() {
                   <span>Instruments</span>
                 </div>
               </button>
+              
+              <button
+                onClick={() => setCurrentView('integrations')}
+                className={`w-full text-left px-4 py-3 rounded-lg transition-all ${
+                  currentView === 'integrations' 
+                    ? 'bg-white/20 text-white' 
+                    : 'text-gray-400 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <div className="flex items-center space-x-3">
+                  <Settings className="w-5 h-5" />
+                  <span>Integrations</span>
+                </div>
+              </button>
             </nav>
 
             {/* Selected Organization */}
@@ -1126,6 +1159,17 @@ export default function Dashboard() {
                   isMobile ? 'text-lg' : 'text-2xl'
                 }`}>CASHBOARD</h1>
               </div>
+              
+              {/* Demo Button */}
+              <button
+                onClick={() => setShowDemoModal(true)}
+                className={`bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all duration-200 hover:scale-105 flex items-center space-x-2 ${
+                  isMobile ? 'px-3 py-2 text-sm' : 'px-4 py-2'
+                }`}
+              >
+                <PlayCircle className={isMobile ? "w-4 h-4" : "w-5 h-5"} />
+                <span className={isMobile ? 'hidden' : ''}>Watch Demo</span>
+              </button>
             {currentView === 'workflow' && (
               <div className={`flex items-center space-x-2 ${isMobile ? 'flex-wrap gap-1' : ''}`}>
                 <button
@@ -1291,11 +1335,330 @@ export default function Dashboard() {
             }}
           />
         )}
+
+        {currentView === 'integrations' && (
+          <IntegrationsView />
+        )}
       </div>
 
+      {/* Demo Modal */}
+      <DemoModal 
+        isOpen={showDemoModal} 
+        onClose={() => setShowDemoModal(false)} 
+      />
 
+    </div>
+  )
+}
 
+// Integrations View Component
+function IntegrationsView() {
+  const [selectedCategory, setSelectedCategory] = useState<'crm' | 'spreadsheet' | 'cms' | 'payment' | 'communication' | 'all'>('all')
+  const [searchTerm, setSearchTerm] = useState('')
 
+  const integrations = [
+    // CRM Integrations
+    {
+      id: '1',
+      name: 'Salesforce',
+      category: 'crm',
+      description: 'Customer relationship management platform',
+      icon: '🟦',
+      status: 'connected',
+      lastSync: '2 minutes ago',
+      features: ['Contact Sync', 'Deal Tracking', 'Revenue Analytics']
+    },
+    {
+      id: '2',
+      name: 'HubSpot',
+      category: 'crm',
+      description: 'Inbound marketing and sales platform',
+      icon: '🟧',
+      status: 'available',
+      lastSync: null,
+      features: ['Lead Management', 'Email Marketing', 'Analytics']
+    },
+    {
+      id: '3',
+      name: 'Pipedrive',
+      category: 'crm',
+      description: 'Sales pipeline management',
+      icon: '🔴',
+      status: 'available',
+      lastSync: null,
+      features: ['Pipeline Management', 'Activity Tracking', 'Forecasting']
+    },
+
+    // Spreadsheet Integrations
+    {
+      id: '4',
+      name: 'Google Sheets',
+      category: 'spreadsheet',
+      description: 'Cloud-based spreadsheet application',
+      icon: '🟢',
+      status: 'connected',
+      lastSync: '5 minutes ago',
+      features: ['Real-time Sync', 'Formula Support', 'Collaboration']
+    },
+    {
+      id: '5',
+      name: 'Microsoft Excel',
+      category: 'spreadsheet',
+      description: 'Desktop spreadsheet application',
+      icon: '🟦',
+      status: 'available',
+      lastSync: null,
+      features: ['Advanced Formulas', 'Data Analysis', 'Charts']
+    },
+    {
+      id: '6',
+      name: 'Airtable',
+      category: 'spreadsheet',
+      description: 'Database-spreadsheet hybrid',
+      icon: '🟣',
+      status: 'available',
+      lastSync: null,
+      features: ['Database Views', 'Automations', 'API Access']
+    },
+
+    // CMS Integrations
+    {
+      id: '7',
+      name: 'WordPress',
+      category: 'cms',
+      description: 'Content management system',
+      icon: '🔵',
+      status: 'connected',
+      lastSync: '1 hour ago',
+      features: ['Content Sync', 'User Management', 'Plugin Support']
+    },
+    {
+      id: '8',
+      name: 'Shopify',
+      category: 'cms',
+      description: 'E-commerce platform',
+      icon: '🟢',
+      status: 'available',
+      lastSync: null,
+      features: ['Product Management', 'Order Processing', 'Analytics']
+    },
+    {
+      id: '9',
+      name: 'WooCommerce',
+      category: 'cms',
+      description: 'WordPress e-commerce plugin',
+      icon: '🟠',
+      status: 'available',
+      lastSync: null,
+      features: ['Product Catalog', 'Payment Processing', 'Inventory']
+    },
+
+    // Payment Integrations
+    {
+      id: '10',
+      name: 'Stripe',
+      category: 'payment',
+      description: 'Payment processing platform',
+      icon: '💳',
+      status: 'connected',
+      lastSync: 'Real-time',
+      features: ['Payment Processing', 'Subscription Management', 'Analytics']
+    },
+    {
+      id: '11',
+      name: 'PayPal',
+      category: 'payment',
+      description: 'Digital payment platform',
+      icon: '🔵',
+      status: 'available',
+      lastSync: null,
+      features: ['Payment Gateway', 'Business Accounts', 'Mobile Payments']
+    },
+    {
+      id: '12',
+      name: 'Square',
+      category: 'payment',
+      description: 'Point of sale and payment processing',
+      icon: '🟢',
+      status: 'available',
+      lastSync: null,
+      features: ['POS System', 'Payment Processing', 'Inventory Management']
+    },
+
+    // Communication Integrations
+    {
+      id: '13',
+      name: 'Slack',
+      category: 'communication',
+      description: 'Team communication platform',
+      icon: '🟣',
+      status: 'connected',
+      lastSync: 'Real-time',
+      features: ['Channel Management', 'Bot Integration', 'File Sharing']
+    },
+    {
+      id: '14',
+      name: 'Microsoft Teams',
+      category: 'communication',
+      description: 'Collaboration and communication platform',
+      icon: '🔵',
+      status: 'available',
+      lastSync: null,
+      features: ['Video Calls', 'File Collaboration', 'App Integration']
+    },
+    {
+      id: '15',
+      name: 'Discord',
+      category: 'communication',
+      description: 'Voice and text communication',
+      icon: '🟣',
+      status: 'available',
+      lastSync: null,
+      features: ['Voice Channels', 'Bot Support', 'Server Management']
+    }
+  ]
+
+  const categories = [
+    { id: 'all', name: 'All Integrations', icon: '🔗' },
+    { id: 'crm', name: 'CRM Systems', icon: '👥' },
+    { id: 'spreadsheet', name: 'Spreadsheets', icon: '📊' },
+    { id: 'cms', name: 'CMS & E-commerce', icon: '🌐' },
+    { id: 'payment', name: 'Payment Systems', icon: '💳' },
+    { id: 'communication', name: 'Communication', icon: '💬' }
+  ]
+
+  const filteredIntegrations = integrations.filter(integration => {
+    const matchesCategory = selectedCategory === 'all' || integration.category === selectedCategory
+    const matchesSearch = integration.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         integration.description.toLowerCase().includes(searchTerm.toLowerCase())
+    return matchesCategory && matchesSearch
+  })
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'connected': return 'text-green-400'
+      case 'available': return 'text-blue-400'
+      case 'error': return 'text-red-400'
+      default: return 'text-gray-400'
+    }
+  }
+
+  const getStatusBg = (status: string) => {
+    switch (status) {
+      case 'connected': return 'bg-green-500/20 border-green-400/30'
+      case 'available': return 'bg-blue-500/20 border-blue-400/30'
+      case 'error': return 'bg-red-500/20 border-red-400/30'
+      default: return 'bg-gray-500/20 border-gray-400/30'
+    }
+  }
+
+  return (
+    <div className="absolute inset-0 top-24 p-6 overflow-y-auto">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-white mb-2">Integrations</h1>
+          <p className="text-gray-400">Connect your favorite tools and platforms to automate workflows and sync data</p>
+        </div>
+
+        {/* Search and Filters */}
+        <div className="flex flex-col lg:flex-row gap-4 mb-8">
+          <div className="flex-1">
+            <input
+              type="text"
+              placeholder="Search integrations..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          
+          <div className="flex gap-2 overflow-x-auto pb-2">
+            {categories.map((category) => (
+              <button
+                key={category.id}
+                onClick={() => setSelectedCategory(category.id as 'crm' | 'spreadsheet' | 'cms' | 'payment' | 'communication' | 'all')}
+                className={`px-4 py-2 rounded-lg border transition-all whitespace-nowrap ${
+                  selectedCategory === category.id
+                    ? 'bg-blue-500/20 border-blue-400/50 text-white'
+                    : 'bg-white/5 border-white/10 text-gray-400 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <span className="mr-2">{category.icon}</span>
+                {category.name}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Integrations Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredIntegrations.map((integration) => (
+            <div
+              key={integration.id}
+              className="bg-black/40 backdrop-blur-xl border border-white/20 rounded-xl p-6 hover:border-white/30 transition-all duration-300 hover:shadow-lg hover:shadow-white/5"
+            >
+              {/* Header */}
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="text-2xl">{integration.icon}</div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-white">{integration.name}</h3>
+                    <p className="text-sm text-gray-400">{integration.description}</p>
+                  </div>
+                </div>
+                <div className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusBg(integration.status)} ${getStatusColor(integration.status)}`}>
+                  {integration.status === 'connected' ? 'Connected' : 'Available'}
+                </div>
+              </div>
+
+              {/* Features */}
+              <div className="mb-4">
+                <h4 className="text-sm font-medium text-white mb-2">Features</h4>
+                <div className="flex flex-wrap gap-1">
+                  {integration.features.map((feature, index) => (
+                    <span
+                      key={index}
+                      className="px-2 py-1 bg-white/10 text-xs text-gray-300 rounded"
+                    >
+                      {feature}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Status Info */}
+              {integration.lastSync && (
+                <div className="mb-4">
+                  <p className="text-xs text-gray-400">
+                    Last sync: <span className="text-green-400">{integration.lastSync}</span>
+                  </p>
+                </div>
+              )}
+
+              {/* Action Button */}
+              <button
+                className={`w-full py-2 px-4 rounded-lg transition-all ${
+                  integration.status === 'connected'
+                    ? 'bg-green-500/20 text-green-400 border border-green-400/30 hover:bg-green-500/30'
+                    : 'bg-blue-500/20 text-blue-400 border border-blue-400/30 hover:bg-blue-500/30'
+                }`}
+              >
+                {integration.status === 'connected' ? 'Manage Connection' : 'Connect'}
+              </button>
+            </div>
+          ))}
+        </div>
+
+        {/* Empty State */}
+        {filteredIntegrations.length === 0 && (
+          <div className="text-center py-12">
+            <div className="text-6xl mb-4">🔗</div>
+            <h3 className="text-xl font-semibold text-white mb-2">No integrations found</h3>
+            <p className="text-gray-400">Try adjusting your search or filter criteria</p>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
@@ -1644,7 +2007,7 @@ function WorkflowView({
                 >
                   <p className={isMobile ? 'text-xs' : 'text-sm'}>{message.content}</p>
                   <p className={`text-xs opacity-70 mt-1 ${isMobile ? 'text-xs' : ''}`}>
-                    {message.timestamp.toLocaleTimeString()}
+                    <TimeDisplay timestamp={message.timestamp} />
                   </p>
                 </div>
               </div>

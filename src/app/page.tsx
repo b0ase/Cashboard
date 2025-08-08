@@ -575,7 +575,7 @@ export default function Dashboard() {
       {/* Main Content */}
       <div className={`transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-0'}`}>
         {/* Header */}
-                <div className="absolute top-0 left-0 right-0 z-20 p-6">
+        <div className="absolute top-0 left-0 right-0 z-20 p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <button
@@ -751,7 +751,7 @@ function WorkflowView({
   return (
     <div
       ref={boardRef}
-      className="absolute inset-0 pt-24 cursor-grab active:cursor-grabbing"
+      className="absolute inset-0 top-24 cursor-grab active:cursor-grabbing"
       onMouseMove={onMouseMove}
       onMouseUp={onMouseUp}
       onMouseLeave={onMouseUp}
@@ -952,7 +952,7 @@ function OrganizationsView({
   }
 
   return (
-    <div className="absolute inset-0 pt-24 p-6">
+    <div className="absolute inset-0 top-24 p-6">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -1075,7 +1075,7 @@ function RolesView({ roles, selectedOrganization, onAddMember }: Omit<RolesViewP
   }
 
   return (
-    <div className="absolute inset-0 pt-24 p-6">
+    <div className="absolute inset-0 top-24 p-6">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -1188,7 +1188,7 @@ function MembersView({ organizations, selectedOrganization, onUpdateShareAllocat
   const currentOrg = organizations.find((org: Organization) => org.id === selectedOrganization)
 
   return (
-    <div className="absolute inset-0 pt-24 p-6">
+    <div className="absolute inset-0 top-24 p-6">
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">Team Members</h1>

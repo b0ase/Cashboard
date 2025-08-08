@@ -46,8 +46,43 @@ import {
   Download,
   Edit,
   Package,
-  Home
-
+  Home,
+  // New icons for enhanced canvas
+  PieChart,
+  Monitor,
+  Cog,
+  Globe,
+  Database,
+  GitBranch,
+  Link,
+  Mail,
+  MessageSquare,
+  Bell,
+  CheckSquare,
+  Eye,
+  Clock,
+  Hash,
+  Calculator,
+  Shuffle,
+  Layers,
+  Filter,
+  ArrowUpDown,
+  Merge,
+  Split,
+  Router,
+  Server,
+  Code,
+  Terminal,
+  ShoppingCart,
+  MousePointer,
+  Hand,
+  Trash2,
+  Copy,
+  Clipboard,
+  Grid,
+  Move,
+  ZoomIn,
+  ZoomOut
 } from 'lucide-react'
 import DemoModal from '../components/DemoModal'
 
@@ -303,7 +338,7 @@ interface Role {
 
 interface WorkflowNode {
   id: string
-  type: 'payment' | 'contract' | 'task' | 'decision' | 'milestone' | 'team' | 'kpi' | 'employee' | 'deliverable' | 'asset' | 'mint' | 'payroll' | 'production' | 'marketing' | 'sales' | 'legal' | 'finance' | 'hr' | 'it' | 'operations'
+  type: 'payment' | 'contract' | 'task' | 'decision' | 'milestone' | 'team' | 'kpi' | 'employee' | 'deliverable' | 'asset' | 'mint' | 'payroll' | 'production' | 'marketing' | 'sales' | 'legal' | 'finance' | 'hr' | 'it' | 'operations' | 'api' | 'database' | 'loop' | 'condition' | 'trigger' | 'webhook' | 'email' | 'sms' | 'notification' | 'approval' | 'review' | 'timer' | 'counter' | 'calculator' | 'transformer' | 'validator' | 'aggregator' | 'filter' | 'sorter' | 'merger' | 'splitter' | 'gateway' | 'service' | 'function' | 'script'
   name: string
   description: string
   x: number
@@ -318,6 +353,9 @@ interface WorkflowNode {
   isExpanded?: boolean
   childNodes?: WorkflowNode[]
   memberCount?: number
+  width?: number
+  height?: number
+  isSelected?: boolean
 }
 
 interface Connection {
@@ -329,6 +367,15 @@ interface Connection {
   amount?: number
 }
 
+interface CanvasTool {
+  id: string
+  name: string
+  icon: React.ReactNode
+  description: string
+  shortcut?: string
+  active?: boolean
+}
+
 interface WorkflowState {
   id: string
   name: string
@@ -336,6 +383,7 @@ interface WorkflowState {
   nodes: WorkflowNode[]
   connections: Connection[]
   selectedNode: string | null
+  selectedNodes: string[]
   isConnecting: string | null
   dragging: string | null
   workflowStatus: 'running' | 'paused' | 'stopped'
@@ -343,6 +391,10 @@ interface WorkflowState {
   createdAt: string
   updatedAt: string
   organizationId?: string
+  currentTool: 'select' | 'pan' | 'connect' | 'delete' | 'zoom'
+  clipboard: WorkflowNode[]
+  gridSnap: boolean
+  showGrid: boolean
 }
 
 interface ChatMessage {
@@ -422,16 +474,22 @@ interface WorkflowViewProps {
   boardRef: React.RefObject<HTMLDivElement | null>
   onMouseMove: (e: React.MouseEvent) => void
   onMouseUp: () => void
-  onMouseDown: (e: React.MouseEvent, id: string) => void
+  onMouseDown: (e: React.MouseEvent, id?: string) => void
   onTouchStart: (e: React.TouchEvent) => void
   onTouchMove: (e: React.TouchEvent) => void
   onTouchEnd: () => void
   onNodeUpdate: (id: string, updates: Partial<WorkflowNode>) => void
   onNodeDelete: (id: string) => void
+  onNodesDelete: (ids: string[]) => void
+  onNodesCopy: (ids: string[]) => void
+  onNodesPaste: (position?: { x: number; y: number }) => void
   onStartConnection: (fromId: string) => void
   onCompleteConnection: (toId: string) => void
   onDoubleClick: (id: string) => void
   onToggleExpansion: (nodeId: string) => void
+  onToolChange: (tool: WorkflowState['currentTool']) => void
+  onSelectionChange: (nodeIds: string[]) => void
+  onAddNode: (type: WorkflowNode['type'], position: { x: number; y: number }) => void
   getNodeIcon: (type: string) => React.ReactNode
   getStatusColor: (status: string) => string
   getConnectionColor: (type: string) => string
@@ -929,13 +987,18 @@ export default function Dashboard() {
           { id: '6-3', from: '6', to: '3', type: 'task' }
         ],
         selectedNode: null,
+        selectedNodes: [],
         isConnecting: null,
         dragging: null,
         workflowStatus: 'running',
         autoMode: true,
         createdAt: '2024-01-15',
         updatedAt: '2024-01-15',
-        organizationId: '1'
+        organizationId: '1',
+        currentTool: 'select',
+        clipboard: [],
+        gridSnap: true,
+        showGrid: true
       }
     ],
     selectedWorkflow: null,
@@ -1728,7 +1791,47 @@ export default function Dashboard() {
       case 'decision': return <AlertTriangle className={iconSize} />
       case 'milestone': return <CheckCircle className={iconSize} />
       case 'team': return <Users className={iconSize} />
-      default: return <Zap className={iconSize} />
+      case 'kpi': return <BarChart3 className={iconSize} />
+      case 'employee': return <User className={iconSize} />
+      case 'deliverable': return <Package className={iconSize} />
+      case 'asset': return <Home className={iconSize} />
+      case 'mint': return <Coins className={iconSize} />
+      case 'payroll': return <CreditCard className={iconSize} />
+      case 'production': return <Settings className={iconSize} />
+      case 'marketing': return <TrendingUp className={iconSize} />
+      case 'sales': return <ShoppingCart className={iconSize} />
+      case 'legal': return <Scale className={iconSize} />
+      case 'finance': return <PieChart className={iconSize} />
+      case 'hr': return <Users className={iconSize} />
+      case 'it': return <Monitor className={iconSize} />
+      case 'operations': return <Cog className={iconSize} />
+      // New node types
+      case 'api': return <Globe className={iconSize} />
+      case 'database': return <Database className={iconSize} />
+      case 'loop': return <RefreshCw className={iconSize} />
+      case 'condition': return <GitBranch className={iconSize} />
+      case 'trigger': return <Zap className={iconSize} />
+      case 'webhook': return <Link className={iconSize} />
+      case 'email': return <Mail className={iconSize} />
+      case 'sms': return <MessageSquare className={iconSize} />
+      case 'notification': return <Bell className={iconSize} />
+      case 'approval': return <CheckSquare className={iconSize} />
+      case 'review': return <Eye className={iconSize} />
+      case 'timer': return <Clock className={iconSize} />
+      case 'counter': return <Hash className={iconSize} />
+      case 'calculator': return <Calculator className={iconSize} />
+      case 'transformer': return <Shuffle className={iconSize} />
+      case 'validator': return <Shield className={iconSize} />
+      case 'aggregator': return <Layers className={iconSize} />
+      case 'filter': return <Filter className={iconSize} />
+      case 'sorter': return <ArrowUpDown className={iconSize} />
+      case 'merger': return <Merge className={iconSize} />
+      case 'splitter': return <Split className={iconSize} />
+      case 'gateway': return <Router className={iconSize} />
+      case 'service': return <Server className={iconSize} />
+      case 'function': return <Code className={iconSize} />
+      case 'script': return <Terminal className={iconSize} />
+      default: return <Circle className={iconSize} />
     }
   }
 
@@ -1875,18 +1978,127 @@ export default function Dashboard() {
     }
   }
 
-  const handleMouseDown = (e: React.MouseEvent, id: string) => {
+  const handleMouseDown = (e: React.MouseEvent, id?: string) => {
+    if (!currentWorkflow) return
+    
+    if (id) {
+      setAppState(prev => ({
+        ...prev,
+        workflows: prev.workflows.map(w => 
+          w.id === currentWorkflow.id 
+            ? { ...w, dragging: id, selectedNode: id }
+            : w
+        )
+      }))
+    }
+    e.stopPropagation()
+  }
+
+  // New canvas functions
+  const handleNodesDelete = (ids: string[]) => {
     if (!currentWorkflow) return
     
     setAppState(prev => ({
       ...prev,
       workflows: prev.workflows.map(w => 
         w.id === currentWorkflow.id 
-          ? { ...w, dragging: id, selectedNode: id }
+          ? { 
+              ...w, 
+              nodes: w.nodes.filter(node => !ids.includes(node.id)),
+              connections: w.connections.filter(conn => 
+                !ids.includes(conn.from) && !ids.includes(conn.to)
+              ),
+              selectedNodes: w.selectedNodes.filter(id => !ids.includes(id))
+            }
           : w
       )
     }))
-    e.stopPropagation()
+  }
+
+  const handleNodesCopy = (ids: string[]) => {
+    if (!currentWorkflow) return
+    
+    const nodesToCopy = currentWorkflow.nodes.filter(node => ids.includes(node.id))
+    setAppState(prev => ({
+      ...prev,
+      workflows: prev.workflows.map(w => 
+        w.id === currentWorkflow.id 
+          ? { ...w, clipboard: nodesToCopy }
+          : w
+      )
+    }))
+  }
+
+  const handleNodesPaste = (position?: { x: number; y: number }) => {
+    if (!currentWorkflow || currentWorkflow.clipboard.length === 0) return
+    
+    const pastePosition = position || { x: 100, y: 100 }
+    const newNodes = currentWorkflow.clipboard.map((node, index) => ({
+      ...node,
+      id: `${Date.now()}-${index}`,
+      x: pastePosition.x + (index * 20),
+      y: pastePosition.y + (index * 20),
+      connections: []
+    }))
+
+    setAppState(prev => ({
+      ...prev,
+      workflows: prev.workflows.map(w => 
+        w.id === currentWorkflow.id 
+          ? { ...w, nodes: [...w.nodes, ...newNodes] }
+          : w
+      )
+    }))
+  }
+
+  const handleToolChange = (tool: WorkflowState['currentTool']) => {
+    if (!currentWorkflow) return
+    
+    setAppState(prev => ({
+      ...prev,
+      workflows: prev.workflows.map(w => 
+        w.id === currentWorkflow.id 
+          ? { ...w, currentTool: tool }
+          : w
+      )
+    }))
+  }
+
+  const handleSelectionChange = (nodeIds: string[]) => {
+    if (!currentWorkflow) return
+    
+    setAppState(prev => ({
+      ...prev,
+      workflows: prev.workflows.map(w => 
+        w.id === currentWorkflow.id 
+          ? { ...w, selectedNodes: nodeIds }
+          : w
+      )
+    }))
+  }
+
+  const handleAddNode = (type: WorkflowNode['type'], position: { x: number; y: number }) => {
+    if (!currentWorkflow) return
+    
+    const newNode: WorkflowNode = {
+      id: Date.now().toString(),
+      type,
+      name: `New ${type.charAt(0).toUpperCase() + type.slice(1)}`,
+      description: `New ${type} node`,
+      x: position.x,
+      y: position.y,
+      status: 'pending',
+      connections: []
+    }
+
+    setAppState(prev => ({
+      ...prev,
+      workflows: prev.workflows.map(w => 
+        w.id === currentWorkflow.id 
+          ? { ...w, nodes: [...w.nodes, newNode] }
+          : w
+      )
+    }))
   }
 
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -1983,13 +2195,18 @@ export default function Dashboard() {
       nodes: [],
       connections: [],
       selectedNode: null,
+      selectedNodes: [],
       isConnecting: null,
       dragging: null,
       workflowStatus: 'stopped',
       autoMode: false,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      organizationId: selectedOrganization || undefined
+      organizationId: selectedOrganization || undefined,
+      currentTool: 'select',
+      clipboard: [],
+      gridSnap: true,
+      showGrid: true
     }
 
     setAppState(prev => ({
@@ -2706,6 +2923,9 @@ export default function Dashboard() {
             onTouchEnd={handleTouchEnd}
             onNodeUpdate={updateNode}
             onNodeDelete={deleteNode}
+            onNodesDelete={handleNodesDelete}
+            onNodesCopy={handleNodesCopy}
+            onNodesPaste={handleNodesPaste}
             onStartConnection={startConnection}
             onCompleteConnection={completeConnection}
             onDoubleClick={(id: string) => {
@@ -2720,6 +2940,9 @@ export default function Dashboard() {
               }))
             }}
             onToggleExpansion={toggleNodeExpansion}
+            onToolChange={handleToolChange}
+            onSelectionChange={handleSelectionChange}
+            onAddNode={handleAddNode}
             getNodeIcon={getNodeIcon}
             getStatusColor={getStatusColor}
             getConnectionColor={getConnectionColor}
@@ -3506,11 +3729,17 @@ function WorkflowView({
   onTouchMove,
   onTouchEnd,
   onNodeUpdate, 
-  onNodeDelete, 
+  onNodeDelete,
+  onNodesDelete,
+  onNodesCopy,
+  onNodesPaste,
   onStartConnection, 
   onCompleteConnection, 
   onDoubleClick,
   onToggleExpansion,
+  onToolChange,
+  onSelectionChange,
+  onAddNode,
   getNodeIcon,
   getStatusColor,
   getConnectionColor,
@@ -3533,10 +3762,139 @@ function WorkflowView({
   sidebarOpen: boolean
   onBackToWorkflows: () => void
 }) {
+  // Canvas tools configuration
+  const canvasTools: CanvasTool[] = [
+    { id: 'select', name: 'Select', icon: <MousePointer className="w-4 h-4" />, description: 'Select and move nodes', shortcut: 'V', active: workflow.currentTool === 'select' },
+    { id: 'pan', name: 'Pan', icon: <Hand className="w-4 h-4" />, description: 'Pan around the canvas', shortcut: 'H', active: workflow.currentTool === 'pan' },
+    { id: 'connect', name: 'Connect', icon: <Link className="w-4 h-4" />, description: 'Connect nodes together', shortcut: 'C', active: workflow.currentTool === 'connect' },
+    { id: 'delete', name: 'Delete', icon: <Trash2 className="w-4 h-4" />, description: 'Delete nodes and connections', shortcut: 'X', active: workflow.currentTool === 'delete' },
+    { id: 'zoom', name: 'Zoom', icon: <ZoomIn className="w-4 h-4" />, description: 'Zoom in/out', shortcut: 'Z', active: workflow.currentTool === 'zoom' }
+  ]
+
+  // Node types for the palette
+  const nodeTypes = [
+    { type: 'task' as const, name: 'Task', icon: getNodeIcon('task'), category: 'Basic' },
+    { type: 'decision' as const, name: 'Decision', icon: getNodeIcon('decision'), category: 'Basic' },
+    { type: 'payment' as const, name: 'Payment', icon: getNodeIcon('payment'), category: 'Basic' },
+    { type: 'milestone' as const, name: 'Milestone', icon: getNodeIcon('milestone'), category: 'Basic' },
+    { type: 'api' as const, name: 'API Call', icon: getNodeIcon('api'), category: 'Integration' },
+    { type: 'database' as const, name: 'Database', icon: getNodeIcon('database'), category: 'Integration' },
+    { type: 'webhook' as const, name: 'Webhook', icon: getNodeIcon('webhook'), category: 'Integration' },
+    { type: 'email' as const, name: 'Email', icon: getNodeIcon('email'), category: 'Communication' },
+    { type: 'sms' as const, name: 'SMS', icon: getNodeIcon('sms'), category: 'Communication' },
+    { type: 'notification' as const, name: 'Notification', icon: getNodeIcon('notification'), category: 'Communication' },
+    { type: 'loop' as const, name: 'Loop', icon: getNodeIcon('loop'), category: 'Logic' },
+    { type: 'condition' as const, name: 'Condition', icon: getNodeIcon('condition'), category: 'Logic' },
+    { type: 'trigger' as const, name: 'Trigger', icon: getNodeIcon('trigger'), category: 'Logic' },
+    { type: 'approval' as const, name: 'Approval', icon: getNodeIcon('approval'), category: 'Process' },
+    { type: 'review' as const, name: 'Review', icon: getNodeIcon('review'), category: 'Process' },
+    { type: 'timer' as const, name: 'Timer', icon: getNodeIcon('timer'), category: 'Process' }
+  ]
+
+  const handleCanvasClick = (e: React.MouseEvent) => {
+    if (workflow.currentTool === 'select' && e.target === e.currentTarget) {
+      onSelectionChange([])
+    }
+  }
+
+  const handleKeyDown = (e: KeyboardEvent) => {
+    // Prevent interference when AI Assistant is open
+    if (isChatOpen) return
+    
+    // Tool shortcuts
+    switch (e.key.toLowerCase()) {
+      case 'v':
+        onToolChange('select')
+        break
+      case 'h':
+        onToolChange('pan')
+        break
+      case 'c':
+        onToolChange('connect')
+        break
+      case 'x':
+        if (workflow.selectedNodes.length > 0) {
+          onNodesDelete(workflow.selectedNodes)
+        }
+        break
+      case 'delete':
+      case 'backspace':
+        if (workflow.selectedNodes.length > 0) {
+          onNodesDelete(workflow.selectedNodes)
+        }
+        break
+      // Copy/Paste shortcuts
+      case 'c':
+        if (e.ctrlKey || e.metaKey) {
+          e.preventDefault()
+          if (workflow.selectedNodes.length > 0) {
+            onNodesCopy(workflow.selectedNodes)
+          }
+        }
+        break
+      case 'v':
+        if (e.ctrlKey || e.metaKey) {
+          e.preventDefault()
+          onNodesPaste()
+        }
+        break
+    }
+  }
+
+  React.useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [workflow.selectedNodes, isChatOpen])
+
   return (
     <div className="absolute inset-0 top-24 flex flex-col">
+      {/* Enhanced Canvas Tools */}
+      <div className="absolute top-4 left-4 z-40 flex flex-col space-y-2">
+        <div className="bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl p-2 flex items-center space-x-1">
+          {canvasTools.map((tool) => (
+            <button
+              key={tool.id}
+              onClick={() => onToolChange(tool.id as WorkflowState['currentTool'])}
+              className={`p-2 rounded-lg transition-all ${
+                tool.active 
+                  ? 'bg-blue-500 text-white shadow-lg' 
+                  : 'text-gray-400 hover:text-white hover:bg-white/10'
+              }`}
+              title={`${tool.description} (${tool.shortcut})`}
+            >
+              {tool.icon}
+            </button>
+          ))}
+        </div>
+        
+        {/* Node Palette */}
+        <div className="bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl p-2 max-h-96 overflow-y-auto">
+          <h3 className="text-xs font-medium text-gray-300 mb-2 px-1">Add Nodes</h3>
+          <div className="space-y-1">
+            {['Basic', 'Integration', 'Communication', 'Logic', 'Process'].map((category) => (
+              <div key={category}>
+                <div className="text-xs text-gray-500 px-1 py-1">{category}</div>
+                <div className="grid grid-cols-2 gap-1">
+                  {nodeTypes.filter(node => node.category === category).map((nodeType) => (
+                    <button
+                      key={nodeType.type}
+                      onClick={() => onAddNode(nodeType.type, { x: 200, y: 200 })}
+                      className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all flex items-center space-x-1 text-xs"
+                      title={`Add ${nodeType.name}`}
+                    >
+                      {nodeType.icon}
+                      <span className="truncate">{nodeType.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       {/* Workflow Header */}
-      <div className="absolute top-4 left-4 z-30 flex items-center space-x-3">
+      <div className="absolute top-4 right-4 z-30 flex items-center space-x-3">
         <button
           onClick={onBackToWorkflows}
           className="p-2 bg-black/60 backdrop-blur-xl border border-white/20 rounded-lg text-white hover:bg-white/10 transition-all"
@@ -3630,10 +3988,18 @@ function WorkflowView({
         </div>
       </div>
 
-      {/* Canvas Area */}
+      {/* Enhanced Canvas Area */}
       <div
         ref={boardRef}
-        className={`flex-1 cursor-grab active:cursor-grabbing transition-all duration-300 ${isChatOpen ? (isMobile ? 'mb-64' : 'mb-96') : (isMobile ? 'mb-20' : 'mb-16')}`}
+        className={`flex-1 relative overflow-hidden transition-all duration-300 ${
+          isChatOpen ? (isMobile ? 'mb-64' : 'mb-96') : (isMobile ? 'mb-20' : 'mb-16')
+        } ${
+          workflow.currentTool === 'pan' ? 'cursor-grab active:cursor-grabbing' :
+          workflow.currentTool === 'connect' ? 'cursor-crosshair' :
+          workflow.currentTool === 'delete' ? 'cursor-not-allowed' :
+          'cursor-default'
+        }`}
+        onClick={handleCanvasClick}
         onMouseMove={onMouseMove}
         onMouseUp={onMouseUp}
         onMouseLeave={onMouseUp}
@@ -3645,6 +4011,30 @@ function WorkflowView({
           transformOrigin: '0 0'
         }}
       >
+        {/* Grid Background */}
+        {workflow.showGrid && (
+          <div className="absolute inset-0 pointer-events-none opacity-20">
+            <svg width="100%" height="100%" className="w-full h-full">
+              <defs>
+                <pattern
+                  id="grid"
+                  width="20"
+                  height="20"
+                  patternUnits="userSpaceOnUse"
+                >
+                  <path
+                    d="M 20 0 L 0 0 0 20"
+                    fill="none"
+                    stroke="white"
+                    strokeWidth="0.5"
+                    opacity="0.3"
+                  />
+                </pattern>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#grid)" />
+            </svg>
+          </div>
+        )}
       {/* SVG for connections */}
       <svg className="absolute inset-0 w-full h-full pointer-events-none">
         {workflow.connections.map((connection: Connection) => {
@@ -3704,28 +4094,70 @@ function WorkflowView({
         </defs>
       </svg>
 
-      {/* Workflow Nodes */}
-      {workflow.nodes.map((node: WorkflowNode) => (
-        <div
-          key={node.id}
-          className={`absolute bg-black/60 backdrop-blur-xl border border-white/20 rounded-xl cursor-move transition-all duration-300 shadow-2xl hover:shadow-white/5 group ${
-            workflow.selectedNode === node.id ? 'ring-2 ring-white/30 shadow-white/10' : ''
-          } ${workflow.isConnecting === node.id ? 'ring-2 ring-green-400/50 shadow-green-400/20' : ''} ${
-            isMobile ? 'p-2 w-40' : 'p-4 w-60'
-          }`}
-          style={{
-            left: node.x,
-            top: node.y,
-            transform: workflow.dragging === node.id ? 'scale(1.05) rotate(1deg)' : 'scale(1)',
-          }}
-          onMouseDown={(e) => onMouseDown(e, node.id)}
-          onDoubleClick={() => onDoubleClick(node.id)}
-          onClick={() => {
-            if (workflow.isConnecting && workflow.isConnecting !== node.id) {
-              onCompleteConnection(node.id)
-            }
-          }}
-        >
+      {/* Enhanced Workflow Nodes */}
+      {workflow.nodes.map((node: WorkflowNode) => {
+        const isSelected = workflow.selectedNode === node.id || workflow.selectedNodes.includes(node.id)
+        const isConnecting = workflow.isConnecting === node.id
+        const isDragging = workflow.dragging === node.id
+        
+        return (
+          <div
+            key={node.id}
+            className={`absolute bg-black/60 backdrop-blur-xl border rounded-xl transition-all duration-300 shadow-2xl hover:shadow-white/5 group ${
+              isSelected ? 'border-blue-400/60 ring-2 ring-blue-400/30 shadow-blue-400/20' : 'border-white/20'
+            } ${
+              isConnecting ? 'ring-2 ring-green-400/50 shadow-green-400/20 border-green-400/60' : ''
+            } ${
+              workflow.currentTool === 'delete' ? 'hover:border-red-400/60 hover:ring-2 hover:ring-red-400/30' : ''
+            } ${
+              workflow.currentTool === 'select' ? 'cursor-move' :
+              workflow.currentTool === 'connect' ? 'cursor-crosshair' :
+              workflow.currentTool === 'delete' ? 'cursor-not-allowed' :
+              'cursor-pointer'
+            } ${
+              isMobile ? 'p-2 w-40' : 'p-4 w-60'
+            }`}
+            style={{
+              left: workflow.gridSnap ? Math.round(node.x / 20) * 20 : node.x,
+              top: workflow.gridSnap ? Math.round(node.y / 20) * 20 : node.y,
+              transform: isDragging ? 'scale(1.05) rotate(1deg)' : 'scale(1)',
+              zIndex: isDragging ? 1000 : isSelected ? 100 : 10,
+            }}
+            onMouseDown={(e) => {
+              e.stopPropagation()
+              if (workflow.currentTool === 'delete') {
+                onNodeDelete(node.id)
+                return
+              }
+              if (workflow.currentTool === 'connect') {
+                if (workflow.isConnecting) {
+                  onCompleteConnection(node.id)
+                } else {
+                  onStartConnection(node.id)
+                }
+                return
+              }
+              if (workflow.currentTool === 'select') {
+                // Multi-selection with Ctrl/Cmd
+                if (e.ctrlKey || e.metaKey) {
+                  const newSelection = isSelected 
+                    ? workflow.selectedNodes.filter(id => id !== node.id)
+                    : [...workflow.selectedNodes, node.id]
+                  onSelectionChange(newSelection)
+                } else {
+                  onSelectionChange([node.id])
+                }
+                onMouseDown(e, node.id)
+              }
+            }}
+            onDoubleClick={() => onDoubleClick(node.id)}
+            onClick={(e) => {
+              e.stopPropagation()
+              if (workflow.currentTool === 'connect' && workflow.isConnecting && workflow.isConnecting !== node.id) {
+                onCompleteConnection(node.id)
+              }
+            }}
+          >
           {/* Header with icon, status, and delete button */}
           <div className={`flex items-center justify-between ${isMobile ? 'mb-2' : 'mb-3'}`}>
             <div className="flex items-center space-x-2">
@@ -3864,7 +4296,63 @@ function WorkflowView({
             {workflow.isConnecting === node.id ? 'Click target' : 'Connect'}
           </button>
         </div>
-      ))}
+      )
+      })}
+      </div>
+
+      {/* Enhanced Canvas Controls */}
+      <div className="absolute bottom-20 right-4 z-30 flex flex-col space-y-2">
+        {/* Selection Info */}
+        {workflow.selectedNodes.length > 0 && (
+          <div className="bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl p-3 text-white">
+            <div className="text-xs text-gray-300 mb-1">Selected</div>
+            <div className="text-sm font-medium">{workflow.selectedNodes.length} node{workflow.selectedNodes.length !== 1 ? 's' : ''}</div>
+            <div className="flex space-x-1 mt-2">
+              <button
+                onClick={() => onNodesCopy(workflow.selectedNodes)}
+                className="p-1 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-all"
+                title="Copy (Ctrl+C)"
+              >
+                <Copy className="w-3 h-3" />
+              </button>
+              <button
+                onClick={() => onNodesDelete(workflow.selectedNodes)}
+                className="p-1 text-gray-400 hover:text-red-400 hover:bg-red-400/10 rounded transition-all"
+                title="Delete (Del)"
+              >
+                <Trash2 className="w-3 h-3" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Canvas Settings */}
+        <div className="bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl p-2 flex items-center space-x-2">
+          <button
+            onClick={() => onToolChange('select')}
+            className={`p-1 rounded transition-all ${
+              workflow.gridSnap ? 'bg-blue-500 text-white' : 'text-gray-400 hover:text-white'
+            }`}
+            title="Grid Snap"
+          >
+            <Grid className="w-3 h-3" />
+          </button>
+          {workflow.clipboard.length > 0 && (
+            <button
+              onClick={() => onNodesPaste()}
+              className="p-1 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-all"
+              title="Paste (Ctrl+V)"
+            >
+              <Clipboard className="w-3 h-3" />
+            </button>
+          )}
+        </div>
+
+        {/* Node Count */}
+        <div className="bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl p-2 text-center">
+          <div className="text-xs text-gray-300">Nodes</div>
+          <div className="text-sm font-medium text-white">{workflow.nodes.length}</div>
+        </div>
       </div>
 
       {/* AI Chat Bar */}

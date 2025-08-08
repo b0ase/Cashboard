@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { X, DollarSign, FileText, CheckCircle, AlertTriangle, Zap, Users, Target, ArrowRight, Play, Pause, Settings, Building2, UserPlus, Menu, Plus, Crown, TrendingUp, Shield, Palette, BarChart3, Send, Bot, ChevronUp, ChevronDown, ChevronRight } from 'lucide-react'
+import { X, DollarSign, FileText, CheckCircle, AlertTriangle, Zap, Users, Target, ArrowRight, Play, Pause, Settings, Building2, UserPlus, Menu, Plus, Crown, TrendingUp, Shield, Palette, BarChart3, Send, Bot, ChevronUp, ChevronDown, ChevronRight, Coins, User, Package, CreditCard, Factory, Megaphone, Scale, Calculator, Server, Circle, Users2, Building } from 'lucide-react'
 
 interface HandCashHandle {
   id: string
@@ -36,7 +36,7 @@ interface Role {
 
 interface WorkflowNode {
   id: string
-  type: 'payment' | 'contract' | 'task' | 'decision' | 'milestone' | 'team'
+  type: 'payment' | 'contract' | 'task' | 'decision' | 'milestone' | 'team' | 'kpi' | 'employee' | 'deliverable' | 'asset' | 'mint' | 'payroll' | 'production' | 'marketing' | 'sales' | 'legal' | 'finance' | 'hr' | 'it' | 'operations'
   name: string
   description: string
   x: number
@@ -81,7 +81,7 @@ interface ChatMessage {
 }
 
 interface AppState {
-  currentView: 'workflow' | 'organizations' | 'roles' | 'members'
+  currentView: 'workflow' | 'organizations' | 'roles' | 'members' | 'instruments' | 'security'
   selectedOrganization: string | null
   sidebarOpen: boolean
   isMobile: boolean
@@ -90,6 +90,8 @@ interface AppState {
   workflow: WorkflowState
   chatMessages: ChatMessage[]
   isChatOpen: boolean
+  instruments: FinancialInstrument[]
+  securityProducts: SecurityProduct[]
 }
 
 interface WorkflowViewProps {
@@ -128,6 +130,97 @@ interface MembersViewProps {
   organizations: Organization[]
   selectedOrganization: string | null
   onUpdateShareAllocation: (organizationId: string, memberId: string, shares: number) => void
+}
+
+interface FinancialInstrument {
+  id: string
+  name: string
+  type: 'equity' | 'debt' | 'derivative' | 'reward' | 'utility' | 'governance' | 'hybrid'
+  symbol: string
+  description: string
+  organizationId: string
+  totalSupply: number
+  issuedSupply: number
+  decimals: number
+  blockchain: string
+  contractAddress?: string
+  metadata: {
+    maturityDate?: string
+    interestRate?: number
+    couponRate?: number
+    strikePrice?: number
+    expiryDate?: string
+    vestingSchedule?: string
+    votingPower?: number
+    dividendYield?: number
+    collateralRatio?: number
+    liquidationThreshold?: number
+    rewardMultiplier?: number
+    stakingAPY?: number
+    governanceWeight?: number
+    utilityFunctions?: string[]
+  }
+  status: 'draft' | 'active' | 'paused' | 'matured' | 'liquidated'
+  createdAt: string
+  updatedAt: string
+}
+
+interface InstrumentsViewProps {
+  instruments: FinancialInstrument[]
+  organizations: Organization[]
+  selectedOrganization: string | null
+  onCreateInstrument: (instrument: Omit<FinancialInstrument, 'id' | 'createdAt' | 'updatedAt'>) => void
+  onUpdateInstrument: (id: string, updates: Partial<FinancialInstrument>) => void
+  onDeleteInstrument: (id: string) => void
+}
+
+interface SecurityProduct {
+  id: string
+  name: string
+  type: 'auth' | 'identity' | 'access' | 'encryption' | 'audit' | 'compliance' | 'governance' | 'biometric' | 'zero-knowledge' | 'multisig'
+  category: 'authentication' | 'authorization' | 'identity-management' | 'data-protection' | 'compliance' | 'governance'
+  description: string
+  organizationId: string
+  blockchain: string
+  contractAddress?: string
+  tokenSymbol?: string
+  pricing: {
+    model: 'subscription' | 'usage-based' | 'one-time' | 'revenue-share'
+    price: number
+    currency: string
+    billingCycle?: string
+  }
+  features: {
+    oauthCompatible: boolean
+    multiFactorAuth: boolean
+    biometricSupport: boolean
+    zeroKnowledgeProofs: boolean
+    auditTrail: boolean
+    complianceFrameworks: string[]
+    apiEndpoints: string[]
+    sdkSupport: string[]
+  }
+  metadata: {
+    maxUsers?: number
+    dataRetentionDays?: number
+    encryptionLevel?: string
+    auditLogRetention?: number
+    complianceCertifications?: string[]
+    uptimeSLA?: number
+    responseTime?: number
+  }
+  status: 'development' | 'beta' | 'active' | 'deprecated'
+  createdAt: string
+  updatedAt: string
+}
+
+interface SecurityViewProps {
+  securityProducts: SecurityProduct[]
+  organizations: Organization[]
+  selectedOrganization: string | null
+  onCreateSecurityProduct: (product: Omit<SecurityProduct, 'id' | 'createdAt' | 'updatedAt'>) => void
+  onUpdateSecurityProduct: (id: string, updates: Partial<SecurityProduct>) => void
+  onDeleteSecurityProduct: (id: string) => void
 }
 
 export default function Dashboard() {
@@ -285,10 +378,132 @@ export default function Dashboard() {
     }
   ],
   isChatOpen: true,
-  isMobile: false
+  isMobile: false,
+  instruments: [
+    {
+      id: '1',
+      name: 'TechCorp Equity Shares',
+      type: 'equity',
+      symbol: 'TECH',
+      description: 'Common equity shares with voting rights',
+      organizationId: '1',
+      totalSupply: 1000000,
+      issuedSupply: 500000,
+      decimals: 18,
+      blockchain: 'Bitcoin SV',
+      contractAddress: '0x1234567890abcdef',
+      metadata: {
+        votingPower: 1,
+        dividendYield: 0.05,
+        governanceWeight: 1
+      },
+      status: 'active',
+      createdAt: '2024-01-15',
+      updatedAt: '2024-01-15'
+    },
+    {
+      id: '2',
+      name: 'TechCorp Employee Options',
+      type: 'derivative',
+      symbol: 'TECH-OPT',
+      description: 'Employee stock options with vesting',
+      organizationId: '1',
+      totalSupply: 100000,
+      issuedSupply: 25000,
+      decimals: 18,
+      blockchain: 'Bitcoin SV',
+      metadata: {
+        strikePrice: 10,
+        expiryDate: '2029-01-15',
+        vestingSchedule: '4-year vesting with 1-year cliff'
+      },
+      status: 'active',
+      createdAt: '2024-01-15',
+      updatedAt: '2024-01-15'
+    },
+    securityProducts: [
+      {
+        id: '1',
+        name: 'BlockAuth OAuth',
+        type: 'auth',
+        category: 'authentication',
+        description: 'Blockchain-based OAuth 2.0 compatible authentication service',
+        organizationId: '1',
+        blockchain: 'Bitcoin SV',
+        contractAddress: '0xauth1234567890abcdef',
+        tokenSymbol: 'AUTH',
+        pricing: {
+          model: 'usage-based',
+          price: 0.001,
+          currency: 'BSV',
+          billingCycle: 'per-request'
+        },
+        features: {
+          oauthCompatible: true,
+          multiFactorAuth: true,
+          biometricSupport: false,
+          zeroKnowledgeProofs: false,
+          auditTrail: true,
+          complianceFrameworks: ['GDPR', 'SOC2'],
+          apiEndpoints: ['/oauth/authorize', '/oauth/token', '/userinfo'],
+          sdkSupport: ['JavaScript', 'Python', 'React Native']
+        },
+        metadata: {
+          maxUsers: 1000000,
+          dataRetentionDays: 90,
+          encryptionLevel: 'AES-256',
+          auditLogRetention: 365,
+          complianceCertifications: ['ISO 27001'],
+          uptimeSLA: 99.9,
+          responseTime: 100
+        },
+        status: 'active',
+        createdAt: '2024-01-15',
+        updatedAt: '2024-01-15'
+      },
+      {
+        id: '2',
+        name: 'Immutable Audit Log',
+        type: 'audit',
+        category: 'compliance',
+        description: 'Immutable blockchain audit trail for compliance and governance',
+        organizationId: '1',
+        blockchain: 'Bitcoin SV',
+        contractAddress: '0xaudit1234567890abcdef',
+        pricing: {
+          model: 'subscription',
+          price: 99,
+          currency: 'USD',
+          billingCycle: 'monthly'
+        },
+        features: {
+          oauthCompatible: false,
+          multiFactorAuth: false,
+          biometricSupport: false,
+          zeroKnowledgeProofs: true,
+          auditTrail: true,
+          complianceFrameworks: ['SOX', 'HIPAA', 'PCI-DSS'],
+          apiEndpoints: ['/audit/log', '/audit/verify', '/audit/export'],
+          sdkSupport: ['Java', 'C#', 'Go']
+        },
+        metadata: {
+          maxUsers: 50000,
+          dataRetentionDays: 2555,
+          encryptionLevel: 'SHA-256',
+          auditLogRetention: 2555,
+          complianceCertifications: ['SOC2 Type II'],
+          uptimeSLA: 99.99,
+          responseTime: 50
+        },
+        status: 'active',
+        createdAt: '2024-01-15',
+        updatedAt: '2024-01-15'
+      }
+    ]
+  ]
 })
 
-  const { workflow, organizations, roles, currentView, selectedOrganization, sidebarOpen, chatMessages, isChatOpen } = appState
+  const { workflow, organizations, roles, currentView, selectedOrganization, sidebarOpen, chatMessages, isChatOpen, instruments, securityProducts } = appState
 
   const boardRef = useRef<HTMLDivElement>(null)
 
@@ -728,6 +943,20 @@ export default function Dashboard() {
                   <span>Members</span>
                 </div>
               </button>
+              
+              <button
+                onClick={() => setCurrentView('instruments')}
+                className={`w-full text-left px-4 py-3 rounded-lg transition-all ${
+                  currentView === 'instruments' 
+                    ? 'bg-white/20 text-white' 
+                    : 'text-gray-400 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <div className="flex items-center space-x-3">
+                  <Coins className="w-5 h-5" />
+                  <span>Instruments</span>
+                </div>
+              </button>
             </nav>
 
             {/* Selected Organization */}
@@ -867,11 +1096,46 @@ export default function Dashboard() {
           />
         )}
 
-        {currentView === 'members' && (
-          <MembersView 
+                {currentView === 'members' && (
+          <MembersView
             organizations={organizations}
             selectedOrganization={selectedOrganization}
             onUpdateShareAllocation={updateShareAllocation}
+          />
+        )}
+        {currentView === 'instruments' && (
+          <InstrumentsView
+            instruments={instruments}
+            organizations={organizations}
+            selectedOrganization={selectedOrganization}
+            onCreateInstrument={(instrument) => {
+              const newInstrument: FinancialInstrument = {
+                ...instrument,
+                id: Date.now().toString(),
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+              }
+              setAppState(prev => ({
+                ...prev,
+                instruments: [...prev.instruments, newInstrument]
+              }))
+            }}
+            onUpdateInstrument={(id: string, updates: Partial<FinancialInstrument>) => {
+              setAppState(prev => ({
+                ...prev,
+                instruments: prev.instruments.map(instrument =>
+                  instrument.id === id 
+                    ? { ...instrument, ...updates, updatedAt: new Date().toISOString() }
+                    : instrument
+                )
+              }))
+            }}
+            onDeleteInstrument={(id: string) => {
+              setAppState(prev => ({
+                ...prev,
+                instruments: prev.instruments.filter(instrument => instrument.id !== id)
+              }))
+            }}
           />
         )}
       </div>
@@ -1459,6 +1723,262 @@ function RolesView({ roles, selectedOrganization, onAddMember }: Omit<RolesViewP
             </div>
           ))}
         </div>
+      </div>
+    </div>
+  )
+}
+
+// Instruments View Component
+function InstrumentsView({ instruments, organizations, selectedOrganization, onCreateInstrument, onUpdateInstrument, onDeleteInstrument }: InstrumentsViewProps) {
+  const [showCreateForm, setShowCreateForm] = useState(false)
+  const [formData, setFormData] = useState({
+    name: '',
+    type: 'equity' as FinancialInstrument['type'],
+    symbol: '',
+    description: '',
+    totalSupply: 1000000,
+    decimals: 18,
+    blockchain: 'Bitcoin SV'
+  })
+
+  const currentOrg = organizations.find((org: Organization) => org.id === selectedOrganization)
+  const orgInstruments = instruments.filter(instrument => instrument.organizationId === selectedOrganization)
+
+  const handleCreate = () => {
+    if (formData.name && formData.symbol && selectedOrganization) {
+      onCreateInstrument({
+        ...formData,
+        organizationId: selectedOrganization,
+        issuedSupply: 0,
+        status: 'draft',
+        metadata: {}
+      })
+      setFormData({
+        name: '',
+        type: 'equity',
+        symbol: '',
+        description: '',
+        totalSupply: 1000000,
+        decimals: 18,
+        blockchain: 'Bitcoin SV'
+      })
+      setShowCreateForm(false)
+    }
+  }
+
+  const getInstrumentTypeColor = (type: FinancialInstrument['type']) => {
+    switch (type) {
+      case 'equity': return 'text-green-400'
+      case 'debt': return 'text-red-400'
+      case 'derivative': return 'text-purple-400'
+      case 'reward': return 'text-yellow-400'
+      case 'utility': return 'text-blue-400'
+      case 'governance': return 'text-indigo-400'
+      case 'hybrid': return 'text-pink-400'
+      default: return 'text-gray-400'
+    }
+  }
+
+  const getInstrumentIcon = (type: FinancialInstrument['type']) => {
+    switch (type) {
+      case 'equity': return <TrendingUp className="w-5 h-5" />
+      case 'debt': return <CreditCard className="w-5 h-5" />
+      case 'derivative': return <BarChart3 className="w-5 h-5" />
+      case 'reward': return <Coins className="w-5 h-5" />
+      case 'utility': return <Settings className="w-5 h-5" />
+      case 'governance': return <Scale className="w-5 h-5" />
+      case 'hybrid': return <Circle className="w-5 h-5" />
+      default: return <Circle className="w-5 h-5" />
+    }
+  }
+
+  return (
+    <div className="absolute inset-0 top-24 p-6">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-white mb-2">Financial Instruments</h1>
+            <p className="text-gray-300">Create and manage blockchain-based financial instruments</p>
+          </div>
+          {selectedOrganization && (
+            <button
+              onClick={() => setShowCreateForm(true)}
+              className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg flex items-center space-x-2 transition-colors"
+            >
+              <Plus className="w-5 h-5" />
+              <span>New Instrument</span>
+            </button>
+          )}
+        </div>
+
+        {!selectedOrganization ? (
+          <div className="text-center py-12">
+            <Coins className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-white mb-2">Select an Organization</h3>
+            <p className="text-gray-400">Please select an organization to view and manage its financial instruments</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            {/* Organization Summary */}
+            <div className="bg-black/40 backdrop-blur-xl border border-white/20 rounded-xl p-6">
+              <div className="flex items-center space-x-3 mb-4">
+                <Building className="w-8 h-8 text-blue-400" />
+                <div>
+                  <h3 className="text-lg font-semibold text-white">{currentOrg?.name}</h3>
+                  <p className="text-gray-400 text-sm">{currentOrg?.description}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <div className="text-2xl font-bold text-white">{orgInstruments.length}</div>
+                  <div className="text-gray-400 text-sm">Total Instruments</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-white">
+                    {orgInstruments.filter(i => i.status === 'active').length}
+                  </div>
+                  <div className="text-gray-400 text-sm">Active</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Instrument Cards */}
+            {orgInstruments.map((instrument) => (
+              <div key={instrument.id} className="bg-black/40 backdrop-blur-xl border border-white/20 rounded-xl p-6 hover:border-white/30 transition-all">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center space-x-3">
+                    <div className={`p-2 rounded-lg bg-white/10 ${getInstrumentTypeColor(instrument.type)}`}>
+                      {getInstrumentIcon(instrument.type)}
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-white">{instrument.name}</h3>
+                      <p className="text-gray-400 text-sm">{instrument.symbol}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      instrument.status === 'active' ? 'bg-green-500/20 text-green-400' :
+                      instrument.status === 'draft' ? 'bg-yellow-500/20 text-yellow-400' :
+                      instrument.status === 'paused' ? 'bg-orange-500/20 text-orange-400' :
+                      'bg-gray-500/20 text-gray-400'
+                    }`}>
+                      {instrument.status}
+                    </span>
+                    <button
+                      onClick={() => onDeleteInstrument(instrument.id)}
+                      className="text-gray-400 hover:text-red-400 transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+                
+                <p className="text-gray-300 text-sm mb-4">{instrument.description}</p>
+                
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-400">Supply:</span>
+                    <span className="text-white">{instrument.issuedSupply.toLocaleString()} / {instrument.totalSupply.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-400">Blockchain:</span>
+                    <span className="text-white">{instrument.blockchain}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-400">Type:</span>
+                    <span className={`capitalize ${getInstrumentTypeColor(instrument.type)}`}>{instrument.type}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Create Instrument Modal */}
+        {showCreateForm && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="bg-black/90 backdrop-blur-xl border border-white/20 rounded-xl p-6 w-full max-w-md">
+              <h3 className="text-xl font-semibold text-white mb-4">Create New Instrument</h3>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Name</label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="e.g., Employee Stock Options"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Type</label>
+                  <select
+                    value={formData.type}
+                    onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value as FinancialInstrument['type'] }))}
+                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="equity">Equity</option>
+                    <option value="debt">Debt</option>
+                    <option value="derivative">Derivative</option>
+                    <option value="reward">Reward</option>
+                    <option value="utility">Utility</option>
+                    <option value="governance">Governance</option>
+                    <option value="hybrid">Hybrid</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Symbol</label>
+                  <input
+                    type="text"
+                    value={formData.symbol}
+                    onChange={(e) => setFormData(prev => ({ ...prev, symbol: e.target.value }))}
+                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="e.g., TECH-OPT"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Description</label>
+                  <textarea
+                    value={formData.description}
+                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Describe the instrument's purpose and terms"
+                    rows={3}
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Total Supply</label>
+                  <input
+                    type="number"
+                    value={formData.totalSupply}
+                    onChange={(e) => setFormData(prev => ({ ...prev, totalSupply: parseInt(e.target.value) }))}
+                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-3 mt-6">
+                <button
+                  onClick={handleCreate}
+                  className="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
+                >
+                  Create Instrument
+                </button>
+                <button
+                  onClick={() => setShowCreateForm(false)}
+                  className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

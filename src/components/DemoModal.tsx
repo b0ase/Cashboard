@@ -24,6 +24,12 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
   const [totalRevenue, setTotalRevenue] = useState(0)
   const [totalDividends, setTotalDividends] = useState(0)
   const [activeFlows, setActiveFlows] = useState<string[]>([])
+  const [shareholderBalances, setShareholderBalances] = useState({
+    'Alice (15%)': 0,
+    'Bob (25%)': 0,
+    'Charlie (20%)': 0,
+    'Diana (40%)': 0
+  })
   const animationRef = useRef<NodeJS.Timeout | null>(null)
 
   const steps = [
@@ -54,24 +60,35 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
     const currencies: ('USD' | 'BSV')[] = ['USD', 'BSV']
     const amounts = [12.50, 25.00, 45.99, 67.25, 89.99, 125.00, 199.99]
     const customers = ['Customer A', 'Customer B', 'Customer C', 'Customer D']
-    const shareholders = ['Alice (15%)', 'Bob (25%)', 'Charlie (20%)', 'Diana (40%)']
     
     const currency = currencies[Math.floor(Math.random() * currencies.length)]
     const amount = amounts[Math.floor(Math.random() * amounts.length)]
     const customer = customers[Math.floor(Math.random() * customers.length)]
-    const shareholder = shareholders[Math.floor(Math.random() * shareholders.length)]
     
-    const flow: PaymentFlow = {
-      id: Date.now().toString(),
-      from: customer,
-      to: shareholder,
-      amount,
-      currency,
-      timestamp: new Date(),
-      status: 'pending'
-    }
+    // Generate flows to ALL shareholders with different proportions
+    const flows: PaymentFlow[] = []
+    const shareholders = [
+      { name: 'Alice (15%)', percentage: 0.15 },
+      { name: 'Bob (25%)', percentage: 0.25 },
+      { name: 'Charlie (20%)', percentage: 0.20 },
+      { name: 'Diana (40%)', percentage: 0.40 }
+    ]
     
-    return flow
+    shareholders.forEach((shareholder, index) => {
+      const dividendAmount = amount * shareholder.percentage
+      const flow: PaymentFlow = {
+        id: `${Date.now()}-${index}`,
+        from: customer,
+        to: shareholder.name,
+        amount: dividendAmount,
+        currency,
+        timestamp: new Date(),
+        status: 'pending'
+      }
+      flows.push(flow)
+    })
+    
+    return { flows, totalAmount: amount }
   }
 
   // Animation loop
@@ -79,22 +96,30 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
     if (!isOpen) return
 
     const animate = () => {
-      // Generate new payment flow every 2-4 seconds
+      // Generate new payment flows every 2-4 seconds
       if (Math.random() < 0.3) {
-        const newFlow = generatePaymentFlow()
-        setPaymentFlows(prev => [...prev.slice(-9), newFlow]) // Keep last 10 flows
-        setActiveFlows(prev => [...prev, newFlow.id])
+        const { flows, totalAmount } = generatePaymentFlow()
+        setPaymentFlows(prev => [...prev.slice(-20), ...flows]) // Keep last 20 flows
+        setActiveFlows(prev => [...prev, ...flows.map(f => f.id)])
         
         // Update totals
-        setTotalRevenue(prev => prev + newFlow.amount)
+        setTotalRevenue(prev => prev + totalAmount)
         
-        // Simulate dividend calculation (simplified)
-        const dividendAmount = newFlow.amount * 0.1 // 10% dividend
-        setTotalDividends(prev => prev + dividendAmount)
+        // Update individual shareholder balances
+        flows.forEach(flow => {
+          setShareholderBalances(prev => ({
+            ...prev,
+            [flow.to]: prev[flow.to as keyof typeof prev] + flow.amount
+          }))
+        })
         
-        // Mark flow as completed after animation
+        // Update total dividends
+        const totalDividendAmount = flows.reduce((sum, flow) => sum + flow.amount, 0)
+        setTotalDividends(prev => prev + totalDividendAmount)
+        
+        // Mark flows as completed after animation
         setTimeout(() => {
-          setActiveFlows(prev => prev.filter(id => id !== newFlow.id))
+          setActiveFlows(prev => prev.filter(id => !flows.map(f => f.id).includes(id)))
         }, 3000)
       }
       
@@ -206,11 +231,44 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
               </div>
             </div>
 
-            {/* Shareholders */}
-            <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 bg-purple-500/20 p-4 rounded-xl border border-purple-400/30">
+            {/* Individual Shareholders */}
+            <div className="absolute bottom-20 left-8 bg-purple-500/20 p-3 rounded-xl border border-purple-400/30">
               <div className="flex items-center space-x-2">
-                <Users className="w-5 h-5 text-purple-400" />
-                <span className="text-white font-medium">Shareholders</span>
+                <Users className="w-4 h-4 text-purple-400" />
+                <span className="text-white text-sm font-medium">Alice (15%)</span>
+              </div>
+              <div className="text-xs text-purple-300 mt-1">
+                ${shareholderBalances['Alice (15%)'].toFixed(2)}
+              </div>
+            </div>
+
+            <div className="absolute bottom-20 left-1/3 transform -translate-x-1/2 bg-purple-500/20 p-3 rounded-xl border border-purple-400/30">
+              <div className="flex items-center space-x-2">
+                <Users className="w-4 h-4 text-purple-400" />
+                <span className="text-white text-sm font-medium">Bob (25%)</span>
+              </div>
+              <div className="text-xs text-purple-300 mt-1">
+                ${shareholderBalances['Bob (25%)'].toFixed(2)}
+              </div>
+            </div>
+
+            <div className="absolute bottom-20 right-1/3 transform translate-x-1/2 bg-purple-500/20 p-3 rounded-xl border border-purple-400/30">
+              <div className="flex items-center space-x-2">
+                <Users className="w-4 h-4 text-purple-400" />
+                <span className="text-white text-sm font-medium">Charlie (20%)</span>
+              </div>
+              <div className="text-xs text-purple-300 mt-1">
+                ${shareholderBalances['Charlie (20%)'].toFixed(2)}
+              </div>
+            </div>
+
+            <div className="absolute bottom-20 right-8 bg-purple-500/20 p-3 rounded-xl border border-purple-400/30">
+              <div className="flex items-center space-x-2">
+                <Users className="w-4 h-4 text-purple-400" />
+                <span className="text-white text-sm font-medium">Diana (40%)</span>
+              </div>
+              <div className="text-xs text-purple-300 mt-1">
+                ${shareholderBalances['Diana (40%)'].toFixed(2)}
               </div>
             </div>
 

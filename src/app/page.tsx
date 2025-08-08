@@ -431,7 +431,7 @@ export default function Dashboard() {
       status: 'sent'
     }
   ],
-  isChatOpen: true,
+  isChatOpen: false,
   isMobile: false,
   instruments: [
     {
@@ -1969,30 +1969,33 @@ function WorkflowView({
       <div className={`bg-black/90 backdrop-blur-xl border-t border-white/20 transition-all duration-300 ${
         isChatOpen ? (isMobile ? 'h-64' : 'h-96') : (isMobile ? 'h-12' : 'h-16')
       }`}>
-        {/* Chat Header */}
-        <div className={`flex items-center justify-between border-b border-white/10 ${
-          isMobile ? 'p-2' : 'p-4'
-        }`}>
+        {/* Chat Header - Entire bar is clickable */}
+        <div 
+          onClick={toggleChat}
+          className={`flex items-center justify-between border-b border-white/10 cursor-pointer hover:bg-white/5 transition-colors ${
+            isMobile ? 'p-2' : 'p-4'
+          }`}
+        >
           <div className="flex items-center space-x-3">
             <Bot className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} text-blue-400`} />
             <span className={`text-white font-medium ${isMobile ? 'text-sm' : ''}`}>AI Assistant</span>
           </div>
           
-          {/* Toggle Button - Right side */}
-          <button
-            onClick={toggleChat}
-            className="bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
-            style={{ padding: isMobile ? '0.375rem' : '0.5rem' }}
-          >
+          {/* Toggle Icon - Right side */}
+          <div className="bg-blue-500 text-white rounded-full shadow-lg transition-all duration-200"
+               style={{ padding: isMobile ? '0.375rem' : '0.5rem' }}>
             {isChatOpen ? <ChevronDown className={isMobile ? "w-3 h-3" : "w-4 h-4"} /> : <ChevronUp className={isMobile ? "w-3 h-3" : "w-4 h-4"} />}
-          </button>
+          </div>
         </div>
 
         {/* Chat Messages */}
         {isChatOpen && (
-          <div className={`flex-1 overflow-y-auto space-y-4 ${
-            isMobile ? 'p-2 max-h-48' : 'p-4 max-h-64'
-          }`}>
+          <div 
+            className={`flex-1 overflow-y-auto space-y-4 ${
+              isMobile ? 'p-2 max-h-48' : 'p-4 max-h-64'
+            }`}
+            onClick={(e) => e.stopPropagation()} // Prevent chat toggle when clicking messages
+          >
             {chatMessages.map((message) => (
               <div
                 key={message.id}
@@ -2016,7 +2019,10 @@ function WorkflowView({
         )}
 
         {/* Chat Input */}
-        <div className={`border-t border-white/10 ${isMobile ? 'p-2' : 'p-4'}`}>
+        <div 
+          className={`border-t border-white/10 ${isMobile ? 'p-2' : 'p-4'}`}
+          onClick={(e) => e.stopPropagation()} // Prevent chat toggle when clicking input area
+        >
           <div className="flex items-center space-x-2">
             <input
               type="text"

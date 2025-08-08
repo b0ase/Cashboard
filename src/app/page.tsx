@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { X, DollarSign, FileText, CheckCircle, AlertTriangle, Zap, Users, Target, ArrowRight, Play, Pause, Settings, Building2, UserPlus, Menu, Plus, Crown, TrendingUp, Shield, Palette, BarChart3, Send, Bot, ChevronUp, ChevronDown, ChevronRight } from 'lucide-react'
 
 interface HandCashHandle {
@@ -84,6 +84,7 @@ interface AppState {
   currentView: 'workflow' | 'organizations' | 'roles' | 'members'
   selectedOrganization: string | null
   sidebarOpen: boolean
+  isMobile: boolean
   organizations: Organization[]
   roles: Role[]
   workflow: WorkflowState
@@ -283,7 +284,8 @@ export default function Dashboard() {
       status: 'sent'
     }
   ],
-  isChatOpen: false
+  isChatOpen: true,
+  isMobile: false
 })
 
   const { workflow, organizations, roles, currentView, selectedOrganization, sidebarOpen, chatMessages, isChatOpen } = appState
@@ -840,6 +842,10 @@ export default function Dashboard() {
             getStatusColor={getStatusColor}
             getConnectionColor={getConnectionColor}
             getNodePosition={getNodePosition}
+            chatMessages={chatMessages}
+            isChatOpen={isChatOpen}
+            toggleChat={toggleChat}
+            sendMessage={sendMessage}
           />
         )}
 
@@ -869,107 +875,9 @@ export default function Dashboard() {
         )}
       </div>
 
-      {/* Status Bar */}
-      <div className="absolute bottom-0 left-0 right-0 z-20 p-4">
-        <div className="bg-black/40 backdrop-blur-xl border border-white/20 rounded-xl px-4 py-2">
-          <div className="flex items-center justify-between text-sm text-gray-300">
-            <div className="flex items-center space-x-4">
-              <span>View: {currentView}</span>
-              {currentView === 'workflow' && (
-                <>
-                  <span>Nodes: {workflow.nodes.length}</span>
-                  <span>Connections: {workflow.connections.length}</span>
-                  <span>Status: {workflow.workflowStatus}</span>
-                </>
-              )}
-              {currentView === 'organizations' && (
-                <span>Organizations: {organizations.length}</span>
-              )}
-            </div>
-            <div className="flex items-center space-x-2">
-              {currentView === 'workflow' && (
-                <>
-                  <span>Auto Mode: {workflow.autoMode ? 'ON' : 'OFF'}</span>
-                  <Settings className="w-4 h-4" />
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
 
-      {/* AI Chat Bar */}
-      <div className={`fixed bottom-0 left-0 right-0 z-50 transition-all duration-300 ${isChatOpen ? 'h-96' : 'h-16'}`}>
-        <div className="bg-black/90 backdrop-blur-xl border-t border-white/20 h-full">
-          {/* Chat Header */}
-          <div className="flex items-center justify-between p-4 border-b border-white/10">
-            <div className="flex items-center space-x-3">
-              <Bot className="w-5 h-5 text-blue-400" />
-              <span className="text-white font-medium">AI Assistant</span>
-            </div>
-            <button
-              onClick={toggleChat}
-              className="text-gray-400 hover:text-white transition-colors"
-            >
-              {isChatOpen ? <X className="w-5 h-5" /> : <ChevronUp className="w-5 h-5" />}
-            </button>
-          </div>
 
-          {/* Chat Messages */}
-          {isChatOpen && (
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-64">
-              {chatMessages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                      message.type === 'user'
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-white/10 text-white border border-white/20'
-                    }`}
-                  >
-                    <p className="text-sm">{message.content}</p>
-                    <p className="text-xs opacity-70 mt-1">
-                      {message.timestamp.toLocaleTimeString()}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
 
-          {/* Chat Input */}
-          <div className="p-4 border-t border-white/10">
-            <div className="flex items-center space-x-3">
-              <input
-                type="text"
-                placeholder="Ask me to create organizations, manage workflows, or automate processes..."
-                className="flex-1 px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter' && e.currentTarget.value.trim()) {
-                    sendMessage(e.currentTarget.value.trim())
-                    e.currentTarget.value = ''
-                  }
-                }}
-              />
-              <button
-                onClick={() => {
-                  const input = document.querySelector('input[placeholder*="Ask me"]') as HTMLInputElement
-                  if (input && input.value.trim()) {
-                    sendMessage(input.value.trim())
-                    input.value = ''
-                  }
-                }}
-                className="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
-              >
-                <Send className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   )
 }
@@ -990,16 +898,27 @@ function WorkflowView({
   getNodeIcon,
   getStatusColor,
   getConnectionColor,
-  getNodePosition
-}: WorkflowViewProps) {
+  getNodePosition,
+  chatMessages,
+  isChatOpen,
+  toggleChat,
+  sendMessage
+}: WorkflowViewProps & {
+  chatMessages: ChatMessage[]
+  isChatOpen: boolean
+  toggleChat: () => void
+  sendMessage: (content: string) => void
+}) {
   return (
-    <div
-      ref={boardRef}
-      className="absolute inset-0 top-24 cursor-grab active:cursor-grabbing"
-      onMouseMove={onMouseMove}
-      onMouseUp={onMouseUp}
-      onMouseLeave={onMouseUp}
-    >
+    <div className="absolute inset-0 top-24 flex flex-col">
+      {/* Canvas Area */}
+      <div
+        ref={boardRef}
+        className={`flex-1 cursor-grab active:cursor-grabbing transition-all duration-300 ${isChatOpen ? 'mb-96' : 'mb-16'}`}
+        onMouseMove={onMouseMove}
+        onMouseUp={onMouseUp}
+        onMouseLeave={onMouseUp}
+      >
       {/* SVG for connections */}
       <svg className="absolute inset-0 w-full h-full pointer-events-none">
         {workflow.connections.map((connection: Connection) => {
@@ -1214,6 +1133,80 @@ function WorkflowView({
           </button>
         </div>
       ))}
+      </div>
+
+      {/* AI Chat Bar */}
+      <div className={`bg-black/90 backdrop-blur-xl border-t border-white/20 transition-all duration-300 ${isChatOpen ? 'h-96' : 'h-16'}`}>
+        {/* Chat Header */}
+        <div className="relative flex items-center justify-center p-4 border-b border-white/10">
+          <div className="flex items-center space-x-3">
+            <Bot className="w-5 h-5 text-blue-400" />
+            <span className="text-white font-medium">AI Assistant</span>
+          </div>
+          
+          {/* Toggle Button - Centered and More Obvious */}
+          <button
+            onClick={toggleChat}
+            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-2 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
+          >
+            {isChatOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
+          </button>
+        </div>
+
+        {/* Chat Messages */}
+        {isChatOpen && (
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-64">
+            {chatMessages.map((message) => (
+              <div
+                key={message.id}
+                className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
+                <div
+                  className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                    message.type === 'user'
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-white/10 text-white border border-white/20'
+                  }`}
+                >
+                  <p className="text-sm">{message.content}</p>
+                  <p className="text-xs opacity-70 mt-1">
+                    {message.timestamp.toLocaleTimeString()}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Chat Input */}
+        <div className="p-4 border-t border-white/10">
+          <div className="flex items-center space-x-3">
+            <input
+              type="text"
+              placeholder="Ask me to create organizations, manage workflows, or automate processes..."
+              className="flex-1 px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              onKeyPress={(e) => {
+                if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                  sendMessage(e.currentTarget.value.trim())
+                  e.currentTarget.value = ''
+                }
+              }}
+            />
+            <button
+              onClick={() => {
+                const input = document.querySelector('input[placeholder*="Ask me"]') as HTMLInputElement
+                if (input && input.value.trim()) {
+                  sendMessage(input.value.trim())
+                  input.value = ''
+                }
+              }}
+              className="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+            >
+              <Send className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

@@ -125,6 +125,71 @@ interface Contract {
   updatedAt: string
   createdBy: string
   lastModifiedBy: string
+  // Workflow Components
+  workflowId?: string
+  workflow?: {
+    id: string
+    name: string
+    description: string
+    organizations: string[] // Organization IDs involved in this contract
+    roles: string[] // Role IDs assigned to this contract
+    members: string[] // Member IDs participating in this contract
+    instruments: string[] // Financial instrument IDs related to this contract
+    integrations: ContractIntegration[]
+    automations: ContractAutomation[]
+    milestones: ContractMilestone[]
+    notifications: ContractNotification[]
+  }
+}
+
+interface ContractIntegration {
+  id: string
+  type: 'api' | 'webhook' | 'email' | 'sms' | 'blockchain' | 'payment' | 'document_signing' | 'crm' | 'accounting' | 'other'
+  name: string
+  description: string
+  endpoint?: string
+  apiKey?: string
+  isActive: boolean
+  triggerEvents: ('contract_created' | 'contract_signed' | 'milestone_reached' | 'payment_due' | 'contract_expired' | 'other')[]
+  configuration: Record<string, unknown>
+}
+
+interface ContractAutomation {
+  id: string
+  name: string
+  description: string
+  trigger: {
+    type: 'date' | 'milestone' | 'signature' | 'payment' | 'other'
+    condition: string
+    value?: string
+  }
+  action: {
+    type: 'send_notification' | 'create_task' | 'update_status' | 'send_payment' | 'generate_document' | 'other'
+    parameters: Record<string, unknown>
+  }
+  isActive: boolean
+}
+
+interface ContractMilestone {
+  id: string
+  name: string
+  description: string
+  dueDate: string
+  status: 'pending' | 'in_progress' | 'completed' | 'overdue'
+  assignedTo: string[] // Member IDs
+  deliverables: string[]
+  paymentAmount?: number
+  currency?: string
+}
+
+interface ContractNotification {
+  id: string
+  type: 'email' | 'sms' | 'in_app' | 'webhook'
+  recipients: string[] // Member IDs or email addresses
+  subject: string
+  message: string
+  triggerEvent: string
+  isActive: boolean
 }
 
 interface ContractTerm {
@@ -150,6 +215,10 @@ interface ContractDocument {
 interface ContractsViewProps {
   organizations: Organization[]
   selectedOrganization: string | null
+  roles?: Role[]
+  instruments?: FinancialInstrument[]
+  workflows?: WorkflowState[]
+  onCreateContract?: (contract: Omit<Contract, 'id' | 'createdAt' | 'updatedAt'>) => void
 }
 
 interface Wallet {
@@ -2727,6 +2796,9 @@ export default function Dashboard() {
           <ContractsView
             organizations={organizations}
             selectedOrganization={selectedOrganization}
+            roles={roles}
+            instruments={instruments}
+            workflows={workflows}
           />
         )}
 
@@ -8036,65 +8108,603 @@ function WalletsView({ organizations, selectedOrganization }: WalletsViewProps) 
 
 
 // Contracts View Component
-function ContractsView({ organizations, selectedOrganization }: ContractsViewProps) {
+function ContractsView({ organizations, selectedOrganization, roles = [], instruments = [] /*, workflows = [] */ }: ContractsViewProps) {
   const [showCreateContract, setShowCreateContract] = useState(false)
+  const [currentStep, setCurrentStep] = useState(1)
+  const [contractData, setContractData] = useState({
+    name: '',
+    type: 'service' as Contract['type'],
+    description: '',
+    parties: [''],
+    value: 0,
+    currency: 'USD',
+    startDate: '',
+    endDate: '',
+    organizationId: selectedOrganization || '',
+    workflow: {
+      id: '',
+      name: '',
+      description: '',
+      organizations: [] as string[],
+      roles: [] as string[],
+      members: [] as string[],
+      instruments: [] as string[],
+      integrations: [] as ContractIntegration[],
+      automations: [] as ContractAutomation[],
+      milestones: [] as ContractMilestone[],
+      notifications: [] as ContractNotification[]
+    }
+  })
 
   // Mock contracts data - in real app this would come from props or API
   // const contracts: Contract[] = []
 
   const currentOrg = organizations.find(org => org.id === selectedOrganization)
+  const allMembers = organizations.flatMap(org => org.members)
+
+  const contractTemplates = [
+    { id: '1', name: 'Service Agreement', type: 'service', description: 'Standard service delivery contract', icon: '📋', defaultDuration: 12 },
+    { id: '2', name: 'Employment Contract', type: 'employment', description: 'Employee hiring agreement', icon: '👤', defaultDuration: 24 },
+    { id: '3', name: 'Partnership Agreement', type: 'partnership', description: 'Business partnership contract', icon: '🤝', defaultDuration: 36 },
+    { id: '4', name: 'Licensing Agreement', type: 'licensing', description: 'IP licensing contract', icon: '📜', defaultDuration: 12 },
+    { id: '5', name: 'NDA', type: 'nda', description: 'Non-disclosure agreement', icon: '🔒', defaultDuration: 24 },
+    { id: '6', name: 'Consulting Agreement', type: 'consulting', description: 'Professional consulting contract', icon: '💼', defaultDuration: 6 },
+    { id: '7', name: 'Vendor Agreement', type: 'vendor', description: 'Supplier/vendor contract', icon: '🏪', defaultDuration: 12 },
+    { id: '8', name: 'Investment Contract', type: 'investment', description: 'Investment agreement with terms', icon: '💰', defaultDuration: 60 }
+  ]
+
+  const integrationTemplates = [
+    { type: 'document_signing' as const, name: 'DocuSign Integration', description: 'Automated document signing workflow', icon: '✍️' },
+    { type: 'payment' as const, name: 'Payment Gateway', description: 'Automated payment processing', icon: '💳' },
+    { type: 'email' as const, name: 'Email Notifications', description: 'Automated email communications', icon: '📧' },
+    { type: 'blockchain' as const, name: 'Smart Contract', description: 'Blockchain-based execution', icon: '⛓️' },
+    { type: 'crm' as const, name: 'CRM Integration', description: 'Customer relationship management sync', icon: '👥' },
+    { type: 'accounting' as const, name: 'Accounting System', description: 'Financial record integration', icon: '📊' }
+  ]
+
+  const handleTemplateSelect = (template: typeof contractTemplates[0]) => {
+    const endDate = new Date()
+    endDate.setMonth(endDate.getMonth() + template.defaultDuration)
+    
+    setContractData(prev => ({
+      ...prev,
+      name: template.name,
+      type: template.type as Contract['type'],
+      description: template.description,
+      endDate: endDate.toISOString().split('T')[0],
+      workflow: {
+        ...prev.workflow,
+        name: `${template.name} Workflow`,
+        description: `Automated workflow for ${template.name.toLowerCase()}`
+      }
+    }))
+    setCurrentStep(2)
+  }
+
+  const addIntegration = (template: typeof integrationTemplates[0]) => {
+    const newIntegration: ContractIntegration = {
+      id: Date.now().toString(),
+      type: template.type,
+      name: template.name,
+      description: template.description,
+      isActive: true,
+      triggerEvents: ['contract_created'],
+      configuration: {}
+    }
+    
+    setContractData(prev => ({
+      ...prev,
+      workflow: {
+        ...prev.workflow,
+        integrations: [...prev.workflow.integrations, newIntegration]
+      }
+    }))
+  }
+
+  const addMilestone = () => {
+    const newMilestone: ContractMilestone = {
+      id: Date.now().toString(),
+      name: 'New Milestone',
+      description: '',
+      dueDate: '',
+      status: 'pending',
+      assignedTo: [],
+      deliverables: [],
+      paymentAmount: 0,
+      currency: 'USD'
+    }
+    
+    setContractData(prev => ({
+      ...prev,
+      workflow: {
+        ...prev.workflow,
+        milestones: [...prev.workflow.milestones, newMilestone]
+      }
+    }))
+  }
+
+  const handleCreateContract = () => {
+    // In a real app, this would call the onCreateContract prop
+    console.log('Creating contract with workflow:', contractData)
+    setShowCreateContract(false)
+    setCurrentStep(1)
+    // Reset form
+    setContractData({
+      name: '',
+      type: 'service',
+      description: '',
+      parties: [''],
+      value: 0,
+      currency: 'USD',
+      startDate: '',
+      endDate: '',
+      organizationId: selectedOrganization || '',
+      workflow: {
+        id: '',
+        name: '',
+        description: '',
+        organizations: [],
+        roles: [],
+        members: [],
+        instruments: [],
+        integrations: [],
+        automations: [],
+        milestones: [],
+        notifications: []
+      }
+    })
+  }
 
   return (
     <div className="absolute inset-0 top-24 overflow-y-auto">
       <div className="max-w-7xl mx-auto p-6 pb-8">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2">Contracts</h1>
-            <p className="text-gray-300">Manage legal contracts and agreements</p>
+            <h1 className="text-3xl font-bold text-white mb-2">Contract Workflows</h1>
+            <p className="text-gray-300">Create and manage smart contract workflows with automation</p>
           </div>
           <button
             onClick={() => setShowCreateContract(true)}
             className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl flex items-center space-x-3 transition-all duration-300 shadow-lg hover:shadow-xl"
           >
             <Plus className="w-5 h-5" />
-            <span className="font-medium">Create Contract</span>
+            <span className="font-medium">Create Contract Workflow</span>
           </button>
         </div>
 
         {currentOrg ? (
           <div className="text-center py-12">
-            <h3 className="text-xl font-semibold text-white mb-2">Contracts for {currentOrg.name}</h3>
-            <p className="text-gray-400">No contracts yet. Create your first contract to get started.</p>
+            <h3 className="text-xl font-semibold text-white mb-2">Contract Workflows for {currentOrg.name}</h3>
+            <p className="text-gray-400">No contract workflows yet. Create your first automated contract to get started.</p>
           </div>
         ) : (
           <div className="text-center py-12">
-            <h3 className="text-xl font-semibold text-white mb-2">All Contracts</h3>
-            <p className="text-gray-400">No contracts yet. Create your first contract to get started.</p>
+            <h3 className="text-xl font-semibold text-white mb-2">All Contract Workflows</h3>
+            <p className="text-gray-400">No contract workflows yet. Create your first automated contract to get started.</p>
           </div>
         )}
 
-        {/* Create Contract Modal - Basic placeholder */}
+        {/* Create Contract Workflow Modal */}
         {showCreateContract && (
           <div className="fixed inset-0 bg-black/80 backdrop-blur-xl flex items-center justify-center z-50 p-4">
-            <div className="bg-black/90 backdrop-blur-xl border border-white/20 rounded-2xl p-6 w-full max-w-md">
+            <div className="bg-black/90 backdrop-blur-xl border border-white/20 rounded-2xl p-6 w-full max-w-7xl max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-semibold text-white">Create Contract</h3>
-                <button
-                  onClick={() => setShowCreateContract(false)}
-                  className="text-gray-400 hover:text-white transition-colors"
-                >
-                  <X className="w-6 h-6" />
-                </button>
+                <h3 className="text-xl font-semibold text-white">Create Contract Workflow</h3>
+                <div className="flex items-center space-x-4">
+                  {/* Step Indicator */}
+                  <div className="flex items-center space-x-2">
+                    {[1, 2, 3, 4].map((step) => (
+                      <div key={step} className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                        currentStep === step ? 'bg-blue-500 text-white' :
+                        currentStep > step ? 'bg-green-500 text-white' :
+                        'bg-gray-600 text-gray-300'
+                      }`}>
+                        {step}
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => setShowCreateContract(false)}
+                    className="text-gray-400 hover:text-white transition-colors"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
               </div>
-              <p className="text-gray-300 text-center">Contract creation coming soon!</p>
-              <div className="flex justify-center mt-6">
-                <button
-                  onClick={() => setShowCreateContract(false)}
-                  className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors"
-                >
-                  Close
-                </button>
-              </div>
+
+              {/* Step 1: Contract Template Selection */}
+              {currentStep === 1 && (
+                <div>
+                  <h4 className="text-lg font-medium text-white mb-4">Choose Contract Template</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {contractTemplates.map((template) => (
+                      <div
+                        key={template.id}
+                        onClick={() => handleTemplateSelect(template)}
+                        className="bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/40 rounded-lg p-4 cursor-pointer transition-all"
+                      >
+                        <div className="text-3xl mb-3">{template.icon}</div>
+                        <h5 className="text-white font-medium mb-2">{template.name}</h5>
+                        <p className="text-gray-300 text-sm mb-3">{template.description}</p>
+                        <p className="text-blue-400 text-xs">Default: {template.defaultDuration} months</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Step 2: Basic Contract Details */}
+              {currentStep === 2 && (
+                <div>
+                  <h4 className="text-lg font-medium text-white mb-4">Contract Details</h4>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-2">Contract Name</label>
+                        <input
+                          type="text"
+                          value={contractData.name}
+                          onChange={(e) => setContractData(prev => ({ ...prev, name: e.target.value }))}
+                          className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-2">Description</label>
+                        <textarea
+                          value={contractData.description}
+                          onChange={(e) => setContractData(prev => ({ ...prev, description: e.target.value }))}
+                          rows={3}
+                          className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-300 mb-2">Contract Value</label>
+                          <input
+                            type="number"
+                            value={contractData.value}
+                            onChange={(e) => setContractData(prev => ({ ...prev, value: parseFloat(e.target.value) || 0 }))}
+                            className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-300 mb-2">Currency</label>
+                          <select
+                            value={contractData.currency}
+                            onChange={(e) => setContractData(prev => ({ ...prev, currency: e.target.value }))}
+                            className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          >
+                            <option value="USD">USD</option>
+                            <option value="EUR">EUR</option>
+                            <option value="GBP">GBP</option>
+                            <option value="BTC">BTC</option>
+                            <option value="BSV">BSV</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-2">Organization (Optional)</label>
+                        <select
+                          value={contractData.organizationId}
+                          onChange={(e) => setContractData(prev => ({ ...prev, organizationId: e.target.value }))}
+                          className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="">No Organization (Global Contract)</option>
+                          {organizations.map((org) => (
+                            <option key={org.id} value={org.id}>{org.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-300 mb-2">Start Date</label>
+                          <input
+                            type="date"
+                            value={contractData.startDate}
+                            onChange={(e) => setContractData(prev => ({ ...prev, startDate: e.target.value }))}
+                            className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-300 mb-2">End Date</label>
+                          <input
+                            type="date"
+                            value={contractData.endDate}
+                            onChange={(e) => setContractData(prev => ({ ...prev, endDate: e.target.value }))}
+                            className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex justify-between mt-6">
+                    <button
+                      onClick={() => setCurrentStep(1)}
+                      className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors"
+                    >
+                      Back
+                    </button>
+                    <button
+                      onClick={() => setCurrentStep(3)}
+                      className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
+                    >
+                      Next: Workflow Components
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 3: Workflow Components */}
+              {currentStep === 3 && (
+                <div>
+                  <h4 className="text-lg font-medium text-white mb-4">Workflow Components</h4>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Organizations, Roles, Members, Instruments Selection */}
+                    <div className="space-y-6">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-2">Involved Organizations</label>
+                        <div className="space-y-2 max-h-32 overflow-y-auto">
+                          {organizations.map((org) => (
+                            <label key={org.id} className="flex items-center space-x-2">
+                              <input
+                                type="checkbox"
+                                checked={contractData.workflow.organizations.includes(org.id)}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setContractData(prev => ({
+                                      ...prev,
+                                      workflow: {
+                                        ...prev.workflow,
+                                        organizations: [...prev.workflow.organizations, org.id]
+                                      }
+                                    }))
+                                  } else {
+                                    setContractData(prev => ({
+                                      ...prev,
+                                      workflow: {
+                                        ...prev.workflow,
+                                        organizations: prev.workflow.organizations.filter(id => id !== org.id)
+                                      }
+                                    }))
+                                  }
+                                }}
+                                className="rounded"
+                              />
+                              <span className="text-white text-sm">{org.name}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-2">Assigned Roles</label>
+                        <div className="space-y-2 max-h-32 overflow-y-auto">
+                          {roles.map((role) => (
+                            <label key={role.id} className="flex items-center space-x-2">
+                              <input
+                                type="checkbox"
+                                checked={contractData.workflow.roles.includes(role.id)}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setContractData(prev => ({
+                                      ...prev,
+                                      workflow: {
+                                        ...prev.workflow,
+                                        roles: [...prev.workflow.roles, role.id]
+                                      }
+                                    }))
+                                  } else {
+                                    setContractData(prev => ({
+                                      ...prev,
+                                      workflow: {
+                                        ...prev.workflow,
+                                        roles: prev.workflow.roles.filter(id => id !== role.id)
+                                      }
+                                    }))
+                                  }
+                                }}
+                                className="rounded"
+                              />
+                              <span className="text-white text-sm">{role.name}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-6">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-2">Participating Members</label>
+                        <div className="space-y-2 max-h-32 overflow-y-auto">
+                          {allMembers.map((member) => (
+                            <label key={member.id} className="flex items-center space-x-2">
+                              <input
+                                type="checkbox"
+                                checked={contractData.workflow.members.includes(member.id)}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setContractData(prev => ({
+                                      ...prev,
+                                      workflow: {
+                                        ...prev.workflow,
+                                        members: [...prev.workflow.members, member.id]
+                                      }
+                                    }))
+                                  } else {
+                                    setContractData(prev => ({
+                                      ...prev,
+                                      workflow: {
+                                        ...prev.workflow,
+                                        members: prev.workflow.members.filter(id => id !== member.id)
+                                      }
+                                    }))
+                                  }
+                                }}
+                                className="rounded"
+                              />
+                              <span className="text-white text-sm">{member.firstName} {member.lastName}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-2">Related Instruments</label>
+                        <div className="space-y-2 max-h-32 overflow-y-auto">
+                          {instruments.map((instrument) => (
+                            <label key={instrument.id} className="flex items-center space-x-2">
+                              <input
+                                type="checkbox"
+                                checked={contractData.workflow.instruments.includes(instrument.id)}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setContractData(prev => ({
+                                      ...prev,
+                                      workflow: {
+                                        ...prev.workflow,
+                                        instruments: [...prev.workflow.instruments, instrument.id]
+                                      }
+                                    }))
+                                  } else {
+                                    setContractData(prev => ({
+                                      ...prev,
+                                      workflow: {
+                                        ...prev.workflow,
+                                        instruments: prev.workflow.instruments.filter(id => id !== instrument.id)
+                                      }
+                                    }))
+                                  }
+                                }}
+                                className="rounded"
+                              />
+                              <span className="text-white text-sm">{instrument.name} ({instrument.symbol})</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex justify-between mt-6">
+                    <button
+                      onClick={() => setCurrentStep(2)}
+                      className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors"
+                    >
+                      Back
+                    </button>
+                    <button
+                      onClick={() => setCurrentStep(4)}
+                      className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
+                    >
+                      Next: Integrations & Automation
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 4: Integrations and Automation */}
+              {currentStep === 4 && (
+                <div>
+                  <h4 className="text-lg font-medium text-white mb-4">Integrations & Automation</h4>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                      <h5 className="text-md font-medium text-white mb-3">Available Integrations</h5>
+                      <div className="grid grid-cols-1 gap-3">
+                        {integrationTemplates.map((template, index) => (
+                          <div
+                            key={index}
+                            onClick={() => addIntegration(template)}
+                            className="bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/40 rounded-lg p-3 cursor-pointer transition-all"
+                          >
+                            <div className="flex items-center space-x-3">
+                              <div className="text-xl">{template.icon}</div>
+                              <div>
+                                <h6 className="text-white font-medium text-sm">{template.name}</h6>
+                                <p className="text-gray-300 text-xs">{template.description}</p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <h5 className="text-md font-medium text-white">Contract Milestones</h5>
+                        <button
+                          onClick={addMilestone}
+                          className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm transition-colors"
+                        >
+                          Add Milestone
+                        </button>
+                      </div>
+                      <div className="space-y-3 max-h-64 overflow-y-auto">
+                        {contractData.workflow.milestones.map((milestone, index) => (
+                          <div key={milestone.id} className="bg-white/10 rounded-lg p-3">
+                            <input
+                              type="text"
+                              value={milestone.name}
+                              onChange={(e) => {
+                                const updatedMilestones = [...contractData.workflow.milestones]
+                                updatedMilestones[index].name = e.target.value
+                                setContractData(prev => ({
+                                  ...prev,
+                                  workflow: {
+                                    ...prev.workflow,
+                                    milestones: updatedMilestones
+                                  }
+                                }))
+                              }}
+                              placeholder="Milestone name"
+                              className="w-full px-2 py-1 bg-white/10 border border-white/20 rounded text-white text-sm"
+                            />
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="mt-6">
+                        <h5 className="text-md font-medium text-white mb-3">Selected Integrations</h5>
+                        <div className="space-y-2">
+                          {contractData.workflow.integrations.map((integration) => (
+                            <div key={integration.id} className="bg-white/10 rounded-lg p-2 flex items-center justify-between">
+                              <span className="text-white text-sm">{integration.name}</span>
+                              <button
+                                onClick={() => {
+                                  setContractData(prev => ({
+                                    ...prev,
+                                    workflow: {
+                                      ...prev.workflow,
+                                      integrations: prev.workflow.integrations.filter(i => i.id !== integration.id)
+                                    }
+                                  }))
+                                }}
+                                className="text-red-400 hover:text-red-300 text-xs"
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex justify-between mt-6">
+                    <button
+                      onClick={() => setCurrentStep(3)}
+                      className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors"
+                    >
+                      Back
+                    </button>
+                    <button
+                      onClick={handleCreateContract}
+                      className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors"
+                    >
+                      Create Contract Workflow
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}

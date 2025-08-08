@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { X, DollarSign, FileText, CheckCircle, AlertTriangle, Zap, Users, Target, ArrowRight, Play, Pause, Settings, Building2, UserPlus, Menu, Plus, Crown, TrendingUp, Shield, Palette, BarChart3 } from 'lucide-react'
+import { X, DollarSign, FileText, CheckCircle, AlertTriangle, Zap, Users, Target, ArrowRight, Play, Pause, Settings, Building2, UserPlus, Menu, Plus, Crown, TrendingUp, Shield, Palette, BarChart3, Send, Bot, ChevronUp, ChevronDown, ChevronRight } from 'lucide-react'
 
 interface HandCashHandle {
   id: string
@@ -48,6 +48,9 @@ interface WorkflowNode {
   conditions?: string[]
   connections: string[]
   metadata?: Record<string, unknown>
+  isExpanded?: boolean
+  childNodes?: WorkflowNode[]
+  memberCount?: number
 }
 
 interface Connection {
@@ -69,6 +72,14 @@ interface WorkflowState {
   autoMode: boolean
 }
 
+interface ChatMessage {
+  id: string
+  type: 'user' | 'ai'
+  content: string
+  timestamp: Date
+  status: 'sending' | 'sent' | 'error'
+}
+
 interface AppState {
   currentView: 'workflow' | 'organizations' | 'roles' | 'members'
   selectedOrganization: string | null
@@ -76,6 +87,8 @@ interface AppState {
   organizations: Organization[]
   roles: Role[]
   workflow: WorkflowState
+  chatMessages: ChatMessage[]
+  isChatOpen: boolean
 }
 
 interface WorkflowViewProps {
@@ -89,6 +102,7 @@ interface WorkflowViewProps {
   onStartConnection: (fromId: string) => void
   onCompleteConnection: (toId: string) => void
   onDoubleClick: (id: string) => void
+  onToggleExpansion: (nodeId: string) => void
   getNodeIcon: (type: string) => React.ReactNode
   getStatusColor: (status: string) => string
   getConnectionColor: (type: string) => string
@@ -207,6 +221,43 @@ export default function Dashboard() {
         y: 250,
         status: 'active',
         assignees: ['Alice', 'Bob', 'Charlie'],
+        memberCount: 3,
+        isExpanded: false,
+        childNodes: [
+          {
+            id: '6-1',
+            type: 'task',
+            name: 'Alice - Frontend',
+            description: 'React component development',
+            x: 500,
+            y: 350,
+            status: 'active',
+            assignees: ['Alice'],
+            connections: []
+          },
+          {
+            id: '6-2',
+            type: 'task',
+            name: 'Bob - Backend',
+            description: 'API development',
+            x: 700,
+            y: 350,
+            status: 'pending',
+            assignees: ['Bob'],
+            connections: []
+          },
+          {
+            id: '6-3',
+            type: 'task',
+            name: 'Charlie - Testing',
+            description: 'Quality assurance',
+            x: 600,
+            y: 450,
+            status: 'pending',
+            assignees: ['Charlie'],
+            connections: []
+          }
+        ],
         connections: []
       }
     ],
@@ -222,10 +273,20 @@ export default function Dashboard() {
     dragging: null,
     workflowStatus: 'running',
     autoMode: true
-  }
-  })
+  },
+  chatMessages: [
+    {
+      id: '1',
+      type: 'ai',
+      content: 'Hello! I\'m your AI assistant. I can help you create organizations, manage workflows, and automate business processes. Try saying something like "Create a new organization" or "Add a new team member".',
+      timestamp: new Date(),
+      status: 'sent'
+    }
+  ],
+  isChatOpen: false
+})
 
-  const { workflow, organizations, roles, currentView, selectedOrganization, sidebarOpen } = appState
+  const { workflow, organizations, roles, currentView, selectedOrganization, sidebarOpen, chatMessages, isChatOpen } = appState
 
   const boardRef = useRef<HTMLDivElement>(null)
 
@@ -478,6 +539,114 @@ export default function Dashboard() {
     setAppState(prev => ({ ...prev, selectedOrganization: orgId }))
   }
 
+  // AI Chat Functions
+  const toggleChat = () => {
+    setAppState(prev => ({ ...prev, isChatOpen: !prev.isChatOpen }))
+  }
+
+  const sendMessage = (content: string) => {
+    const userMessage: ChatMessage = {
+      id: Date.now().toString(),
+      type: 'user',
+      content,
+      timestamp: new Date(),
+      status: 'sending'
+    }
+
+    setAppState(prev => ({
+      ...prev,
+      chatMessages: [...prev.chatMessages, userMessage]
+    }))
+
+    // Simulate AI processing
+    setTimeout(() => {
+      const aiResponse = processAICommand(content)
+      const aiMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        type: 'ai',
+        content: aiResponse,
+        timestamp: new Date(),
+        status: 'sent'
+      }
+
+      setAppState(prev => ({
+        ...prev,
+        chatMessages: prev.chatMessages.map(msg => 
+          msg.id === userMessage.id ? { ...msg, status: 'sent' as const } : msg
+        ).concat(aiMessage)
+      }))
+    }, 1000)
+  }
+
+  const toggleNodeExpansion = (nodeId: string) => {
+    setAppState(prev => ({
+      ...prev,
+      workflow: {
+        ...prev.workflow,
+        nodes: prev.workflow.nodes.map(node => 
+          node.id === nodeId ? { ...node, isExpanded: !node.isExpanded } : node
+        )
+      }
+    }))
+  }
+
+  const processAICommand = (command: string): string => {
+    const lowerCommand = command.toLowerCase()
+    
+    // Organization creation
+    if (lowerCommand.includes('create') && lowerCommand.includes('organization')) {
+      const name = command.match(/organization\s+(?:called\s+)?([a-zA-Z\s]+)/i)?.[1] || 'New Organization'
+      const orgId = Date.now().toString()
+      createOrganization(name.trim(), 'AI-created organization', 'ORG')
+      return `✅ Created organization "${name.trim()}" with ID ${orgId}. You can now add roles and members.`
+    }
+
+    // Add roles
+    if (lowerCommand.includes('add') && lowerCommand.includes('role')) {
+      const roleMatch = command.match(/add\s+(CEO|CTO|CMO|CFO|Data\s+Analyst|Marketer|Developer|Designer|Legal)/i)
+      if (roleMatch) {
+        const roleName = roleMatch[1]
+        return `✅ Role "${roleName}" is already available in the system. You can assign it to team members.`
+      }
+      return `Available roles: CEO, CTO, CMO, CFO, Data Analyst, Marketer, Developer, Designer, Legal`
+    }
+
+    // Equity allocation
+    if (lowerCommand.includes('equity') || lowerCommand.includes('shares')) {
+      const equityMatch = command.match(/(\d+)%\s+equity/i)
+      if (equityMatch) {
+        const percentage = equityMatch[1]
+        return `✅ I'll help you allocate ${percentage}% equity. Please select the organization and member in the interface.`
+      }
+      return `To allocate equity, specify the percentage (e.g., "10% equity") and I'll help you assign it.`
+    }
+
+    // Token creation
+    if (lowerCommand.includes('token') && lowerCommand.includes('billion')) {
+      return `✅ I can help you create a token with 1 billion supply. Please specify the blockchain (e.g., "Bitcoin SV") and token symbol.`
+    }
+
+    // Contract generation
+    if (lowerCommand.includes('contract') && (lowerCommand.includes('employment') || lowerCommand.includes('employee'))) {
+      return `✅ I'll generate an employment contract with KPIs and clawback conditions. This will create a new contract node in your workflow.`
+    }
+
+    // Team expansion
+    if (lowerCommand.includes('team') && lowerCommand.includes('expand')) {
+      return `✅ I can help you expand your team. Please specify the number of people and their roles.`
+    }
+
+    // Default response
+    return `I understand you want to: "${command}". I can help you with:
+    • Creating organizations and roles
+    • Allocating equity and shares
+    • Generating contracts and workflows
+    • Managing team members
+    • Token creation and management
+    
+    Please be more specific about what you'd like me to do.`
+  }
+
   return (
     <div className="min-h-screen bg-black relative overflow-hidden">
       {/* Animated background gradient */}
@@ -666,6 +835,7 @@ export default function Dashboard() {
               ...prev, 
               workflow: { ...prev.workflow, selectedNode: id } 
             }))}
+            onToggleExpansion={toggleNodeExpansion}
             getNodeIcon={getNodeIcon}
             getStatusColor={getStatusColor}
             getConnectionColor={getConnectionColor}
@@ -727,6 +897,79 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* AI Chat Bar */}
+      <div className={`fixed bottom-0 left-0 right-0 z-50 transition-all duration-300 ${isChatOpen ? 'h-96' : 'h-16'}`}>
+        <div className="bg-black/90 backdrop-blur-xl border-t border-white/20 h-full">
+          {/* Chat Header */}
+          <div className="flex items-center justify-between p-4 border-b border-white/10">
+            <div className="flex items-center space-x-3">
+              <Bot className="w-5 h-5 text-blue-400" />
+              <span className="text-white font-medium">AI Assistant</span>
+            </div>
+            <button
+              onClick={toggleChat}
+              className="text-gray-400 hover:text-white transition-colors"
+            >
+              {isChatOpen ? <X className="w-5 h-5" /> : <ChevronUp className="w-5 h-5" />}
+            </button>
+          </div>
+
+          {/* Chat Messages */}
+          {isChatOpen && (
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-64">
+              {chatMessages.map((message) => (
+                <div
+                  key={message.id}
+                  className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div
+                    className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                      message.type === 'user'
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-white/10 text-white border border-white/20'
+                    }`}
+                  >
+                    <p className="text-sm">{message.content}</p>
+                    <p className="text-xs opacity-70 mt-1">
+                      {message.timestamp.toLocaleTimeString()}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Chat Input */}
+          <div className="p-4 border-t border-white/10">
+            <div className="flex items-center space-x-3">
+              <input
+                type="text"
+                placeholder="Ask me to create organizations, manage workflows, or automate processes..."
+                className="flex-1 px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                    sendMessage(e.currentTarget.value.trim())
+                    e.currentTarget.value = ''
+                  }
+                }}
+              />
+              <button
+                onClick={() => {
+                  const input = document.querySelector('input[placeholder*="Ask me"]') as HTMLInputElement
+                  if (input && input.value.trim()) {
+                    sendMessage(input.value.trim())
+                    input.value = ''
+                  }
+                }}
+                className="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+              >
+                <Send className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
@@ -743,6 +986,7 @@ function WorkflowView({
   onStartConnection, 
   onCompleteConnection, 
   onDoubleClick,
+  onToggleExpansion,
   getNodeIcon,
   getStatusColor,
   getConnectionColor,
@@ -903,6 +1147,47 @@ function WorkflowView({
                     {condition}
                   </span>
                 ))}
+              </div>
+            )}
+            
+            {node.type === 'team' && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-pink-400 text-xs">
+                    Team: {node.memberCount || node.assignees?.length || 0} members
+                  </span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onToggleExpansion(node.id)
+                    }}
+                    className="text-gray-400 hover:text-white transition-colors"
+                  >
+                    {node.isExpanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                  </button>
+                </div>
+                
+                {node.isExpanded && node.childNodes && (
+                  <div className="mt-3 space-y-2">
+                    {node.childNodes.map((childNode) => (
+                      <div
+                        key={childNode.id}
+                        className="bg-white/10 rounded-lg p-2 border border-white/20"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <div className="text-white/60">
+                            {getNodeIcon(childNode.type)}
+                          </div>
+                          <div className="flex-1">
+                            <div className="text-white text-xs font-medium">{childNode.name}</div>
+                            <div className="text-gray-400 text-xs">{childNode.description}</div>
+                          </div>
+                          <div className={`w-2 h-2 ${getStatusColor(childNode.status)} rounded-full`}></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
             

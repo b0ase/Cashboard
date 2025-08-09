@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
-import { X, DollarSign, Users, Building2, Zap, TrendingUp, CreditCard, Coins } from 'lucide-react'
+import React, { useState, useEffect, useRef, useMemo } from 'react'
+import { X, DollarSign, Users, Building2, Zap, TrendingUp, CreditCard, Coins, User } from 'lucide-react'
 
 interface PaymentFlow {
   id: string
@@ -24,6 +24,7 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
   const [totalRevenue, setTotalRevenue] = useState(0)
   const [totalDividends, setTotalDividends] = useState(0)
   const [activeFlows, setActiveFlows] = useState<string[]>([])
+  const [recentPayouts, setRecentPayouts] = useState<Record<string, number>>({})
   const [shareholderBalances, setShareholderBalances] = useState({
     'Alice (15%)': 0,
     'Bob (25%)': 0,
@@ -31,6 +32,19 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
     'Diana (40%)': 0
   })
   const animationRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Canvas node positions (px) within right panel SVG coordinate space
+  const POS = useMemo(() => ({ x: 140, y: 120 }), [])
+  const REV = useMemo(() => ({ x: 700, y: 140 }), [])
+  const SHAREHOLDER_POS = useMemo(
+    () => ({
+      'Alice (15%)': { x: 220, y: 420 },
+      'Bob (25%)': { x: 460, y: 460 },
+      'Charlie (20%)': { x: 700, y: 430 },
+      'Diana (40%)': { x: 940, y: 460 },
+    }),
+    []
+  )
 
   const steps = [
     {
@@ -111,6 +125,15 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
             ...prev,
             [flow.to]: prev[flow.to as keyof typeof prev] + flow.amount
           }))
+          // Trigger brief glow on recipient
+          setRecentPayouts(prev => ({ ...prev, [flow.to]: Date.now() }))
+          setTimeout(() => {
+            setRecentPayouts(prev => {
+              const next = { ...prev }
+              delete next[flow.to]
+              return next
+            })
+          }, 900)
         })
         
         // Update total dividends
@@ -142,7 +165,7 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-      <div className="relative w-full max-w-6xl h-[80vh] bg-black/90 border border-white/20 rounded-2xl overflow-hidden">
+      <div className="relative w-[92vw] max-w-7xl h-[85vh] bg-black/90 border border-white/20 rounded-2xl overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-white/20">
           <div className="flex items-center space-x-4">
@@ -212,65 +235,43 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
           </div>
 
           {/* Right Panel - Live Animation */}
-          <div className="flex-1 p-6 relative overflow-hidden">
+          <div className="flex-1 p-6 pb-28 relative overflow-hidden">
             <h3 className="text-lg font-semibold text-white mb-4">Live Payment Flow</h3>
             
             {/* POS Terminal */}
-            <div className="absolute top-20 left-8 bg-green-500/20 p-4 rounded-xl border border-green-400/30">
+            <div className="absolute" style={{ left: POS.x - 40, top: POS.y - 20 }}>
+              <div className="bg-green-500/20 p-3 rounded-xl border border-green-400/30">
               <div className="flex items-center space-x-2">
                 <CreditCard className="w-5 h-5 text-green-400" />
                 <span className="text-white font-medium">POS Terminal</span>
               </div>
+              </div>
             </div>
 
             {/* Company Revenue */}
-            <div className="absolute top-20 right-8 bg-yellow-500/20 p-4 rounded-xl border border-yellow-400/30">
-              <div className="flex items-center space-x-2">
-                <Building2 className="w-5 h-5 text-yellow-400" />
-                <span className="text-white font-medium">Company Revenue</span>
+            <div className="absolute" style={{ left: REV.x - 60, top: REV.y - 20 }}>
+              <div className="bg-yellow-500/20 p-3 rounded-xl border border-yellow-400/30">
+                <div className="flex items-center space-x-2">
+                  <Building2 className="w-5 h-5 text-yellow-400" />
+                  <span className="text-white font-medium">Company Revenue</span>
+                </div>
               </div>
             </div>
 
-            {/* Individual Shareholders */}
-            <div className="absolute bottom-20 left-8 bg-purple-500/20 p-3 rounded-xl border border-purple-400/30">
-              <div className="flex items-center space-x-2">
-                <Users className="w-4 h-4 text-purple-400" />
-                <span className="text-white text-sm font-medium">Alice (15%)</span>
+            {/* Individual Shareholders (spaced, zoomed out) */}
+            {(['Alice (15%)','Bob (25%)','Charlie (20%)','Diana (40%)'] as const).map((name) => (
+              <div key={name} className="absolute" style={{ left: SHAREHOLDER_POS[name].x - 60, top: SHAREHOLDER_POS[name].y - 20 }}>
+                <div className={`p-3 rounded-xl border ${recentPayouts[name] ? 'animate-pulse-glow bg-purple-500/30 border-purple-300/60' : 'bg-purple-500/20 border-purple-400/30' }`}>
+                  <div className="flex items-center space-x-2">
+                    <User className="w-4 h-4 text-purple-400" />
+                    <span className="text-white text-sm font-medium">{name}</span>
+                  </div>
+                  <div className="text-xs text-purple-300 mt-1">
+                    ${'{'}shareholderBalances[name].toFixed(2){'}'}
+                  </div>
+                </div>
               </div>
-              <div className="text-xs text-purple-300 mt-1">
-                ${shareholderBalances['Alice (15%)'].toFixed(2)}
-              </div>
-            </div>
-
-            <div className="absolute bottom-20 left-1/3 transform -translate-x-1/2 bg-purple-500/20 p-3 rounded-xl border border-purple-400/30">
-              <div className="flex items-center space-x-2">
-                <Users className="w-4 h-4 text-purple-400" />
-                <span className="text-white text-sm font-medium">Bob (25%)</span>
-              </div>
-              <div className="text-xs text-purple-300 mt-1">
-                ${shareholderBalances['Bob (25%)'].toFixed(2)}
-              </div>
-            </div>
-
-            <div className="absolute bottom-20 right-1/3 transform translate-x-1/2 bg-purple-500/20 p-3 rounded-xl border border-purple-400/30">
-              <div className="flex items-center space-x-2">
-                <Users className="w-4 h-4 text-purple-400" />
-                <span className="text-white text-sm font-medium">Charlie (20%)</span>
-              </div>
-              <div className="text-xs text-purple-300 mt-1">
-                ${shareholderBalances['Charlie (20%)'].toFixed(2)}
-              </div>
-            </div>
-
-            <div className="absolute bottom-20 right-8 bg-purple-500/20 p-3 rounded-xl border border-purple-400/30">
-              <div className="flex items-center space-x-2">
-                <Users className="w-4 h-4 text-purple-400" />
-                <span className="text-white text-sm font-medium">Diana (40%)</span>
-              </div>
-              <div className="text-xs text-purple-300 mt-1">
-                ${shareholderBalances['Diana (40%)'].toFixed(2)}
-              </div>
-            </div>
+            ))}
 
             {/* Animated Payment Flows */}
             {paymentFlows.map((flow) => (
@@ -301,45 +302,45 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
               </div>
             ))}
 
-            {/* Flow Lines */}
+            {/* Flow Lines & Particles */}
             <svg className="absolute inset-0 w-full h-full pointer-events-none">
               {/* POS to Revenue */}
-              <line
-                x1="120"
-                y1="140"
-                x2="600"
-                y2="140"
-                stroke="rgba(34, 197, 94, 0.3)"
-                strokeWidth="2"
-                strokeDasharray="5,5"
-              />
-              
+              <line x1={POS.x} y1={POS.y} x2={REV.x} y2={REV.y} stroke="rgba(34, 197, 94, 0.35)" strokeWidth="2" strokeDasharray="6,6">
+                <animate attributeName="stroke-dashoffset" from="12" to="0" dur="1s" repeatCount="indefinite" />
+              </line>
+
               {/* Revenue to Shareholders */}
-              <line
-                x1="600"
-                y1="140"
-                x2="400"
-                y2="400"
-                stroke="rgba(168, 85, 247, 0.3)"
-                strokeWidth="2"
-                strokeDasharray="5,5"
-              />
-              
-              {/* Animated flow particles */}
-              {activeFlows.map((flowId) => (
-                <circle
-                  key={`particle-${flowId}`}
-                  cx="120"
-                  cy="140"
-                  r="3"
-                  fill="#22c55e"
-                  className="animate-pulse"
+              {(['Alice (15%)','Bob (25%)','Charlie (20%)','Diana (40%)'] as const).map((name, idx) => (
+                <line
+                  key={`edge-${name}`}
+                  x1={REV.x}
+                  y1={REV.y}
+                  x2={SHAREHOLDER_POS[name].x}
+                  y2={SHAREHOLDER_POS[name].y}
+                  stroke="rgba(168, 85, 247, 0.35)"
+                  strokeWidth="2"
+                  strokeDasharray={idx % 2 === 0 ? '4,6' : '6,6'}
                 >
-                  <animateMotion
-                    dur="3s"
-                    repeatCount="1"
-                    path="M 480 0 L 0 260"
-                  />
+                  <animate attributeName="stroke-dashoffset" from="16" to="0" dur="1.2s" repeatCount="indefinite" />
+                </line>
+              ))}
+
+              {/* Animated flow particles from Revenue to each Shareholder */}
+              {paymentFlows.filter(f => activeFlows.includes(f.id)).map((flow) => {
+                const target = SHAREHOLDER_POS[flow.to as keyof typeof SHAREHOLDER_POS]
+                const path = `M ${REV.x} ${REV.y} L ${target.x} ${target.y}`
+                const color = flow.currency === 'USD' ? '#22c55e' : '#f97316'
+                return (
+                  <circle key={`particle-${flow.id}`} r="3" fill={color}>
+                    <animateMotion dur="2.5s" repeatCount="1" path={path} />
+                  </circle>
+                )
+              })}
+
+              {/* Animated particle from POS to Revenue per new group */}
+              {Array.from(new Set(paymentFlows.filter(f => activeFlows.includes(f.id)).map(f => f.id.split('-')[0]))).map((groupId) => (
+                <circle key={`source-${groupId}`} r="4" fill="#22c55e">
+                  <animateMotion dur="1.6s" repeatCount="1" path={`M ${POS.x} ${POS.y} L ${REV.x} ${REV.y}`} />
                 </circle>
               ))}
             </svg>

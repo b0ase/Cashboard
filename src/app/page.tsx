@@ -325,7 +325,7 @@ interface Role {
 
 interface WorkflowNode {
   id: string
-  type: 'payment' | 'contract' | 'task' | 'decision' | 'milestone' | 'team' | 'kpi' | 'employee' | 'deliverable' | 'asset' | 'mint' | 'payroll' | 'production' | 'marketing' | 'sales' | 'legal' | 'finance' | 'hr' | 'it' | 'operations' | 'api' | 'database' | 'loop' | 'condition' | 'trigger' | 'webhook' | 'email' | 'sms' | 'notification' | 'approval' | 'review' | 'timer' | 'counter' | 'calculator' | 'transformer' | 'validator' | 'aggregator' | 'filter' | 'sorter' | 'merger' | 'splitter' | 'gateway' | 'service' | 'function' | 'script' | 'organization' | 'role' | 'member' | 'instrument' | 'integration' | 'switch' | 'router' | 'delay' | 'queue' | 'batch' | 'parallel' | 'sequence' | 'retry' | 'ai-agent' | 'instagram' | 'snapchat' | 'threads' | 'twitter' | 'facebook' | 'linkedin' | 'tiktok' | 'youtube' | 'discord' | 'telegram' | 'whatsapp' | 'reddit' | 'voice' | 'elevenlabs' | 'midjourney' | 'veo3' | 'openai' | 'anthropic' | 'stability' | 'runway' | 'replicate' | 'huggingface' | 'cohere' | 'perplexity' | 'salesforce' | 'hubspot' | 'pipedrive' | 'googlesheets' | 'excel' | 'airtable' | 'notion' | 'stripe' | 'paypal' | 'square' | 'slack' | 'teams' | 'zoom'
+  type: 'payment' | 'contract' | 'task' | 'decision' | 'milestone' | 'team' | 'kpi' | 'employee' | 'deliverable' | 'asset' | 'mint' | 'payroll' | 'production' | 'marketing' | 'sales' | 'legal' | 'finance' | 'hr' | 'it' | 'operations' | 'api' | 'database' | 'loop' | 'condition' | 'trigger' | 'webhook' | 'email' | 'sms' | 'notification' | 'approval' | 'review' | 'timer' | 'counter' | 'calculator' | 'transformer' | 'validator' | 'aggregator' | 'filter' | 'sorter' | 'merger' | 'splitter' | 'gateway' | 'service' | 'function' | 'script' | 'organization' | 'role' | 'member' | 'instrument' | 'integration' | 'switch' | 'router' | 'delay' | 'queue' | 'batch' | 'parallel' | 'sequence' | 'retry' | 'ai-agent' | 'instagram' | 'snapchat' | 'threads' | 'twitter' | 'facebook' | 'linkedin' | 'tiktok' | 'youtube' | 'discord' | 'telegram' | 'whatsapp' | 'reddit' | 'voice' | 'elevenlabs' | 'midjourney' | 'veo3' | 'openai' | 'anthropic' | 'stability' | 'runway' | 'replicate' | 'huggingface' | 'cohere' | 'perplexity' | 'salesforce' | 'hubspot' | 'pipedrive' | 'googlesheets' | 'excel' | 'airtable' | 'notion' | 'stripe' | 'paypal' | 'square' | 'slack' | 'teams' | 'zoom' | 'wallets' | 'workflow' | 'contact'
   name: string
   description: string
   x: number
@@ -344,6 +344,9 @@ interface WorkflowNode {
   memberRef?: string       // ID of linked member
   instrumentRef?: string   // ID of linked instrument
   integrationRef?: string  // ID of linked integration
+  contractRef?: string     // ID of linked contract
+  walletRef?: string       // ID of linked wallet
+  workflowRef?: string     // ID of linked workflow
   childNodes?: WorkflowNode[]
   memberCount?: number
   width?: number
@@ -1748,7 +1751,7 @@ export default function Dashboard() {
   }
 })
 
-  const { workflows, selectedWorkflow, organizations, roles, currentView, selectedOrganization, sidebarOpen, chatMessages, isChatOpen, instruments, apiKeys, sshKeys, mcpServers, userProfile } = appState
+  const { workflows, selectedWorkflow, organizations, roles, currentView, selectedOrganization, sidebarOpen, chatMessages, isChatOpen, instruments, apiKeys, sshKeys, mcpServers, userProfile, contracts, wallets } = appState
 
   const boardRef = useRef<HTMLDivElement>(null)
   
@@ -2908,8 +2911,8 @@ export default function Dashboard() {
               )}
               {/* Centered brand for desktop, right-aligned for mobile */}
               <div className={`${isMobile ? 'flex-1 text-right' : 'w-full flex justify-center'}`}>
-                <div className="inline-flex items-center justify-center px-4 py-2 border-2 border-white/30 rounded-lg hover:border-white/50 transition-colors">
-                  <h2 className="text-xl font-bold text-white">$CASHBOARD</h2>
+                <div className="inline-flex items-center justify-center px-4 py-2 transition-colors">
+                  <h2 className="text-3xl font-bold text-white">$CASHBOARD</h2>
                 </div>
               </div>
             </div>
@@ -3136,7 +3139,7 @@ export default function Dashboard() {
       )}
 
       {/* Main Content */}
-      <div className="flex-1 relative">
+      <div className="flex-1 relative min-h-0">
         {/* Header */}
         <div className={`absolute top-0 left-0 right-0 z-20 ${isMobile ? 'p-3' : 'p-6'}`}>
           <div className="flex items-center justify-between">
@@ -3394,6 +3397,12 @@ export default function Dashboard() {
             onBackToWorkflows={() => setAppState(prev => ({ ...prev, selectedWorkflow: null }))}
             selectedNodeDetails={selectedNodeDetails}
             setSelectedNodeDetails={setSelectedNodeDetails}
+            organizations={organizations}
+            roles={roles}
+            instruments={instruments}
+            contracts={contracts}
+            wallets={wallets}
+            workflows={workflows}
           />
         )}
 
@@ -4802,12 +4811,24 @@ function WorkflowView({
   setCanvasOffset,
   onBackToWorkflows,
   selectedNodeDetails,
-  setSelectedNodeDetails
+  setSelectedNodeDetails,
+  organizations,
+  roles,
+  instruments,
+  contracts,
+  wallets,
+  workflows: allWorkflows
 }: WorkflowViewProps & {
   sidebarOpen: boolean
   onBackToWorkflows: () => void
   selectedNodeDetails: string | null
   setSelectedNodeDetails: (nodeId: string | null) => void
+  organizations: Organization[]
+  roles: Role[]
+  instruments: FinancialInstrument[]
+  contracts: Contract[]
+  wallets: Wallet[]
+  workflows: WorkflowState[]
 }) {
   // Canvas tools configuration
   const canvasTools: CanvasTool[] = [
@@ -4822,21 +4843,43 @@ function WorkflowView({
   const [isPaletteCollapsed, setIsPaletteCollapsed] = React.useState(false)
   const [snapToGrid, setSnapToGrid] = React.useState(false)
   
-  // Business selection modal state
-  const [showBusinessModal, setShowBusinessModal] = React.useState<string | null>(null)
+  // Business selection modal state (only allow business node types that open the modal)
+  type BusinessType = Extract<
+    WorkflowNode['type'],
+    'workflow' | 'organization' | 'role' | 'ai-agent' | 'member' | 'instrument' | 'contract' | 'wallets' | 'integration' | 'contact'
+  >
+  const BUSINESS_TYPES: readonly BusinessType[] = [
+    'workflow',
+    'organization',
+    'role',
+    'ai-agent',
+    'member',
+    'instrument',
+    'contract',
+    'wallets',
+    'integration',
+    'contact',
+  ] as const
+
+  const [showBusinessModal, setShowBusinessModal] = React.useState<BusinessType | null>(null)
+
+  function isBusinessType(type: WorkflowNode['type']): type is BusinessType {
+    return (BUSINESS_TYPES as readonly string[]).includes(type)
+  }
   const [pendingNodePosition, setPendingNodePosition] = React.useState<{ x: number; y: number } | null>(null)
   
   // Handle business item selection
-  const handleBusinessItemClick = (businessType: string, position: { x: number; y: number }) => {
+  const handleBusinessItemClick = (businessType: BusinessType, position: { x: number; y: number }) => {
     setShowBusinessModal(businessType)
     setPendingNodePosition(position)
   }
   
   // Handle selection from business modal
-  const handleBusinessItemSelect = (item: any) => {
-    if (pendingNodePosition) {
-      // Create a node based on the selected item
-      onAddNode(showBusinessModal as any, pendingNodePosition)
+  type BusinessItem = { id: string; name: string; description?: string }
+  const handleBusinessItemSelect = (item: BusinessItem) => {
+    if (pendingNodePosition && showBusinessModal) {
+      // For now add a simple node of the chosen type at the position
+      onAddNode(showBusinessModal, pendingNodePosition)
       setShowBusinessModal(null)
       setPendingNodePosition(null)
     }
@@ -5044,6 +5087,8 @@ function WorkflowView({
       case 'ai-agent': return <Bot className={`${iconSize} text-blue-500`} />
       case 'workflow': return <Target className={`${iconSize} text-indigo-500`} />
       case 'wallets': return <Wallet className={`${iconSize} text-green-500`} />
+      case 'workflow': return <Target className={`${iconSize} text-indigo-500`} />
+      case 'contact': return <User className={`${iconSize} text-blue-300`} />
       case 'instagram': return <Users className={`${iconSize} text-pink-500`} />
       case 'snapchat': return <MessageSquare className={`${iconSize} text-yellow-400`} />
       case 'threads': return <MessageSquare className={`${iconSize} text-gray-800`} />
@@ -5103,6 +5148,7 @@ function WorkflowView({
     { type: 'contract' as const, name: 'Contracts', icon: getColoredNodeIcon('contract'), category: 'Business' },
     { type: 'wallets' as const, name: 'Wallets', icon: getColoredNodeIcon('wallets'), category: 'Business' },
     { type: 'integration' as const, name: 'Integrations', icon: getColoredNodeIcon('integration'), category: 'Business' },
+    { type: 'contact' as const, name: 'Contact', icon: getColoredNodeIcon('contact'), category: 'Business' },
     
     // Integrations
     { type: 'api' as const, name: 'API Call', icon: getColoredNodeIcon('api'), category: 'Integration' },
@@ -5366,8 +5412,7 @@ function WorkflowView({
                           const centerY = (rect.height / 2 - canvasOffset.y) / canvasScale
                           
                           // Check if this is a business item that needs a selection modal
-                          const businessTypes = ['workflow', 'organization', 'role', 'ai-agent', 'member', 'instrument', 'contract', 'wallets', 'integration']
-                          if (category === 'Business' && businessTypes.includes(nodeType.type)) {
+                        if (category === 'Business' && isBusinessType(nodeType.type)) {
                             handleBusinessItemClick(nodeType.type, { x: centerX, y: centerY })
                           } else {
                             onAddNode(nodeType.type, { x: centerX, y: centerY })
@@ -5834,6 +5879,46 @@ function WorkflowView({
       )
       })}
       </div>
+
+      {/* Business Selection Modal */}
+      {showBusinessModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onMouseDown={(e) => e.stopPropagation()}>
+          <div className="bg-black/90 border border-white/10 rounded-2xl w-full max-w-5xl max-h-[80vh] overflow-hidden shadow-2xl">
+            <div className="flex items-center justify-between p-4 border-b border-white/10">
+              <div className="flex items-center space-x-2">
+                <span className="text-white font-semibold text-lg">Select {showBusinessModal.replace('-', ' ')}</span>
+              </div>
+              <button className="text-gray-400 hover:text-white" onClick={() => setShowBusinessModal(null)}>
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-4 overflow-y-auto max-h-[70vh]">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                {(showBusinessModal === 'workflow' ? allWorkflows :
+                  showBusinessModal === 'organization' ? organizations :
+                  showBusinessModal === 'role' ? roles :
+                  showBusinessModal === 'member' ? (organizations.flatMap(o => o.members).map(m => ({ id: m.id, name: m.displayName || m.handle, description: m.handle }))) :
+                  showBusinessModal === 'instrument' ? instruments :
+                  showBusinessModal === 'contract' ? contracts :
+                  showBusinessModal === 'wallets' ? wallets :
+                  showBusinessModal === 'integration' ? [] :
+                  []).map((item: BusinessItem) => (
+                  <button
+                    key={item.id}
+                    onClick={() => handleBusinessItemSelect(item)}
+                    className="text-left bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-xl p-3 transition-all"
+                  >
+                    <div className="font-medium text-white truncate">{item.name}</div>
+                    {item.description && (
+                      <div className="text-xs text-gray-400 mt-1 line-clamp-2">{item.description}</div>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
 
 
@@ -6548,7 +6633,7 @@ function OrganizationsView({
     : organizationTemplates.filter(template => template.category === selectedCategory)
 
   return (
-    <div className="absolute inset-0 top-20 p-6">
+    <div className="absolute inset-0 top-20 p-6 overflow-y-auto scrollbar-always-visible">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -8067,7 +8152,7 @@ function RolesView({ roles, selectedOrganization, onAddMember, onCreateRole, onU
   }
 
   return (
-    <div className="absolute inset-0 top-20 p-6">
+    <div className="absolute inset-0 top-20 p-6 overflow-y-auto scrollbar-always-visible" data-allow-scroll="true">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -8746,7 +8831,7 @@ function InstrumentsView({ instruments, organizations, selectedOrganization, onC
     : instrumentTemplates.filter(template => template.category === selectedCategory)
 
   return (
-    <div className="absolute inset-0 top-20 p-6">
+    <div className="absolute inset-0 top-20 p-6 overflow-y-auto pb-24 scrollbar-always-visible">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -8858,7 +8943,7 @@ function InstrumentsView({ instruments, organizations, selectedOrganization, onC
                   ))}
                 </div>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 max-h-96 overflow-y-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 max-h-[32rem] overflow-y-auto pr-1 scrollbar-always-visible">
                 {filteredInstrumentTemplates.map((template) => (
                   <div
                     key={template.id}
@@ -9092,7 +9177,7 @@ function InstrumentsView({ instruments, organizations, selectedOrganization, onC
                   </div>
 
                   {/* Template Grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 max-h-64 overflow-y-auto">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 max-h-80 overflow-y-auto pr-1 scrollbar-always-visible">
                     {filteredInstrumentTemplates.map((template) => (
                       <div
                         key={template.id}

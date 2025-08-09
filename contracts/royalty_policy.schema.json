@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cashboard.app/schemas/royalty_policy.schema.json",
+  "title": "RoyaltyPolicy",
+  "type": "object",
+  "required": [
+    "id",
+    "version",
+    "title",
+    "parties",
+    "revenueSource",
+    "allocations",
+    "distribution",
+    "proRataBasis",
+    "guardrails",
+    "triggers",
+    "audit"
+  ],
+  "properties": {
+    "id": { "type": "string", "description": "Stable identifier for this policy" },
+    "version": { "type": "string", "description": "Semantic version of the policy" },
+    "title": { "type": "string" },
+    "parties": {
+      "type": "object",
+      "required": ["issuer", "tokenSymbol", "payoutCurrency"],
+      "properties": {
+        "issuer": { "type": "string", "description": "Organization ID or name" },
+        "tokenSymbol": { "type": "string", "description": "Royalty/share token symbol (e.g., ADEX)" },
+        "payoutCurrency": { "type": "string", "enum": ["USD", "BSV"], "default": "USD" }
+      }
+    },
+    "revenueSource": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": { "type": "string", "enum": ["youtube_adsense", "manual", "webhook"] },
+        "youtube": {
+          "type": "object",
+          "properties": {
+            "channelId": { "type": "string" },
+            "reportingWindowDays": { "type": "integer", "minimum": 1, "default": 7 }
+          }
+        }
+      }
+    },
+    "allocations": {
+      "type": "object",
+      "required": ["royaltyPool", "ops", "reserve"],
+      "properties": {
+        "royaltyPool": { "type": "number", "minimum": 0, "maximum": 100 },
+        "ops": { "type": "number", "minimum": 0, "maximum": 100 },
+        "reserve": { "type": "number", "minimum": 0, "maximum": 100 }
+      },
+      "description": "Percent allocations that must sum to 100",
+      "additionalProperties": false,
+      "x-constraints": {
+        "sumTo": { "fields": ["royaltyPool", "ops", "reserve"], "equals": 100 }
+      }
+    },
+    "distribution": {
+      "type": "object",
+      "required": ["schedule"],
+      "properties": {
+        "schedule": { "type": "string", "enum": ["weekly", "monthly"] },
+        "dayOfWeek": { "type": "string", "enum": ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] },
+        "dayOfMonth": { "type": "integer", "minimum": 1, "maximum": 28 },
+        "time": { "type": "string", "pattern": "^([01]?[0-9]|2[0-3]):[0-5][0-9]$" },
+        "timezone": { "type": "string", "default": "UTC" },
+        "proration": { "type": "string", "enum": ["none", "byDaysInPeriod"] }
+      }
+    },
+    "proRataBasis": {
+      "type": "object",
+      "required": ["method"],
+      "properties": {
+        "method": { "type": "string", "enum": ["token_supply", "snapshot"] },
+        "snapshot": {
+          "type": "object",
+          "properties": {
+            "frequency": { "type": "string", "enum": ["daily", "weekly"] },
+            "windowDays": { "type": "integer", "minimum": 1, "maximum": 30 }
+          }
+        }
+      }
+    },
+    "guardrails": {
+      "type": "object",
+      "properties": {
+        "minRunwayMonths": { "type": "number", "minimum": 0 },
+        "runwayMetricKey": { "type": "string", "description": "Key for metric providing cash runway in months" },
+        "onBreach": { "type": "string", "enum": ["pause_payouts", "route_to_exceptions", "notify_only"], "default": "route_to_exceptions" }
+      }
+    },
+    "kpis": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "metricKey", "threshold"],
+        "properties": {
+          "name": { "type": "string" },
+          "metricKey": { "type": "string" },
+          "comparison": { "type": "string", "enum": [">=", ">", "<=", "<", "==", "!="], "default": ">=" },
+          "threshold": { "type": "number" }
+        }
+      }
+    },
+    "triggers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["event", "action"],
+        "properties": {
+          "event": { "type": "string", "enum": ["revenue_received", "schedule_tick", "manual"] },
+          "action": { "type": "string", "enum": ["distribute_royalties", "recalculate_prices", "notify"] }
+        }
+      }
+    },
+    "audit": {
+      "type": "object",
+      "required": ["level"],
+      "properties": {
+        "level": { "type": "string", "enum": ["summary", "detailed"], "default": "detailed" },
+        "storePayloads": { "type": "boolean", "default": true }
+      }
+    },
+    "metadata": { "type": "object", "additionalProperties": true }
+  },
+  "additionalProperties": false
+}
+

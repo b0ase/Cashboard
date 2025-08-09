@@ -1,7 +1,9 @@
 # Cashboard Flow-Diagram Features
 
 ## Overview
-Cashboard now includes a comprehensive flow-diagram system similar to n8n, but specifically designed for money flows, contract management, and autonomous task routing. This system allows you to visualize and automate complex business processes.
+This document specifies the flow‑diagram system for Cashboard. The current MVP does not ship a full editor/executor yet; this file defines terminology, expected UX, and runtime behavior for implementation. The focus is money flows, contract management, autonomous task routing, and dividend distribution.
+
+Positioning: Unlike generic automation canvases, this canvas is organization‑aware. Nodes can reference roles, members, share allocations, contract clauses, and policy checks. Execution includes audit events and idempotent payment/contract operations.
 
 ## Node Types
 
@@ -99,6 +101,7 @@ Cashboard now includes a comprehensive flow-diagram system similar to n8n, but s
 - **Running**: Workflow is actively executing
 - **Paused**: Workflow is temporarily stopped
 - **Auto Mode**: Automatic progression enabled
+- **Simulate**: Dry‑run with synthetic events and guardrails (no external side effects)
 
 ## Key Features
 
@@ -113,18 +116,24 @@ Cashboard now includes a comprehensive flow-diagram system similar to n8n, but s
 - Conditional routing based on outcomes
 - Automatic task assignment
 - Deadline monitoring and alerts
+ - Guardrails: pre‑flight checks and policy constraints before executing payments/contracts
+ - Policy hooks: role/permission verification against the active organization
 
 ### 3. Money Flow Management
 - Visual payment tracking
 - Automatic fund allocation
 - Payment status monitoring
 - Financial reporting
+ - Dividend distribution primitives (split by percent, waterfall, threshold triggers)
+ - Cap table integration for pro‑rata calculations
 
 ### 4. Contract Management
 - Deadline tracking
 - Milestone validation
 - Automatic contract progression
 - Legal compliance monitoring
+ - Template‑driven contract generation (planned)
+ - Machine‑readable clause metadata for automation
 
 ### 5. Team Coordination
 - Visual team assignments
@@ -181,6 +190,28 @@ Real-time monitoring of:
 - Connection flow
 - Error handling
 - Performance metrics
+ - Audit trail entries for money flow and decisions
+
+## Data Model (proposed)
+
+- Node: { id, type, name, config, inputs[], outputs[], policy?: { rolesAllowed?: string[], approvals?: number } }
+- Connection: { id, fromNodeId, fromPort, toNodeId, toPort, type }
+- Run: { id, flowId, status, startedAt, finishedAt, events[] }
+- Event: { at, type, data }
+
+## Execution Semantics (high‑level)
+
+- Deterministic core with external effects abstracted via adaptors
+- Idempotent payment/contract operations
+- Policy layer for role/permission checks per organization
+
+Implementation note: MVP can start with JSON‑defined flows executed in the client for demo, then move to a server runtime.
+
+## Documentation Links
+
+- Context and positioning: `CONTEXTUAL_KNOWLEDGE.md`
+- Product overview and roadmap: `PRODUCT_DOCUMENTATION.md`
+- CSS/design system guidance: `CSS_ISSUES_ANALYSIS.md`
 
 ### Visual Feedback
 - Color-coded connections

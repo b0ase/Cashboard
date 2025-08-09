@@ -4,6 +4,8 @@
 
 Cashboard is a revolutionary AI-powered business management platform that combines visual workflow automation, organizational management, and intelligent process execution. Built for modern businesses operating in the blockchain era, Cashboard enables teams to create, manage, and automate complex business processes through an intuitive visual interface.
 
+Positioning vs. n8n: Cashboard sits a level above generic workflow tools. Instead of starting from integrations, it starts from the organization—its roles, contracts, tokens/shares, and money flow—then composes integrations around that model.
+
 ## Core Features
 
 ### 🎯 **Visual Workflow Automation**
@@ -12,6 +14,7 @@ Cashboard is a revolutionary AI-powered business management platform that combin
 - **Expandable Nodes**: Click to expand team nodes and see individual member workflows
 - **Real-time Execution**: Live workflow monitoring with play/pause/auto modes
 - **Connection Types**: Success, failure, conditional, payment, and task connections
+ - **Status**: Planned (spec available in `FLOW_DIAGRAM_FEATURES.md`)
 
 ### 🏢 **Organization Management**
 - **Multi-Organization Support**: Manage multiple business entities
@@ -19,6 +22,7 @@ Cashboard is a revolutionary AI-powered business management platform that combin
 - **Token/Equity Management**: Issue business shares and assign allocations
 - **HandCash Integration**: Link team members via HandCash handles
 - **Blockchain Token Support**: Connect token addresses for automated operations
+ - **Status**: Partially implemented (mocked UI in app, data model/spec documented)
 
 ### 🤖 **AI-Powered Execution**
 - **Natural Language Interface**: AI chat bar for conversational workflow creation
@@ -26,6 +30,7 @@ Cashboard is a revolutionary AI-powered business management platform that combin
 - **Smart Contract Generation**: Automated employment contracts with KPIs
 - **Dynamic Organization Mapping**: AI creates and manages organizational structures
 - **Real-time Decision Making**: AI-driven workflow routing and optimization
+ - **Status**: Planned (UI scaffolding only)
 
 ### 🔌 **System Integrations**
 - **CRM Integration**: Connect with popular CRM systems
@@ -34,6 +39,13 @@ Cashboard is a revolutionary AI-powered business management platform that combin
 - **Google OAuth**: Secure user authentication
 - **Stripe Integration**: Subscription management and payments
 - **Blockchain Integration**: Multi-chain token operations
+ - **Status**: Planned
+
+### 🧩 **Contracts & Instruments**
+- **AI‑Drafted Contracts**: Human‑readable and machine‑readable clauses and KPIs
+- **Instruments**: Revenue splits, vesting schedules, milestone escrows, dividend policies
+- **Composable**: Fit together like lego blocks on the canvas
+- **Status**: Planned
 
 ## Use Cases
 
@@ -65,23 +77,27 @@ list a new token on Bitcoin SV blockchain of one billion tokens"
 - **TypeScript**: Type-safe development
 - **Tailwind CSS**: Modern, responsive styling
 - **Lucide React**: Comprehensive icon library
+ - **Status**: Implemented
 
 ### **State Management**
 - **React Hooks**: useState, useRef for local state
 - **Centralized AppState**: Unified state management for all features
 - **Real-time Updates**: Live workflow and organization updates
+ - **Status**: Local state implemented; centralized state planned
 
 ### **AI Integration**
 - **Natural Language Processing**: Conversational interface
 - **Workflow Generation**: AI creates and modifies workflows
 - **Contract Generation**: Automated legal document creation
 - **Decision Logic**: AI-driven workflow routing
+ - **Status**: Planned
 
 ### **Blockchain Features**
 - **HandCash Integration**: BSV wallet connectivity
 - **Token Management**: Multi-token support
 - **Smart Contracts**: Automated contract execution
 - **Equity Tracking**: Real-time share allocation monitoring
+ - **Status**: Planned (spec only)
 
 ## User Experience
 
@@ -90,18 +106,26 @@ list a new token on Bitcoin SV blockchain of one billion tokens"
 - **Expandable Components**: Click to drill down into details
 - **Real-time Collaboration**: Multi-user workflow editing
 - **Responsive Design**: Works on desktop and mobile
+ - **Status**: Implemented (visual flow editor planned)
 
 ### **AI Assistant**
 - **Chat Interface**: Natural language commands
 - **Context Awareness**: Understands current workflow state
 - **Proactive Suggestions**: AI recommends optimizations
 - **Error Prevention**: Validates commands before execution
+ - **Status**: Planned
 
 ### **Workflow Management**
 - **Visual Debugging**: See workflow execution in real-time
 - **Performance Metrics**: Track workflow efficiency
 - **Version Control**: Workflow history and rollback
 - **Templates**: Pre-built workflow templates
+ - **Status**: Planned
+
+### **Documentation Links**
+- Context and positioning: `CONTEXTUAL_KNOWLEDGE.md`
+- Flow editor specification: `FLOW_DIAGRAM_FEATURES.md`
+- CSS/design system guidance: `CSS_ISSUES_ANALYSIS.md`
 
 ## Business Model
 
@@ -140,25 +164,30 @@ list a new token on Bitcoin SV blockchain of one billion tokens"
 
 ## Development Roadmap
 
-### **Phase 1: Core Platform** ✅
-- [x] Visual workflow interface
-- [x] Organization management
-- [x] Role-based access control
-- [x] Basic AI chat interface
+### **Phase 1: Core Platform** ✅ (MVP)
+- [x] Organization, Cash Handles, Labels, Dividends UIs (mock data)
+- [x] Glassmorphism design system and navigation
+- [x] Demo modal for real-time revenue → dividend flow
+- [x] Simplified Tailwind CSS setup (resolved CSS issues)
 
-### **Phase 2: AI Enhancement** 🚧
-- [ ] Advanced natural language processing
-- [ ] Intelligent workflow generation
-- [ ] Contract automation
-- [ ] Decision optimization
+### **Phase 2: Visual Flows & Runtime** 🚧
+- [ ] Flow editor (nodes, connections, validation)
+- [ ] Declarative execution engine and scheduler
+- [ ] Persistence for orgs/handles/dividends/flows
+- [ ] Role/permission enforcement in runtime
 
-### **Phase 3: Integrations** 📋
+### **Phase 3: AI Enhancement** 📋
+- [ ] Natural-language creation and editing of flows
+- [ ] Contract template generation with KPIs
+- [ ] Guardrails and simulation/safety checks
+
+### **Phase 4: Integrations** 📋
 - [ ] CRM system connections
 - [ ] CMS integration
 - [ ] Spreadsheet automation
 - [ ] Google OAuth implementation
 
-### **Phase 4: Enterprise Features** 📋
+### **Phase 5: Enterprise Features** 📋
 - [ ] Stripe subscription management
 - [ ] Advanced blockchain features
 - [ ] Multi-tenant architecture
@@ -197,6 +226,10 @@ list a new token on Bitcoin SV blockchain of one billion tokens"
 - Response time
 - AI accuracy
 - Integration reliability
+
+---
+
+Note: For the current high-level context and positioning, see `CONTEXTUAL_KNOWLEDGE.md`. For detailed flow-editor specification, see `FLOW_DIAGRAM_FEATURES.md`. For CSS architecture decisions and guidance, see `CSS_ISSUES_ANALYSIS.md`.
 
 ---
 

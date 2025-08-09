@@ -1,0 +1,57 @@
+{
+  "id": "royalty-policy-audex-v1",
+  "version": "1.0.0",
+  "title": "AUDEX Royalty Policy",
+  "parties": {
+    "issuer": "AUDEX",
+    "tokenSymbol": "ADEX",
+    "payoutCurrency": "USD"
+  },
+  "revenueSource": {
+    "type": "youtube_adsense",
+    "youtube": {
+      "channelId": "UCxxxxAUDEx",
+      "reportingWindowDays": 7
+    }
+  },
+  "allocations": {
+    "royaltyPool": 70,
+    "ops": 20,
+    "reserve": 10
+  },
+  "distribution": {
+    "schedule": "weekly",
+    "dayOfWeek": "mon",
+    "time": "09:00",
+    "timezone": "UTC",
+    "proration": "byDaysInPeriod"
+  },
+  "proRataBasis": {
+    "method": "snapshot",
+    "snapshot": {
+      "frequency": "daily",
+      "windowDays": 7
+    }
+  },
+  "guardrails": {
+    "minRunwayMonths": 6,
+    "runwayMetricKey": "finance.runway.months",
+    "onBreach": "pause_payouts"
+  },
+  "kpis": [
+    { "name": "Channel CPM", "metricKey": "youtube.cpm", "comparison": ">=", "threshold": 1.5 },
+    { "name": "View Growth", "metricKey": "youtube.views.7d_growth", "comparison": ">=", "threshold": 0 }
+  ],
+  "triggers": [
+    { "event": "revenue_received", "action": "distribute_royalties" },
+    { "event": "schedule_tick", "action": "recalculate_prices" }
+  ],
+  "audit": {
+    "level": "detailed",
+    "storePayloads": true
+  },
+  "metadata": {
+    "description": "Weekly pro‑rata royalty distribution to ADEX token holders based on track share snapshots."
+  }
+}
+

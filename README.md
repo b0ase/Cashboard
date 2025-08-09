@@ -1,5 +1,20 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Project Documentation
+
+- Context and positioning: `CONTEXTUAL_KNOWLEDGE.md`
+- Product overview and roadmap: `PRODUCT_DOCUMENTATION.md`
+- Flow editor specification: `FLOW_DIAGRAM_FEATURES.md`
+- CSS/design system guidance: `CSS_ISSUES_ANALYSIS.md`
+- Marketing strategy and social copy: `MARKETING_STRATEGY.md`
+- AUDEX demo video script & storyboard: `DEMO_VIDEO_SCRIPT_AUDEX.md`
+
+## Contracts
+
+- Overview: `CONTRACTS.md`
+- Royalty Policy Schema: `contracts/royalty_policy.schema.json`
+- Royalty Policy Example (AUDEX): `contracts/royalty_policy.example.json`
+
 ## Getting Started
 
 First, run the development server:

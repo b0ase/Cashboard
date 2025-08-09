@@ -4707,7 +4707,7 @@ function WorkflowView({
           
           {/* Palette Content */}
           <div className={`transition-all duration-300 ${
-            isPaletteCollapsed ? 'opacity-0 max-h-0' : 'opacity-100'
+            isPaletteCollapsed ? 'opacity-0 max-h-0' : 'opacity-100 max-h-[36rem]'
           } overflow-y-scroll scrollbar-always-visible space-y-1`}>
             {['Basic', 'Business', 'Integration', 'Communication', 'Logic', 'Process'].map((category) => (
               <div key={category}>

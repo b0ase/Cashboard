@@ -83,7 +83,8 @@ import {
   ZoomOut,
   UserCheck,
   Banknote,
-  Plug
+  Plug,
+  Headphones
 } from 'lucide-react'
 import DemoModal from '../components/DemoModal'
 
@@ -1001,124 +1002,45 @@ export default function Dashboard() {
     workflows: [
       {
         id: '1',
-        name: 'Demo Workflow',
-        description: 'Complete development project with payment, contract, and team coordination',
+        name: 'Example Workflow',
+        description: 'AUDEX: YouTube ad revenue → split 70/20/10 → guardrail → dividends to ADEX token holders',
         nodes: [
-          {
-            id: '1',
-            type: 'payment',
-            name: 'Project Payment',
-            description: 'Initial project funding',
-            x: 100,
-            y: 100,
-            status: 'active',
-            amount: 5000,
-            connections: []
-          },
-          {
-            id: '2',
-            type: 'contract',
-            name: 'Development Contract',
-            description: 'Frontend development agreement',
-            x: 350,
-            y: 100,
-            status: 'pending',
-            deadline: '2024-02-15',
-            connections: []
-          },
-          {
-            id: '3',
-            type: 'task',
-            name: 'UI Implementation',
-            description: 'Build user interface components',
-            x: 600,
-            y: 100,
-            status: 'pending',
-            assignees: ['Alice', 'Bob'],
-            connections: []
-          },
-          {
-            id: '4',
-            type: 'decision',
-            name: 'Code Review',
-            description: 'Quality check decision point',
-            x: 850,
-            y: 100,
-            status: 'pending',
-            conditions: ['Pass', 'Fail'],
-            connections: []
-          },
-          {
-            id: '5',
-            type: 'milestone',
-            name: 'Phase 1 Complete',
-            description: 'First development milestone',
-            x: 1100,
-            y: 100,
-            status: 'pending',
-            connections: []
-          },
-          {
-            id: '6',
-            type: 'team',
-            name: 'Dev Team',
-            description: 'Development team assignment',
-            x: 600,
-            y: 250,
-            status: 'active',
-            assignees: ['Alice', 'Bob', 'Charlie'],
-            memberCount: 3,
-            isExpanded: false,
-            childNodes: [
-              {
-                id: '6-1',
-                type: 'task',
-                name: 'Alice - Frontend',
-                description: 'React component development',
-                x: 500,
-                y: 350,
-                status: 'active',
-                assignees: ['Alice'],
-                connections: []
-              },
-              {
-                id: '6-2',
-                type: 'task',
-                name: 'Bob - Backend',
-                description: 'API development',
-                x: 700,
-                y: 350,
-                status: 'pending',
-                assignees: ['Bob'],
-                connections: []
-              },
-              {
-                id: '6-3',
-                type: 'task',
-                name: 'Charlie - Testing',
-                description: 'Quality assurance',
-                x: 600,
-                y: 450,
-                status: 'pending',
-                assignees: ['Charlie'],
-                connections: []
-              }
-            ],
-            connections: []
-          }
+          { id: 'n1', type: 'youtube', name: 'YouTube Ad Revenue', description: 'AdSense receipts for AUDEX channel', x: 100, y: 100, status: 'active', connections: [], metadata: { channelId: 'UCxxxxxxxxxxxxxxxx' } },
+          { id: 'n2', type: 'splitter', name: 'Split 70/20/10', description: 'Revenue allocation', x: 320, y: 100, status: 'active', connections: [], metadata: { percentages: { royaltyPool: 70, ops: 20, reserve: 10 } } },
+          { id: 'n3', type: 'payment', name: 'Royalty Pool (70%)', description: 'Funds allocated to royalties', x: 520, y: 100, status: 'pending', connections: [], metadata: { amount: '70%' } },
+          { id: 'n3b', type: 'payment', name: 'Ops (20%)', description: 'Operating budget', x: 520, y: 200, status: 'pending', connections: [], metadata: { amount: '20%' } },
+          { id: 'n3c', type: 'payment', name: 'Reserve (10%)', description: 'Safety reserve', x: 520, y: 280, status: 'pending', connections: [], metadata: { amount: '10%' } },
+          { id: 'n4', type: 'decision', name: 'Runway Guardrail', description: 'Pause if runway < 6 months', x: 760, y: 100, status: 'pending', connections: [], conditions: ['Pass', 'Fail'], metadata: { metricKey: 'finance.cash_runway_months', threshold: 6 } },
+          { id: 'n5', type: 'payment', name: 'Dividend Distributor', description: 'Weekly pro‑rata to ADEX', x: 1000, y: 100, status: 'pending', connections: [], metadata: { tokenSymbol: 'ADEX', schedule: 'weekly' } },
+          { id: 'n6', type: 'organization', name: 'AUDEX', description: 'AI‑first record label', x: 100, y: 260, status: 'active', connections: [], metadata: { classification: 'Company' } },
+          { id: 'n7', type: 'role', name: 'Founder', description: 'Founders with governance', x: 320, y: 260, status: 'active', connections: [], metadata: { permissions: ['govern', 'approve'] } },
+          { id: 'n8', type: 'role', name: 'Producer', description: 'Music production lead', x: 520, y: 360, status: 'active', connections: [], metadata: { permissions: ['create', 'upload'] } },
+          { id: 'n9', type: 'role', name: 'Community', description: 'Community & growth', x: 320, y: 360, status: 'active', connections: [], metadata: { permissions: ['promote'] } },
+          { id: 'n10', type: 'instrument', name: 'ADEX Token', description: 'Royalty share token', x: 760, y: 260, status: 'active', connections: [], metadata: { tokenSymbol: 'ADEX', supply: 1000000000 } },
+          { id: 'n11', type: 'member', name: 'Shareholders', description: 'ADEX holders (pro‑rata)', x: 1000, y: 260, status: 'active', connections: [], metadata: { holders: ['Alice 15%', 'Bob 25%', 'Charlie 20%', 'Diana 40%'] } },
+          { id: 'n12', type: 'contact', name: 'Artists', description: 'Contributing artists', x: 760, y: 360, status: 'active', connections: [], metadata: { count: 12 } },
+          { id: 'n13', type: 'organization', name: 'Suppliers', description: 'External vendors', x: 100, y: 360, status: 'active', connections: [], metadata: { classification: 'Supplier' } },
+          { id: 'n14', type: 'trigger', name: 'Listener: revenue_received', description: 'Event listener', x: 220, y: 40, status: 'active', connections: [], metadata: { source: 'youtube_adsense' } }
         ],
         connections: [
-          { id: '1-2', from: '1', to: '2', type: 'payment', amount: 5000 },
-          { id: '2-3', from: '2', to: '3', type: 'task' },
-          { id: '3-4', from: '3', to: '4', type: 'conditional' },
-          { id: '4-5', from: '4', to: '5', type: 'success', condition: 'Pass' },
-          { id: '6-3', from: '6', to: '3', type: 'task' }
+          { id: 'c1', from: 'n1', to: 'n2', type: 'payment' },
+          { id: 'c2', from: 'n2', to: 'n3', type: 'payment', amount: 70 },
+          { id: 'c3', from: 'n2', to: 'n3b', type: 'payment', amount: 20 },
+          { id: 'c4', from: 'n2', to: 'n3c', type: 'payment', amount: 10 },
+          { id: 'c5', from: 'n3', to: 'n4', type: 'conditional' },
+          { id: 'c6', from: 'n4', to: 'n5', type: 'success', condition: 'runway_ok' },
+          { id: 'c7', from: 'n4', to: 'n6', type: 'failure', condition: 'pause_and_notify' },
+          { id: 'c8', from: 'n5', to: 'n11', type: 'payment' },
+          { id: 'c9', from: 'n6', to: 'n7', type: 'task' },
+          { id: 'c10', from: 'n6', to: 'n10', type: 'task' },
+          { id: 'c11', from: 'n5', to: 'n12', type: 'task' },
+          { id: 'c12', from: 'n14', to: 'n1', type: 'task' }
         ],
         selectedNode: null,
         selectedNodes: [],
         isConnecting: null,
         dragging: null,
-        workflowStatus: 'running',
+        workflowStatus: 'paused',
         autoMode: true,
         createdAt: '2024-01-15',
         updatedAt: '2024-01-15',
@@ -2100,6 +2022,10 @@ export default function Dashboard() {
       case 'script': return <Terminal className={iconSize} />
       case 'switch': return <GitBranch className={iconSize} />
       case 'router': return <Router className={iconSize} />
+      case 'youtube': return <Play className={iconSize} />
+      case 'listener': return <Zap className={iconSize} />
+      case 'shareholder': return <UserCheck className={iconSize} />
+      case 'artist': return <Headphones className={iconSize} />
       case 'delay': return <Clock className={iconSize} />
       case 'queue': return <Layers className={iconSize} />
       case 'batch': return <Package className={iconSize} />
@@ -2166,6 +2092,8 @@ export default function Dashboard() {
       case 'payment': return 'stroke-yellow-400'
       case 'task': return 'stroke-blue-400'
       case 'conditional': return 'stroke-purple-400'
+      case 'notification': return 'stroke-cyan-400'
+      case 'trigger': return 'stroke-amber-400'
       default: return 'stroke-white'
     }
   }
@@ -3162,7 +3090,7 @@ export default function Dashboard() {
       {/* Main Content */}
       <div className="flex-1 relative min-h-0">
         {/* Header */}
-        <div id="app-header" ref={headerRef} className={`absolute top-0 left-0 right-0 z-20 ${isMobile ? 'p-3' : 'p-6'}`}>
+        <div id="app-header" ref={headerRef} className={`absolute top-0 left-0 right-0 z-50 ${isMobile ? 'p-3' : 'p-6'}`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               {isMobile ? (
@@ -4662,7 +4590,7 @@ function WorkflowsView({
             <div
               key={workflow.id}
               className={`bg-black/40 backdrop-blur-xl border rounded-xl p-6 hover:bg-black/60 transition-all duration-200 cursor-pointer group ${
-                workflow.name === 'Demo Workflow' 
+                workflow.name === 'Example Workflow' 
                   ? 'border-gradient-demo animate-pulse-glow shadow-2xl shadow-blue-500/20' 
                   : 'border-white/20'
               } ${
@@ -5102,6 +5030,10 @@ function WorkflowView({
       case 'member': return 'border-cyan-400/60'
       case 'instrument': return 'border-emerald-400/60'
       case 'integration': return 'border-violet-400/60'
+      case 'youtube': return 'border-red-500/60'
+      case 'listener': return 'border-amber-400/60'
+      case 'shareholder': return 'border-fuchsia-400/60'
+      case 'artist': return 'border-pink-400/60'
       case 'api': return 'border-blue-500/60'
       case 'database': return 'border-gray-400/60'
       case 'webhook': return 'border-teal-400/60'
@@ -5158,6 +5090,10 @@ function WorkflowView({
       case 'wallets': return <Wallet className={`${iconSize} text-green-500`} />
       case 'workflow': return <Target className={`${iconSize} text-indigo-500`} />
       case 'contact': return <User className={`${iconSize} text-blue-300`} />
+      case 'youtube': return <Play className={`${iconSize} text-red-500`} />
+      case 'listener': return <Zap className={`${iconSize} text-amber-400`} />
+      case 'shareholder': return <UserCheck className={`${iconSize} text-fuchsia-400`} />
+      case 'artist': return <Headphones className={`${iconSize} text-pink-400`} />
       case 'instagram': return <Users className={`${iconSize} text-pink-500`} />
       case 'snapchat': return <MessageSquare className={`${iconSize} text-yellow-400`} />
       case 'threads': return <MessageSquare className={`${iconSize} text-gray-800`} />
@@ -5439,7 +5375,7 @@ function WorkflowView({
 
       {/* Mobile Add Node sticky bar */}
       {isMobile && (
-        <div className="fixed z-40 left-3 right-3" style={{ top: mobileAddTopLocal }}>
+        <div className="fixed z-30 left-3 right-3" style={{ top: mobileAddTopLocal }}>
           <div className="flex items-center justify-center">
             <button
               onClick={() => setMobileNodeMenuOpen(v => !v)}

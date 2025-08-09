@@ -339,7 +339,7 @@ interface Role {
 
 interface WorkflowNode {
   id: string
-  type: 'payment' | 'contract' | 'task' | 'decision' | 'milestone' | 'team' | 'kpi' | 'employee' | 'deliverable' | 'asset' | 'mint' | 'payroll' | 'production' | 'marketing' | 'sales' | 'legal' | 'finance' | 'hr' | 'it' | 'operations' | 'api' | 'database' | 'loop' | 'condition' | 'trigger' | 'webhook' | 'email' | 'sms' | 'notification' | 'approval' | 'review' | 'timer' | 'counter' | 'calculator' | 'transformer' | 'validator' | 'aggregator' | 'filter' | 'sorter' | 'merger' | 'splitter' | 'gateway' | 'service' | 'function' | 'script' | 'organization' | 'role' | 'member' | 'instrument' | 'integration' | 'switch' | 'router' | 'delay' | 'queue' | 'batch' | 'parallel' | 'sequence' | 'retry' | 'ai-agent' | 'instagram' | 'snapchat' | 'threads' | 'twitter' | 'facebook' | 'linkedin' | 'tiktok' | 'youtube' | 'discord' | 'telegram' | 'whatsapp' | 'reddit'
+  type: 'payment' | 'contract' | 'task' | 'decision' | 'milestone' | 'team' | 'kpi' | 'employee' | 'deliverable' | 'asset' | 'mint' | 'payroll' | 'production' | 'marketing' | 'sales' | 'legal' | 'finance' | 'hr' | 'it' | 'operations' | 'api' | 'database' | 'loop' | 'condition' | 'trigger' | 'webhook' | 'email' | 'sms' | 'notification' | 'approval' | 'review' | 'timer' | 'counter' | 'calculator' | 'transformer' | 'validator' | 'aggregator' | 'filter' | 'sorter' | 'merger' | 'splitter' | 'gateway' | 'service' | 'function' | 'script' | 'organization' | 'role' | 'member' | 'instrument' | 'integration' | 'switch' | 'router' | 'delay' | 'queue' | 'batch' | 'parallel' | 'sequence' | 'retry' | 'ai-agent' | 'instagram' | 'snapchat' | 'threads' | 'twitter' | 'facebook' | 'linkedin' | 'tiktok' | 'youtube' | 'discord' | 'telegram' | 'whatsapp' | 'reddit' | 'voice' | 'elevenlabs' | 'midjourney' | 'veo3' | 'openai' | 'anthropic' | 'stability' | 'runway' | 'replicate' | 'huggingface' | 'cohere' | 'perplexity'
   name: string
   description: string
   x: number
@@ -1980,6 +1980,18 @@ export default function Dashboard() {
       case 'telegram': return <Send className={iconSize} />
       case 'whatsapp': return <MessageSquare className={iconSize} />
       case 'reddit': return <MessageSquare className={iconSize} />
+      case 'voice': return <Play className={iconSize} />
+      case 'elevenlabs': return <Play className={iconSize} />
+      case 'midjourney': return <Palette className={iconSize} />
+      case 'veo3': return <PlayCircle className={iconSize} />
+      case 'openai': return <Bot className={iconSize} />
+      case 'anthropic': return <Bot className={iconSize} />
+      case 'stability': return <Palette className={iconSize} />
+      case 'runway': return <PlayCircle className={iconSize} />
+      case 'replicate': return <RefreshCw className={iconSize} />
+      case 'huggingface': return <Bot className={iconSize} />
+      case 'cohere': return <Bot className={iconSize} />
+      case 'perplexity': return <Bot className={iconSize} />
       default: return <Circle className={iconSize} />
     }
   }
@@ -3578,7 +3590,7 @@ function IntegrationsView() {
   }
 
   return (
-    <div className="absolute inset-0 top-24 p-6 overflow-y-auto">
+    <div className="absolute inset-0 top-20 p-6 overflow-y-auto">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -3783,7 +3795,7 @@ function WorkflowsView({
   }
 
   return (
-    <div className="absolute inset-0 top-24 p-6 overflow-y-auto">
+    <div className="absolute inset-0 top-20 p-6 overflow-y-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
@@ -4295,6 +4307,18 @@ function WorkflowView({
       case 'telegram': return <Send className={`${iconSize} text-blue-500`} />
       case 'whatsapp': return <MessageSquare className={`${iconSize} text-green-500`} />
       case 'reddit': return <MessageSquare className={`${iconSize} text-orange-600`} />
+      case 'voice': return <Play className={`${iconSize} text-purple-500`} />
+      case 'elevenlabs': return <Play className={`${iconSize} text-purple-600`} />
+      case 'midjourney': return <Palette className={`${iconSize} text-blue-500`} />
+      case 'veo3': return <PlayCircle className={`${iconSize} text-red-500`} />
+      case 'openai': return <Bot className={`${iconSize} text-green-600`} />
+      case 'anthropic': return <Bot className={`${iconSize} text-orange-500`} />
+      case 'stability': return <Palette className={`${iconSize} text-purple-400`} />
+      case 'runway': return <PlayCircle className={`${iconSize} text-green-500`} />
+      case 'replicate': return <RefreshCw className={`${iconSize} text-blue-600`} />
+      case 'huggingface': return <Bot className={`${iconSize} text-yellow-500`} />
+      case 'cohere': return <Bot className={`${iconSize} text-teal-500`} />
+      case 'perplexity': return <Bot className={`${iconSize} text-indigo-600`} />
       default: return getNodeIcon(type)
     }
   }
@@ -4319,11 +4343,23 @@ function WorkflowView({
     { type: 'api' as const, name: 'API Call', icon: getColoredNodeIcon('api'), category: 'Integration' },
     { type: 'database' as const, name: 'Database', icon: getColoredNodeIcon('database'), category: 'Integration' },
     { type: 'webhook' as const, name: 'Webhook', icon: getColoredNodeIcon('webhook'), category: 'Integration' },
+    { type: 'elevenlabs' as const, name: 'ElevenLabs', icon: getColoredNodeIcon('elevenlabs'), category: 'Integration' },
+    { type: 'midjourney' as const, name: 'MidJourney', icon: getColoredNodeIcon('midjourney'), category: 'Integration' },
+    { type: 'veo3' as const, name: 'Veo3', icon: getColoredNodeIcon('veo3'), category: 'Integration' },
+    { type: 'openai' as const, name: 'OpenAI', icon: getColoredNodeIcon('openai'), category: 'Integration' },
+    { type: 'anthropic' as const, name: 'Anthropic', icon: getColoredNodeIcon('anthropic'), category: 'Integration' },
+    { type: 'stability' as const, name: 'Stability AI', icon: getColoredNodeIcon('stability'), category: 'Integration' },
+    { type: 'runway' as const, name: 'Runway ML', icon: getColoredNodeIcon('runway'), category: 'Integration' },
+    { type: 'replicate' as const, name: 'Replicate', icon: getColoredNodeIcon('replicate'), category: 'Integration' },
+    { type: 'huggingface' as const, name: 'Hugging Face', icon: getColoredNodeIcon('huggingface'), category: 'Integration' },
+    { type: 'cohere' as const, name: 'Cohere', icon: getColoredNodeIcon('cohere'), category: 'Integration' },
+    { type: 'perplexity' as const, name: 'Perplexity', icon: getColoredNodeIcon('perplexity'), category: 'Integration' },
     
     // Communication
     { type: 'email' as const, name: 'Email', icon: getColoredNodeIcon('email'), category: 'Communication' },
     { type: 'sms' as const, name: 'SMS', icon: getColoredNodeIcon('sms'), category: 'Communication' },
     { type: 'notification' as const, name: 'Notification', icon: getColoredNodeIcon('notification'), category: 'Communication' },
+    { type: 'voice' as const, name: 'Voice Call', icon: getColoredNodeIcon('voice'), category: 'Communication' },
     
     // Logic & Flow Control
     { type: 'loop' as const, name: 'Loop', icon: getColoredNodeIcon('loop'), category: 'Logic' },
@@ -4490,7 +4526,7 @@ function WorkflowView({
   }, [workflow.selectedNodes, isChatOpen, isSpacePressed])
 
   return (
-    <div className="absolute inset-0 top-24 flex flex-col">
+    <div className="absolute inset-0 top-20 flex flex-col">
 
       {/* Canvas Tools - Right Side */}
       <div className="absolute z-40 flex flex-col space-y-2 w-64 top-2 right-4">
@@ -4595,7 +4631,7 @@ function WorkflowView({
       <div
         ref={boardRef}
         className={`flex-1 relative overflow-hidden transition-all duration-300 ${
-          isChatOpen ? (isMobile ? 'mb-48' : 'mb-80') : (isMobile ? 'mb-16' : 'mb-12')
+          isChatOpen ? (isMobile ? 'mb-40' : 'mb-64') : (isMobile ? 'mb-12' : 'mb-8')
         } ${
           isPanning ? 'cursor-grab active:cursor-grabbing' :
           workflow.currentTool === 'pan' ? 'cursor-grab active:cursor-grabbing' :
@@ -5023,7 +5059,7 @@ function WorkflowView({
 
       {/* AI Chat Bar */}
       <div className={`bg-black/90 backdrop-blur-xl border-t border-white/20 transition-all duration-300 ${
-        isChatOpen ? (isMobile ? 'h-48' : 'h-80') : (isMobile ? 'h-12' : 'h-16')
+        isChatOpen ? (isMobile ? 'h-40' : 'h-64') : (isMobile ? 'h-12' : 'h-14')
       }`}>
         {/* Chat Header - Entire bar is clickable */}
         <div 
@@ -5047,9 +5083,9 @@ function WorkflowView({
         {/* Chat Messages */}
         {isChatOpen && (
           <div 
-            className={`flex-1 overflow-y-auto space-y-4 ${
-              isMobile ? 'p-2 max-h-48' : 'p-4 max-h-64'
-            }`}
+                          className={`flex-1 overflow-y-auto space-y-4 ${
+                isMobile ? 'p-2 max-h-40' : 'p-4 max-h-48'
+              }`}
             onClick={(e) => e.stopPropagation()} // Prevent chat toggle when clicking messages
           >
             {chatMessages.map((message) => (
@@ -5311,7 +5347,7 @@ function AgentsView({
   }
 
   return (
-    <div className="absolute inset-0 top-24 p-6">
+    <div className="absolute inset-0 top-20 p-6">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -5641,7 +5677,7 @@ function OrganizationsView({
     : organizationTemplates.filter(template => template.category === selectedCategory)
 
   return (
-    <div className="absolute inset-0 top-24 p-6">
+    <div className="absolute inset-0 top-20 p-6">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -6479,7 +6515,7 @@ function RolesView({ roles, selectedOrganization, onAddMember, onCreateRole, onU
   }
 
   return (
-    <div className="absolute inset-0 top-24 p-6">
+    <div className="absolute inset-0 top-20 p-6">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -7047,7 +7083,7 @@ function InstrumentsView({ instruments, organizations, selectedOrganization, onC
     : instrumentTemplates.filter(template => template.category === selectedCategory)
 
   return (
-    <div className="absolute inset-0 top-24 p-6">
+    <div className="absolute inset-0 top-20 p-6">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -8427,7 +8463,7 @@ function SettingsView({
   }
 
   return (
-    <div className="absolute inset-0 top-24 p-6">
+    <div className="absolute inset-0 top-20 p-6">
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">Settings</h1>
@@ -8696,7 +8732,7 @@ function ProfileView({
   }
 
   return (
-    <div className="absolute inset-0 top-24 p-6">
+    <div className="absolute inset-0 top-20 p-6">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">Profile</h1>

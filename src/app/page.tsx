@@ -23,8 +23,7 @@ import {
   ChevronRight,
   Send,
   Maximize2,
-  Minimize2,
-  RotateCcw,
+
   Plus,
   UserPlus,
   TrendingUp,
@@ -1645,12 +1644,13 @@ export default function Dashboard() {
   
   // Mobile detection and responsive state
   const [isMobile, setIsMobile] = useState(false)
-  const [canvasScale, setCanvasScale] = useState(1)
+  const [canvasScale, setCanvasScale] = useState(0.7)
   const [canvasOffset, setCanvasOffset] = useState({ x: 0, y: 0 })
   const [isDraggingCanvas, setIsDraggingCanvas] = useState(false)
   const [lastTouchDistance, setLastTouchDistance] = useState(0)
   const [lastTouchCenter, setLastTouchCenter] = useState({ x: 0, y: 0 })
   const [showDemoModal, setShowDemoModal] = useState(false)
+  const [selectedNodeDetails, setSelectedNodeDetails] = useState<string | null>(null)
 
   // Mobile detection effect
   useEffect(() => {
@@ -1738,7 +1738,7 @@ export default function Dashboard() {
 
   // Reset canvas view
   const resetCanvasView = () => {
-    setCanvasScale(1)
+    setCanvasScale(0.7) // Reset to default zoom level
     setCanvasOffset({ x: 0, y: 0 })
   }
 
@@ -1828,8 +1828,9 @@ export default function Dashboard() {
       const mouseX = e.clientX - rect.left
       const mouseY = e.clientY - rect.top
       
-      // Calculate zoom delta - more sensitive without modifier keys
-      const zoomSensitivity = e.ctrlKey || e.metaKey ? 0.1 : 0.05
+      // Calculate zoom delta - more sensitive in zoom mode or with modifier keys
+      const isZoomMode = currentWorkflow.currentTool === 'zoom'
+      const zoomSensitivity = isZoomMode ? 0.08 : (e.ctrlKey || e.metaKey ? 0.1 : 0.05)
       const delta = e.deltaY > 0 ? -zoomSensitivity : zoomSensitivity
       
       setCanvasScale(prev => {
@@ -1863,6 +1864,44 @@ export default function Dashboard() {
       return () => canvasElement.removeEventListener('wheel', handleWheel)
     }
   }, [currentView, currentWorkflow, boardRef])
+
+  // Global scroll prevention for workflow view to make zoom stable
+  useEffect(() => {
+    const handleGlobalWheel = (e: WheelEvent) => {
+      // Only prevent scrolling when in workflow view
+      if (currentView !== 'workflow' || !currentWorkflow) return
+
+      const target = e.target as HTMLElement
+      
+      // Allow scrolling in specific UI elements that need it
+      const allowScrollElements = [
+        '.scrollbar-always-visible',  // Node palette
+        'button',
+        'input', 
+        'textarea',
+        '.overflow-y-auto',           // Scrollable containers
+        '[data-allow-scroll="true"]', // Explicitly marked elements
+        '.bg-black\\/50',             // Modal backdrop (for modal scrolling)
+      ]
+      
+      const shouldAllowScroll = allowScrollElements.some(selector => 
+        target.closest(selector)
+      )
+      
+      if (!shouldAllowScroll) {
+        // Prevent page scrolling to make canvas zoom stable
+        e.preventDefault()
+        e.stopPropagation()
+      }
+    }
+
+    // Add global wheel listener with passive: false to allow preventDefault
+    document.addEventListener('wheel', handleGlobalWheel, { passive: false })
+    
+    return () => {
+      document.removeEventListener('wheel', handleGlobalWheel)
+    }
+  }, [currentView, currentWorkflow])
 
   const getNodeIcon = (type: string) => {
     const iconSize = isMobile ? "w-3 h-3" : "w-4 h-4"
@@ -2891,97 +2930,240 @@ export default function Dashboard() {
         <div className={`absolute top-0 left-0 right-0 z-20 ${isMobile ? 'p-3' : 'p-6'}`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <button
-                onClick={toggleSidebar}
-                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-              >
-                <Menu className={`${isMobile ? 'w-5 h-5' : 'w-6 h-6'} text-white`} />
-              </button>
-              <div className={`bg-black/40 backdrop-blur-xl border border-white/20 rounded-2xl ${
-                isMobile ? 'px-4 py-2' : 'px-6 py-3'
-              }`}>
-                <h1 className={`font-bold text-white tracking-wider font-mono ${
-                  isMobile ? 'text-lg' : 'text-2xl'
-                }`}>$CASHBOARD</h1>
-              </div>
+              {!sidebarOpen && (
+                <button
+                  onClick={toggleSidebar}
+                  className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                  title="Open sidebar"
+                >
+                  <Menu className={`${isMobile ? 'w-5 h-5' : 'w-6 h-6'} text-white`} />
+                </button>
+              )}
               
+              {/* Editable Workflow Title */}
+              {currentView === 'workflow' && currentWorkflow && (
+                <input
+                  type="text"
+                  value={currentWorkflow.name}
+                  onChange={(e) => updateWorkflow(currentWorkflow.id, { name: e.target.value })}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      e.currentTarget.blur() // Remove focus to finalize the edit
+                    }
+                    // Allow spaces and other characters
+                    e.stopPropagation()
+                  }}
+                  onBlur={(e) => {
+                    // Trim whitespace and ensure name is not empty
+                    const trimmedName = e.target.value.trim()
+                    if (trimmedName && trimmedName !== currentWorkflow.name) {
+                      updateWorkflow(currentWorkflow.id, { name: trimmedName })
+                    } else if (!trimmedName) {
+                      // Reset to original name if empty
+                      updateWorkflow(currentWorkflow.id, { name: currentWorkflow.name })
+                    }
+                  }}
+                  className="bg-transparent text-white font-semibold text-lg focus:outline-none focus:ring-2 focus:ring-blue-400/50 rounded px-2 py-1 border border-transparent hover:border-white/20 focus:border-blue-400/50 transition-all min-w-0 max-w-xs"
+                  placeholder="Workflow Name"
+                  onClick={(e) => e.stopPropagation()}
+                />
+              )}
 
             {currentView === 'workflow' && currentWorkflow && (
               <div className={`flex items-center space-x-2 ${isMobile ? 'flex-wrap gap-1' : ''}`}>
                 <button
                   onClick={toggleWorkflowStatus}
-                  className={`rounded-lg flex items-center space-x-2 transition-all ${
+                  className={`rounded-lg flex items-center space-x-1 transition-all border ${
                     currentWorkflow.workflowStatus === 'running' 
-                      ? 'bg-green-500/20 text-green-400 border border-green-400/30' 
-                      : 'bg-yellow-500/20 text-yellow-400 border border-yellow-400/30'
-                  } ${isMobile ? 'px-2 py-1' : 'px-3 py-2'}`}
+                      ? 'bg-green-500/20 text-green-400 border-green-400/30' 
+                      : 'bg-yellow-500/20 text-yellow-400 border-yellow-400/30'
+                  } ${isMobile ? 'p-1' : 'p-2'}`}
+                  title={currentWorkflow.workflowStatus === 'running' ? 'Pause Workflow' : 'Start Workflow'}
                 >
                   {currentWorkflow.workflowStatus === 'running' ? <Play className={isMobile ? "w-3 h-3" : "w-4 h-4"} /> : <Pause className={isMobile ? "w-3 h-3" : "w-4 h-4"} />}
-                  {!isMobile && <span className="text-sm font-medium">{currentWorkflow.workflowStatus === 'running' ? 'Running' : 'Paused'}</span>}
+                  {!isMobile && <span className="text-xs font-medium">{currentWorkflow.workflowStatus === 'running' ? 'Running' : 'Paused'}</span>}
                 </button>
                 <button
                   onClick={toggleAutoMode}
-                  className={`rounded-lg flex items-center space-x-2 transition-all ${
+                  className={`rounded-lg flex items-center space-x-1 transition-all border ${
                     currentWorkflow.autoMode 
-                      ? 'bg-blue-500/20 text-blue-400 border border-blue-400/30' 
-                      : 'bg-gray-500/20 text-gray-400 border border-gray-400/30'
-                  } ${isMobile ? 'px-2 py-1' : 'px-3 py-2'}`}
+                      ? 'bg-blue-500/20 text-blue-400 border-blue-400/30' 
+                      : 'bg-white/10 text-gray-400 hover:text-white hover:bg-white/20 border-white/20'
+                  } ${isMobile ? 'p-1' : 'p-2'}`}
+                  title="Toggle Auto Mode"
                 >
                   <Zap className={isMobile ? "w-3 h-3" : "w-4 h-4"} />
-                  {!isMobile && <span className="text-sm font-medium">Auto</span>}
+                  {!isMobile && <span className="text-xs font-medium">Auto</span>}
                 </button>
                 <button
                   onClick={advanceWorkflow}
-                  className={`rounded-lg bg-white/10 text-white border border-white/20 hover:bg-white/20 transition-all ${
-                    isMobile ? 'px-2 py-1' : 'px-3 py-2'
+                  className={`rounded-lg flex items-center space-x-1 bg-white/10 text-gray-400 hover:text-white hover:bg-white/20 border border-white/20 transition-all ${
+                    isMobile ? 'p-1' : 'p-2'
                   }`}
+                  title="Advance Workflow"
                 >
                   <ArrowRight className={isMobile ? "w-3 h-3" : "w-4 h-4"} />
                 </button>
+                
+                {/* Zoom Controls */}
+                <div className="flex items-center space-x-1 ml-4">
+                  {/* Zoom Out */}
+                  <button
+                    onClick={() => zoomToCenterFromKeyboard(Math.max(0.1, canvasScale - 0.1))}
+                    className={`rounded-lg bg-white/10 text-gray-400 hover:text-white hover:bg-white/20 border border-white/20 transition-all ${
+                      isMobile ? 'p-1' : 'p-2'
+                    }`}
+                    title="Zoom Out"
+                  >
+                    <ZoomOut className={isMobile ? "w-3 h-3" : "w-4 h-4"} />
+                  </button>
+                  
+                  {/* Zoom Indicator */}
+                  <div className={`bg-white/10 border border-white/20 rounded-lg flex items-center space-x-1 ${
+                    isMobile ? 'px-2 py-1' : 'px-3 py-2'
+                  }`}>
+                    <span className={`text-white font-medium ${isMobile ? 'text-xs' : 'text-sm'}`}>
+                      {Math.round(canvasScale * 100)}%
+                    </span>
+                    <div 
+                      className="w-1.5 h-1.5 bg-green-400 rounded-full" 
+                      title="Scroll-free zoom enabled"
+                    ></div>
+                  </div>
+                  
+                  {/* Reset View */}
+                  <button
+                    onClick={resetCanvasView}
+                    className={`rounded-lg bg-white/10 text-gray-400 hover:text-white hover:bg-white/20 border border-white/20 transition-all ${
+                      isMobile ? 'px-1 py-1' : 'px-2 py-2'
+                    }`}
+                    title="Reset View (70%)"
+                  >
+                    <span className={`font-medium ${isMobile ? 'text-xs' : 'text-xs'}`}>Reset</span>
+                  </button>
+                  
+                  {/* Zoom In */}
+                  <button
+                    onClick={() => zoomToCenterFromKeyboard(Math.min(5, canvasScale + 0.1))}
+                    className={`rounded-lg bg-white/10 text-gray-400 hover:text-white hover:bg-white/20 border border-white/20 transition-all ${
+                      isMobile ? 'p-1' : 'p-2'
+                    }`}
+                    title="Zoom In"
+                  >
+                    <ZoomIn className={isMobile ? "w-3 h-3" : "w-4 h-4"} />
+                  </button>
+                </div>
+                
+                {/* Canvas Tools */}
+                <div className="flex items-center space-x-1 ml-4">
+                  {[
+                    { id: 'select', name: 'Select', icon: <MousePointer className={isMobile ? "w-3 h-3" : "w-4 h-4"} />, description: 'Select and move nodes', shortcut: 'V', active: currentWorkflow.currentTool === 'select', color: 'blue' },
+                    { id: 'pan', name: 'Pan', icon: <Hand className={isMobile ? "w-3 h-3" : "w-4 h-4"} />, description: 'Pan around the canvas (or hold Space)', shortcut: 'H', active: currentWorkflow.currentTool === 'pan', color: 'green' },
+                    { id: 'connect', name: 'Connect', icon: <Link className={isMobile ? "w-3 h-3" : "w-4 h-4"} />, description: 'Connect nodes together', shortcut: 'C', active: currentWorkflow.currentTool === 'connect', color: 'purple' },
+                    { id: 'delete', name: 'Delete', icon: <Trash2 className={isMobile ? "w-3 h-3" : "w-4 h-4"} />, description: 'Delete nodes and connections', shortcut: 'X', active: currentWorkflow.currentTool === 'delete', color: 'red' },
+                    { id: 'zoom', name: 'Zoom', icon: <ZoomIn className={isMobile ? "w-3 h-3" : "w-4 h-4"} />, description: 'Zoom in/out', shortcut: 'Z', active: currentWorkflow.currentTool === 'zoom', color: 'yellow' }
+                  ].map((tool) => (
+                    <button
+                      key={tool.id}
+                      onClick={() => handleToolChange(tool.id as WorkflowState['currentTool'])}
+                      className={`rounded-lg flex items-center space-x-1 transition-all relative border ${
+                        tool.active 
+                          ? `bg-${tool.color}-500/20 text-${tool.color}-400 border-${tool.color}-400/30`
+                          : 'bg-white/10 text-gray-400 hover:text-white hover:bg-white/20 border-white/20'
+                      } ${isMobile ? 'p-1' : 'p-2'}`}
+                      title={`${tool.description}${tool.shortcut ? ` (${tool.shortcut})` : ''}`}
+                    >
+                      {tool.icon}
+                      {tool.active && (
+                        <div className={`absolute -top-1 -right-1 w-1.5 h-1.5 bg-${tool.color}-400 rounded-full`}></div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+                
+                {/* Canvas Info & Controls */}
+                <div className="flex items-center space-x-1 ml-4">
+                  {/* Node Count */}
+                  <div className={`bg-white/10 border border-white/20 rounded-lg flex items-center space-x-1 ${
+                    isMobile ? 'px-2 py-1' : 'px-3 py-2'
+                  }`}>
+                    <span className={`text-gray-400 ${isMobile ? 'text-xs' : 'text-xs'}`}>Nodes</span>
+                    <span className={`text-white font-medium ${isMobile ? 'text-xs' : 'text-sm'}`}>
+                      {currentWorkflow.nodes.length}
+                    </span>
+                  </div>
+                  
+                  {/* Canvas Settings */}
+                  <button
+                    onClick={() => handleToolChange('select')}
+                    className={`rounded-lg flex items-center space-x-1 transition-all border ${
+                      currentWorkflow.gridSnap 
+                        ? 'bg-blue-500/20 text-blue-400 border-blue-400/30' 
+                        : 'bg-white/10 text-gray-400 hover:text-white hover:bg-white/20 border-white/20'
+                    } ${isMobile ? 'p-1' : 'p-2'}`}
+                    title="Grid Snap"
+                  >
+                    <Grid className={isMobile ? "w-3 h-3" : "w-4 h-4"} />
+                  </button>
+                  
+                  {currentWorkflow.clipboard.length > 0 && (
+                    <button
+                      onClick={() => handleNodesPaste()}
+                      className={`rounded-lg bg-white/10 text-gray-400 hover:text-white hover:bg-white/20 border border-white/20 transition-all ${
+                        isMobile ? 'p-1' : 'p-2'
+                      }`}
+                      title="Paste (Ctrl+V)"
+                    >
+                      <Clipboard className={isMobile ? "w-3 h-3" : "w-4 h-4"} />
+                    </button>
+                  )}
+                  
+                  {/* Quick Pan Indicator */}
+                  <div className={`bg-white/10 border border-white/20 rounded-lg flex items-center space-x-1 ${
+                    isMobile ? 'px-2 py-1' : 'px-3 py-2'
+                  }`}>
+                    <span className={`text-gray-400 ${isMobile ? 'text-xs' : 'text-xs'}`}>Pan:</span>
+                    <span className={`bg-white/20 px-1 rounded ${isMobile ? 'text-xs' : 'text-xs'} text-white`}>Space</span>
+                    <Hand className="w-3 h-3 text-gray-400" />
+                  </div>
+                  
+                  {/* Selection Info */}
+                  {currentWorkflow.selectedNodes && currentWorkflow.selectedNodes.length > 0 && (
+                    <div className="flex items-center space-x-1">
+                      <div className={`bg-blue-500/20 border border-blue-400/30 rounded-lg flex items-center space-x-1 ${
+                        isMobile ? 'px-2 py-1' : 'px-3 py-2'
+                      }`}>
+                        <span className={`text-blue-400 ${isMobile ? 'text-xs' : 'text-xs'}`}>
+                          {currentWorkflow.selectedNodes.length} selected
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => handleNodesCopy(currentWorkflow.selectedNodes)}
+                        className={`rounded-lg bg-white/10 text-gray-400 hover:text-white hover:bg-white/20 border border-white/20 transition-all ${
+                          isMobile ? 'p-1' : 'p-2'
+                        }`}
+                        title="Copy (Ctrl+C)"
+                      >
+                        <Copy className={isMobile ? "w-3 h-3" : "w-4 h-4"} />
+                      </button>
+                      <button
+                        onClick={() => handleNodesDelete(currentWorkflow.selectedNodes)}
+                        className={`rounded-lg bg-white/10 text-gray-400 hover:text-red-400 hover:bg-red-400/10 border border-white/20 transition-all ${
+                          isMobile ? 'p-1' : 'p-2'
+                        }`}
+                        title="Delete (Del)"
+                      >
+                        <Trash2 className={isMobile ? "w-3 h-3" : "w-4 h-4"} />
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
           
-          {currentView === 'workflow' && (
-            <div className={`flex items-center space-x-2 ${isMobile ? 'flex-wrap gap-1' : ''}`}>
-              <div className={`bg-black/40 backdrop-blur-xl border border-white/20 rounded-xl ${
-                isMobile ? 'p-1' : 'p-2'
-              }`}>
-                <div className={`flex items-center space-x-1 ${isMobile ? 'flex-wrap gap-1' : ''}`}>
-                  <button onClick={() => addNode('payment')} className={`hover:bg-white/10 rounded-lg transition-colors ${
-                    isMobile ? 'p-1' : 'p-2'
-                  }`}>
-                    <DollarSign className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} text-yellow-400`} />
-                  </button>
-                  <button onClick={() => addNode('contract')} className={`hover:bg-white/10 rounded-lg transition-colors ${
-                    isMobile ? 'p-1' : 'p-2'
-                  }`}>
-                    <FileText className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} text-blue-400`} />
-                  </button>
-                  <button onClick={() => addNode('task')} className={`hover:bg-white/10 rounded-lg transition-colors ${
-                    isMobile ? 'p-1' : 'p-2'
-                  }`}>
-                    <Target className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} text-green-400`} />
-                  </button>
-                  <button onClick={() => addNode('decision')} className={`hover:bg-white/10 rounded-lg transition-colors ${
-                    isMobile ? 'p-1' : 'p-2'
-                  }`}>
-                    <AlertTriangle className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} text-purple-400`} />
-                  </button>
-                  <button onClick={() => addNode('milestone')} className={`hover:bg-white/10 rounded-lg transition-colors ${
-                    isMobile ? 'p-1' : 'p-2'
-                  }`}>
-                    <CheckCircle className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} text-indigo-400`} />
-                  </button>
-                  <button onClick={() => addNode('team')} className={`hover:bg-white/10 rounded-lg transition-colors ${
-                    isMobile ? 'p-1' : 'p-2'
-                  }`}>
-                    <Users className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} text-pink-400`} />
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
+
                   </div>
         </div>
 
@@ -3025,6 +3207,8 @@ export default function Dashboard() {
                     : w
                 )
               }))
+              // Also open node details modal
+              setSelectedNodeDetails(id)
             }}
             onToggleExpansion={toggleNodeExpansion}
             onToolChange={handleToolChange}
@@ -3046,6 +3230,8 @@ export default function Dashboard() {
             sendMessage={sendMessage}
             sidebarOpen={sidebarOpen}
             onBackToWorkflows={() => setAppState(prev => ({ ...prev, selectedWorkflow: null }))}
+            selectedNodeDetails={selectedNodeDetails}
+            setSelectedNodeDetails={setSelectedNodeDetails}
           />
         )}
 
@@ -3480,7 +3666,7 @@ function WorkflowsView({
   onCreateWorkflow, 
   onOpenWorkflow, 
   onDeleteWorkflow,
-  onUpdateWorkflow: _onUpdateWorkflow,
+  onUpdateWorkflow,
   isMobile 
 }: {
   workflows: WorkflowState[]
@@ -3842,7 +4028,9 @@ function WorkflowView({
   isChatOpen,
   toggleChat,
   sendMessage,
-  onBackToWorkflows
+  onBackToWorkflows,
+  selectedNodeDetails,
+  setSelectedNodeDetails
 }: WorkflowViewProps & {
   chatMessages: ChatMessage[]
   isChatOpen: boolean
@@ -3850,6 +4038,8 @@ function WorkflowView({
   sendMessage: (content: string) => void
   sidebarOpen: boolean
   onBackToWorkflows: () => void
+  selectedNodeDetails: string | null
+  setSelectedNodeDetails: (nodeId: string | null) => void
 }) {
   // Canvas tools configuration
   const canvasTools: CanvasTool[] = [
@@ -3862,6 +4052,111 @@ function WorkflowView({
 
   // Node palette state
   const [isPaletteCollapsed, setIsPaletteCollapsed] = React.useState(false)
+  
+
+  
+  // Types for node content
+  type NodeContentItem = 
+    | { type: 'team-member'; name: string; role: string; status: string; avatar: string }
+    | { type: 'organization-dept'; name: string; count: number; status: string; icon: string }
+    | { type: 'key-value'; label: string; value: string }
+
+  // Generate sample internal content for different node types
+  const getNodeInternalContent = (node: WorkflowNode): { title: string; items: NodeContentItem[] } => {
+    switch (node.type) {
+      case 'team':
+        return {
+          title: 'Team Members',
+          items: [
+            { type: 'team-member', name: 'Alice Johnson', role: 'Team Lead', status: 'Active', avatar: '👩‍💼' },
+            { type: 'team-member', name: 'Bob Smith', role: 'Developer', status: 'Active', avatar: '👨‍💻' },
+            { type: 'team-member', name: 'Carol Davis', role: 'Designer', status: 'Active', avatar: '👩‍🎨' },
+            { type: 'team-member', name: 'David Wilson', role: 'QA Engineer', status: 'On Leave', avatar: '👨‍🔬' }
+          ]
+        }
+      case 'organization':
+        return {
+          title: 'Organization Structure',
+          items: [
+            { type: 'organization-dept', name: 'Engineering Department', count: 24, status: 'Active', icon: '⚙️' },
+            { type: 'organization-dept', name: 'Marketing Department', count: 12, status: 'Active', icon: '📢' },
+            { type: 'organization-dept', name: 'Sales Department', count: 18, status: 'Active', icon: '💼' },
+            { type: 'organization-dept', name: 'HR Department', count: 6, status: 'Active', icon: '👥' }
+          ]
+        }
+      case 'role':
+        return {
+          title: 'Role Details',
+          items: [
+            { type: 'key-value', label: 'Permissions', value: Array.isArray(node.metadata?.permissions) ? (node.metadata.permissions as string[]).join(', ') : 'View, Edit' },
+            { type: 'key-value', label: 'Share Allocation', value: `${node.metadata?.shareAllocation || 10}%` },
+            { type: 'key-value', label: 'Department', value: String(node.metadata?.department || 'Engineering') },
+            { type: 'key-value', label: 'Level', value: String(node.metadata?.level || 'Senior') }
+          ]
+        }
+      case 'member':
+        return {
+          title: 'Member Profile',
+          items: [
+            { type: 'key-value', label: 'Full Name', value: String(node.metadata?.fullName || 'John Doe') },
+            { type: 'key-value', label: 'Email', value: String(node.metadata?.email || 'john.doe@company.com') },
+            { type: 'key-value', label: 'Department', value: String(node.metadata?.department || 'Engineering') },
+            { type: 'key-value', label: 'Start Date', value: String(node.metadata?.startDate || '2023-01-15') },
+            { type: 'key-value', label: 'Wallet Address', value: String(node.metadata?.walletAddress || '0x1234...5678') }
+          ]
+        }
+      case 'instrument':
+        return {
+          title: 'Financial Instrument',
+          items: [
+            { type: 'key-value', label: 'Token Symbol', value: String(node.metadata?.tokenSymbol || 'CASH') },
+            { type: 'key-value', label: 'Total Supply', value: String(node.metadata?.totalSupply || '1,000,000') },
+            { type: 'key-value', label: 'Current Price', value: String(node.metadata?.currentPrice || '$1.25') },
+            { type: 'key-value', label: 'Market Cap', value: String(node.metadata?.marketCap || '$1,250,000') }
+          ]
+        }
+      case 'contract':
+        return {
+          title: 'Smart Contract',
+          items: [
+            { type: 'key-value', label: 'Contract Address', value: String(node.metadata?.contractAddress || '0xabcd...ef12') },
+            { type: 'key-value', label: 'Network', value: String(node.metadata?.network || 'Ethereum') },
+            { type: 'key-value', label: 'Status', value: String(node.metadata?.status || 'Deployed') },
+            { type: 'key-value', label: 'Gas Used', value: String(node.metadata?.gasUsed || '2,100,000') }
+          ]
+        }
+      case 'payment':
+        return {
+          title: 'Payment Details',
+          items: [
+            { type: 'key-value', label: 'Amount', value: String(node.metadata?.amount || '$5,000') },
+            { type: 'key-value', label: 'Recipient', value: String(node.metadata?.recipient || 'Engineering Team') },
+            { type: 'key-value', label: 'Status', value: String(node.metadata?.status || 'Pending') },
+            { type: 'key-value', label: 'Due Date', value: String(node.metadata?.dueDate || '2024-01-15') }
+          ]
+        }
+      case 'task':
+        return {
+          title: 'Task Details',
+          items: [
+            { type: 'key-value', label: 'Assignee', value: String(node.metadata?.assignee || 'Alice Johnson') },
+            { type: 'key-value', label: 'Priority', value: String(node.metadata?.priority || 'High') },
+            { type: 'key-value', label: 'Due Date', value: String(node.metadata?.dueDate || '2024-01-10') },
+            { type: 'key-value', label: 'Progress', value: `${node.metadata?.progress || 75}%` }
+          ]
+        }
+      default:
+        return {
+          title: 'Node Configuration',
+          items: [
+            { type: 'key-value', label: 'Type', value: node.type },
+            { type: 'key-value', label: 'Created', value: new Date().toLocaleDateString() },
+            { type: 'key-value', label: 'Status', value: String(node.metadata?.status || 'Active') },
+            { type: 'key-value', label: 'ID', value: node.id.substring(0, 8) + '...' }
+          ]
+        }
+    }
+  }
   
   // Helper function for centered zoom operations
   const zoomToCenter = (newScale: number) => {
@@ -3893,40 +4188,71 @@ function WorkflowView({
   }
 
   // Node types for the palette
+  // Helper function to get colored icons for the palette
+  const getColoredNodeIcon = (type: string) => {
+    const iconSize = "w-4 h-4"
+    switch (type) {
+      case 'payment': return <DollarSign className={`${iconSize} text-yellow-400`} />
+      case 'contract': return <FileText className={`${iconSize} text-blue-400`} />
+      case 'task': return <Target className={`${iconSize} text-green-400`} />
+      case 'decision': return <AlertTriangle className={`${iconSize} text-purple-400`} />
+      case 'milestone': return <CheckCircle className={`${iconSize} text-indigo-400`} />
+      case 'team': return <Users className={`${iconSize} text-pink-400`} />
+      case 'organization': return <Building className={`${iconSize} text-orange-400`} />
+      case 'role': return <Crown className={`${iconSize} text-amber-400`} />
+      case 'member': return <UserCheck className={`${iconSize} text-cyan-400`} />
+      case 'instrument': return <Banknote className={`${iconSize} text-emerald-400`} />
+      case 'integration': return <Plug className={`${iconSize} text-violet-400`} />
+      case 'api': return <Globe className={`${iconSize} text-blue-500`} />
+      case 'database': return <Database className={`${iconSize} text-gray-400`} />
+      case 'webhook': return <Link className={`${iconSize} text-teal-400`} />
+      case 'email': return <Mail className={`${iconSize} text-red-400`} />
+      case 'sms': return <MessageSquare className={`${iconSize} text-green-500`} />
+      case 'notification': return <Bell className={`${iconSize} text-yellow-500`} />
+      case 'loop': return <RefreshCw className={`${iconSize} text-blue-600`} />
+      case 'condition': return <GitBranch className={`${iconSize} text-purple-500`} />
+      case 'trigger': return <Zap className={`${iconSize} text-yellow-600`} />
+      case 'approval': return <CheckSquare className={`${iconSize} text-green-600`} />
+      case 'review': return <Eye className={`${iconSize} text-orange-500`} />
+      case 'timer': return <Clock className={`${iconSize} text-slate-400`} />
+      default: return getNodeIcon(type)
+    }
+  }
+
   const nodeTypes = [
-    { type: 'task' as const, name: 'Task', icon: getNodeIcon('task'), category: 'Basic' },
-    { type: 'decision' as const, name: 'Decision', icon: getNodeIcon('decision'), category: 'Basic' },
-    { type: 'payment' as const, name: 'Payment', icon: getNodeIcon('payment'), category: 'Basic' },
-    { type: 'milestone' as const, name: 'Milestone', icon: getNodeIcon('milestone'), category: 'Basic' },
-    { type: 'contract' as const, name: 'Contract', icon: getNodeIcon('contract'), category: 'Basic' },
-    { type: 'team' as const, name: 'Team', icon: getNodeIcon('team'), category: 'Basic' },
+    { type: 'task' as const, name: 'Task', icon: getColoredNodeIcon('task'), category: 'Basic' },
+    { type: 'decision' as const, name: 'Decision', icon: getColoredNodeIcon('decision'), category: 'Basic' },
+    { type: 'payment' as const, name: 'Payment', icon: getColoredNodeIcon('payment'), category: 'Basic' },
+    { type: 'milestone' as const, name: 'Milestone', icon: getColoredNodeIcon('milestone'), category: 'Basic' },
+    { type: 'contract' as const, name: 'Contract', icon: getColoredNodeIcon('contract'), category: 'Basic' },
+    { type: 'team' as const, name: 'Team', icon: getColoredNodeIcon('team'), category: 'Basic' },
     
     // Business Entities
-    { type: 'organization' as const, name: 'Organization', icon: getNodeIcon('organization'), category: 'Business' },
-    { type: 'role' as const, name: 'Role', icon: getNodeIcon('role'), category: 'Business' },
-    { type: 'member' as const, name: 'Member', icon: getNodeIcon('member'), category: 'Business' },
-    { type: 'instrument' as const, name: 'Instrument', icon: getNodeIcon('instrument'), category: 'Business' },
+    { type: 'organization' as const, name: 'Organization', icon: getColoredNodeIcon('organization'), category: 'Business' },
+    { type: 'role' as const, name: 'Role', icon: getColoredNodeIcon('role'), category: 'Business' },
+    { type: 'member' as const, name: 'Member', icon: getColoredNodeIcon('member'), category: 'Business' },
+    { type: 'instrument' as const, name: 'Instrument', icon: getColoredNodeIcon('instrument'), category: 'Business' },
     
     // Integrations
-    { type: 'integration' as const, name: 'Integration', icon: getNodeIcon('integration'), category: 'Integration' },
-    { type: 'api' as const, name: 'API Call', icon: getNodeIcon('api'), category: 'Integration' },
-    { type: 'database' as const, name: 'Database', icon: getNodeIcon('database'), category: 'Integration' },
-    { type: 'webhook' as const, name: 'Webhook', icon: getNodeIcon('webhook'), category: 'Integration' },
+    { type: 'integration' as const, name: 'Integration', icon: getColoredNodeIcon('integration'), category: 'Integration' },
+    { type: 'api' as const, name: 'API Call', icon: getColoredNodeIcon('api'), category: 'Integration' },
+    { type: 'database' as const, name: 'Database', icon: getColoredNodeIcon('database'), category: 'Integration' },
+    { type: 'webhook' as const, name: 'Webhook', icon: getColoredNodeIcon('webhook'), category: 'Integration' },
     
     // Communication
-    { type: 'email' as const, name: 'Email', icon: getNodeIcon('email'), category: 'Communication' },
-    { type: 'sms' as const, name: 'SMS', icon: getNodeIcon('sms'), category: 'Communication' },
-    { type: 'notification' as const, name: 'Notification', icon: getNodeIcon('notification'), category: 'Communication' },
+    { type: 'email' as const, name: 'Email', icon: getColoredNodeIcon('email'), category: 'Communication' },
+    { type: 'sms' as const, name: 'SMS', icon: getColoredNodeIcon('sms'), category: 'Communication' },
+    { type: 'notification' as const, name: 'Notification', icon: getColoredNodeIcon('notification'), category: 'Communication' },
     
     // Logic & Flow Control
-    { type: 'loop' as const, name: 'Loop', icon: getNodeIcon('loop'), category: 'Logic' },
-    { type: 'condition' as const, name: 'Condition', icon: getNodeIcon('condition'), category: 'Logic' },
-    { type: 'trigger' as const, name: 'Trigger', icon: getNodeIcon('trigger'), category: 'Logic' },
+    { type: 'loop' as const, name: 'Loop', icon: getColoredNodeIcon('loop'), category: 'Logic' },
+    { type: 'condition' as const, name: 'Condition', icon: getColoredNodeIcon('condition'), category: 'Logic' },
+    { type: 'trigger' as const, name: 'Trigger', icon: getColoredNodeIcon('trigger'), category: 'Logic' },
     
     // Process Management
-    { type: 'approval' as const, name: 'Approval', icon: getNodeIcon('approval'), category: 'Process' },
-    { type: 'review' as const, name: 'Review', icon: getNodeIcon('review'), category: 'Process' },
-    { type: 'timer' as const, name: 'Timer', icon: getNodeIcon('timer'), category: 'Process' }
+    { type: 'approval' as const, name: 'Approval', icon: getColoredNodeIcon('approval'), category: 'Process' },
+    { type: 'review' as const, name: 'Review', icon: getColoredNodeIcon('review'), category: 'Process' },
+    { type: 'timer' as const, name: 'Timer', icon: getColoredNodeIcon('timer'), category: 'Process' }
   ]
 
   const handleCanvasClick = (e: React.MouseEvent) => {
@@ -3945,8 +4271,14 @@ function WorkflowView({
     // Prevent interference when AI Assistant is open
     if (isChatOpen) return
     
-    // Handle spacebar for canvas panning
-    if (e.code === 'Space' && !isSpacePressed) {
+    // Don't interfere with typing in input fields, textareas, or contenteditable elements
+    const target = e.target as HTMLElement
+    const isTyping = target.tagName === 'INPUT' || 
+                    target.tagName === 'TEXTAREA' || 
+                    target.contentEditable === 'true'
+    
+    // Handle spacebar for canvas panning (but not when typing)
+    if (e.code === 'Space' && !isSpacePressed && !isTyping) {
       e.preventDefault()
       setIsSpacePressed(true)
       return
@@ -4054,49 +4386,11 @@ function WorkflowView({
 
   return (
     <div className="absolute inset-0 top-24 flex flex-col">
-      {/* Enhanced Canvas Tools */}
-      <div className="absolute top-4 left-4 z-40 flex flex-col space-y-2">
-        {/* Active Tool Status */}
-        <div className="bg-black/90 backdrop-blur-xl border border-white/20 rounded-xl px-3 py-2 flex items-center space-x-2">
-          <div className={`w-2 h-2 rounded-full ${
-            workflow.currentTool === 'select' ? 'bg-blue-400' :
-            workflow.currentTool === 'pan' ? 'bg-green-400' :
-            workflow.currentTool === 'connect' ? 'bg-purple-400' :
-            workflow.currentTool === 'delete' ? 'bg-red-400' :
-            'bg-yellow-400'
-          }`}></div>
-          <span className="text-white text-sm font-medium">
-            {canvasTools.find(t => t.id === workflow.currentTool)?.name || 'Unknown'}
-          </span>
-          {workflow.currentTool === 'connect' && workflow.isConnecting && (
-            <span className="text-purple-300 text-xs">
-              (connecting...)
-            </span>
-          )}
-        </div>
-        
-        {/* Tool Buttons */}
-        <div className="bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl p-2 flex items-center space-x-1">
-          {canvasTools.map((tool) => (
-            <button
-              key={tool.id}
-              onClick={() => onToolChange(tool.id as WorkflowState['currentTool'])}
-              className={`p-2 rounded-lg transition-all relative ${
-                tool.active 
-                  ? 'bg-blue-500 text-white shadow-lg ring-2 ring-blue-400/50' 
-                  : 'text-gray-400 hover:text-white hover:bg-white/10'
-              }`}
-              title={`${tool.description}${tool.shortcut ? ` (${tool.shortcut})` : ''}`}
-            >
-              {tool.icon}
-              {tool.active && (
-                <div className="absolute -top-1 -right-1 w-2 h-2 bg-blue-400 rounded-full"></div>
-              )}
-            </button>
-          ))}
-        </div>
-        
-        {/* Node Palette */}
+
+      {/* Canvas Tools - Right Side */}
+      <div className="absolute top-2 right-4 z-40 flex flex-col space-y-2 w-64">
+
+        {/* Add Nodes Palette */}
         <div className={`bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl transition-all duration-300 ${
           isPaletteCollapsed ? 'p-2' : 'p-2'
         } ${
@@ -4137,8 +4431,15 @@ function WorkflowView({
                   {nodeTypes.filter(node => node.category === category).map((nodeType) => (
                     <button
                       key={nodeType.type}
-                      onClick={() => onAddNode(nodeType.type, { x: 200, y: 200 })}
-                      className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all flex items-center space-x-1 text-xs"
+                      onClick={() => {
+                        const rect = boardRef.current?.getBoundingClientRect()
+                        if (rect) {
+                          const centerX = (rect.width / 2 - canvasOffset.x) / canvasScale
+                          const centerY = (rect.height / 2 - canvasOffset.y) / canvasScale
+                          onAddNode(nodeType.type, { x: centerX, y: centerY })
+                        }
+                      }}
+                      className="p-2 rounded-lg text-white hover:text-white hover:bg-white/10 transition-all flex items-center space-x-1 text-xs"
                       title={`Add ${nodeType.name}`}
                     >
                       {nodeType.icon}
@@ -4151,80 +4452,12 @@ function WorkflowView({
           </div>
         </div>
 
-        {/* Zoom Indicator */}
-        <div className="bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl p-2 flex items-center space-x-2">
-          <ZoomIn className="w-4 h-4 text-gray-400" />
-          <span className="text-white text-sm font-medium">{Math.round(canvasScale * 100)}%</span>
-          <div className="flex items-center space-x-1">
-            <button
-              onClick={() => zoomToCenter(Math.max(0.1, canvasScale - 0.1))}
-              className="text-gray-400 hover:text-white transition-colors"
-              title="Zoom Out"
-            >
-              <ZoomOut className="w-3 h-3" />
-            </button>
-            <button
-              onClick={() => zoomToCenter(1)}
-              className="text-gray-400 hover:text-white transition-colors px-1"
-              title="Reset Zoom"
-            >
-              1:1
-            </button>
-            <button
-              onClick={() => zoomToCenter(Math.min(5, canvasScale + 0.1))}
-              className="text-gray-400 hover:text-white transition-colors"
-              title="Zoom In"
-            >
-              <ZoomIn className="w-3 h-3" />
-            </button>
-          </div>
-        </div>
 
-        {/* Tool Instructions */}
-        {workflow.currentTool === 'select' && (
-          <div className="bg-blue-500/90 backdrop-blur-xl border border-blue-400/30 rounded-xl p-3 flex items-center space-x-2 shadow-lg">
-            <MousePointer className="w-4 h-4 text-white" />
-            <span className="text-white text-sm font-medium">Select Mode</span>
-            <span className="text-blue-200 text-xs">Drag nodes to move • Drag canvas to pan</span>
-          </div>
-        )}
-        
-        {workflow.currentTool === 'connect' && !workflow.isConnecting && (
-          <div className="bg-purple-500/90 backdrop-blur-xl border border-purple-400/30 rounded-xl p-3 flex items-center space-x-2 shadow-lg">
-            <Link className="w-4 h-4 text-white" />
-            <span className="text-white text-sm font-medium">Connect Mode</span>
-            <span className="text-purple-200 text-xs">Click nodes to connect them</span>
-          </div>
-        )}
-        
-        {workflow.currentTool === 'delete' && (
-          <div className="bg-red-500/90 backdrop-blur-xl border border-red-400/30 rounded-xl p-3 flex items-center space-x-2 shadow-lg">
-            <Trash2 className="w-4 h-4 text-white" />
-            <span className="text-white text-sm font-medium">Delete Mode</span>
-            <span className="text-red-200 text-xs">Click nodes to delete them</span>
-          </div>
-        )}
-
-        {workflow.currentTool === 'pan' && (
-          <div className="bg-green-500/90 backdrop-blur-xl border border-green-400/30 rounded-xl p-3 flex items-center space-x-2 shadow-lg">
-            <Hand className="w-4 h-4 text-white" />
-            <span className="text-white text-sm font-medium">Pan Mode</span>
-            <span className="text-green-200 text-xs">Drag anywhere to move canvas</span>
-          </div>
-        )}
-
-        {workflow.currentTool === 'zoom' && (
-          <div className="bg-yellow-500/90 backdrop-blur-xl border border-yellow-400/30 rounded-xl p-3 flex items-center space-x-2 shadow-lg">
-            <ZoomIn className="w-4 h-4 text-white" />
-            <span className="text-white text-sm font-medium">Zoom Mode</span>
-            <span className="text-yellow-200 text-xs">Scroll wheel or use zoom controls</span>
-          </div>
-        )}
 
 
       </div>
 
-      {/* Workflow Header */}
+      {/* Workflow Header with Zoom Controls */}
       <div className="absolute top-4 right-4 z-30 flex items-center space-x-3">
         <button
           onClick={onBackToWorkflows}
@@ -4233,91 +4466,11 @@ function WorkflowView({
         >
           <ArrowRight className="w-4 h-4 rotate-180" />
         </button>
-        <div className="bg-black/60 backdrop-blur-xl border border-white/20 rounded-lg px-3 py-2">
-          <h2 className="text-white font-medium text-sm">{workflow.name}</h2>
-        </div>
+        
+
       </div>
 
-      {/* Canvas Zoom Controls */}
-      <div className="absolute top-4 right-4 z-30 flex flex-col space-y-2">
-        {/* Zoom Controls */}
-        <div className="bg-black/60 backdrop-blur-xl border border-white/20 rounded-lg overflow-hidden">
-          <button
-            onClick={() => setCanvasScale(prev => Math.min(3, prev + 0.25))}
-            className="block w-full p-2 text-white hover:bg-white/10 transition-all border-b border-white/10"
-            title="Zoom In"
-          >
-            <Plus className="w-4 h-4 mx-auto" />
-          </button>
-          <div className="px-3 py-2 text-center border-b border-white/10">
-            <span className="text-white text-xs font-medium">
-              {Math.round(canvasScale * 100)}%
-            </span>
-          </div>
-          <button
-            onClick={() => setCanvasScale(prev => Math.max(0.25, prev - 0.25))}
-            className="block w-full p-2 text-white hover:bg-white/10 transition-all border-b border-white/10"
-            title="Zoom Out"
-          >
-            <Minimize2 className="w-4 h-4 mx-auto" />
-          </button>
-          <button
-            onClick={resetCanvasView}
-            className="block w-full p-2 text-white hover:bg-white/10 transition-all"
-            title="Reset View (100%)"
-          >
-            <RotateCcw className="w-4 h-4 mx-auto" />
-          </button>
-        </div>
-        
-        {/* Preset Zoom Levels */}
-        <div className="bg-black/60 backdrop-blur-xl border border-white/20 rounded-lg overflow-hidden">
-          <button
-            onClick={() => setCanvasScale(0.5)}
-            className={`block w-full px-3 py-1.5 text-xs transition-all border-b border-white/10 ${
-              Math.abs(canvasScale - 0.5) < 0.01 
-                ? 'bg-blue-500 text-white' 
-                : 'text-gray-300 hover:text-white hover:bg-white/10'
-            }`}
-            title="Zoom to 50%"
-          >
-            50%
-          </button>
-          <button
-            onClick={() => setCanvasScale(1)}
-            className={`block w-full px-3 py-1.5 text-xs transition-all border-b border-white/10 ${
-              Math.abs(canvasScale - 1) < 0.01 
-                ? 'bg-blue-500 text-white' 
-                : 'text-gray-300 hover:text-white hover:bg-white/10'
-            }`}
-            title="Zoom to 100%"
-          >
-            100%
-          </button>
-          <button
-            onClick={() => setCanvasScale(1.5)}
-            className={`block w-full px-3 py-1.5 text-xs transition-all border-b border-white/10 ${
-              Math.abs(canvasScale - 1.5) < 0.01 
-                ? 'bg-blue-500 text-white' 
-                : 'text-gray-300 hover:text-white hover:bg-white/10'
-            }`}
-            title="Zoom to 150%"
-          >
-            150%
-          </button>
-          <button
-            onClick={() => setCanvasScale(2)}
-            className={`block w-full px-3 py-1.5 text-xs transition-all ${
-              Math.abs(canvasScale - 2) < 0.01 
-                ? 'bg-blue-500 text-white' 
-                : 'text-gray-300 hover:text-white hover:bg-white/10'
-            }`}
-            title="Zoom to 200%"
-          >
-            200%
-          </button>
-        </div>
-      </div>
+
 
       {/* Enhanced Canvas Area */}
       <div
@@ -4329,6 +4482,7 @@ function WorkflowView({
           workflow.currentTool === 'pan' ? 'cursor-grab active:cursor-grabbing' :
           workflow.currentTool === 'connect' ? 'cursor-crosshair' :
           workflow.currentTool === 'delete' ? 'cursor-not-allowed' :
+          workflow.currentTool === 'zoom' ? 'cursor-zoom-in' :
           'cursor-grab hover:cursor-grab'
         }`}
         onClick={handleCanvasClick}
@@ -4465,6 +4619,7 @@ function WorkflowView({
               workflow.currentTool === 'select' ? 'cursor-move' :
               workflow.currentTool === 'connect' ? 'cursor-crosshair' :
               workflow.currentTool === 'delete' ? 'cursor-not-allowed' :
+              workflow.currentTool === 'zoom' ? 'cursor-zoom-in' :
               'cursor-pointer'
             } ${
               isMobile ? 'p-2 w-40' : 'p-4 w-60'
@@ -4502,7 +4657,10 @@ function WorkflowView({
                 onMouseDown(e, node.id)
               }
             }}
-            onDoubleClick={() => onDoubleClick(node.id)}
+            onDoubleClick={() => {
+              onDoubleClick(node.id)
+              setSelectedNodeDetails(node.id)
+            }}
             onClick={(e) => {
               e.stopPropagation()
               if (workflow.currentTool === 'connect' && workflow.isConnecting && workflow.isConnecting !== node.id) {
@@ -4727,75 +4885,24 @@ function WorkflowView({
           >
             {workflow.isConnecting === node.id ? 'Click target' : 'Connect'}
           </button>
+
+          {/* Open button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              onDoubleClick(node.id)
+              setSelectedNodeDetails(node.id)
+            }}
+            className="w-full mt-2 text-xs px-2 py-1 rounded-lg transition-all duration-200 bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 hover:text-blue-300 border border-blue-400/30 hover:border-blue-400/50"
+          >
+            Open
+          </button>
         </div>
       )
       })}
       </div>
 
-      {/* Enhanced Canvas Controls */}
-      <div className="absolute bottom-20 right-4 z-30 flex flex-col space-y-2">
-        {/* Selection Info */}
-        {workflow.selectedNodes.length > 0 && (
-          <div className="bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl p-3 text-white">
-            <div className="text-xs text-gray-300 mb-1">Selected</div>
-            <div className="text-sm font-medium">{workflow.selectedNodes.length} node{workflow.selectedNodes.length !== 1 ? 's' : ''}</div>
-            <div className="flex space-x-1 mt-2">
-              <button
-                onClick={() => onNodesCopy(workflow.selectedNodes)}
-                className="p-1 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-all"
-                title="Copy (Ctrl+C)"
-              >
-                <Copy className="w-3 h-3" />
-              </button>
-              <button
-                onClick={() => onNodesDelete(workflow.selectedNodes)}
-                className="p-1 text-gray-400 hover:text-red-400 hover:bg-red-400/10 rounded transition-all"
-                title="Delete (Del)"
-              >
-                <Trash2 className="w-3 h-3" />
-              </button>
-            </div>
-          </div>
-        )}
 
-        {/* Canvas Settings */}
-        <div className="bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl p-2 flex items-center space-x-2">
-          <button
-            onClick={() => onToolChange('select')}
-            className={`p-1 rounded transition-all ${
-              workflow.gridSnap ? 'bg-blue-500 text-white' : 'text-gray-400 hover:text-white'
-            }`}
-            title="Grid Snap"
-          >
-            <Grid className="w-3 h-3" />
-          </button>
-          {workflow.clipboard.length > 0 && (
-            <button
-              onClick={() => onNodesPaste()}
-              className="p-1 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-all"
-              title="Paste (Ctrl+V)"
-            >
-              <Clipboard className="w-3 h-3" />
-            </button>
-          )}
-        </div>
-
-        {/* Node Count */}
-        <div className="bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl p-2 text-center">
-          <div className="text-xs text-gray-300">Nodes</div>
-          <div className="text-sm font-medium text-white">{workflow.nodes.length}</div>
-        </div>
-
-        {/* Canvas Instructions */}
-        <div className="bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl p-2 text-center max-w-32">
-          <div className="text-xs text-gray-300 mb-1">Quick Pan</div>
-          <div className="text-xs text-white flex items-center justify-center space-x-1">
-            <span className="bg-white/20 px-1 rounded text-xs">Space</span>
-            <span>+</span>
-            <Hand className="w-3 h-3" />
-          </div>
-        </div>
-      </div>
 
       {/* AI Chat Bar */}
       <div className={`bg-black/90 backdrop-blur-xl border-t border-white/20 transition-all duration-300 ${
@@ -4886,6 +4993,110 @@ function WorkflowView({
           </div>
         </div>
       </div>
+
+      {/* Node Details Modal */}
+      {selectedNodeDetails && workflow.nodes.find(n => n.id === selectedNodeDetails) && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-black/90 backdrop-blur-xl border border-white/20 rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
+            {(() => {
+              const node = workflow.nodes.find(n => n.id === selectedNodeDetails)!
+              const content = getNodeInternalContent(node)
+              
+              return (
+                <>
+                  {/* Modal Header */}
+                  <div className="border-b border-white/20 p-6 flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl">
+                        {getNodeIcon(node.type)}
+                      </div>
+                      <div>
+                        <h2 className="text-2xl font-bold text-white">{node.name}</h2>
+                        <p className="text-gray-400 text-sm">{content.title}</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setSelectedNodeDetails(null)}
+                      className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                      title="Close"
+                    >
+                      <X className="w-6 h-6" />
+                    </button>
+                  </div>
+
+                  {/* Modal Content */}
+                  <div className="p-6 overflow-y-auto max-h-[60vh]" data-allow-scroll="true">
+                    {/* Team/Organization Items (with avatars/icons) */}
+                    {(node.type === 'team' || node.type === 'organization') && (
+                      <div className="grid gap-3">
+                        {content.items.map((item, index: number) => (
+                          <div key={index} className="bg-white/5 border border-white/10 rounded-lg p-4 flex items-center justify-between">
+                            <div className="flex items-center space-x-3">
+                              <div className="text-2xl">
+                                {item.type === 'team-member' ? item.avatar : item.type === 'organization-dept' ? item.icon : ''}
+                              </div>
+                              <div>
+                                <div className="text-white font-medium">
+                                  {(item.type === 'team-member' || item.type === 'organization-dept') ? item.name : ''}
+                                </div>
+                                <div className="text-gray-400 text-sm">
+                                  {item.type === 'team-member' ? item.role : item.type === 'organization-dept' ? `${item.count} members` : ''}
+                                </div>
+                              </div>
+                            </div>
+                            <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+                              (item.type === 'team-member' || item.type === 'organization-dept') && item.status === 'Active' 
+                                ? 'bg-green-500/20 text-green-400' 
+                                : 'bg-yellow-500/20 text-yellow-400'
+                            }`}>
+                              {(item.type === 'team-member' || item.type === 'organization-dept') ? item.status : ''}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Other Node Types (key-value pairs) */}
+                    {(node.type !== 'team' && node.type !== 'organization') && (
+                      <div className="grid gap-4">
+                        {content.items.map((item, index: number) => (
+                          <div key={index} className="flex items-center justify-between py-3 border-b border-white/10 last:border-b-0">
+                            <div className="text-gray-400 font-medium">{item.type === 'key-value' ? item.label : ''}</div>
+                            <div className="text-white font-mono text-sm bg-white/5 px-3 py-1 rounded">
+                              {item.type === 'key-value' ? item.value : ''}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Node Description */}
+                    {node.description && (
+                      <div className="mt-6 p-4 bg-white/5 border border-white/10 rounded-lg">
+                        <h3 className="text-white font-medium mb-2">Description</h3>
+                        <p className="text-gray-300 text-sm">{node.description}</p>
+                      </div>
+                    )}
+
+                    {/* Action Buttons */}
+                    <div className="mt-6 flex items-center space-x-3">
+                      <button className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors text-sm font-medium">
+                        Edit Node
+                      </button>
+                      <button className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors text-sm font-medium">
+                        Duplicate
+                      </button>
+                      <button className="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition-colors text-sm font-medium">
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )
+            })()}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -5285,6 +5285,7 @@ function WorkflowView({
   const [isSpacePressed, setIsSpacePressed] = React.useState(false)
   const [isPanning, setIsPanning] = React.useState(false)
   const [panStart, setPanStart] = React.useState({ x: 0, y: 0 })
+  const [mobileNodeMenuOpen, setMobileNodeMenuOpen] = React.useState(false)
 
   const handleKeyDown = (e: KeyboardEvent) => {
     
@@ -5406,20 +5407,20 @@ function WorkflowView({
   return (
     <div className="absolute inset-0 top-20 flex flex-col">
 
-      {/* Canvas Tools - Right Side */}
-      <div className="absolute z-40 flex flex-col space-y-2 w-64 top-2 right-4">
-
-        {/* Add Nodes Palette */}
-        {isMobile ? (
-          <div className="bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl transition-all duration-300 p-2">
-            {/* Mobile: compact dropdown */}
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center space-x-2">
-                <Grid className="w-3 h-3 text-gray-500" />
-                <h3 className="text-xs font-medium text-gray-300 px-1">Add Node</h3>
-              </div>
-            </div>
-            <div className="space-y-2">
+      {/* Mobile Add Node sticky bar */}
+      {isMobile && (
+        <div className="fixed z-40 left-3 right-3 top-16">
+          <div className="flex items-center justify-center">
+            <button
+              onClick={() => setMobileNodeMenuOpen(v => !v)}
+              className="w-full max-w-md px-4 py-2 rounded-lg bg-black/80 backdrop-blur-xl border border-white/20 text-white text-sm flex items-center justify-center gap-2 shadow-lg"
+            >
+              <Grid className="w-4 h-4 text-gray-300" />
+              <span>Add Node</span>
+            </button>
+          </div>
+          {mobileNodeMenuOpen && (
+            <div className="mt-2 w-full max-w-md mx-auto bg-black/90 backdrop-blur-xl border border-white/20 rounded-lg shadow-2xl p-2">
               <select
                 className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-sm text-white"
                 defaultValue=""
@@ -5437,6 +5438,7 @@ function WorkflowView({
                     onAddNode(choice.type, { x: centerX, y: centerY })
                   }
                   e.currentTarget.selectedIndex = 0
+                  setMobileNodeMenuOpen(false)
                 }}
               >
                 <option value="">Select a node…</option>
@@ -5453,8 +5455,16 @@ function WorkflowView({
                 ))}
               </select>
             </div>
-          </div>
-        ) : (
+          )}
+        </div>
+      )}
+
+      {/* Canvas Tools - Right Side (desktop only) */}
+      {!isMobile && (
+      <div className="absolute z-40 flex flex-col space-y-2 w-64 top-2 right-4">
+
+        {/* Add Nodes Palette */}
+        {(
         <div className={`bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl transition-all duration-300 p-2 ${
           isPaletteCollapsed ? 'max-h-12 overflow-hidden' : 'max-h-[40rem]'
         }`}>
@@ -5536,6 +5546,7 @@ function WorkflowView({
 
 
       </div>
+      )}
 
       {/* Workflow Header with Zoom Controls */}
       <div className="absolute top-4 right-4 z-30 flex items-center space-x-3">

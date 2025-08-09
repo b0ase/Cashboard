@@ -1,1 +1,3 @@
-1. Create BLack landing page with white $CashBoard text that fades out to the app. 2. Improve the 'Demo' in 'Watch Demo' to use actaul nodes on a canvas arrnaged as a real-time automated organisation taknig payments and distributing dividends to shareholders in real time, zooming out to show lots of 'sharehodler nodes' connected by dotted line 'dividend payment' connections... ... 3. ✅ COMPLETED: Removed large grey blank space from above the AI Assistant when open 4. 
+"Add Node" pallette should be draggable 
+New Nodes should have large coloured icons 
+The wallet page needs HandCash and Yours wallet connections, that's all. (You could possibly add a solana wallet) 

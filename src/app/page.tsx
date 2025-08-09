@@ -3587,17 +3587,22 @@ function FloatingAIAssistant({
   const [inputMessage, setInputMessage] = useState('')
   const [isDragging, setIsDragging] = useState(false)
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
-  const [position, setPosition] = useState(() => {
-    // Try to get saved position from localStorage
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('aiAssistantPosition')
+  const [position, setPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 })
+
+  // Load saved position after mount to avoid SSR/CSR mismatch
+  useEffect(() => {
+    try {
+      const saved = typeof window !== 'undefined' ? localStorage.getItem('aiAssistantPosition') : null
       if (saved) {
-        return JSON.parse(saved)
+        const parsed = JSON.parse(saved)
+        if (typeof parsed?.x === 'number' && typeof parsed?.y === 'number') {
+          setPosition(parsed)
+        }
       }
+    } catch {
+      // ignore
     }
-    // Default centered position
-    return { x: 0, y: 0 }
-  })
+  }, [])
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault()
@@ -3763,7 +3768,7 @@ function FloatingAIAssistant({
                     <p className={`text-xs mt-1 ${
                       message.type === 'user' ? 'text-blue-100' : 'text-gray-400'
                     }`}>
-                      {message.timestamp.toLocaleTimeString()}
+                      <span suppressHydrationWarning>{message.timestamp.toLocaleTimeString()}</span>
                     </p>
                   </div>
                 </div>

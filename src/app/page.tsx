@@ -1771,6 +1771,7 @@ export default function Dashboard() {
   const [lastTouchCenter, setLastTouchCenter] = useState({ x: 0, y: 0 })
   const [showDemoModal, setShowDemoModal] = useState(false)
   const [selectedNodeDetails, setSelectedNodeDetails] = useState<string | null>(null)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   // Mobile detection effect
   useEffect(() => {
@@ -2895,8 +2896,8 @@ export default function Dashboard() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(255,255,255,0.01),transparent_50%)]"></div>
       </div>
 
-      {/* Sidebar */}
-      {sidebarOpen && (
+      {/* Sidebar (hidden on mobile; replaced by dropdown) */}
+      {!isMobile && sidebarOpen && (
         <div className="relative min-h-screen w-64 bg-black/80 backdrop-blur-xl border-r border-white/20 z-30 flex-shrink-0">
           <div className="p-6">
             <div className="flex items-center justify-between mb-8">
@@ -3144,16 +3145,47 @@ export default function Dashboard() {
         <div className={`absolute top-0 left-0 right-0 z-20 ${isMobile ? 'p-3' : 'p-6'}`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              {!sidebarOpen && (
+              {isMobile ? (
                 <button
-                  onClick={toggleSidebar}
+                  onClick={() => setMobileMenuOpen((v) => !v)}
                   className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-                  title="Open sidebar"
+                  title="Open menu"
                 >
                   <Menu className={`${isMobile ? 'w-5 h-5' : 'w-6 h-6'} text-white`} />
                 </button>
+              ) : (
+                !sidebarOpen && (
+                  <button
+                    onClick={toggleSidebar}
+                    className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                    title="Open sidebar"
+                  >
+                    <Menu className={`${isMobile ? 'w-5 h-5' : 'w-6 h-6'} text-white`} />
+                  </button>
+                )
               )}
               
+              {/* Mobile dropdown menu */}
+              {isMobile && mobileMenuOpen && (
+                <div className="absolute left-3 top-14 z-30 w-56 bg-black/90 border border-white/15 rounded-lg shadow-xl">
+                  <div className="p-2 space-y-1">
+                    <button onClick={() => { setCurrentView('workflow'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Workflows</button>
+                    <button onClick={() => { setCurrentView('organizations'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Organizations</button>
+                    <button onClick={() => { setCurrentView('roles'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Roles</button>
+                    <button onClick={() => { setCurrentView('agents'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Agents</button>
+                    <button onClick={() => { setCurrentView('people'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">People</button>
+                    <button onClick={() => { setCurrentView('instruments'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Instruments</button>
+                    <button onClick={() => { setCurrentView('contracts'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Contracts</button>
+                    <button onClick={() => { setCurrentView('wallets'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Wallets</button>
+                    <button onClick={() => { setCurrentView('integrations'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Integrations</button>
+                    <div className="border-t border-white/10 my-1"></div>
+                    <button onClick={() => { setCurrentView('billing'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Billing & Plans</button>
+                    <button onClick={() => { setCurrentView('settings'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Settings</button>
+                    <button onClick={() => { setCurrentView('profile'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Profile</button>
+                  </div>
+                </div>
+              )}
+
               {/* Editable Workflow Title */}
               {currentView === 'workflow' && currentWorkflow && (
                 <input

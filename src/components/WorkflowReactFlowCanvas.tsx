@@ -20,6 +20,7 @@ import ReactFlow, {
 } from 'reactflow'
 import 'reactflow/dist/style.css'
 import NodePalette from '@/components/NodePalette'
+import { getOrganizationTemplates, getRoleTemplates, getAgentTemplates, getInstrumentTemplates, getContractTemplates, getIntegrationTemplates } from '@/data/templates'
 import { DollarSign, FileText, Target, AlertTriangle, Building, Crown, UserCheck, Banknote, Plug, Split, Play, Zap, User, Workflow, Wallet } from 'lucide-react'
 
 type NodeKind = string
@@ -120,39 +121,13 @@ export default function WorkflowReactFlowCanvas({ workflow }: { workflow: any })
       // Gather templates from the existing dashboards in page.tsx (basic mock via kind)
       let items: TemplateItem[] = []
       // Minimal mapping – we can expand if needed by importing from page.tsx later
-      if (type === 'organization') items = [
-        { id: 'org-corp', name: 'Delaware C‑Corp' },
-        { id: 'org-llc', name: 'Wyoming LLC' },
-        { id: 'org-npo', name: 'Nonprofit' },
-      ]
-      else if (type === 'instrument') items = [
-        { id: 'instr-common', name: 'Common Stock' },
-        { id: 'instr-token', name: 'Access Token' },
-        { id: 'instr-royalty', name: 'Royalty Share' },
-      ]
-      else if (type === 'role') items = [
-        { id: 'role-ceo', name: 'CEO' },
-        { id: 'role-cto', name: 'CTO' },
-        { id: 'role-cmo', name: 'CMO' },
-      ]
-      else if (type === 'member') items = [
-        { id: 'member-artist', name: 'Artist' },
-        { id: 'member-producer', name: 'Producer' },
-        { id: 'member-marketer', name: 'Marketer' },
-      ]
-      else if (type === 'contract') items = [
-        { id: 'contract-nda', name: 'NDA' },
-        { id: 'contract-service', name: 'Service Agreement' },
-        { id: 'contract-licensing', name: 'Licensing' },
-      ]
-      else if (type === 'wallets') items = [
-        { id: 'wallet-treasury', name: 'Treasury Wallet' },
-        { id: 'wallet-custody', name: 'Custody Wallet' },
-      ]
-      else if (type === 'workflow') items = [
-        { id: 'wf-blank', name: 'Blank Workflow' },
-        { id: 'wf-audex', name: 'AUDEX Revenue Split' },
-      ]
+      if (type === 'organization') items = getOrganizationTemplates().map(t => ({ id: t.id || t.name, name: t.name, description: t.description }))
+      else if (type === 'instrument') items = getInstrumentTemplates().map(t => ({ id: t.id || t.name, name: t.name, description: t.description }))
+      else if (type === 'role') items = getRoleTemplates().map(t => ({ id: t.id || t.name, name: t.name, description: t.description }))
+      else if (type === 'member') items = getAgentTemplates().map(t => ({ id: t.id || t.name, name: t.name, description: t.description }))
+      else if (type === 'contract') items = getContractTemplates().map(t => ({ id: t.id || t.name, name: t.name, description: t.description }))
+      else if (type === 'workflow') items = [ { id: 'wf-blank', name: 'Blank Workflow' } ]
+      else if (type === 'integration') items = getIntegrationTemplates().map(t => ({ id: t.name, name: t.name, description: t.description }))
       setTemplateModal({ kind: type, items })
       return
     }
@@ -175,14 +150,16 @@ export default function WorkflowReactFlowCanvas({ workflow }: { workflow: any })
           onConnect={onConnect}
           onPick={handlePick}
           palette={PALETTE}
+          templateModal={templateModal}
+          setTemplateModal={setTemplateModal}
         />
       </ReactFlowProvider>
     </div>
   )
 }
 
-function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick, palette }:
-  { nodes: Node<RFNodeData>[]; edges: Edge[]; onNodesChange: any; onEdgesChange: any; onConnect: any; onPick: (type: string, rf: any) => void; palette: any[] }) {
+function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick, palette, templateModal, setTemplateModal }:
+  { nodes: Node<RFNodeData>[]; edges: Edge[]; onNodesChange: any; onEdgesChange: any; onConnect: any; onPick: (type: string, rf: any) => void; palette: any[]; templateModal: { kind: string; items: TemplateItem[] } | null; setTemplateModal: (v: any) => void }) {
   const rf = useReactFlow()
   return (
     <ReactFlow

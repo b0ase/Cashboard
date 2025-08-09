@@ -16,6 +16,7 @@ import ReactFlow, {
   Panel,
   useReactFlow,
   ReactFlowProvider,
+  MarkerType,
 } from 'reactflow'
 import 'reactflow/dist/style.css'
 import { DollarSign, FileText, Target, AlertTriangle, CheckCircle, Users, Building, Crown, UserCheck, Banknote, Plug, Split, Play, Zap, User } from 'lucide-react'
@@ -117,17 +118,17 @@ const initialEdges: Edge[] = [
   { id: 'c10', source: 'n6', target: 'n10' },
 ]
 
-const choices: { label: string; kind: NodeKind }[] = [
-  { label: 'YouTube', kind: 'youtube' },
-  { label: 'Splitter', kind: 'splitter' },
-  { label: 'Payment', kind: 'payment' },
-  { label: 'Decision', kind: 'decision' },
-  { label: 'Organization', kind: 'organization' },
-  { label: 'Role', kind: 'role' },
-  { label: 'Member', kind: 'member' },
-  { label: 'Instrument', kind: 'instrument' },
-  { label: 'Trigger', kind: 'trigger' },
-  { label: 'Contact', kind: 'contact' },
+const choices: { label: string; kind: NodeKind; category: 'Flow' | 'Business' }[] = [
+  { label: 'YouTube', kind: 'youtube', category: 'Flow' },
+  { label: 'Splitter', kind: 'splitter', category: 'Flow' },
+  { label: 'Payment', kind: 'payment', category: 'Flow' },
+  { label: 'Decision', kind: 'decision', category: 'Flow' },
+  { label: 'Trigger', kind: 'trigger', category: 'Flow' },
+  { label: 'Organization', kind: 'organization', category: 'Business' },
+  { label: 'Role', kind: 'role', category: 'Business' },
+  { label: 'Member', kind: 'member', category: 'Business' },
+  { label: 'Instrument', kind: 'instrument', category: 'Business' },
+  { label: 'Contact', kind: 'contact', category: 'Business' },
 ]
 
 export const dynamic = 'force-dynamic'
@@ -151,6 +152,19 @@ function OverlayPanel({
     onAdd(pos, selectedKind)
     setSelectedKind('')
   }, [rf, selectedKind, setSelectedKind, onAdd])
+
+  // Expose a tiny helper to window so the left palette can trigger centered adds without re-creating RF context
+  if (typeof window !== 'undefined') {
+    ;(window as any).__rfAdd = {
+      addAtCenter: (kind: NodeKind) => {
+        const viewport = rf.getViewport()
+        const rect = (rf as any).viewport?.getBoundingClientRect?.() || { width: 800, height: 600 }
+        const centerScreen = { x: viewport.x + rect.width / 2, y: viewport.y + rect.height / 2 }
+        const pos = rf.project(centerScreen)
+        onAdd(pos, kind)
+      }
+    }
+  }
 
   return (
     <Panel position="top-left">
@@ -227,11 +241,46 @@ export default function ReactFlowDemoPage() {
               fitView
               snapToGrid={snapToGrid}
               onSelectionChange={handleSelectionChange}
+              defaultEdgeOptions={{ style: { stroke: 'rgba(255,255,255,0.7)', strokeWidth: 2 }, markerEnd: { type: MarkerType.ArrowClosed, color: 'rgba(255,255,255,0.8)' } }}
+              connectionLineStyle={{ stroke: 'rgba(255,255,255,0.6)', strokeWidth: 2 }}
             >
               <Background color="rgba(255,255,255,0.1)" />
               <MiniMap pannable zoomable style={{ background: 'rgba(0,0,0,0.6)' }} />
               <Controls showInteractive={false} />
               <OverlayPanel selectedKind={selectedKind} setSelectedKind={setSelectedKind} onAdd={handleAddAtPos} />
+
+              {/* Add Nodes Palette (desktop) */}
+              <Panel position="top-left">
+                <div className="bg-black/70 backdrop-blur-xl border border-white/20 rounded-lg p-3 min-w-[220px]">
+                  <div className="text-xs text-gray-400 mb-2">Add Nodes</div>
+                  {(['Flow','Business'] as const).map((cat) => (
+                    <div key={cat} className="mb-2">
+                      <div className="text-[11px] uppercase tracking-wide text-gray-500 mb-1">{cat}</div>
+                      <div className="grid grid-cols-2 gap-2">
+                        {choices.filter(c => c.category===cat).map((c) => (
+                          <button
+                            key={c.kind}
+                            onClick={() => {
+                              // center add; position resolved in panel via useReactFlow
+                              const rf = (window as any).__rfAdd || null
+                              if (rf && rf.addAtCenter) {
+                                rf.addAtCenter(c.kind)
+                              } else {
+                                setSelectedKind(c.kind)
+                              }
+                            }}
+                            className="flex items-center gap-2 px-2 py-1.5 rounded bg-white/5 hover:bg-white/10 border border-white/10 text-left"
+                            title={`Add ${c.label}`}
+                          >
+                            <IconFor kind={c.kind} />
+                            <span className="text-sm text-white">{c.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Panel>
 
               {/* Toolbar: tools and zoom */}
               <Panel position="top-right">

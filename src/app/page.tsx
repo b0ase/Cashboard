@@ -1003,24 +1003,28 @@ export default function Dashboard() {
       {
         id: '1',
         name: 'Example Workflow',
-        description: 'AUDEX: YouTube ad revenue → split 70/20/10 → guardrail → dividends to ADEX token holders',
+        description: 'AUDEX: YouTube ad revenue → split 70/20/10 → guardrail → dividends to AUDEX token holders',
         nodes: [
-          { id: 'n1', type: 'youtube', name: 'YouTube Ad Revenue', description: 'AdSense receipts for AUDEX channel', x: 100, y: 100, status: 'active', connections: [], metadata: { channelId: 'UCxxxxxxxxxxxxxxxx' } },
-          { id: 'n2', type: 'splitter', name: 'Split 70/20/10', description: 'Revenue allocation', x: 320, y: 100, status: 'active', connections: [], metadata: { percentages: { royaltyPool: 70, ops: 20, reserve: 10 } } },
-          { id: 'n3', type: 'payment', name: 'Royalty Pool (70%)', description: 'Funds allocated to royalties', x: 520, y: 100, status: 'pending', connections: [], metadata: { amount: '70%' } },
-          { id: 'n3b', type: 'payment', name: 'Ops (20%)', description: 'Operating budget', x: 520, y: 200, status: 'pending', connections: [], metadata: { amount: '20%' } },
-          { id: 'n3c', type: 'payment', name: 'Reserve (10%)', description: 'Safety reserve', x: 520, y: 280, status: 'pending', connections: [], metadata: { amount: '10%' } },
-          { id: 'n4', type: 'decision', name: 'Runway Guardrail', description: 'Pause if runway < 6 months', x: 760, y: 100, status: 'pending', connections: [], conditions: ['Pass', 'Fail'], metadata: { metricKey: 'finance.cash_runway_months', threshold: 6 } },
-          { id: 'n5', type: 'payment', name: 'Dividend Distributor', description: 'Weekly pro‑rata to ADEX', x: 1000, y: 100, status: 'pending', connections: [], metadata: { tokenSymbol: 'ADEX', schedule: 'weekly' } },
-          { id: 'n6', type: 'organization', name: 'AUDEX', description: 'AI‑first record label', x: 100, y: 260, status: 'active', connections: [], metadata: { classification: 'Company' } },
-          { id: 'n7', type: 'role', name: 'Founder', description: 'Founders with governance', x: 320, y: 260, status: 'active', connections: [], metadata: { permissions: ['govern', 'approve'] } },
-          { id: 'n8', type: 'role', name: 'Producer', description: 'Music production lead', x: 520, y: 360, status: 'active', connections: [], metadata: { permissions: ['create', 'upload'] } },
-          { id: 'n9', type: 'role', name: 'Community', description: 'Community & growth', x: 320, y: 360, status: 'active', connections: [], metadata: { permissions: ['promote'] } },
-          { id: 'n10', type: 'instrument', name: 'ADEX Token', description: 'Royalty share token', x: 760, y: 260, status: 'active', connections: [], metadata: { tokenSymbol: 'ADEX', supply: 1000000000 } },
-          { id: 'n11', type: 'member', name: 'Shareholders', description: 'ADEX holders (pro‑rata)', x: 1000, y: 260, status: 'active', connections: [], metadata: { holders: ['Alice 15%', 'Bob 25%', 'Charlie 20%', 'Diana 40%'] } },
-          { id: 'n12', type: 'contact', name: 'Artists', description: 'Contributing artists', x: 760, y: 360, status: 'active', connections: [], metadata: { count: 12 } },
-          { id: 'n13', type: 'organization', name: 'Suppliers', description: 'External vendors', x: 100, y: 360, status: 'active', connections: [], metadata: { classification: 'Supplier' } },
-          { id: 'n14', type: 'trigger', name: 'Listener: revenue_received', description: 'Event listener', x: 220, y: 40, status: 'active', connections: [], metadata: { source: 'youtube_adsense' } }
+          { id: 'n1', type: 'youtube', name: 'YouTube Ad Revenue', description: 'AdSense receipts for AUDEX channel', x: 100, y: 100, status: 'active', connections: [], metadata: { mediaType: 'channel', channelId: 'UCxxxxxxxxxxxxxxxx' } },
+          { id: 'n2', type: 'splitter', name: 'Split 70/20/10', description: 'Revenue allocation', x: 500, y: 100, status: 'active', connections: [], metadata: { percentages: { royaltyPool: 70, ops: 20, reserve: 10 } } },
+          { id: 'n3', type: 'payment', name: 'Royalty Pool (70%)', description: 'Funds allocated to royalties', x: 950, y: 100, status: 'pending', connections: [], metadata: { amount: '70%' } },
+          { id: 'n3b', type: 'payment', name: 'Ops (20%)', description: 'Operating budget', x: 950, y: 360, status: 'pending', connections: [], metadata: { amount: '20%' } },
+          { id: 'n3c', type: 'payment', name: 'Reserve (10%)', description: 'Safety reserve', x: 950, y: 540, status: 'pending', connections: [], metadata: { amount: '10%' } },
+          { id: 'n4', type: 'decision', name: 'Runway Guardrail', description: 'Pause if runway < 6 months', x: 1400, y: 100, status: 'pending', connections: [], conditions: ['Pass', 'Fail'], metadata: { metricKey: 'finance.cash_runway_months', threshold: 6 } },
+          { id: 'n5', type: 'payment', name: 'Dividend Distributor', description: 'Weekly pro‑rata to AUDEX', x: 1850, y: 100, status: 'pending', connections: [], metadata: { tokenSymbol: 'AUDEX', schedule: 'weekly' } },
+          { id: 'n11', type: 'member', name: 'Shareholders', description: 'AUDEX holders (pro‑rata)', x: 2300, y: 100, status: 'active', connections: [], metadata: { holders: ['Alice 15%', 'Bob 25%', 'Charlie 20%', 'Diana 40%'] } },
+          { id: 'n10', type: 'instrument', name: 'AUDEX Token', description: 'Royalty share token', x: 1400, y: 360, status: 'active', connections: [], metadata: { tokenSymbol: 'AUDEX', supply: 1000000000 } },
+          { id: 'n12', type: 'contact', name: 'Artists', description: 'Contributing artists', x: 1400, y: 540, status: 'active', connections: [], metadata: { count: 12 } },
+          { id: 'n6', type: 'organization', name: 'AUDEX', description: 'AI‑first record label', x: 1400, y: 400, status: 'active', connections: [], metadata: { classification: 'Company' } },
+          { id: 'n13', type: 'organization', name: 'Suppliers', description: 'External vendors', x: 800, y: 760, status: 'active', connections: [], metadata: { classification: 'Supplier' } },
+          { id: 'n7', type: 'role', name: 'CEO', description: 'Chief Executive Officer', x: 1200, y: 100, status: 'active', connections: [], metadata: { permissions: ['govern', 'approve'] } },
+          { id: 'n8', type: 'role', name: 'CTO', description: 'Chief Technology Officer', x: 1400, y: 100, status: 'active', connections: [], metadata: { permissions: ['tech', 'architecture'] } },
+          { id: 'n9', type: 'role', name: 'CMO', description: 'Chief Marketing Officer', x: 1600, y: 100, status: 'active', connections: [], metadata: { permissions: ['marketing', 'growth'] } },
+          { id: 'n7a', type: 'instrument', name: 'Shares 40%', description: 'CEO allocation', x: 1200, y: 170, status: 'active', connections: [], metadata: { shareAllocation: 40 } },
+          { id: 'n8a', type: 'instrument', name: 'Shares 35%', description: 'CTO allocation', x: 1400, y: 170, status: 'active', connections: [], metadata: { shareAllocation: 35 } },
+          { id: 'n9a', type: 'instrument', name: 'Shares 25%', description: 'CMO allocation', x: 1600, y: 170, status: 'active', connections: [], metadata: { shareAllocation: 25 } },
+          { id: 'n14', type: 'trigger', name: 'Trigger: Ad Revenue Webhook', description: 'Webhook event', x: 1400, y: 800, status: 'active', connections: [], metadata: { source: 'youtube_adsense' } },
+          { id: 'n15', type: 'asset', name: 'Track: Aurora Drift', description: 'Music track asset', x: 1400, y: 650, status: 'active', connections: [], metadata: { trackId: 'track-aurora' } }
         ],
         connections: [
           { id: 'c1', from: 'n1', to: 'n2', type: 'payment' },
@@ -1031,10 +1035,15 @@ export default function Dashboard() {
           { id: 'c6', from: 'n4', to: 'n5', type: 'success', condition: 'runway_ok' },
           { id: 'c7', from: 'n4', to: 'n6', type: 'failure', condition: 'pause_and_notify' },
           { id: 'c8', from: 'n5', to: 'n11', type: 'payment' },
+          { id: 'c8a', from: 'n5', to: 'n11', type: 'payment', amount: 1 },
           { id: 'c9', from: 'n6', to: 'n7', type: 'task' },
           { id: 'c10', from: 'n6', to: 'n10', type: 'task' },
           { id: 'c11', from: 'n5', to: 'n12', type: 'task' },
-          { id: 'c12', from: 'n14', to: 'n1', type: 'task' }
+          { id: 'c12', from: 'n14', to: 'n15', type: 'task' },
+          { id: 'c13', from: 'n15', to: 'n1', type: 'task' },
+          { id: 'c14', from: 'n7', to: 'n7a', type: 'success' },
+          { id: 'c15', from: 'n8', to: 'n8a', type: 'success' },
+          { id: 'c16', from: 'n9', to: 'n9a', type: 'success' }
         ],
         selectedNode: null,
         selectedNodes: [],
@@ -1688,7 +1697,7 @@ export default function Dashboard() {
   // Mobile detection and responsive state
   const [isMobile, setIsMobile] = useState(false)
   const [mobileAddTop, setMobileAddTop] = useState<number>(96)
-  const [canvasScale, setCanvasScale] = useState(0.7)
+  const [canvasScale, setCanvasScale] = useState(0.35)
   const [canvasOffset, setCanvasOffset] = useState({ x: 0, y: 0 })
   const [isDraggingCanvas, setIsDraggingCanvas] = useState(false)
   const [lastTouchDistance, setLastTouchDistance] = useState(0)
@@ -1801,7 +1810,7 @@ export default function Dashboard() {
 
   // Reset canvas view
   const resetCanvasView = () => {
-    setCanvasScale(0.7) // Reset to default zoom level
+    setCanvasScale(0.35) // Reset to default zoom level
     setCanvasOffset({ x: 0, y: 0 })
   }
 
@@ -4964,6 +4973,15 @@ function WorkflowView({
             { type: 'key-value', label: 'Due Date', value: String(node.metadata?.dueDate || '2024-01-15') }
           ]
         }
+      case 'youtube':
+        return {
+          title: 'YouTube Media',
+          items: [
+            { type: 'key-value', label: 'Media Type', value: String(node.metadata?.mediaType || 'channel') },
+            { type: 'key-value', label: 'Channel ID', value: String(node.metadata?.channelId || '—') },
+            { type: 'key-value', label: 'Video ID', value: String(node.metadata?.videoId || '—') }
+          ]
+        }
       case 'task':
         return {
           title: 'Task Details',
@@ -5131,6 +5149,29 @@ function WorkflowView({
       case 'slack': return <MessageSquare className={`${iconSize} text-purple-500`} />
       case 'teams': return <Users className={`${iconSize} text-blue-500`} />
       case 'zoom': return <PlayCircle className={`${iconSize} text-blue-400`} />
+      default: return getNodeIcon(type)
+    }
+  }
+
+  // Large, colored icon for canvas nodes
+  const getLargeColoredNodeIcon = (type: string) => {
+    const size = isMobile ? 'w-5 h-5' : 'w-7 h-7'
+    switch (type) {
+      case 'payment': return <DollarSign className={`${size} text-yellow-400`} />
+      case 'contract': return <FileText className={`${size} text-blue-400`} />
+      case 'task': return <Target className={`${size} text-green-400`} />
+      case 'decision': return <AlertTriangle className={`${size} text-purple-400`} />
+      case 'milestone': return <CheckCircle className={`${size} text-indigo-400`} />
+      case 'team': return <Users className={`${size} text-pink-400`} />
+      case 'organization': return <Building className={`${size} text-orange-400`} />
+      case 'role': return <Crown className={`${size} text-amber-400`} />
+      case 'member': return <UserCheck className={`${size} text-cyan-400`} />
+      case 'instrument': return <Banknote className={`${size} text-emerald-400`} />
+      case 'integration': return <Plug className={`${size} text-violet-400`} />
+      case 'splitter': return <Split className={`${size} text-amber-400`} />
+      case 'youtube': return <Play className={`${size} text-red-500`} />
+      case 'trigger': return <Zap className={`${size} text-yellow-500`} />
+      case 'contact': return <User className={`${size} text-blue-300`} />
       default: return getNodeIcon(type)
     }
   }
@@ -5723,12 +5764,12 @@ function WorkflowView({
               }
             }}
           >
-          {/* Header with icon, status, and delete button */}
+          {/* Header with large colored icon, status, and delete button */}
           <div className={`flex items-center justify-between ${isMobile ? 'mb-2' : 'mb-3'}`}>
-            <div className="flex items-center space-x-2">
-              <div className={`${isMobile ? 'w-1.5 h-1.5' : 'w-2 h-2'} ${getStatusColor(node.status)} rounded-full shadow-lg`}></div>
-              <div className="text-white/60">
-                {getNodeIcon(node.type)}
+            <div className="flex items-center space-x-3">
+              <div className={`${isMobile ? 'w-2 h-2' : 'w-2.5 h-2.5'} ${getStatusColor(node.status)} rounded-full shadow-lg`} />
+              <div className="flex items-center justify-center">
+                {getLargeColoredNodeIcon(node.type)}
               </div>
             </div>
             <button
@@ -5755,16 +5796,51 @@ function WorkflowView({
               onClick={(e) => e.stopPropagation()}
             />
             
-            <input
-              type="text"
-              value={node.description}
-              onChange={(e) => onNodeUpdate(node.id, { description: e.target.value })}
-              placeholder="Description"
-              className={`w-full bg-transparent border-none text-gray-400 focus:outline-none placeholder-gray-600 focus:placeholder-gray-500 focus:text-gray-300 transition-colors ${
-                isMobile ? 'text-xs' : 'text-xs'
-              }`}
-              onClick={(e) => e.stopPropagation()}
-            />
+            {/* Inline media type selector for YouTube nodes */}
+            {node.type === 'youtube' ? (
+              <div className="flex items-center gap-2 text-xs text-gray-300">
+                <label className="opacity-70">Media:</label>
+                <select
+                  value={String(node.metadata?.mediaType || 'channel')}
+                  onChange={(e) => onNodeUpdate(node.id, { metadata: { ...node.metadata, mediaType: e.target.value } })}
+                  className="bg-white/10 border border-white/20 rounded px-2 py-1 text-white"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <option value="channel">Channel</option>
+                  <option value="video">Video</option>
+                </select>
+                {String(node.metadata?.mediaType || 'channel') === 'channel' ? (
+                  <input
+                    type="text"
+                    value={String(node.metadata?.channelId || '')}
+                    onChange={(e) => onNodeUpdate(node.id, { metadata: { ...node.metadata, channelId: e.target.value } })}
+                    placeholder="Channel ID"
+                    className="flex-1 bg-white/10 border border-white/20 rounded px-2 py-1 text-white placeholder-gray-500"
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    value={String(node.metadata?.videoId || '')}
+                    onChange={(e) => onNodeUpdate(node.id, { metadata: { ...node.metadata, videoId: e.target.value } })}
+                    placeholder="Video ID"
+                    className="flex-1 bg-white/10 border border-white/20 rounded px-2 py-1 text-white placeholder-gray-500"
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                )}
+              </div>
+            ) : (
+              <input
+                type="text"
+                value={node.description}
+                onChange={(e) => onNodeUpdate(node.id, { description: e.target.value })}
+                placeholder="Description"
+                className={`w-full bg-transparent border-none text-gray-400 focus:outline-none placeholder-gray-600 focus:placeholder-gray-500 focus:text-gray-300 transition-colors ${
+                  isMobile ? 'text-xs' : 'text-xs'
+                }`}
+                onClick={(e) => e.stopPropagation()}
+              />
+            )}
 
             {/* Type-specific fields */}
             {node.type === 'payment' && node.amount && (

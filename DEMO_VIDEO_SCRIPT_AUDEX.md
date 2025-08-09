@@ -24,7 +24,7 @@
 
 0:15–0:25
 - Visual: Cashboard UI — create organization
-- Actions: New Organization → Name: AUDEX → Token Symbol: ADEX → Create
+- Actions: New Organization → Name: AUDEX → Token Symbol: AUDEX → Create
 - VO: “In Cashboard, we start from the business: create the AUDEX organization and its token.”
 - On‑screen text: Organization‑centric automation
 

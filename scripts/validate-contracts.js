@@ -27,7 +27,7 @@ function main() {
     process.exit(0)
   }
 
-  const ajv = new Ajv({ allErrors: true, strict: false })
+  const ajv = new Ajv({ allErrors: true, strict: false, loadSchema: undefined })
   let failures = 0
 
   for (const exampleFile of exampleFiles) {

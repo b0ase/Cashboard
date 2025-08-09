@@ -70,7 +70,7 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
     },
     {
       title: 'Distribute Dividends',
-      description: 'Weekly pro‑rata to ADEX holders',
+      description: 'Weekly pro‑rata to AUDEX holders',
       icon: <Users className="w-8 h-8 text-purple-400" />,
     },
   ]

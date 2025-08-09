@@ -4,7 +4,7 @@
   "title": "AUDEX Royalty Policy",
   "parties": {
     "issuer": "AUDEX",
-    "tokenSymbol": "ADEX",
+    "tokenSymbol": "AUDEX",
     "payoutCurrency": "USD"
   },
   "revenueSource": {
@@ -51,7 +51,7 @@
     "storePayloads": true
   },
   "metadata": {
-    "description": "Weekly pro‑rata royalty distribution to ADEX token holders based on track share snapshots."
+    "description": "Weekly pro‑rata royalty distribution to AUDEX token holders based on track share snapshots."
   }
 }
 

@@ -25,7 +25,7 @@
       "required": ["issuer", "tokenSymbol", "payoutCurrency"],
       "properties": {
         "issuer": { "type": "string", "description": "Organization ID or name" },
-        "tokenSymbol": { "type": "string", "description": "Royalty/share token symbol (e.g., ADEX)" },
+        "tokenSymbol": { "type": "string", "description": "Royalty/share token symbol (e.g., AUDEX)" },
         "payoutCurrency": { "type": "string", "enum": ["USD", "BSV"], "default": "USD" }
       }
     },

@@ -858,6 +858,139 @@ export default function Dashboard() {
         automationType: 'workflow',
         isAutomated: false,
         workflowId: null
+      },
+      // Executive and Management Roles
+      { 
+        id: '9', 
+        name: 'CTO', 
+        description: 'Chief Technology Officer - Technology strategy, architecture, and innovation leadership', 
+        icon: 'code', 
+        permissions: ['admin', 'tech', 'workflow-creation'], 
+        defaultShareAllocation: 20,
+        automationType: 'hybrid',
+        isAutomated: false,
+        workflowId: null
+      },
+      { 
+        id: '10', 
+        name: 'CMO', 
+        description: 'Chief Marketing Officer - Marketing strategy, brand management, and growth initiatives', 
+        icon: 'trending-up', 
+        permissions: ['admin', 'marketing', 'data-analysis'], 
+        defaultShareAllocation: 18,
+        automationType: 'hybrid',
+        isAutomated: false,
+        workflowId: null
+      },
+      { 
+        id: '11', 
+        name: 'CFO', 
+        description: 'Chief Financial Officer - Financial planning, analysis, and strategic financial management', 
+        icon: 'bar-chart-3', 
+        permissions: ['admin', 'finance', 'data-analysis'], 
+        defaultShareAllocation: 22,
+        automationType: 'hybrid',
+        isAutomated: false,
+        workflowId: null
+      },
+      { 
+        id: '12', 
+        name: 'COO', 
+        description: 'Chief Operating Officer - Operations management, process optimization, and execution', 
+        icon: 'settings', 
+        permissions: ['admin', 'operations', 'workflow-creation'], 
+        defaultShareAllocation: 20,
+        automationType: 'hybrid',
+        isAutomated: false,
+        workflowId: null
+      },
+      { 
+        id: '13', 
+        name: 'CHRO', 
+        description: 'Chief Human Resources Officer - People strategy, culture, and organizational development', 
+        icon: 'users', 
+        permissions: ['admin', 'operations'], 
+        defaultShareAllocation: 12,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null
+      },
+      { 
+        id: '14', 
+        name: 'VP of Sales', 
+        description: 'Vice President of Sales - Sales strategy, team leadership, and revenue generation', 
+        icon: 'trending-up', 
+        permissions: ['marketing', 'data-analysis'], 
+        defaultShareAllocation: 16,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null
+      },
+      { 
+        id: '15', 
+        name: 'VP of Engineering', 
+        description: 'Vice President of Engineering - Engineering leadership, technical delivery, and team management', 
+        icon: 'code', 
+        permissions: ['tech', 'workflow-creation', 'operations'], 
+        defaultShareAllocation: 18,
+        automationType: 'hybrid',
+        isAutomated: false,
+        workflowId: null
+      },
+      { 
+        id: '16', 
+        name: 'VP of Product', 
+        description: 'Vice President of Product - Product strategy, roadmap, and user experience leadership', 
+        icon: 'zap', 
+        permissions: ['workflow-creation', 'data-analysis', 'marketing'], 
+        defaultShareAllocation: 15,
+        automationType: 'hybrid',
+        isAutomated: false,
+        workflowId: null
+      },
+      { 
+        id: '17', 
+        name: 'General Counsel', 
+        description: 'Chief Legal Officer - Legal strategy, compliance, risk management, and corporate governance', 
+        icon: 'shield', 
+        permissions: ['admin', 'legal'], 
+        defaultShareAllocation: 14,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null
+      },
+      { 
+        id: '18', 
+        name: 'Head of Data', 
+        description: 'Chief Data Officer - Data strategy, analytics, and business intelligence leadership', 
+        icon: 'bar-chart-3', 
+        permissions: ['data-analysis', 'tech', 'workflow-creation'], 
+        defaultShareAllocation: 13,
+        automationType: 'hybrid',
+        isAutomated: false,
+        workflowId: null
+      },
+      { 
+        id: '19', 
+        name: 'Head of Security', 
+        description: 'Chief Security Officer - Information security, risk assessment, and cybersecurity strategy', 
+        icon: 'shield', 
+        permissions: ['tech', 'admin', 'operations'], 
+        defaultShareAllocation: 11,
+        automationType: 'hybrid',
+        isAutomated: false,
+        workflowId: null
+      },
+      { 
+        id: '20', 
+        name: 'Head of Customer Success', 
+        description: 'Customer Success Leadership - Customer retention, satisfaction, and growth strategies', 
+        icon: 'users', 
+        permissions: ['marketing', 'data-analysis', 'operations'], 
+        defaultShareAllocation: 10,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null
       }
     ],
     workflows: [
@@ -3507,7 +3640,7 @@ function FloatingAIAssistant({
 
 // Integrations View Component
 function IntegrationsView() {
-  const [selectedCategory, setSelectedCategory] = useState<'crm' | 'spreadsheet' | 'cms' | 'payment' | 'communication' | 'all'>('all')
+  const [selectedCategory, setSelectedCategory] = useState<'crm' | 'spreadsheet' | 'cms' | 'payment' | 'communication' | 'social' | 'ai' | 'all'>('all')
   const [searchTerm, setSearchTerm] = useState('')
 
   const integrations = [
@@ -3669,6 +3802,230 @@ function IntegrationsView() {
       status: 'available',
       lastSync: null,
       features: ['Voice Channels', 'Bot Support', 'Server Management']
+    },
+
+    // Social Media Integrations
+    {
+      id: '16',
+      name: 'Instagram',
+      category: 'social',
+      description: 'Photo and video sharing social network',
+      icon: '📸',
+      status: 'available',
+      lastSync: null,
+      features: ['Post Publishing', 'Story Management', 'Analytics', 'DM Automation']
+    },
+    {
+      id: '17',
+      name: 'Twitter/X',
+      category: 'social',
+      description: 'Microblogging and social networking',
+      icon: '🐦',
+      status: 'available',
+      lastSync: null,
+      features: ['Tweet Scheduling', 'Thread Management', 'Analytics', 'DM Automation']
+    },
+    {
+      id: '18',
+      name: 'Facebook',
+      category: 'social',
+      description: 'Social networking platform',
+      icon: '📘',
+      status: 'available',
+      lastSync: null,
+      features: ['Page Management', 'Post Scheduling', 'Ad Management', 'Analytics']
+    },
+    {
+      id: '19',
+      name: 'LinkedIn',
+      category: 'social',
+      description: 'Professional networking platform',
+      icon: '💼',
+      status: 'available',
+      lastSync: null,
+      features: ['Profile Management', 'Content Publishing', 'Connection Management', 'Analytics']
+    },
+    {
+      id: '20',
+      name: 'TikTok',
+      category: 'social',
+      description: 'Short-form video sharing platform',
+      icon: '🎵',
+      status: 'available',
+      lastSync: null,
+      features: ['Video Publishing', 'Trend Analysis', 'Analytics', 'Comment Management']
+    },
+    {
+      id: '21',
+      name: 'YouTube',
+      category: 'social',
+      description: 'Video sharing and streaming platform',
+      icon: '📺',
+      status: 'available',
+      lastSync: null,
+      features: ['Video Upload', 'Channel Management', 'Analytics', 'Comment Moderation']
+    },
+    {
+      id: '22',
+      name: 'Snapchat',
+      category: 'social',
+      description: 'Multimedia messaging and stories',
+      icon: '👻',
+      status: 'available',
+      lastSync: null,
+      features: ['Snap Publishing', 'Story Management', 'Ad Management', 'Analytics']
+    },
+    {
+      id: '23',
+      name: 'Threads',
+      category: 'social',
+      description: 'Text-based conversation platform',
+      icon: '🧵',
+      status: 'available',
+      lastSync: null,
+      features: ['Thread Publishing', 'Community Management', 'Analytics', 'Cross-posting']
+    },
+    {
+      id: '24',
+      name: 'Telegram',
+      category: 'social',
+      description: 'Cloud-based messaging platform',
+      icon: '✈️',
+      status: 'available',
+      lastSync: null,
+      features: ['Channel Management', 'Bot Integration', 'Message Broadcasting', 'Analytics']
+    },
+    {
+      id: '25',
+      name: 'WhatsApp Business',
+      category: 'social',
+      description: 'Business messaging platform',
+      icon: '💚',
+      status: 'available',
+      lastSync: null,
+      features: ['Message Automation', 'Customer Support', 'Broadcast Lists', 'Analytics']
+    },
+    {
+      id: '26',
+      name: 'Reddit',
+      category: 'social',
+      description: 'Social news aggregation and discussion',
+      icon: '🔴',
+      status: 'available',
+      lastSync: null,
+      features: ['Post Management', 'Community Engagement', 'Moderation Tools', 'Analytics']
+    },
+
+    // AI Service Integrations
+    {
+      id: '27',
+      name: 'OpenAI',
+      category: 'ai',
+      description: 'Advanced AI models and GPT services',
+      icon: '🤖',
+      status: 'available',
+      lastSync: null,
+      features: ['Text Generation', 'Code Completion', 'Image Analysis', 'API Integration']
+    },
+    {
+      id: '28',
+      name: 'Anthropic',
+      category: 'ai',
+      description: 'Claude AI assistant and language models',
+      icon: '🧠',
+      status: 'available',
+      lastSync: null,
+      features: ['Conversational AI', 'Content Creation', 'Analysis', 'Reasoning']
+    },
+    {
+      id: '29',
+      name: 'Eleven Labs',
+      category: 'ai',
+      description: 'AI voice generation and cloning',
+      icon: '🎤',
+      status: 'available',
+      lastSync: null,
+      features: ['Voice Synthesis', 'Voice Cloning', 'Multiple Languages', 'API Access']
+    },
+    {
+      id: '30',
+      name: 'MidJourney',
+      category: 'ai',
+      description: 'AI-powered image generation',
+      icon: '🎨',
+      status: 'available',
+      lastSync: null,
+      features: ['Image Generation', 'Style Transfer', 'Upscaling', 'Variations']
+    },
+    {
+      id: '31',
+      name: 'Stability AI',
+      category: 'ai',
+      description: 'Stable Diffusion and image AI models',
+      icon: '🖼️',
+      status: 'available',
+      lastSync: null,
+      features: ['Image Generation', 'Inpainting', 'Outpainting', 'Model Fine-tuning']
+    },
+    {
+      id: '32',
+      name: 'Runway ML',
+      category: 'ai',
+      description: 'AI-powered video and creative tools',
+      icon: '🎬',
+      status: 'available',
+      lastSync: null,
+      features: ['Video Generation', 'Background Removal', 'Motion Tracking', 'Style Transfer']
+    },
+    {
+      id: '33',
+      name: 'Replicate',
+      category: 'ai',
+      description: 'Platform for running AI models',
+      icon: '🔄',
+      status: 'available',
+      lastSync: null,
+      features: ['Model Hosting', 'API Access', 'Custom Models', 'Scaling']
+    },
+    {
+      id: '34',
+      name: 'Hugging Face',
+      category: 'ai',
+      description: 'Open-source AI model hub',
+      icon: '🤗',
+      status: 'available',
+      lastSync: null,
+      features: ['Model Repository', 'Transformers', 'Datasets', 'Inference API']
+    },
+    {
+      id: '35',
+      name: 'Cohere',
+      category: 'ai',
+      description: 'Language AI platform for enterprises',
+      icon: '🔗',
+      status: 'available',
+      lastSync: null,
+      features: ['Text Generation', 'Classification', 'Embeddings', 'Search']
+    },
+    {
+      id: '36',
+      name: 'Perplexity',
+      category: 'ai',
+      description: 'AI-powered search and research',
+      icon: '🔍',
+      status: 'available',
+      lastSync: null,
+      features: ['AI Search', 'Research Assistant', 'Source Citations', 'Real-time Data']
+    },
+    {
+      id: '37',
+      name: 'Veo3',
+      category: 'ai',
+      description: 'Advanced AI video generation',
+      icon: '📹',
+      status: 'available',
+      lastSync: null,
+      features: ['Video Generation', 'Scene Creation', 'Character Animation', 'Style Control']
     }
   ]
 
@@ -3678,7 +4035,9 @@ function IntegrationsView() {
     { id: 'spreadsheet', name: 'Spreadsheets', icon: '📊' },
     { id: 'cms', name: 'CMS & E-commerce', icon: '🌐' },
     { id: 'payment', name: 'Payment Systems', icon: '💳' },
-    { id: 'communication', name: 'Communication', icon: '💬' }
+    { id: 'communication', name: 'Communication', icon: '💬' },
+    { id: 'social', name: 'Social Media', icon: '📱' },
+    { id: 'ai', name: 'AI Services', icon: '🤖' }
   ]
 
   const filteredIntegrations = integrations.filter(integration => {
@@ -4668,7 +5027,7 @@ function WorkflowView({
 
         {/* Add Nodes Palette */}
         <div className={`bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl transition-all duration-300 p-2 ${
-          isPaletteCollapsed ? 'max-h-12 overflow-hidden' : 'max-h-[40rem] overflow-hidden'
+          isPaletteCollapsed ? 'max-h-12 overflow-hidden' : 'max-h-[40rem]'
         }`}>
           {/* Palette Header with Collapse Button */}
           <div className="flex items-center justify-between mb-2">
@@ -7149,7 +7508,68 @@ function InstrumentsView({ instruments, organizations, selectedOrganization, onC
     { id: '67', name: 'Digital Collectible', category: 'NFT', type: 'utility', symbol: 'NFT', description: 'Unique digital collectible token', totalSupply: 10000, decimals: 0, blockchain: 'Bitcoin SV', icon: '🎨' },
     { id: '68', name: 'Gaming Asset', category: 'NFT', type: 'utility', symbol: 'GAME', description: 'In-game digital asset NFT', totalSupply: 100000, decimals: 0, blockchain: 'Bitcoin SV', icon: '🎮' },
     { id: '69', name: 'Event Ticket', category: 'NFT', type: 'utility', symbol: 'TICK', description: 'Digital event ticket NFT', totalSupply: 50000, decimals: 0, blockchain: 'Bitcoin SV', icon: '🎫' },
-    { id: '70', name: 'Certificate Token', category: 'NFT', type: 'utility', symbol: 'CERT', description: 'Digital certificate or diploma', totalSupply: 25000, decimals: 0, blockchain: 'Bitcoin SV', icon: '📜' }
+    { id: '70', name: 'Certificate Token', category: 'NFT', type: 'utility', symbol: 'CERT', description: 'Digital certificate or diploma', totalSupply: 25000, decimals: 0, blockchain: 'Bitcoin SV', icon: '📜' },
+
+    // Additional Equity Instruments
+    { id: '71', name: 'Class A Shares', category: 'Equity', type: 'equity', symbol: 'CLSA', description: 'Class A voting shares with superior rights', totalSupply: 500000, decimals: 0, blockchain: 'Bitcoin SV', icon: '🏆' },
+    { id: '72', name: 'Class B Shares', category: 'Equity', type: 'equity', symbol: 'CLSB', description: 'Class B non-voting shares', totalSupply: 2000000, decimals: 0, blockchain: 'Bitcoin SV', icon: '📊' },
+    { id: '73', name: 'Founder Shares', category: 'Equity', type: 'equity', symbol: 'FOUND', description: 'Founder equity with special provisions', totalSupply: 1000000, decimals: 0, blockchain: 'Bitcoin SV', icon: '👑' },
+    { id: '74', name: 'Angel Investment', category: 'Equity', type: 'equity', symbol: 'ANGEL', description: 'Angel investor equity stake', totalSupply: 250000, decimals: 0, blockchain: 'Bitcoin SV', icon: '😇' },
+    { id: '75', name: 'Series A Preferred', category: 'Equity', type: 'equity', symbol: 'SERA', description: 'Series A preferred stock', totalSupply: 500000, decimals: 0, blockchain: 'Bitcoin SV', icon: '🅰️' },
+    { id: '76', name: 'Series B Preferred', category: 'Equity', type: 'equity', symbol: 'SERB', description: 'Series B preferred stock', totalSupply: 300000, decimals: 0, blockchain: 'Bitcoin SV', icon: '🅱️' },
+    { id: '77', name: 'IPO Shares', category: 'Equity', type: 'equity', symbol: 'IPO', description: 'Initial public offering shares', totalSupply: 10000000, decimals: 0, blockchain: 'Bitcoin SV', icon: '🔔' },
+
+    // Additional Debt Instruments
+    { id: '78', name: 'Municipal Bond', category: 'Debt', type: 'debt', symbol: 'MUNI', description: 'Municipal government bond', totalSupply: 5000, decimals: 2, blockchain: 'Bitcoin SV', icon: '🏛️' },
+    { id: '79', name: 'Treasury Note', category: 'Debt', type: 'debt', symbol: 'TNOTE', description: 'Medium-term government treasury note', totalSupply: 10000, decimals: 2, blockchain: 'Bitcoin SV', icon: '🏦' },
+    { id: '80', name: 'High Yield Bond', category: 'Debt', type: 'debt', symbol: 'HY', description: 'High-yield corporate bond', totalSupply: 2000, decimals: 2, blockchain: 'Bitcoin SV', icon: '📈' },
+    { id: '81', name: 'Zero Coupon Bond', category: 'Debt', type: 'debt', symbol: 'ZERO', description: 'Zero coupon discount bond', totalSupply: 1000, decimals: 2, blockchain: 'Bitcoin SV', icon: '⭕' },
+    { id: '82', name: 'Floating Rate Note', category: 'Debt', type: 'debt', symbol: 'FRN', description: 'Variable interest rate note', totalSupply: 3000, decimals: 2, blockchain: 'Bitcoin SV', icon: '🌊' },
+    { id: '83', name: 'Subordinated Debt', category: 'Debt', type: 'debt', symbol: 'SUB', description: 'Subordinated debt instrument', totalSupply: 1500, decimals: 2, blockchain: 'Bitcoin SV', icon: '⬇️' },
+    { id: '84', name: 'Senior Secured Bond', category: 'Debt', type: 'debt', symbol: 'SENIOR', description: 'Senior secured corporate bond', totalSupply: 2500, decimals: 2, blockchain: 'Bitcoin SV', icon: '🔒' },
+
+    // Additional Derivative Instruments
+    { id: '85', name: 'Call Option', category: 'Derivative', type: 'derivative', symbol: 'CALL', description: 'Call option contract', totalSupply: 50000, decimals: 6, blockchain: 'Bitcoin SV', icon: '📞' },
+    { id: '86', name: 'Put Option', category: 'Derivative', type: 'derivative', symbol: 'PUT', description: 'Put option contract', totalSupply: 50000, decimals: 6, blockchain: 'Bitcoin SV', icon: '📉' },
+    { id: '87', name: 'Credit Default Swap', category: 'Derivative', type: 'derivative', symbol: 'CDS', description: 'Credit default swap contract', totalSupply: 1000, decimals: 8, blockchain: 'Bitcoin SV', icon: '🛡️' },
+    { id: '88', name: 'Interest Rate Swap', category: 'Derivative', type: 'derivative', symbol: 'IRS', description: 'Interest rate swap derivative', totalSupply: 500, decimals: 8, blockchain: 'Bitcoin SV', icon: '🔄' },
+    { id: '89', name: 'Currency Forward', category: 'Derivative', type: 'derivative', symbol: 'FX', description: 'Foreign exchange forward contract', totalSupply: 10000, decimals: 6, blockchain: 'Bitcoin SV', icon: '💱' },
+    { id: '90', name: 'Commodity Swap', category: 'Derivative', type: 'derivative', symbol: 'COMSWAP', description: 'Commodity price swap contract', totalSupply: 2000, decimals: 8, blockchain: 'Bitcoin SV', icon: '🔄' },
+
+    // Additional Commodities
+    { id: '91', name: 'Copper Token', category: 'Commodities', type: 'utility', symbol: 'CU', description: 'Digital representation of copper', totalSupply: 50000000, decimals: 8, blockchain: 'Bitcoin SV', icon: '🔶' },
+    { id: '92', name: 'Platinum Token', category: 'Commodities', type: 'utility', symbol: 'PLAT', description: 'Digital representation of platinum', totalSupply: 100000, decimals: 8, blockchain: 'Bitcoin SV', icon: '⚪' },
+    { id: '93', name: 'Natural Gas Futures', category: 'Commodities', type: 'derivative', symbol: 'NG', description: 'Natural gas futures contract', totalSupply: 25000, decimals: 4, blockchain: 'Bitcoin SV', icon: '🔥' },
+    { id: '94', name: 'Wheat Futures', category: 'Commodities', type: 'derivative', symbol: 'WHEAT', description: 'Wheat commodity futures', totalSupply: 100000, decimals: 4, blockchain: 'Bitcoin SV', icon: '🌾' },
+    { id: '95', name: 'Coffee Futures', category: 'Commodities', type: 'derivative', symbol: 'COFFEE', description: 'Coffee commodity futures', totalSupply: 50000, decimals: 4, blockchain: 'Bitcoin SV', icon: '☕' },
+    { id: '96', name: 'Lithium Token', category: 'Commodities', type: 'utility', symbol: 'LI', description: 'Digital representation of lithium', totalSupply: 1000000, decimals: 8, blockchain: 'Bitcoin SV', icon: '🔋' },
+    { id: '97', name: 'Rare Earth Metals', category: 'Commodities', type: 'utility', symbol: 'REM', description: 'Rare earth metals token', totalSupply: 500000, decimals: 8, blockchain: 'Bitcoin SV', icon: '⚡' },
+
+    // Additional Alternative Investments
+    { id: '98', name: 'Real Estate Token', category: 'Alternative', type: 'equity', symbol: 'RE', description: 'Fractionalized real estate ownership', totalSupply: 100000, decimals: 4, blockchain: 'Bitcoin SV', icon: '🏠' },
+    { id: '99', name: 'Commercial Real Estate', category: 'Alternative', type: 'equity', symbol: 'CRE', description: 'Commercial property investment', totalSupply: 50000, decimals: 4, blockchain: 'Bitcoin SV', icon: '🏢' },
+    { id: '100', name: 'Infrastructure Fund', category: 'Alternative', type: 'equity', symbol: 'INFRA', description: 'Infrastructure investment fund', totalSupply: 25000, decimals: 0, blockchain: 'Bitcoin SV', icon: '🛤️' },
+    { id: '101', name: 'Collectible Cars', category: 'Alternative', type: 'equity', symbol: 'CAR', description: 'Classic car investment token', totalSupply: 1000, decimals: 0, blockchain: 'Bitcoin SV', icon: '🚗' },
+    { id: '102', name: 'Sports Memorabilia', category: 'Alternative', type: 'equity', symbol: 'SPORT', description: 'Sports collectibles investment', totalSupply: 10000, decimals: 0, blockchain: 'Bitcoin SV', icon: '⚽' },
+    { id: '103', name: 'Timber Investment', category: 'Alternative', type: 'equity', symbol: 'TIMBER', description: 'Forestry and timber investment', totalSupply: 100000, decimals: 4, blockchain: 'Bitcoin SV', icon: '🌲' },
+
+    // Additional Insurance Products
+    { id: '104', name: 'Auto Insurance', category: 'Insurance', type: 'hybrid', symbol: 'AUTO', description: 'Vehicle insurance policy token', totalSupply: 100000, decimals: 0, blockchain: 'Bitcoin SV', icon: '🚗' },
+    { id: '105', name: 'Property Insurance', category: 'Insurance', type: 'hybrid', symbol: 'PROP', description: 'Property insurance coverage', totalSupply: 75000, decimals: 0, blockchain: 'Bitcoin SV', icon: '🏠' },
+    { id: '106', name: 'Cyber Insurance', category: 'Insurance', type: 'hybrid', symbol: 'CYBER', description: 'Cybersecurity insurance policy', totalSupply: 25000, decimals: 0, blockchain: 'Bitcoin SV', icon: '🔒' },
+    { id: '107', name: 'Travel Insurance', category: 'Insurance', type: 'hybrid', symbol: 'TRAVEL', description: 'Travel protection insurance', totalSupply: 200000, decimals: 0, blockchain: 'Bitcoin SV', icon: '✈️' },
+
+    // Additional Structured Products
+    { id: '108', name: 'Exchange Traded Fund', category: 'Structured', type: 'equity', symbol: 'ETF', description: 'Diversified investment fund', totalSupply: 1000000, decimals: 4, blockchain: 'Bitcoin SV', icon: '📊' },
+    { id: '109', name: 'Index Fund', category: 'Structured', type: 'equity', symbol: 'INDEX', description: 'Market index tracking fund', totalSupply: 5000000, decimals: 4, blockchain: 'Bitcoin SV', icon: '📈' },
+    { id: '110', name: 'Mutual Fund', category: 'Structured', type: 'equity', symbol: 'MF', description: 'Professionally managed fund', totalSupply: 2000000, decimals: 4, blockchain: 'Bitcoin SV', icon: '👥' },
+
+    // Additional Environmental & Rights
+    { id: '111', name: 'Solar Energy Credits', category: 'Environmental', type: 'utility', symbol: 'SOLAR', description: 'Solar energy certificate tokens', totalSupply: 1000000, decimals: 2, blockchain: 'Bitcoin SV', icon: '☀️' },
+    { id: '112', name: 'Wind Energy Credits', category: 'Environmental', type: 'utility', symbol: 'WIND', description: 'Wind energy certificate tokens', totalSupply: 750000, decimals: 2, blockchain: 'Bitcoin SV', icon: '💨' },
+    { id: '113', name: 'Film Royalties', category: 'Rights', type: 'equity', symbol: 'FILM', description: 'Movie revenue sharing token', totalSupply: 100000, decimals: 8, blockchain: 'Bitcoin SV', icon: '🎬' },
+    { id: '114', name: 'Patent Rights', category: 'Rights', type: 'equity', symbol: 'PAT', description: 'Patent licensing rights token', totalSupply: 50000, decimals: 0, blockchain: 'Bitcoin SV', icon: '🔬' },
+    { id: '115', name: 'Software License', category: 'Rights', type: 'utility', symbol: 'SW', description: 'Software usage license token', totalSupply: 1000000, decimals: 0, blockchain: 'Bitcoin SV', icon: '💻' }
   ]
 
   const instrumentCategories = ['All', 'Equity', 'Debt', 'Utility', 'Governance', 'Reward', 'Derivative', 'Hybrid', 'Environmental', 'Rights', 'Digital Currency', 'DeFi', 'Cash & Equivalents', 'Coupons', 'Insurance', 'Commodities', 'Alternative', 'Structured', 'Membership', 'NFT']
@@ -9920,17 +10340,27 @@ function ContractsView({ organizations, selectedOrganization, roles = [], instru
           </button>
         </div>
 
-        {currentOrg ? (
-          <div className="text-center py-12">
-            <h3 className="text-xl font-semibold text-white mb-2">Contract Workflows for {currentOrg.name}</h3>
-            <p className="text-gray-400">No contract workflows yet. Create your first automated contract to get started.</p>
+        {/* Contract Templates Grid */}
+        <div className="mb-8">
+          <h3 className="text-xl font-semibold text-white mb-4">Choose Contract Template ({contractTemplates.length} Available)</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
+            {contractTemplates.map((template) => (
+              <div
+                key={template.id}
+                onClick={() => {
+                  handleTemplateSelect(template)
+                  setShowCreateContract(true)
+                }}
+                className="bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/40 rounded-lg p-4 cursor-pointer transition-all hover:scale-105"
+              >
+                <div className="text-3xl mb-3 text-center">{template.icon}</div>
+                <h5 className="text-white font-medium mb-2 text-sm text-center">{template.name}</h5>
+                <p className="text-gray-300 text-xs mb-3 line-clamp-2 text-center">{template.description}</p>
+                <p className="text-blue-400 text-xs text-center">Default: {template.defaultDuration} months</p>
+              </div>
+            ))}
           </div>
-        ) : (
-          <div className="text-center py-12">
-            <h3 className="text-xl font-semibold text-white mb-2">All Contract Workflows</h3>
-            <p className="text-gray-400">No contract workflows yet. Create your first automated contract to get started.</p>
-          </div>
-        )}
+        </div>
 
         {/* Create Contract Workflow Modal */}
         {showCreateContract && (
@@ -9941,13 +10371,13 @@ function ContractsView({ organizations, selectedOrganization, roles = [], instru
                 <div className="flex items-center space-x-4">
                   {/* Step Indicator */}
                   <div className="flex items-center space-x-2">
-                    {[1, 2, 3, 4].map((step) => (
+                    {[2, 3, 4].map((step, index) => (
                       <div key={step} className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
                         currentStep === step ? 'bg-blue-500 text-white' :
                         currentStep > step ? 'bg-green-500 text-white' :
                         'bg-gray-600 text-gray-300'
                       }`}>
-                        {step}
+                        {index + 1}
                       </div>
                     ))}
                   </div>
@@ -9960,31 +10390,7 @@ function ContractsView({ organizations, selectedOrganization, roles = [], instru
                 </div>
               </div>
 
-              {/* Step 1: Contract Template Selection */}
-              {currentStep === 1 && (
-                <div>
-                  <h4 className="text-lg font-medium text-white mb-4">Choose Contract Template ({contractTemplates.length} Available)</h4>
-                  <div className="max-h-[60vh] overflow-y-auto pr-2">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
-                      {contractTemplates.map((template) => (
-                        <div
-                          key={template.id}
-                          onClick={() => handleTemplateSelect(template)}
-                          className="bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/40 rounded-lg p-4 cursor-pointer transition-all hover:scale-105"
-                        >
-                          <div className="text-3xl mb-3 text-center">{template.icon}</div>
-                          <h5 className="text-white font-medium mb-2 text-sm text-center">{template.name}</h5>
-                          <p className="text-gray-300 text-xs mb-3 line-clamp-2 text-center">{template.description}</p>
-                          <p className="text-blue-400 text-xs text-center">Default: {template.defaultDuration} months</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="mt-4 text-center">
-                    <p className="text-gray-400 text-sm">Select a template to begin creating your contract workflow</p>
-                  </div>
-                </div>
-              )}
+
 
               {/* Step 2: Basic Contract Details */}
               {currentStep === 2 && (
@@ -10074,10 +10480,10 @@ function ContractsView({ organizations, selectedOrganization, roles = [], instru
                   </div>
                   <div className="flex justify-between mt-6">
                     <button
-                      onClick={() => setCurrentStep(1)}
+                      onClick={() => setShowCreateContract(false)}
                       className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors"
                     >
-                      Back
+                      Cancel
                     </button>
                     <button
                       onClick={() => setCurrentStep(3)}

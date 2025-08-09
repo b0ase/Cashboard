@@ -87,21 +87,7 @@ import {
 } from 'lucide-react'
 import DemoModal from '../components/DemoModal'
 
-// Client-side only time display component to prevent hydration errors
-function TimeDisplay({ timestamp }: { timestamp: Date }) {
-  const [timeString, setTimeString] = useState<string>('')
 
-  useEffect(() => {
-    setTimeString(timestamp.toLocaleTimeString('en-US', { 
-      hour: 'numeric', 
-      minute: '2-digit', 
-      second: '2-digit',
-      hour12: true 
-    }))
-  }, [timestamp])
-
-  return <span>{timeString}</span>
-}
 
 interface HandCashHandle {
   id: string
@@ -339,7 +325,7 @@ interface Role {
 
 interface WorkflowNode {
   id: string
-  type: 'payment' | 'contract' | 'task' | 'decision' | 'milestone' | 'team' | 'kpi' | 'employee' | 'deliverable' | 'asset' | 'mint' | 'payroll' | 'production' | 'marketing' | 'sales' | 'legal' | 'finance' | 'hr' | 'it' | 'operations' | 'api' | 'database' | 'loop' | 'condition' | 'trigger' | 'webhook' | 'email' | 'sms' | 'notification' | 'approval' | 'review' | 'timer' | 'counter' | 'calculator' | 'transformer' | 'validator' | 'aggregator' | 'filter' | 'sorter' | 'merger' | 'splitter' | 'gateway' | 'service' | 'function' | 'script' | 'organization' | 'role' | 'member' | 'instrument' | 'integration' | 'switch' | 'router' | 'delay' | 'queue' | 'batch' | 'parallel' | 'sequence' | 'retry' | 'ai-agent' | 'instagram' | 'snapchat' | 'threads' | 'twitter' | 'facebook' | 'linkedin' | 'tiktok' | 'youtube' | 'discord' | 'telegram' | 'whatsapp' | 'reddit' | 'voice' | 'elevenlabs' | 'midjourney' | 'veo3' | 'openai' | 'anthropic' | 'stability' | 'runway' | 'replicate' | 'huggingface' | 'cohere' | 'perplexity'
+  type: 'payment' | 'contract' | 'task' | 'decision' | 'milestone' | 'team' | 'kpi' | 'employee' | 'deliverable' | 'asset' | 'mint' | 'payroll' | 'production' | 'marketing' | 'sales' | 'legal' | 'finance' | 'hr' | 'it' | 'operations' | 'api' | 'database' | 'loop' | 'condition' | 'trigger' | 'webhook' | 'email' | 'sms' | 'notification' | 'approval' | 'review' | 'timer' | 'counter' | 'calculator' | 'transformer' | 'validator' | 'aggregator' | 'filter' | 'sorter' | 'merger' | 'splitter' | 'gateway' | 'service' | 'function' | 'script' | 'organization' | 'role' | 'member' | 'instrument' | 'integration' | 'switch' | 'router' | 'delay' | 'queue' | 'batch' | 'parallel' | 'sequence' | 'retry' | 'ai-agent' | 'instagram' | 'snapchat' | 'threads' | 'twitter' | 'facebook' | 'linkedin' | 'tiktok' | 'youtube' | 'discord' | 'telegram' | 'whatsapp' | 'reddit' | 'voice' | 'elevenlabs' | 'midjourney' | 'veo3' | 'openai' | 'anthropic' | 'stability' | 'runway' | 'replicate' | 'huggingface' | 'cohere' | 'perplexity' | 'salesforce' | 'hubspot' | 'pipedrive' | 'googlesheets' | 'excel' | 'airtable' | 'notion' | 'stripe' | 'paypal' | 'square' | 'slack' | 'teams' | 'zoom'
   name: string
   description: string
   x: number
@@ -1992,6 +1978,19 @@ export default function Dashboard() {
       case 'huggingface': return <Bot className={iconSize} />
       case 'cohere': return <Bot className={iconSize} />
       case 'perplexity': return <Bot className={iconSize} />
+      case 'salesforce': return <Building className={iconSize} />
+      case 'hubspot': return <TrendingUp className={iconSize} />
+      case 'pipedrive': return <Target className={iconSize} />
+      case 'googlesheets': return <Grid className={iconSize} />
+      case 'excel': return <BarChart3 className={iconSize} />
+      case 'airtable': return <Database className={iconSize} />
+      case 'notion': return <FileText className={iconSize} />
+      case 'stripe': return <CreditCard className={iconSize} />
+      case 'paypal': return <DollarSign className={iconSize} />
+      case 'square': return <CreditCard className={iconSize} />
+      case 'slack': return <MessageSquare className={iconSize} />
+      case 'teams': return <Users className={iconSize} />
+      case 'zoom': return <PlayCircle className={iconSize} />
       default: return <Circle className={iconSize} />
     }
   }
@@ -3256,10 +3255,6 @@ export default function Dashboard() {
             resetCanvasView={resetCanvasView}
             setCanvasScale={setCanvasScale}
             setCanvasOffset={setCanvasOffset}
-            chatMessages={chatMessages}
-            isChatOpen={isChatOpen}
-            toggleChat={toggleChat}
-            sendMessage={sendMessage}
             sidebarOpen={sidebarOpen}
             onBackToWorkflows={() => setAppState(prev => ({ ...prev, selectedWorkflow: null }))}
             selectedNodeDetails={selectedNodeDetails}
@@ -3384,7 +3379,135 @@ export default function Dashboard() {
         onClose={() => setShowDemoModal(false)} 
       />
 
+      {/* Floating AI Assistant */}
+      <FloatingAIAssistant 
+        isOpen={isChatOpen}
+        messages={chatMessages}
+        onToggle={toggleChat}
+        onSendMessage={sendMessage}
+        isMobile={isMobile}
+      />
+
     </div>
+  )
+}
+
+// Floating AI Assistant Component
+function FloatingAIAssistant({ 
+  isOpen, 
+  messages, 
+  onToggle, 
+  onSendMessage, 
+  isMobile 
+}: {
+  isOpen: boolean
+  messages: ChatMessage[]
+  onToggle: () => void
+  onSendMessage: (message: string) => void
+  isMobile: boolean
+}) {
+  const [inputMessage, setInputMessage] = useState('')
+
+  const handleSendMessage = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (inputMessage.trim()) {
+      onSendMessage(inputMessage.trim())
+      setInputMessage('')
+    }
+  }
+
+  return (
+    <>
+      {/* Floating Toggle Button */}
+      {!isOpen && (
+        <button
+          onClick={onToggle}
+          className={`fixed z-50 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg transition-all duration-300 hover:scale-110 ${
+            isMobile 
+              ? 'bottom-4 right-4 w-12 h-12' 
+              : 'bottom-6 right-6 w-14 h-14'
+          }`}
+        >
+          <Bot className={`${isMobile ? 'w-6 h-6' : 'w-7 h-7'} mx-auto`} />
+        </button>
+      )}
+
+      {/* Floating Chat Window */}
+      {isOpen && (
+        <div className={`fixed z-50 bg-black/95 backdrop-blur-xl border border-white/20 rounded-xl shadow-2xl transition-all duration-300 ${
+          isMobile 
+            ? 'bottom-4 right-4 left-4 h-80' 
+            : 'bottom-6 right-6 w-96 h-96'
+        }`}>
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 border-b border-white/20">
+            <div className="flex items-center space-x-3">
+              <Bot className="w-5 h-5 text-blue-400" />
+              <span className="text-white font-medium">AI Assistant</span>
+            </div>
+            <button
+              onClick={onToggle}
+              className="text-gray-400 hover:text-white transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-3 max-h-64">
+            {messages.length === 0 ? (
+              <div className="text-gray-400 text-center py-8">
+                <Bot className="w-12 h-12 mx-auto mb-3 text-blue-400" />
+                <p>Hello! I&apos;m your AI assistant.</p>
+                <p className="text-sm mt-1">How can I help you today?</p>
+              </div>
+            ) : (
+              messages.map((message) => (
+                <div
+                  key={message.id}
+                  className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div
+                    className={`max-w-[80%] p-3 rounded-lg ${
+                      message.type === 'user'
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-white/10 text-white border border-white/20'
+                    }`}
+                  >
+                    <p className="text-sm">{message.content}</p>
+                    <p className={`text-xs mt-1 ${
+                      message.type === 'user' ? 'text-blue-100' : 'text-gray-400'
+                    }`}>
+                      {message.timestamp.toLocaleTimeString()}
+                    </p>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* Input */}
+          <form onSubmit={handleSendMessage} className="p-4 border-t border-white/20">
+            <div className="flex space-x-2">
+              <input
+                type="text"
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                placeholder="Ask me anything..."
+                className="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400"
+              />
+              <button
+                type="submit"
+                disabled={!inputMessage.trim()}
+                className="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg px-4 py-2 transition-colors"
+              >
+                <Send className="w-4 h-4" />
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+    </>
   )
 }
 
@@ -4065,18 +4188,10 @@ function WorkflowView({
   resetCanvasView,
   setCanvasScale,
   setCanvasOffset,
-  chatMessages,
-  isChatOpen,
-  toggleChat,
-  sendMessage,
   onBackToWorkflows,
   selectedNodeDetails,
   setSelectedNodeDetails
 }: WorkflowViewProps & {
-  chatMessages: ChatMessage[]
-  isChatOpen: boolean
-  toggleChat: () => void
-  sendMessage: (content: string) => void
   sidebarOpen: boolean
   onBackToWorkflows: () => void
   selectedNodeDetails: string | null
@@ -4319,6 +4434,19 @@ function WorkflowView({
       case 'huggingface': return <Bot className={`${iconSize} text-yellow-500`} />
       case 'cohere': return <Bot className={`${iconSize} text-teal-500`} />
       case 'perplexity': return <Bot className={`${iconSize} text-indigo-600`} />
+      case 'salesforce': return <Building className={`${iconSize} text-blue-600`} />
+      case 'hubspot': return <TrendingUp className={`${iconSize} text-orange-500`} />
+      case 'pipedrive': return <Target className={`${iconSize} text-green-600`} />
+      case 'googlesheets': return <Grid className={`${iconSize} text-green-500`} />
+      case 'excel': return <BarChart3 className={`${iconSize} text-green-700`} />
+      case 'airtable': return <Database className={`${iconSize} text-yellow-600`} />
+      case 'notion': return <FileText className={`${iconSize} text-gray-600`} />
+      case 'stripe': return <CreditCard className={`${iconSize} text-purple-600`} />
+      case 'paypal': return <DollarSign className={`${iconSize} text-blue-500`} />
+      case 'square': return <CreditCard className={`${iconSize} text-gray-700`} />
+      case 'slack': return <MessageSquare className={`${iconSize} text-purple-500`} />
+      case 'teams': return <Users className={`${iconSize} text-blue-500`} />
+      case 'zoom': return <PlayCircle className={`${iconSize} text-blue-400`} />
       default: return getNodeIcon(type)
     }
   }
@@ -4379,19 +4507,34 @@ function WorkflowView({
     { type: 'review' as const, name: 'Review', icon: getColoredNodeIcon('review'), category: 'Process' },
     { type: 'timer' as const, name: 'Timer', icon: getColoredNodeIcon('timer'), category: 'Process' },
     
-    // Social Media Platforms
-    { type: 'instagram' as const, name: 'Instagram', icon: getColoredNodeIcon('instagram'), category: 'Socials' },
-    { type: 'snapchat' as const, name: 'Snapchat', icon: getColoredNodeIcon('snapchat'), category: 'Socials' },
-    { type: 'threads' as const, name: 'Threads', icon: getColoredNodeIcon('threads'), category: 'Socials' },
-    { type: 'twitter' as const, name: 'Twitter/X', icon: getColoredNodeIcon('twitter'), category: 'Socials' },
-    { type: 'facebook' as const, name: 'Facebook', icon: getColoredNodeIcon('facebook'), category: 'Socials' },
-    { type: 'linkedin' as const, name: 'LinkedIn', icon: getColoredNodeIcon('linkedin'), category: 'Socials' },
-    { type: 'tiktok' as const, name: 'TikTok', icon: getColoredNodeIcon('tiktok'), category: 'Socials' },
-    { type: 'youtube' as const, name: 'YouTube', icon: getColoredNodeIcon('youtube'), category: 'Socials' },
-    { type: 'discord' as const, name: 'Discord', icon: getColoredNodeIcon('discord'), category: 'Socials' },
-    { type: 'telegram' as const, name: 'Telegram', icon: getColoredNodeIcon('telegram'), category: 'Socials' },
-    { type: 'whatsapp' as const, name: 'WhatsApp', icon: getColoredNodeIcon('whatsapp'), category: 'Socials' },
-    { type: 'reddit' as const, name: 'Reddit', icon: getColoredNodeIcon('reddit'), category: 'Socials' }
+    // Social Media Integrations
+    { type: 'instagram' as const, name: 'Instagram', icon: getColoredNodeIcon('instagram'), category: 'Integration' },
+    { type: 'snapchat' as const, name: 'Snapchat', icon: getColoredNodeIcon('snapchat'), category: 'Integration' },
+    { type: 'threads' as const, name: 'Threads', icon: getColoredNodeIcon('threads'), category: 'Integration' },
+    { type: 'twitter' as const, name: 'Twitter/X', icon: getColoredNodeIcon('twitter'), category: 'Integration' },
+    { type: 'facebook' as const, name: 'Facebook', icon: getColoredNodeIcon('facebook'), category: 'Integration' },
+    { type: 'linkedin' as const, name: 'LinkedIn', icon: getColoredNodeIcon('linkedin'), category: 'Integration' },
+    { type: 'tiktok' as const, name: 'TikTok', icon: getColoredNodeIcon('tiktok'), category: 'Integration' },
+    { type: 'youtube' as const, name: 'YouTube', icon: getColoredNodeIcon('youtube'), category: 'Integration' },
+    { type: 'discord' as const, name: 'Discord', icon: getColoredNodeIcon('discord'), category: 'Integration' },
+    { type: 'telegram' as const, name: 'Telegram', icon: getColoredNodeIcon('telegram'), category: 'Integration' },
+    { type: 'whatsapp' as const, name: 'WhatsApp', icon: getColoredNodeIcon('whatsapp'), category: 'Integration' },
+    { type: 'reddit' as const, name: 'Reddit', icon: getColoredNodeIcon('reddit'), category: 'Integration' },
+    
+    // Business Integrations
+    { type: 'salesforce' as const, name: 'Salesforce', icon: getColoredNodeIcon('salesforce'), category: 'Integration' },
+    { type: 'hubspot' as const, name: 'HubSpot', icon: getColoredNodeIcon('hubspot'), category: 'Integration' },
+    { type: 'pipedrive' as const, name: 'Pipedrive', icon: getColoredNodeIcon('pipedrive'), category: 'Integration' },
+    { type: 'googlesheets' as const, name: 'Google Sheets', icon: getColoredNodeIcon('googlesheets'), category: 'Integration' },
+    { type: 'excel' as const, name: 'Excel', icon: getColoredNodeIcon('excel'), category: 'Integration' },
+    { type: 'airtable' as const, name: 'Airtable', icon: getColoredNodeIcon('airtable'), category: 'Integration' },
+    { type: 'notion' as const, name: 'Notion', icon: getColoredNodeIcon('notion'), category: 'Integration' },
+    { type: 'stripe' as const, name: 'Stripe', icon: getColoredNodeIcon('stripe'), category: 'Integration' },
+    { type: 'paypal' as const, name: 'PayPal', icon: getColoredNodeIcon('paypal'), category: 'Integration' },
+    { type: 'square' as const, name: 'Square', icon: getColoredNodeIcon('square'), category: 'Integration' },
+    { type: 'slack' as const, name: 'Slack', icon: getColoredNodeIcon('slack'), category: 'Integration' },
+    { type: 'teams' as const, name: 'Microsoft Teams', icon: getColoredNodeIcon('teams'), category: 'Integration' },
+    { type: 'zoom' as const, name: 'Zoom', icon: getColoredNodeIcon('zoom'), category: 'Integration' }
   ]
 
   const handleCanvasClick = (e: React.MouseEvent) => {
@@ -4407,8 +4550,6 @@ function WorkflowView({
   const [panStart, setPanStart] = React.useState({ x: 0, y: 0 })
 
   const handleKeyDown = (e: KeyboardEvent) => {
-    // Prevent interference when AI Assistant is open
-    if (isChatOpen) return
     
     // Don't interfere with typing in input fields, textareas, or contenteditable elements
     const target = e.target as HTMLElement
@@ -4523,7 +4664,7 @@ function WorkflowView({
       document.removeEventListener('keydown', handleKeyDown)
       document.removeEventListener('keyup', handleKeyUp)
     }
-  }, [workflow.selectedNodes, isChatOpen, isSpacePressed])
+  }, [workflow.selectedNodes, isSpacePressed])
 
   return (
     <div className="absolute inset-0 top-20 flex flex-col">
@@ -4533,12 +4674,7 @@ function WorkflowView({
 
         {/* Add Nodes Palette */}
         <div className={`bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl transition-all duration-300 p-2 ${
-          // Auto-resize based on AI Assistant state and collapsed state
-          isPaletteCollapsed 
-            ? 'max-h-12' 
-            : isChatOpen 
-              ? 'max-h-96' 
-              : 'max-h-[40rem]'
+          isPaletteCollapsed ? 'max-h-12' : 'max-h-[40rem]'
         } overflow-hidden`}>
           {/* Palette Header with Collapse Button */}
           <div className="flex items-center justify-between mb-2">
@@ -4579,7 +4715,7 @@ function WorkflowView({
           <div className={`transition-all duration-300 ${
             isPaletteCollapsed ? 'opacity-0 max-h-0' : 'opacity-100'
           } overflow-y-scroll scrollbar-always-visible space-y-1`}>
-            {['Basic', 'Business', 'Integration', 'Communication', 'Logic', 'Process', 'Socials'].map((category) => (
+            {['Basic', 'Business', 'Integration', 'Communication', 'Logic', 'Process'].map((category) => (
               <div key={category}>
                 <div className="text-xs text-gray-500 px-1 py-1">{category}</div>
                 <div className="grid grid-cols-2 gap-1">
@@ -4630,9 +4766,7 @@ function WorkflowView({
       {/* Enhanced Canvas Area */}
       <div
         ref={boardRef}
-        className={`flex-1 relative overflow-hidden transition-all duration-300 ${
-          isChatOpen ? (isMobile ? 'mb-40' : 'mb-64') : (isMobile ? 'mb-12' : 'mb-8')
-        } ${
+        className={`flex-1 relative overflow-hidden ${
           isPanning ? 'cursor-grab active:cursor-grabbing' :
           workflow.currentTool === 'pan' ? 'cursor-grab active:cursor-grabbing' :
           workflow.currentTool === 'connect' ? 'cursor-crosshair' :
@@ -5057,95 +5191,7 @@ function WorkflowView({
       })}
       </div>
 
-      {/* AI Chat Bar */}
-      <div className={`bg-black/90 backdrop-blur-xl border-t border-white/20 transition-all duration-300 ${
-        isChatOpen ? (isMobile ? 'h-40' : 'h-64') : (isMobile ? 'h-12' : 'h-14')
-      }`}>
-        {/* Chat Header - Entire bar is clickable */}
-        <div 
-          onClick={toggleChat}
-          className={`flex items-center justify-between border-b border-white/10 cursor-pointer hover:bg-white/5 transition-colors ${
-            isMobile ? 'p-2' : 'p-4'
-          }`}
-        >
-          <div className="flex items-center space-x-3">
-            <Bot className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} text-blue-400`} />
-            <span className={`text-white font-medium ${isMobile ? 'text-sm' : ''}`}>AI Assistant</span>
-          </div>
-          
-          {/* Toggle Icon - Right side */}
-          <div className="bg-blue-500 text-white rounded-full shadow-lg transition-all duration-200"
-               style={{ padding: isMobile ? '0.375rem' : '0.5rem' }}>
-            {isChatOpen ? <ChevronDown className={isMobile ? "w-3 h-3" : "w-4 h-4"} /> : <ChevronUp className={isMobile ? "w-3 h-3" : "w-4 h-4"} />}
-          </div>
-        </div>
 
-        {/* Chat Messages */}
-        {isChatOpen && (
-          <div 
-                          className={`flex-1 overflow-y-auto space-y-4 ${
-                isMobile ? 'p-2 max-h-40' : 'p-4 max-h-48'
-              }`}
-            onClick={(e) => e.stopPropagation()} // Prevent chat toggle when clicking messages
-          >
-            {chatMessages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                <div
-                  className={`px-3 py-2 rounded-lg ${
-                    message.type === 'user'
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-white/10 text-white border border-white/20'
-                  } ${isMobile ? 'max-w-[80%]' : 'max-w-xs lg:max-w-md'}`}
-                >
-                  <p className={isMobile ? 'text-xs' : 'text-sm'}>{message.content}</p>
-                  <p className={`text-xs opacity-70 mt-1 ${isMobile ? 'text-xs' : ''}`}>
-                    <TimeDisplay timestamp={message.timestamp} />
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Chat Input */}
-        <div 
-          className={`border-t border-white/10 ${isMobile ? 'p-2' : 'p-4'}`}
-          onClick={(e) => e.stopPropagation()} // Prevent chat toggle when clicking input area
-        >
-          <div className="flex items-center space-x-2">
-            <input
-              type="text"
-              placeholder={isMobile ? "Ask me anything..." : "Ask me to create organizations, manage workflows, or automate processes..."}
-              className={`flex-1 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                isMobile ? 'px-3 py-1.5 text-xs' : 'px-4 py-2'
-              }`}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter' && e.currentTarget.value.trim()) {
-                  sendMessage(e.currentTarget.value.trim())
-                  e.currentTarget.value = ''
-                }
-              }}
-            />
-            <button
-              onClick={() => {
-                const input = document.querySelector('input[placeholder*="Ask me"]') as HTMLInputElement
-                if (input && input.value.trim()) {
-                  sendMessage(input.value.trim())
-                  input.value = ''
-                }
-              }}
-              className={`bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors ${
-                isMobile ? 'p-1.5' : 'p-2'
-              }`}
-            >
-              <Send className={isMobile ? "w-3 h-3" : "w-4 h-4"} />
-            </button>
-          </div>
-        </div>
-      </div>
 
       {/* Node Details Modal */}
       {selectedNodeDetails && workflow.nodes.find(n => n.id === selectedNodeDetails) && (

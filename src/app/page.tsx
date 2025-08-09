@@ -339,7 +339,7 @@ interface Role {
 
 interface WorkflowNode {
   id: string
-  type: 'payment' | 'contract' | 'task' | 'decision' | 'milestone' | 'team' | 'kpi' | 'employee' | 'deliverable' | 'asset' | 'mint' | 'payroll' | 'production' | 'marketing' | 'sales' | 'legal' | 'finance' | 'hr' | 'it' | 'operations' | 'api' | 'database' | 'loop' | 'condition' | 'trigger' | 'webhook' | 'email' | 'sms' | 'notification' | 'approval' | 'review' | 'timer' | 'counter' | 'calculator' | 'transformer' | 'validator' | 'aggregator' | 'filter' | 'sorter' | 'merger' | 'splitter' | 'gateway' | 'service' | 'function' | 'script' | 'organization' | 'role' | 'member' | 'instrument' | 'integration' | 'switch' | 'router' | 'delay' | 'queue' | 'batch' | 'parallel' | 'sequence' | 'retry'
+  type: 'payment' | 'contract' | 'task' | 'decision' | 'milestone' | 'team' | 'kpi' | 'employee' | 'deliverable' | 'asset' | 'mint' | 'payroll' | 'production' | 'marketing' | 'sales' | 'legal' | 'finance' | 'hr' | 'it' | 'operations' | 'api' | 'database' | 'loop' | 'condition' | 'trigger' | 'webhook' | 'email' | 'sms' | 'notification' | 'approval' | 'review' | 'timer' | 'counter' | 'calculator' | 'transformer' | 'validator' | 'aggregator' | 'filter' | 'sorter' | 'merger' | 'splitter' | 'gateway' | 'service' | 'function' | 'script' | 'organization' | 'role' | 'member' | 'instrument' | 'integration' | 'switch' | 'router' | 'delay' | 'queue' | 'batch' | 'parallel' | 'sequence' | 'retry' | 'ai-agent' | 'instagram' | 'snapchat' | 'threads' | 'twitter' | 'facebook' | 'linkedin' | 'tiktok' | 'youtube' | 'discord' | 'telegram' | 'whatsapp' | 'reddit'
   name: string
   description: string
   x: number
@@ -1967,6 +1967,19 @@ export default function Dashboard() {
       case 'parallel': return <Copy className={iconSize} />
       case 'sequence': return <ArrowRight className={iconSize} />
       case 'retry': return <RefreshCw className={iconSize} />
+      case 'ai-agent': return <Bot className={iconSize} />
+      case 'instagram': return <Users className={iconSize} />
+      case 'snapchat': return <MessageSquare className={iconSize} />
+      case 'threads': return <MessageSquare className={iconSize} />
+      case 'twitter': return <MessageSquare className={iconSize} />
+      case 'facebook': return <Users className={iconSize} />
+      case 'linkedin': return <Users className={iconSize} />
+      case 'tiktok': return <Play className={iconSize} />
+      case 'youtube': return <Play className={iconSize} />
+      case 'discord': return <MessageSquare className={iconSize} />
+      case 'telegram': return <Send className={iconSize} />
+      case 'whatsapp': return <MessageSquare className={iconSize} />
+      case 'reddit': return <MessageSquare className={iconSize} />
       default: return <Circle className={iconSize} />
     }
   }
@@ -4269,6 +4282,19 @@ function WorkflowView({
       case 'parallel': return <Copy className={`${iconSize} text-blue-400`} />
       case 'sequence': return <ArrowRight className={`${iconSize} text-green-400`} />
       case 'retry': return <RefreshCw className={`${iconSize} text-red-400`} />
+      case 'ai-agent': return <Bot className={`${iconSize} text-blue-500`} />
+      case 'instagram': return <Users className={`${iconSize} text-pink-500`} />
+      case 'snapchat': return <MessageSquare className={`${iconSize} text-yellow-400`} />
+      case 'threads': return <MessageSquare className={`${iconSize} text-gray-800`} />
+      case 'twitter': return <MessageSquare className={`${iconSize} text-blue-400`} />
+      case 'facebook': return <Users className={`${iconSize} text-blue-600`} />
+      case 'linkedin': return <Users className={`${iconSize} text-blue-700`} />
+      case 'tiktok': return <Play className={`${iconSize} text-red-500`} />
+      case 'youtube': return <Play className={`${iconSize} text-red-600`} />
+      case 'discord': return <MessageSquare className={`${iconSize} text-indigo-500`} />
+      case 'telegram': return <Send className={`${iconSize} text-blue-500`} />
+      case 'whatsapp': return <MessageSquare className={`${iconSize} text-green-500`} />
+      case 'reddit': return <MessageSquare className={`${iconSize} text-orange-600`} />
       default: return getNodeIcon(type)
     }
   }
@@ -4286,6 +4312,7 @@ function WorkflowView({
     { type: 'role' as const, name: 'Role', icon: getColoredNodeIcon('role'), category: 'Business' },
     { type: 'member' as const, name: 'Member', icon: getColoredNodeIcon('member'), category: 'Business' },
     { type: 'instrument' as const, name: 'Instrument', icon: getColoredNodeIcon('instrument'), category: 'Business' },
+    { type: 'ai-agent' as const, name: 'AI Agent', icon: getColoredNodeIcon('ai-agent'), category: 'Business' },
     
     // Integrations
     { type: 'integration' as const, name: 'Integration', icon: getColoredNodeIcon('integration'), category: 'Integration' },
@@ -4314,7 +4341,21 @@ function WorkflowView({
     // Process Management
     { type: 'approval' as const, name: 'Approval', icon: getColoredNodeIcon('approval'), category: 'Process' },
     { type: 'review' as const, name: 'Review', icon: getColoredNodeIcon('review'), category: 'Process' },
-    { type: 'timer' as const, name: 'Timer', icon: getColoredNodeIcon('timer'), category: 'Process' }
+    { type: 'timer' as const, name: 'Timer', icon: getColoredNodeIcon('timer'), category: 'Process' },
+    
+    // Social Media Platforms
+    { type: 'instagram' as const, name: 'Instagram', icon: getColoredNodeIcon('instagram'), category: 'Socials' },
+    { type: 'snapchat' as const, name: 'Snapchat', icon: getColoredNodeIcon('snapchat'), category: 'Socials' },
+    { type: 'threads' as const, name: 'Threads', icon: getColoredNodeIcon('threads'), category: 'Socials' },
+    { type: 'twitter' as const, name: 'Twitter/X', icon: getColoredNodeIcon('twitter'), category: 'Socials' },
+    { type: 'facebook' as const, name: 'Facebook', icon: getColoredNodeIcon('facebook'), category: 'Socials' },
+    { type: 'linkedin' as const, name: 'LinkedIn', icon: getColoredNodeIcon('linkedin'), category: 'Socials' },
+    { type: 'tiktok' as const, name: 'TikTok', icon: getColoredNodeIcon('tiktok'), category: 'Socials' },
+    { type: 'youtube' as const, name: 'YouTube', icon: getColoredNodeIcon('youtube'), category: 'Socials' },
+    { type: 'discord' as const, name: 'Discord', icon: getColoredNodeIcon('discord'), category: 'Socials' },
+    { type: 'telegram' as const, name: 'Telegram', icon: getColoredNodeIcon('telegram'), category: 'Socials' },
+    { type: 'whatsapp' as const, name: 'WhatsApp', icon: getColoredNodeIcon('whatsapp'), category: 'Socials' },
+    { type: 'reddit' as const, name: 'Reddit', icon: getColoredNodeIcon('reddit'), category: 'Socials' }
   ]
 
   const handleCanvasClick = (e: React.MouseEvent) => {
@@ -4502,7 +4543,7 @@ function WorkflowView({
           <div className={`transition-all duration-300 ${
             isPaletteCollapsed ? 'opacity-0 max-h-0' : 'opacity-100'
           } overflow-y-scroll scrollbar-always-visible space-y-1`}>
-            {['Basic', 'Business', 'Integration', 'Communication', 'Logic', 'Process'].map((category) => (
+            {['Basic', 'Business', 'Integration', 'Communication', 'Logic', 'Process', 'Socials'].map((category) => (
               <div key={category}>
                 <div className="text-xs text-gray-500 px-1 py-1">{category}</div>
                 <div className="grid grid-cols-2 gap-1">

@@ -4668,8 +4668,8 @@ function WorkflowView({
 
         {/* Add Nodes Palette */}
         <div className={`bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl transition-all duration-300 p-2 ${
-          isPaletteCollapsed ? 'max-h-12' : 'max-h-[40rem]'
-        } overflow-hidden`}>
+          isPaletteCollapsed ? 'max-h-12 overflow-hidden' : 'max-h-[40rem]'
+        }`}>
           {/* Palette Header with Collapse Button */}
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center space-x-2">
@@ -7099,10 +7099,60 @@ function InstrumentsView({ instruments, organizations, selectedOrganization, onC
     { id: '33', name: 'Stablecoin', category: 'Digital Currency', type: 'utility', symbol: 'STBL', description: 'USD-pegged stablecoin', totalSupply: 1000000000, decimals: 18, blockchain: 'Bitcoin SV', icon: '💵' },
     { id: '34', name: 'Central Bank Digital Currency', category: 'Digital Currency', type: 'utility', symbol: 'CBDC', description: 'Government-issued digital currency', totalSupply: 10000000000, decimals: 8, blockchain: 'Bitcoin SV', icon: '🏦' },
     { id: '35', name: 'DeFi Protocol Token', category: 'DeFi', type: 'governance', symbol: 'DEFI', description: 'Decentralized finance protocol token', totalSupply: 100000000, decimals: 18, blockchain: 'Bitcoin SV', icon: '🔗' },
-    { id: '36', name: 'Yield Farming Token', category: 'DeFi', type: 'reward', symbol: 'YILD', description: 'Liquidity mining reward token', totalSupply: 50000000, decimals: 18, blockchain: 'Bitcoin SV', icon: '🌾' }
+    { id: '36', name: 'Yield Farming Token', category: 'DeFi', type: 'reward', symbol: 'YILD', description: 'Liquidity mining reward token', totalSupply: 50000000, decimals: 18, blockchain: 'Bitcoin SV', icon: '🌾' },
+    
+    // Cash & Cash Equivalents
+    { id: '37', name: 'Cash', category: 'Cash & Equivalents', type: 'utility', symbol: 'CASH', description: 'Digital cash equivalent for transactions', totalSupply: 100000000, decimals: 2, blockchain: 'Bitcoin SV', icon: '💵' },
+    { id: '38', name: 'Money Market Fund', category: 'Cash & Equivalents', type: 'utility', symbol: 'MMF', description: 'Money market mutual fund shares', totalSupply: 10000000, decimals: 4, blockchain: 'Bitcoin SV', icon: '🏦' },
+    { id: '39', name: 'Treasury Bills', category: 'Cash & Equivalents', type: 'debt', symbol: 'TBILL', description: 'Short-term government securities', totalSupply: 50000, decimals: 2, blockchain: 'Bitcoin SV', icon: '🏛️' },
+    { id: '40', name: 'Commercial Paper', category: 'Cash & Equivalents', type: 'debt', symbol: 'CP', description: 'Short-term corporate debt', totalSupply: 25000, decimals: 2, blockchain: 'Bitcoin SV', icon: '📋' },
+    
+    // Coupons & Vouchers
+    { id: '41', name: 'Discount Coupon', category: 'Coupons', type: 'reward', symbol: 'DISC', description: 'Discount coupon for products/services', totalSupply: 1000000, decimals: 0, blockchain: 'Bitcoin SV', icon: '🎫' },
+    { id: '42', name: 'Gift Voucher', category: 'Coupons', type: 'reward', symbol: 'GIFT', description: 'Gift voucher with monetary value', totalSupply: 100000, decimals: 2, blockchain: 'Bitcoin SV', icon: '🎁' },
+    { id: '43', name: 'Store Credit', category: 'Coupons', type: 'reward', symbol: 'STORE', description: 'Store credit for future purchases', totalSupply: 500000, decimals: 2, blockchain: 'Bitcoin SV', icon: '🏪' },
+    { id: '44', name: 'Promotional Code', category: 'Coupons', type: 'reward', symbol: 'PROMO', description: 'Promotional discount code', totalSupply: 2000000, decimals: 0, blockchain: 'Bitcoin SV', icon: '🔖' },
+    
+    // Insurance & Protection
+    { id: '45', name: 'Insurance Policy', category: 'Insurance', type: 'hybrid', symbol: 'INS', description: 'Digital insurance policy token', totalSupply: 10000, decimals: 0, blockchain: 'Bitcoin SV', icon: '🛡️' },
+    { id: '46', name: 'Warranty Token', category: 'Insurance', type: 'hybrid', symbol: 'WARR', description: 'Product warranty protection token', totalSupply: 100000, decimals: 0, blockchain: 'Bitcoin SV', icon: '✅' },
+    { id: '47', name: 'Health Insurance', category: 'Insurance', type: 'hybrid', symbol: 'HLTH', description: 'Health insurance coverage token', totalSupply: 50000, decimals: 0, blockchain: 'Bitcoin SV', icon: '🏥' },
+    { id: '48', name: 'Life Insurance', category: 'Insurance', type: 'hybrid', symbol: 'LIFE', description: 'Life insurance policy token', totalSupply: 25000, decimals: 0, blockchain: 'Bitcoin SV', icon: '👨‍👩‍👧‍👦' },
+    
+    // Commodities & Physical Assets
+    { id: '49', name: 'Gold Token', category: 'Commodities', type: 'utility', symbol: 'GOLD', description: 'Digital representation of physical gold', totalSupply: 1000000, decimals: 8, blockchain: 'Bitcoin SV', icon: '🥇' },
+    { id: '50', name: 'Silver Token', category: 'Commodities', type: 'utility', symbol: 'SILV', description: 'Digital representation of physical silver', totalSupply: 10000000, decimals: 8, blockchain: 'Bitcoin SV', icon: '🥈' },
+    { id: '51', name: 'Oil Futures', category: 'Commodities', type: 'derivative', symbol: 'OIL', description: 'Crude oil futures contract', totalSupply: 10000, decimals: 4, blockchain: 'Bitcoin SV', icon: '🛢️' },
+    { id: '52', name: 'Agricultural Futures', category: 'Commodities', type: 'derivative', symbol: 'AGR', description: 'Agricultural commodity futures', totalSupply: 50000, decimals: 4, blockchain: 'Bitcoin SV', icon: '🌾' },
+    { id: '53', name: 'Diamond Token', category: 'Commodities', type: 'utility', symbol: 'DIAM', description: 'Tokenized diamond ownership', totalSupply: 10000, decimals: 4, blockchain: 'Bitcoin SV', icon: '💎' },
+    
+    // Alternative Investments
+    { id: '54', name: 'Private Equity', category: 'Alternative', type: 'equity', symbol: 'PE', description: 'Private equity investment share', totalSupply: 10000, decimals: 0, blockchain: 'Bitcoin SV', icon: '🏢' },
+    { id: '55', name: 'Hedge Fund Share', category: 'Alternative', type: 'equity', symbol: 'HF', description: 'Hedge fund investment share', totalSupply: 1000, decimals: 4, blockchain: 'Bitcoin SV', icon: '📈' },
+    { id: '56', name: 'Venture Capital', category: 'Alternative', type: 'equity', symbol: 'VC', description: 'Venture capital fund share', totalSupply: 5000, decimals: 0, blockchain: 'Bitcoin SV', icon: '🚀' },
+    { id: '57', name: 'Art Investment', category: 'Alternative', type: 'equity', symbol: 'ART', description: 'Fractionalized art ownership', totalSupply: 1000, decimals: 0, blockchain: 'Bitcoin SV', icon: '🎨' },
+    { id: '58', name: 'Wine Investment', category: 'Alternative', type: 'equity', symbol: 'WINE', description: 'Fine wine investment token', totalSupply: 5000, decimals: 0, blockchain: 'Bitcoin SV', icon: '🍷' },
+    
+    // Structured Products
+    { id: '59', name: 'Certificate of Deposit', category: 'Structured', type: 'debt', symbol: 'CD', description: 'Time deposit with fixed interest rate', totalSupply: 10000, decimals: 2, blockchain: 'Bitcoin SV', icon: '📜' },
+    { id: '60', name: 'Structured Note', category: 'Structured', type: 'hybrid', symbol: 'STRUC', description: 'Structured investment product', totalSupply: 1000, decimals: 4, blockchain: 'Bitcoin SV', icon: '🏗️' },
+    { id: '61', name: 'Asset-Backed Security', category: 'Structured', type: 'debt', symbol: 'ABS', description: 'Security backed by pool of assets', totalSupply: 5000, decimals: 4, blockchain: 'Bitcoin SV', icon: '📊' },
+    { id: '62', name: 'Mortgage-Backed Security', category: 'Structured', type: 'debt', symbol: 'MBS', description: 'Mortgage-backed investment security', totalSupply: 2500, decimals: 4, blockchain: 'Bitcoin SV', icon: '🏠' },
+    
+    // Subscription & Membership
+    { id: '63', name: 'Membership Token', category: 'Membership', type: 'utility', symbol: 'MEMBER', description: 'Exclusive membership access token', totalSupply: 10000, decimals: 0, blockchain: 'Bitcoin SV', icon: '🎖️' },
+    { id: '64', name: 'Subscription Pass', category: 'Membership', type: 'utility', symbol: 'SUB', description: 'Recurring subscription access pass', totalSupply: 50000, decimals: 0, blockchain: 'Bitcoin SV', icon: '📅' },
+    { id: '65', name: 'VIP Access Token', category: 'Membership', type: 'utility', symbol: 'VIP', description: 'Premium VIP access privileges', totalSupply: 1000, decimals: 0, blockchain: 'Bitcoin SV', icon: '👑' },
+    { id: '66', name: 'Season Pass', category: 'Membership', type: 'utility', symbol: 'SEASON', description: 'Seasonal access and benefits', totalSupply: 25000, decimals: 0, blockchain: 'Bitcoin SV', icon: '🎪' },
+    
+    // NFTs & Digital Collectibles
+    { id: '67', name: 'Digital Collectible', category: 'NFT', type: 'utility', symbol: 'NFT', description: 'Unique digital collectible token', totalSupply: 10000, decimals: 0, blockchain: 'Bitcoin SV', icon: '🎨' },
+    { id: '68', name: 'Gaming Asset', category: 'NFT', type: 'utility', symbol: 'GAME', description: 'In-game digital asset NFT', totalSupply: 100000, decimals: 0, blockchain: 'Bitcoin SV', icon: '🎮' },
+    { id: '69', name: 'Event Ticket', category: 'NFT', type: 'utility', symbol: 'TICK', description: 'Digital event ticket NFT', totalSupply: 50000, decimals: 0, blockchain: 'Bitcoin SV', icon: '🎫' },
+    { id: '70', name: 'Certificate Token', category: 'NFT', type: 'utility', symbol: 'CERT', description: 'Digital certificate or diploma', totalSupply: 25000, decimals: 0, blockchain: 'Bitcoin SV', icon: '📜' }
   ]
 
-  const instrumentCategories = ['All', 'Equity', 'Debt', 'Utility', 'Governance', 'Reward', 'Derivative', 'Hybrid', 'Environmental', 'Rights', 'Digital Currency', 'DeFi']
+  const instrumentCategories = ['All', 'Equity', 'Debt', 'Utility', 'Governance', 'Reward', 'Derivative', 'Hybrid', 'Environmental', 'Rights', 'Digital Currency', 'DeFi', 'Cash & Equivalents', 'Coupons', 'Insurance', 'Commodities', 'Alternative', 'Structured', 'Membership', 'NFT']
 
   const applyInstrumentTemplate = (template: typeof instrumentTemplates[0]) => {
     setFormData({

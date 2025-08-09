@@ -3162,7 +3162,7 @@ export default function Dashboard() {
       {/* Main Content */}
       <div className="flex-1 relative min-h-0">
         {/* Header */}
-        <div ref={headerRef} className={`absolute top-0 left-0 right-0 z-20 ${isMobile ? 'p-3' : 'p-6'}`}>
+        <div id="app-header" ref={headerRef} className={`absolute top-0 left-0 right-0 z-20 ${isMobile ? 'p-3' : 'p-6'}`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               {isMobile ? (
@@ -5301,6 +5301,21 @@ function WorkflowView({
   const [isPanning, setIsPanning] = React.useState(false)
   const [panStart, setPanStart] = React.useState({ x: 0, y: 0 })
   const [mobileNodeMenuOpen, setMobileNodeMenuOpen] = React.useState(false)
+  const [mobileAddTopLocal, setMobileAddTopLocal] = React.useState(96)
+
+  React.useEffect(() => {
+    const updateTop = () => {
+      if (typeof window === 'undefined') return
+      const header = document.getElementById('app-header')
+      if (header) {
+        const rect = header.getBoundingClientRect()
+        setMobileAddTopLocal(rect.bottom + 8)
+      }
+    }
+    updateTop()
+    window.addEventListener('resize', updateTop)
+    return () => window.removeEventListener('resize', updateTop)
+  }, [isMobile])
 
   const handleKeyDown = (e: KeyboardEvent) => {
     
@@ -5424,7 +5439,7 @@ function WorkflowView({
 
       {/* Mobile Add Node sticky bar */}
       {isMobile && (
-        <div className="fixed z-40 left-3 right-3" style={{ top: mobileAddTop }}>
+        <div className="fixed z-40 left-3 right-3" style={{ top: mobileAddTopLocal }}>
           <div className="flex items-center justify-center">
             <button
               onClick={() => setMobileNodeMenuOpen(v => !v)}

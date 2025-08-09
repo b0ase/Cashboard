@@ -5409,7 +5409,7 @@ function WorkflowView({
 
       {/* Mobile Add Node sticky bar */}
       {isMobile && (
-        <div className="fixed z-40 left-3 right-3 top-16">
+        <div className="fixed z-40 left-3 right-3 top-24">
           <div className="flex items-center justify-center">
             <button
               onClick={() => setMobileNodeMenuOpen(v => !v)}

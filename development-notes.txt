@@ -1,3 +1,7 @@
 "Add Node" pallette should be draggable 
 New Nodes should have large coloured icons 
 The wallet page needs HandCash and Yours wallet connections, that's all. (You could possibly add a solana wallet) 
+(Templates vs Created items. All things start as templates to be edited)
+Wallet Connections 
+Click into wallet to see assets 
+Demo video needs hella work  

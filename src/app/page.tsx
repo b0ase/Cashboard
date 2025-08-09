@@ -4668,7 +4668,7 @@ function WorkflowView({
 
         {/* Add Nodes Palette */}
         <div className={`bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl transition-all duration-300 p-2 ${
-          isPaletteCollapsed ? 'max-h-12 overflow-hidden' : 'max-h-[40rem]'
+          isPaletteCollapsed ? 'max-h-12 overflow-hidden' : 'max-h-[40rem] overflow-hidden'
         }`}>
           {/* Palette Header with Collapse Button */}
           <div className="flex items-center justify-between mb-2">

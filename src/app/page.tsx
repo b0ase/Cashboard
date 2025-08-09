@@ -3437,7 +3437,7 @@ function FloatingAIAssistant({
         <div className={`fixed z-50 bg-black/95 backdrop-blur-xl border border-white/20 rounded-xl shadow-2xl transition-all duration-300 ${
           isMobile 
             ? 'bottom-4 right-4 left-4 h-80' 
-            : 'bottom-6 right-6 w-96 h-96'
+            : 'bottom-6 right-6 left-6 h-96'
         }`}>
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-white/20">

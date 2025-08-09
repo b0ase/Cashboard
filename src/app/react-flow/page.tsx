@@ -200,6 +200,11 @@ export default function ReactFlowDemoPage() {
 
   const nodeTypesMemo = useMemo(() => nodeTypes, [])
 
+  const handleSelectionChange = useCallback((sel: { nodes?: { id: string }[] } | null) => {
+    const next = (sel?.nodes || []).map((n) => n.id)
+    setSelectedNodeIds((prev) => (prev.length === next.length && prev.every((id, i) => id === next[i])) ? prev : next)
+  }, [])
+
   // Reflect connect mode into node data for handles visibility
   const nodesWithMode = useMemo(
     () => nodes.map((n) => ({ ...n, data: { ...n.data, isConnectMode: currentTool === 'connect' } })),
@@ -221,7 +226,7 @@ export default function ReactFlowDemoPage() {
               nodeTypes={nodeTypesMemo}
               fitView
               snapToGrid={snapToGrid}
-              onSelectionChange={(sel) => setSelectedNodeIds(sel?.nodes?.map((n) => n.id) || [])}
+              onSelectionChange={handleSelectionChange}
             >
               <Background color="rgba(255,255,255,0.1)" />
               <MiniMap pannable zoomable style={{ background: 'rgba(0,0,0,0.6)' }} />

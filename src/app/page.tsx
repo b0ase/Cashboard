@@ -2889,7 +2889,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden flex">
+    <div className="min-h-screen bg-black relative overflow-x-hidden overflow-y-auto flex">
       {/* Animated background gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900/20 to-black">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.02),transparent_50%)]"></div>

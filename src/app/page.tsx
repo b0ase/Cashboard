@@ -413,8 +413,9 @@ interface ChatMessage {
 }
 
 interface AppState {
-  currentView: 'workflow' | 'organizations' | 'roles' | 'members' | 'instruments' | 'contracts' | 'wallets' | 'security' | 'integrations' | 'settings' | 'profile' | 'billing'
+  currentView: 'workflow' | 'organizations' | 'roles' | 'members' | 'instruments' | 'contracts' | 'wallets' | 'security' | 'integrations' | 'agents' | 'settings' | 'profile' | 'billing'
   selectedOrganization: string | null
+  selectedMember: HandCashHandle | null
   sidebarOpen: boolean
   isMobile: boolean
   organizations: Organization[]
@@ -624,6 +625,7 @@ export default function Dashboard() {
   const [appState, setAppState] = useState<AppState>({
     currentView: 'workflow',
     selectedOrganization: null,
+    selectedMember: null,
     sidebarOpen: true,
     organizations: [
       {
@@ -2568,6 +2570,32 @@ export default function Dashboard() {
     setAppState(prev => ({ ...prev, currentView: view }))
   }
 
+  // Function to navigate to member modal from team nodes
+  const navigateToMember = (memberName: string) => {
+    // Switch to members view
+    setCurrentView('members')
+    
+    // Find the member by name in the current organization
+    const currentOrg = organizations.find(org => org.id === selectedOrganization)
+    if (currentOrg) {
+      const member = currentOrg.members.find(m => 
+        m.displayName === memberName || 
+        m.handle === memberName || 
+        `${m.firstName} ${m.lastName}` === memberName
+      )
+      
+      if (member) {
+        // We'll need to trigger the member modal opening
+        // This will be handled by the MembersView component
+        setAppState(prev => ({ 
+          ...prev, 
+          currentView: 'members',
+          selectedMember: member // We'll add this to AppState
+        }))
+      }
+    }
+  }
+
   const toggleSidebar = () => {
     setAppState(prev => ({ ...prev, sidebarOpen: !prev.sidebarOpen }))
   }
@@ -2708,13 +2736,13 @@ export default function Dashboard() {
         <div className="relative min-h-screen w-64 bg-black/80 backdrop-blur-xl border-r border-white/20 z-30 flex-shrink-0">
           <div className="p-6">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-xl font-bold text-white">$CASHBOARD</h2>
               <button
                 onClick={toggleSidebar}
                 className="text-gray-400 hover:text-white transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
+              <h2 className="text-xl font-bold text-white">$CASHBOARD</h2>
             </div>
             
             {/* Navigation */}
@@ -2770,6 +2798,20 @@ export default function Dashboard() {
                 <div className="flex items-center space-x-3">
                   <Crown className="w-5 h-5" />
                   <span>Roles</span>
+                </div>
+              </button>
+              
+              <button
+                onClick={() => setCurrentView('agents')}
+                className={`w-full text-left px-4 py-3 rounded-lg transition-all ${
+                  currentView === 'agents' 
+                    ? 'bg-white/20 text-white' 
+                    : 'text-gray-400 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <div className="flex items-center space-x-3">
+                  <Bot className="w-5 h-5" />
+                  <span>Agents</span>
                 </div>
               </button>
               
@@ -2896,7 +2938,7 @@ export default function Dashboard() {
 
             {/* Selected Organization */}
             <div className="mt-8">
-              {selectedOrganization ? (
+              {selectedOrganization && (
                 <div className="p-4 bg-white/10 rounded-lg">
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="text-sm font-medium text-white">Current Organization</h3>
@@ -2908,15 +2950,9 @@ export default function Dashboard() {
                       <X className="w-4 h-4" />
                     </button>
                   </div>
-                <p className="text-gray-300 text-sm">
-                  {organizations.find(org => org.id === selectedOrganization)?.name}
-                </p>
-              </div>
-              ) : (
-                <div className="p-4 bg-white/5 rounded-lg border border-white/10">
-                  <h3 className="text-sm font-medium text-gray-400 mb-1">Organization</h3>
-                  <p className="text-gray-500 text-xs">No organization selected</p>
-                  <p className="text-gray-500 text-xs mt-1">Create global items or select an organization</p>
+                  <p className="text-gray-300 text-sm">
+                    {organizations.find(org => org.id === selectedOrganization)?.name}
+                  </p>
                 </div>
               )}
             </div>
@@ -3054,46 +3090,10 @@ export default function Dashboard() {
                     <ZoomIn className={isMobile ? "w-3 h-3" : "w-4 h-4"} />
                   </button>
                 </div>
-                
-                {/* Canvas Tools */}
-                <div className="flex items-center space-x-1 ml-4">
-                  {[
-                    { id: 'select', name: 'Select', icon: <MousePointer className={isMobile ? "w-3 h-3" : "w-4 h-4"} />, description: 'Select and move nodes', shortcut: 'V', active: currentWorkflow.currentTool === 'select', color: 'blue' },
-                    { id: 'pan', name: 'Pan', icon: <Hand className={isMobile ? "w-3 h-3" : "w-4 h-4"} />, description: 'Pan around the canvas (or hold Space)', shortcut: 'H', active: currentWorkflow.currentTool === 'pan', color: 'green' },
-                    { id: 'connect', name: 'Connect', icon: <Link className={isMobile ? "w-3 h-3" : "w-4 h-4"} />, description: 'Connect nodes together', shortcut: 'C', active: currentWorkflow.currentTool === 'connect', color: 'purple' },
-                    { id: 'delete', name: 'Delete', icon: <Trash2 className={isMobile ? "w-3 h-3" : "w-4 h-4"} />, description: 'Delete nodes and connections', shortcut: 'X', active: currentWorkflow.currentTool === 'delete', color: 'red' },
-                    { id: 'zoom', name: 'Zoom', icon: <ZoomIn className={isMobile ? "w-3 h-3" : "w-4 h-4"} />, description: 'Zoom in/out', shortcut: 'Z', active: currentWorkflow.currentTool === 'zoom', color: 'yellow' }
-                  ].map((tool) => (
-                    <button
-                      key={tool.id}
-                      onClick={() => handleToolChange(tool.id as WorkflowState['currentTool'])}
-                      className={`rounded-lg flex items-center space-x-1 transition-all relative border ${
-                        tool.active 
-                          ? `bg-${tool.color}-500/20 text-${tool.color}-400 border-${tool.color}-400/30`
-                          : 'bg-white/10 text-gray-400 hover:text-white hover:bg-white/20 border-white/20'
-                      } ${isMobile ? 'p-1' : 'p-2'}`}
-                      title={`${tool.description}${tool.shortcut ? ` (${tool.shortcut})` : ''}`}
-                    >
-                      {tool.icon}
-                      {tool.active && (
-                        <div className={`absolute -top-1 -right-1 w-1.5 h-1.5 bg-${tool.color}-400 rounded-full`}></div>
-                      )}
-                    </button>
-                  ))}
-                </div>
+
                 
                 {/* Canvas Info & Controls */}
                 <div className="flex items-center space-x-1 ml-4">
-                  {/* Node Count */}
-                  <div className={`bg-white/10 border border-white/20 rounded-lg flex items-center space-x-1 ${
-                    isMobile ? 'px-2 py-1' : 'px-3 py-2'
-                  }`}>
-                    <span className={`text-gray-400 ${isMobile ? 'text-xs' : 'text-xs'}`}>Nodes</span>
-                    <span className={`text-white font-medium ${isMobile ? 'text-xs' : 'text-sm'}`}>
-                      {currentWorkflow.nodes.length}
-                    </span>
-                  </div>
-                  
                   {/* Canvas Settings */}
                   <button
                     onClick={() => handleToolChange('select')}
@@ -3118,15 +3118,6 @@ export default function Dashboard() {
                       <Clipboard className={isMobile ? "w-3 h-3" : "w-4 h-4"} />
                     </button>
                   )}
-                  
-                  {/* Quick Pan Indicator */}
-                  <div className={`bg-white/10 border border-white/20 rounded-lg flex items-center space-x-1 ${
-                    isMobile ? 'px-2 py-1' : 'px-3 py-2'
-                  }`}>
-                    <span className={`text-gray-400 ${isMobile ? 'text-xs' : 'text-xs'}`}>Pan:</span>
-                    <span className={`bg-white/20 px-1 rounded ${isMobile ? 'text-xs' : 'text-xs'} text-white`}>Space</span>
-                    <Hand className="w-3 h-3 text-gray-400" />
-                  </div>
                   
                   {/* Selection Info */}
                   {currentWorkflow.selectedNodes && currentWorkflow.selectedNodes.length > 0 && (
@@ -3308,6 +3299,15 @@ export default function Dashboard() {
 
         {currentView === 'integrations' && (
           <IntegrationsView />
+        )}
+
+        {currentView === 'agents' && (
+          <AgentsView 
+            roles={roles}
+            onCreateAgent={createRole}
+            onUpdateAgent={updateRole}
+            onDeleteAgent={deleteRole}
+          />
         )}
 
         {currentView === 'settings' && (
@@ -4052,6 +4052,7 @@ function WorkflowView({
 
   // Node palette state
   const [isPaletteCollapsed, setIsPaletteCollapsed] = React.useState(false)
+  const [snapToGrid, setSnapToGrid] = React.useState(false)
   
 
   
@@ -4187,7 +4188,36 @@ function WorkflowView({
     })
   }
 
-  // Node types for the palette
+  // Helper function to get node border color based on type
+  const getNodeBorderColor = (type: string) => {
+    switch (type) {
+      case 'payment': return 'border-yellow-400/60'
+      case 'contract': return 'border-blue-400/60'
+      case 'task': return 'border-green-400/60'
+      case 'decision': return 'border-purple-400/60'
+      case 'milestone': return 'border-indigo-400/60'
+      case 'team': return 'border-pink-400/60'
+      case 'organization': return 'border-orange-400/60'
+      case 'role': return 'border-amber-400/60'
+      case 'member': return 'border-cyan-400/60'
+      case 'instrument': return 'border-emerald-400/60'
+      case 'integration': return 'border-violet-400/60'
+      case 'api': return 'border-blue-500/60'
+      case 'database': return 'border-gray-400/60'
+      case 'webhook': return 'border-teal-400/60'
+      case 'email': return 'border-red-400/60'
+      case 'sms': return 'border-green-500/60'
+      case 'notification': return 'border-yellow-500/60'
+      case 'loop': return 'border-blue-600/60'
+      case 'condition': return 'border-purple-500/60'
+      case 'trigger': return 'border-yellow-600/60'
+      case 'approval': return 'border-green-600/60'
+      case 'review': return 'border-orange-500/60'
+      case 'timer': return 'border-slate-400/60'
+      default: return 'border-white/20'
+    }
+  }
+
   // Helper function to get colored icons for the palette
   const getColoredNodeIcon = (type: string) => {
     const iconSize = "w-4 h-4"
@@ -4334,6 +4364,8 @@ function WorkflowView({
     }
   }
 
+
+
   const handleCanvasPanStart = (e: React.MouseEvent) => {
     // Allow panning in multiple scenarios:
     // 1. When spacebar is held (universal override)
@@ -4388,12 +4420,10 @@ function WorkflowView({
     <div className="absolute inset-0 top-24 flex flex-col">
 
       {/* Canvas Tools - Right Side */}
-      <div className="absolute top-2 right-4 z-40 flex flex-col space-y-2 w-64">
+      <div className="absolute z-40 flex flex-col space-y-2 w-64 top-2 right-4">
 
         {/* Add Nodes Palette */}
-        <div className={`bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl transition-all duration-300 ${
-          isPaletteCollapsed ? 'p-2' : 'p-2'
-        } ${
+        <div className={`bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl transition-all duration-300 p-2 ${
           // Auto-resize based on AI Assistant state and collapsed state
           isPaletteCollapsed 
             ? 'max-h-12' 
@@ -4404,6 +4434,7 @@ function WorkflowView({
           {/* Palette Header with Collapse Button */}
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center space-x-2">
+              <Grid className="w-3 h-3 text-gray-500" />
               <h3 className="text-xs font-medium text-gray-300 px-1">Add Nodes</h3>
               {isPaletteCollapsed && (
                 <span className="text-xs text-gray-500 bg-white/5 px-2 py-0.5 rounded">
@@ -4411,13 +4442,28 @@ function WorkflowView({
                 </span>
               )}
             </div>
-            <button
-              onClick={() => setIsPaletteCollapsed(!isPaletteCollapsed)}
-              className="text-gray-400 hover:text-white transition-colors p-1 rounded hover:bg-white/10"
-              title={isPaletteCollapsed ? 'Expand palette' : 'Collapse palette'}
-            >
-              {isPaletteCollapsed ? <ChevronDown className="w-3 h-3" /> : <ChevronUp className="w-3 h-3" />}
-            </button>
+            <div className="flex items-center space-x-1">
+              <button
+                onClick={() => setSnapToGrid(!snapToGrid)}
+                onMouseDown={(e) => e.stopPropagation()}
+                className={`text-xs p-1 rounded transition-colors ${
+                  snapToGrid 
+                    ? 'text-blue-400 bg-blue-400/20' 
+                    : 'text-gray-500 hover:text-gray-400'
+                }`}
+                title={`Grid snap: ${snapToGrid ? 'ON' : 'OFF'} (8px grid)`}
+              >
+                <Hash className="w-3 h-3" />
+              </button>
+              <button
+                onClick={() => setIsPaletteCollapsed(!isPaletteCollapsed)}
+                onMouseDown={(e) => e.stopPropagation()}
+                className="text-gray-400 hover:text-white transition-colors p-1 rounded hover:bg-white/10"
+                title={isPaletteCollapsed ? 'Expand palette' : 'Collapse palette'}
+              >
+                {isPaletteCollapsed ? <ChevronDown className="w-3 h-3" /> : <ChevronUp className="w-3 h-3" />}
+              </button>
+            </div>
           </div>
           
           {/* Palette Content */}
@@ -4476,7 +4522,7 @@ function WorkflowView({
       <div
         ref={boardRef}
         className={`flex-1 relative overflow-hidden transition-all duration-300 ${
-          isChatOpen ? (isMobile ? 'mb-64' : 'mb-96') : (isMobile ? 'mb-20' : 'mb-16')
+          isChatOpen ? (isMobile ? 'mb-48' : 'mb-80') : (isMobile ? 'mb-16' : 'mb-12')
         } ${
           isPanning ? 'cursor-grab active:cursor-grabbing' :
           workflow.currentTool === 'pan' ? 'cursor-grab active:cursor-grabbing' :
@@ -4610,9 +4656,9 @@ function WorkflowView({
           <div
             key={node.id}
             className={`absolute bg-black/60 backdrop-blur-xl border rounded-xl transition-all duration-300 shadow-2xl hover:shadow-white/5 group ${
-              isSelected ? 'border-blue-400/60 ring-2 ring-blue-400/30 shadow-blue-400/20' : 'border-white/20'
-            } ${
-              isConnecting ? 'ring-2 ring-green-400/50 shadow-green-400/20 border-green-400/60' : ''
+              isSelected ? 'border-blue-400/60 ring-2 ring-blue-400/30 shadow-blue-400/20' : 
+              isConnecting ? 'ring-2 ring-green-400/50 shadow-green-400/20 border-green-400/60' :
+              getNodeBorderColor(node.type)
             } ${
               workflow.currentTool === 'delete' ? 'hover:border-red-400/60 hover:ring-2 hover:ring-red-400/30' : ''
             } ${
@@ -4902,11 +4948,9 @@ function WorkflowView({
       })}
       </div>
 
-
-
       {/* AI Chat Bar */}
       <div className={`bg-black/90 backdrop-blur-xl border-t border-white/20 transition-all duration-300 ${
-        isChatOpen ? (isMobile ? 'h-64' : 'h-96') : (isMobile ? 'h-12' : 'h-16')
+        isChatOpen ? (isMobile ? 'h-48' : 'h-80') : (isMobile ? 'h-12' : 'h-16')
       }`}>
         {/* Chat Header - Entire bar is clickable */}
         <div 
@@ -5097,6 +5141,275 @@ function WorkflowView({
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+// Agents View Component
+function AgentsView({ 
+  roles, 
+  onCreateAgent, 
+  onUpdateAgent, 
+  onDeleteAgent 
+}: {
+  roles: Role[]
+  onCreateAgent: (name: string, description: string, icon: string, permissions: string[], shareAllocation: number, automationType: 'ai-agent' | 'hybrid' | 'workflow') => void
+  onUpdateAgent: (id: string, updates: Partial<Role>) => void
+  onDeleteAgent: (id: string) => void
+}) {
+  const [showCreateForm, setShowCreateForm] = useState(false)
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    icon: 'bot',
+    permissions: [] as string[],
+    defaultShareAllocation: 10,
+    automationType: 'ai-agent' as const,
+    aiPrompt: ''
+  })
+
+  // Filter to show only AI agents and hybrid roles
+  const agents = roles.filter(role => 
+    role.automationType === 'ai-agent' || 
+    (role.automationType === 'hybrid' && role.isAutomated)
+  )
+
+  const handleCreate = () => {
+    if (formData.name && formData.description) {
+      onCreateAgent(
+        formData.name,
+        formData.description,
+        formData.icon,
+        formData.permissions,
+        formData.defaultShareAllocation,
+        formData.automationType
+      )
+      setFormData({
+        name: '',
+        description: '',
+        icon: 'bot',
+        permissions: [],
+        defaultShareAllocation: 10,
+        automationType: 'ai-agent',
+        aiPrompt: ''
+      })
+      setShowCreateForm(false)
+    }
+  }
+
+  const availablePermissions = [
+    'admin', 'finance', 'operations', 'marketing', 'automation', 'data-analysis', 
+    'tech', 'workflow-creation', 'ai-training'
+  ]
+
+  const availableIcons = [
+    { id: 'bot', name: 'AI Agent' },
+    { id: 'trending-up', name: 'Growth' },
+    { id: 'bar-chart-3', name: 'Analytics' },
+    { id: 'shield', name: 'Security' },
+    { id: 'settings', name: 'Operations' },
+    { id: 'zap', name: 'Automation' }
+  ]
+
+  const getAgentIcon = (iconId: string) => {
+    switch (iconId) {
+      case 'bot': return <Bot className="w-5 h-5" />
+      case 'trending-up': return <TrendingUp className="w-5 h-5" />
+      case 'bar-chart-3': return <BarChart3 className="w-5 h-5" />
+      case 'shield': return <Shield className="w-5 h-5" />
+      case 'settings': return <Settings className="w-5 h-5" />
+      case 'zap': return <Zap className="w-5 h-5" />
+      default: return <Bot className="w-5 h-5" />
+    }
+  }
+
+  const getStatusColor = (agent: Role) => {
+    if (agent.isAutomated) {
+      return 'text-green-400'
+    }
+    return 'text-gray-400'
+  }
+
+  const getStatusText = (agent: Role) => {
+    if (agent.isAutomated) {
+      return 'Active'
+    }
+    return 'Inactive'
+  }
+
+  return (
+    <div className="absolute inset-0 top-24 p-6">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-white mb-2">AI Agents</h1>
+            <p className="text-gray-300">Manage your AI-powered automation agents • {agents.length} active agent{agents.length !== 1 ? 's' : ''}</p>
+          </div>
+          <button
+            onClick={() => setShowCreateForm(true)}
+            className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl flex items-center space-x-3 transition-all duration-300 shadow-lg hover:shadow-xl"
+          >
+            <Plus className="w-5 h-5" />
+            <span className="font-medium">Create Agent</span>
+          </button>
+        </div>
+
+        {/* Agents Grid */}
+        {agents.length === 0 ? (
+          <div className="text-center py-12">
+            <Bot className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-400 mb-2">No AI Agents Yet</h3>
+            <p className="text-gray-500 mb-6">Create your first AI agent to automate workflows and processes</p>
+            <button
+              onClick={() => setShowCreateForm(true)}
+              className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg transition-colors"
+            >
+              Create First Agent
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {agents.map((agent) => (
+              <div key={agent.id} className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-white/10 rounded-lg">
+                      {getAgentIcon(agent.icon)}
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-white">{agent.name}</h3>
+                      <p className={`text-sm ${getStatusColor(agent)}`}>{getStatusText(agent)}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => onDeleteAgent(agent.id)}
+                      className="p-1 text-gray-400 hover:text-red-400 transition-colors"
+                      title="Delete Agent"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+                
+                <p className="text-gray-300 text-sm mb-4">{agent.description}</p>
+                
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-xs text-gray-400 mb-1">Permissions</p>
+                    <div className="flex flex-wrap gap-1">
+                      {agent.permissions.slice(0, 3).map((permission) => (
+                        <span key={permission} className="px-2 py-1 bg-white/10 text-xs text-gray-300 rounded">
+                          {permission}
+                        </span>
+                      ))}
+                      {agent.permissions.length > 3 && (
+                        <span className="px-2 py-1 bg-white/10 text-xs text-gray-300 rounded">
+                          +{agent.permissions.length - 3} more
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-gray-400">Share Allocation</p>
+                      <p className="text-sm font-medium text-white">{agent.defaultShareAllocation}%</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-400">Type</p>
+                      <p className="text-sm font-medium text-blue-400 capitalize">{agent.automationType?.replace('-', ' ') || 'Unknown'}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Create Agent Modal */}
+        {showCreateForm && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl p-6 w-full max-w-md">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-semibold text-white">Create AI Agent</h3>
+                <button
+                  onClick={() => setShowCreateForm(false)}
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Agent Name</label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                    placeholder="Marketing AI Agent"
+                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Description</label>
+                  <textarea
+                    value={formData.description}
+                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                    placeholder="Automated marketing campaigns and customer engagement"
+                    rows={3}
+                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Icon</label>
+                  <select
+                    value={formData.icon}
+                    onChange={(e) => setFormData(prev => ({ ...prev, icon: e.target.value }))}
+                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    {availableIcons.map((icon) => (
+                      <option key={icon.id} value={icon.id} className="bg-gray-800">
+                        {icon.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Share Allocation (%)</label>
+                  <input
+                    type="number"
+                    value={formData.defaultShareAllocation}
+                    onChange={(e) => setFormData(prev => ({ ...prev, defaultShareAllocation: parseInt(e.target.value) || 0 }))}
+                    min="0"
+                    max="100"
+                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+              
+              <div className="flex space-x-3 mt-6">
+                <button
+                  onClick={() => setShowCreateForm(false)}
+                  className="flex-1 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleCreate}
+                  className="flex-1 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+                >
+                  Create Agent
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
@@ -5620,7 +5933,7 @@ function RolesView({ roles, selectedOrganization, onAddMember, onCreateRole, onU
     }))
   }
 
-  // Traditional payroll role templates for blockchain-based compensation
+  // Human-only role templates for traditional employment
   const roleTemplates = [
     // Executive Leadership
     {
@@ -5629,7 +5942,7 @@ function RolesView({ roles, selectedOrganization, onAddMember, onCreateRole, onU
       icon: 'crown',
       permissions: ['admin', 'finance', 'operations', 'data-analysis'],
       defaultShareAllocation: 25,
-      automationType: 'ai-agent' as const,
+      automationType: 'workflow' as const,
       category: 'Executive'
     },
     {
@@ -5638,7 +5951,7 @@ function RolesView({ roles, selectedOrganization, onAddMember, onCreateRole, onU
       icon: 'cpu',
       permissions: ['tech', 'admin', 'workflow-creation'],
       defaultShareAllocation: 20,
-      automationType: 'hybrid' as const,
+      automationType: 'workflow' as const,
       category: 'Executive'
     },
     {
@@ -5647,7 +5960,7 @@ function RolesView({ roles, selectedOrganization, onAddMember, onCreateRole, onU
       icon: 'settings',
       permissions: ['operations', 'admin', 'finance'],
       defaultShareAllocation: 18,
-      automationType: 'hybrid' as const,
+      automationType: 'workflow' as const,
       category: 'Executive'
     },
     {
@@ -5656,7 +5969,7 @@ function RolesView({ roles, selectedOrganization, onAddMember, onCreateRole, onU
       icon: 'bar-chart-3',
       permissions: ['finance', 'admin', 'data-analysis'],
       defaultShareAllocation: 15,
-      automationType: 'ai-agent' as const,
+      automationType: 'workflow' as const,
       category: 'Executive'
     },
     {
@@ -5665,7 +5978,7 @@ function RolesView({ roles, selectedOrganization, onAddMember, onCreateRole, onU
       icon: 'trending-up',
       permissions: ['marketing', 'admin', 'data-analysis'],
       defaultShareAllocation: 12,
-      automationType: 'ai-agent' as const,
+      automationType: 'workflow' as const,
       category: 'Executive'
     },
     
@@ -5676,7 +5989,7 @@ function RolesView({ roles, selectedOrganization, onAddMember, onCreateRole, onU
       icon: 'code',
       permissions: ['tech', 'workflow-creation'],
       defaultShareAllocation: 8,
-      automationType: 'hybrid' as const,
+      automationType: 'workflow' as const,
       category: 'Engineering'
     },
     {
@@ -5721,7 +6034,7 @@ function RolesView({ roles, selectedOrganization, onAddMember, onCreateRole, onU
       icon: 'database',
       permissions: ['tech', 'data-analysis'],
       defaultShareAllocation: 7,
-      automationType: 'ai-agent' as const,
+      automationType: 'workflow' as const,
       category: 'Engineering'
     },
     
@@ -5732,7 +6045,7 @@ function RolesView({ roles, selectedOrganization, onAddMember, onCreateRole, onU
       icon: 'users',
       permissions: ['tech', 'marketing', 'operations'],
       defaultShareAllocation: 8,
-      automationType: 'ai-agent' as const,
+      automationType: 'workflow' as const,
       category: 'Product'
     },
     {
@@ -5741,7 +6054,7 @@ function RolesView({ roles, selectedOrganization, onAddMember, onCreateRole, onU
       icon: 'palette',
       permissions: ['marketing', 'tech'],
       defaultShareAllocation: 6,
-      automationType: 'hybrid' as const,
+      automationType: 'workflow' as const,
       category: 'Design'
     },
     {
@@ -5750,7 +6063,7 @@ function RolesView({ roles, selectedOrganization, onAddMember, onCreateRole, onU
       icon: 'image',
       permissions: ['marketing'],
       defaultShareAllocation: 4,
-      automationType: 'ai-agent' as const,
+      automationType: 'workflow' as const,
       category: 'Design'
     },
     
@@ -5761,7 +6074,7 @@ function RolesView({ roles, selectedOrganization, onAddMember, onCreateRole, onU
       icon: 'megaphone',
       permissions: ['marketing', 'data-analysis'],
       defaultShareAllocation: 7,
-      automationType: 'ai-agent' as const,
+      automationType: 'workflow' as const,
       category: 'Marketing'
     },
     {
@@ -5770,7 +6083,7 @@ function RolesView({ roles, selectedOrganization, onAddMember, onCreateRole, onU
       icon: 'trending-up',
       permissions: ['marketing', 'finance'],
       defaultShareAllocation: 8,
-      automationType: 'ai-agent' as const,
+      automationType: 'workflow' as const,
       category: 'Sales'
     },
     {
@@ -5779,7 +6092,7 @@ function RolesView({ roles, selectedOrganization, onAddMember, onCreateRole, onU
       icon: 'edit',
       permissions: ['marketing'],
       defaultShareAllocation: 4,
-      automationType: 'ai-agent' as const,
+      automationType: 'workflow' as const,
       category: 'Marketing'
     },
     {
@@ -5788,7 +6101,7 @@ function RolesView({ roles, selectedOrganization, onAddMember, onCreateRole, onU
       icon: 'globe',
       permissions: ['marketing', 'data-analysis'],
       defaultShareAllocation: 5,
-      automationType: 'ai-agent' as const,
+      automationType: 'workflow' as const,
       category: 'Marketing'
     },
     {
@@ -5797,7 +6110,7 @@ function RolesView({ roles, selectedOrganization, onAddMember, onCreateRole, onU
       icon: 'handshake',
       permissions: ['marketing', 'operations'],
       defaultShareAllocation: 5,
-      automationType: 'ai-agent' as const,
+      automationType: 'workflow' as const,
       category: 'Sales'
     },
     

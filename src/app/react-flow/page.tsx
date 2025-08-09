@@ -19,19 +19,11 @@ import ReactFlow, {
   MarkerType,
 } from 'reactflow'
 import 'reactflow/dist/style.css'
-import { DollarSign, FileText, Target, AlertTriangle, CheckCircle, Users, Building, Crown, UserCheck, Banknote, Plug, Split, Play, Zap, User } from 'lucide-react'
+import { DollarSign, FileText, Target, AlertTriangle, CheckCircle, Users, Building, Crown, UserCheck, Banknote, Plug, Split, Play, Zap, User, Search } from 'lucide-react'
+import NodePalette, { type PaletteItem } from '@/components/NodePalette'
 
-type NodeKind =
-  | 'youtube'
-  | 'splitter'
-  | 'payment'
-  | 'decision'
-  | 'member'
-  | 'instrument'
-  | 'organization'
-  | 'role'
-  | 'contact'
-  | 'trigger'
+// Use a broad string to allow many kinds without failing types
+type NodeKind = string
 
 type NodeData = {
   label: string
@@ -53,6 +45,58 @@ const IconFor = ({ kind, size = 18 }: { kind: NodeKind; size?: number }) => {
     case 'contact': return <User className={`${cls} text-blue-300`} />
     case 'trigger': return <Zap className={`${cls} text-yellow-500`} />
     case 'youtube': return <Play className={`${cls} text-red-500`} />
+    // Communication
+    case 'email': return <User className={`${cls} text-blue-300`} />
+    case 'sms': return <User className={`${cls} text-green-300`} />
+    case 'notification': return <User className={`${cls} text-cyan-300`} />
+    // Logic
+    case 'condition': return <AlertTriangle className={`${cls} text-purple-400`} />
+    case 'switch': return <Split className={`${cls} text-indigo-400`} />
+    case 'router': return <Split className={`${cls} text-fuchsia-400`} />
+    case 'delay': return <AlertTriangle className={`${cls} text-yellow-300`} />
+    case 'queue': return <AlertTriangle className={`${cls} text-emerald-300`} />
+    case 'batch': return <AlertTriangle className={`${cls} text-teal-300`} />
+    case 'parallel': return <AlertTriangle className={`${cls} text-sky-300`} />
+    case 'sequence': return <AlertTriangle className={`${cls} text-pink-300`} />
+    case 'retry': return <AlertTriangle className={`${cls} text-orange-300`} />
+    // Integrations (generic icon fallback)
+    case 'api':
+    case 'database':
+    case 'webhook':
+    case 'elevenlabs':
+    case 'midjourney':
+    case 'veo3':
+    case 'openai':
+    case 'anthropic':
+    case 'stability':
+    case 'runway':
+    case 'replicate':
+    case 'huggingface':
+    case 'slack':
+    case 'teams':
+    case 'zoom':
+    case 'stripe':
+    case 'paypal':
+    case 'square':
+    case 'salesforce':
+    case 'hubspot':
+    case 'pipedrive':
+    case 'googlesheets':
+    case 'excel':
+    case 'airtable':
+    case 'notion':
+    case 'instagram':
+    case 'snapchat':
+    case 'threads':
+    case 'twitter':
+    case 'facebook':
+    case 'linkedin':
+    case 'tiktok':
+    case 'discord':
+    case 'telegram':
+    case 'whatsapp':
+    case 'reddit':
+      return <Plug className={`${cls} text-violet-400`} />
     default: return <Target className={`${cls} text-white`} />
   }
 }
@@ -69,6 +113,47 @@ const borderClassFor = (kind: NodeKind) => {
     case 'youtube': return 'border-red-500/60'
     case 'trigger': return 'border-yellow-500/60'
     case 'contact': return 'border-blue-300/60'
+    case 'contract': return 'border-blue-400/60'
+    case 'milestone': return 'border-indigo-400/60'
+    case 'team': return 'border-pink-400/60'
+    // integrations default
+    case 'api':
+    case 'database':
+    case 'webhook':
+    case 'elevenlabs':
+    case 'midjourney':
+    case 'veo3':
+    case 'openai':
+    case 'anthropic':
+    case 'stability':
+    case 'runway':
+    case 'replicate':
+    case 'huggingface':
+    case 'slack':
+    case 'teams':
+    case 'zoom':
+    case 'stripe':
+    case 'paypal':
+    case 'square':
+    case 'salesforce':
+    case 'hubspot':
+    case 'pipedrive':
+    case 'googlesheets':
+    case 'excel':
+    case 'airtable':
+    case 'notion':
+    case 'instagram':
+    case 'snapchat':
+    case 'threads':
+    case 'twitter':
+    case 'facebook':
+    case 'linkedin':
+    case 'tiktok':
+    case 'discord':
+    case 'telegram':
+    case 'whatsapp':
+    case 'reddit':
+      return 'border-violet-400/60'
     default: return 'border-white/30'
   }
 }
@@ -118,17 +203,71 @@ const initialEdges: Edge[] = [
   { id: 'c10', source: 'n6', target: 'n10' },
 ]
 
-const choices: { label: string; kind: NodeKind; category: 'Flow' | 'Business' }[] = [
-  { label: 'YouTube', kind: 'youtube', category: 'Flow' },
-  { label: 'Splitter', kind: 'splitter', category: 'Flow' },
-  { label: 'Payment', kind: 'payment', category: 'Flow' },
-  { label: 'Decision', kind: 'decision', category: 'Flow' },
-  { label: 'Trigger', kind: 'trigger', category: 'Flow' },
-  { label: 'Organization', kind: 'organization', category: 'Business' },
-  { label: 'Role', kind: 'role', category: 'Business' },
-  { label: 'Member', kind: 'member', category: 'Business' },
-  { label: 'Instrument', kind: 'instrument', category: 'Business' },
+const choices: { label: string; kind: NodeKind; category: 'Basic' | 'Business' | 'Integration' | 'Communication' | 'Logic' | 'Process' }[] = [
+  // Basic
+  { label: 'Task', kind: 'task', category: 'Basic' },
+  { label: 'Decision', kind: 'decision', category: 'Basic' },
+  { label: 'Payment', kind: 'payment', category: 'Basic' },
+  { label: 'Milestone', kind: 'milestone', category: 'Basic' },
+  { label: 'Contract', kind: 'contract', category: 'Basic' },
+  { label: 'Team', kind: 'team', category: 'Basic' },
+  // Business
+  { label: 'Workflows', kind: 'workflow', category: 'Business' },
+  { label: 'Organizations', kind: 'organization', category: 'Business' },
+  { label: 'Roles', kind: 'role', category: 'Business' },
+  { label: 'Agents', kind: 'ai-agent', category: 'Business' },
+  { label: 'People', kind: 'member', category: 'Business' },
+  { label: 'Instruments', kind: 'instrument', category: 'Business' },
+  { label: 'Contracts', kind: 'contract', category: 'Business' },
+  { label: 'Wallets', kind: 'wallets', category: 'Business' },
+  { label: 'Integration', kind: 'integration', category: 'Business' },
   { label: 'Contact', kind: 'contact', category: 'Business' },
+  // Integration
+  { label: 'YouTube', kind: 'youtube', category: 'Integration' },
+  { label: 'API Call', kind: 'api', category: 'Integration' },
+  { label: 'Database', kind: 'database', category: 'Integration' },
+  { label: 'Webhook', kind: 'webhook', category: 'Integration' },
+  { label: 'ElevenLabs', kind: 'elevenlabs', category: 'Integration' },
+  { label: 'MidJourney', kind: 'midjourney', category: 'Integration' },
+  { label: 'Veo3', kind: 'veo3', category: 'Integration' },
+  { label: 'OpenAI', kind: 'openai', category: 'Integration' },
+  { label: 'Anthropic', kind: 'anthropic', category: 'Integration' },
+  { label: 'Stability AI', kind: 'stability', category: 'Integration' },
+  { label: 'Runway ML', kind: 'runway', category: 'Integration' },
+  { label: 'Replicate', kind: 'replicate', category: 'Integration' },
+  { label: 'Hugging Face', kind: 'huggingface', category: 'Integration' },
+  { label: 'Salesforce', kind: 'salesforce', category: 'Integration' },
+  { label: 'HubSpot', kind: 'hubspot', category: 'Integration' },
+  { label: 'Pipedrive', kind: 'pipedrive', category: 'Integration' },
+  { label: 'Google Sheets', kind: 'googlesheets', category: 'Integration' },
+  { label: 'Excel', kind: 'excel', category: 'Integration' },
+  { label: 'Airtable', kind: 'airtable', category: 'Integration' },
+  { label: 'Notion', kind: 'notion', category: 'Integration' },
+  { label: 'Stripe', kind: 'stripe', category: 'Integration' },
+  { label: 'PayPal', kind: 'paypal', category: 'Integration' },
+  { label: 'Square', kind: 'square', category: 'Integration' },
+  { label: 'Slack', kind: 'slack', category: 'Integration' },
+  { label: 'Microsoft Teams', kind: 'teams', category: 'Integration' },
+  { label: 'Zoom', kind: 'zoom', category: 'Integration' },
+  // Communication
+  { label: 'Email', kind: 'email', category: 'Communication' },
+  { label: 'SMS', kind: 'sms', category: 'Communication' },
+  { label: 'Notification', kind: 'notification', category: 'Communication' },
+  // Logic
+  { label: 'Trigger', kind: 'trigger', category: 'Logic' },
+  { label: 'Condition', kind: 'condition', category: 'Logic' },
+  { label: 'Switch', kind: 'switch', category: 'Logic' },
+  { label: 'Router', kind: 'router', category: 'Logic' },
+  { label: 'Delay', kind: 'delay', category: 'Logic' },
+  { label: 'Queue', kind: 'queue', category: 'Logic' },
+  { label: 'Batch', kind: 'batch', category: 'Logic' },
+  { label: 'Parallel', kind: 'parallel', category: 'Logic' },
+  { label: 'Sequence', kind: 'sequence', category: 'Logic' },
+  { label: 'Retry', kind: 'retry', category: 'Logic' },
+  // Process
+  { label: 'Approval', kind: 'approval', category: 'Process' },
+  { label: 'Review', kind: 'review', category: 'Process' },
+  { label: 'Timer', kind: 'timer', category: 'Process' },
 ]
 
 export const dynamic = 'force-dynamic'
@@ -246,40 +385,19 @@ export default function ReactFlowDemoPage() {
             >
               <Background color="rgba(255,255,255,0.1)" />
               <MiniMap pannable zoomable style={{ background: 'rgba(0,0,0,0.6)' }} />
-              <Controls showInteractive={false} />
-              <OverlayPanel selectedKind={selectedKind} setSelectedKind={setSelectedKind} onAdd={handleAddAtPos} />
+              <Controls position="bottom-left" showInteractive={false} />
 
-              {/* Add Nodes Palette (desktop) */}
-              <Panel position="top-left">
-                <div className="bg-black/70 backdrop-blur-xl border border-white/20 rounded-lg p-3 min-w-[220px]">
-                  <div className="text-xs text-gray-400 mb-2">Add Nodes</div>
-                  {(['Flow','Business'] as const).map((cat) => (
-                    <div key={cat} className="mb-2">
-                      <div className="text-[11px] uppercase tracking-wide text-gray-500 mb-1">{cat}</div>
-                      <div className="grid grid-cols-2 gap-2">
-                        {choices.filter(c => c.category===cat).map((c) => (
-                          <button
-                            key={c.kind}
-                            onClick={() => {
-                              // center add; position resolved in panel via useReactFlow
-                              const rf = (window as any).__rfAdd || null
-                              if (rf && rf.addAtCenter) {
-                                rf.addAtCenter(c.kind)
-                              } else {
-                                setSelectedKind(c.kind)
-                              }
-                            }}
-                            className="flex items-center gap-2 px-2 py-1.5 rounded bg-white/5 hover:bg-white/10 border border-white/10 text-left"
-                            title={`Add ${c.label}`}
-                          >
-                            <IconFor kind={c.kind} />
-                            <span className="text-sm text-white">{c.label}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+              {/* Right-docked Add Nodes Palette (desktop) */}
+              <Panel position="top-right">
+                <NodePalette
+                  title="Add Nodes"
+                  nodeTypes={choices.map((c) => ({ type: c.kind, name: c.label, category: c.category, icon: <IconFor kind={c.kind} /> })) as PaletteItem[]}
+                  categories={[...new Set(choices.map((c) => c.category))]}
+                  onPick={(k) => {
+                    const rf = (typeof window !== 'undefined') ? (window as any).__rfAdd : null
+                    if (rf && rf.addAtCenter) rf.addAtCenter(k as NodeKind)
+                  }}
+                />
               </Panel>
 
               {/* Toolbar: tools and zoom */}
@@ -304,6 +422,50 @@ export default function ReactFlowDemoPage() {
           </ReactFlowProvider>
         </div>
       </div>
+    </div>
+  )
+}
+
+function RightPalette({ onPick }: { onPick: (k: NodeKind) => void }) {
+  const [query, setQuery] = useState('')
+  const [open, setOpen] = useState<{ [k in 'Flow' | 'Business']: boolean }>({ Flow: true, Business: true })
+
+  const filtered = useMemo(() =>
+    choices.filter((c) => c.label.toLowerCase().includes(query.toLowerCase())),
+  [query])
+
+  return (
+    <div className="bg-black/80 backdrop-blur-xl border border-white/20 rounded-lg p-3 min-w-[260px] w-[260px]">
+      <div className="flex items-center justify-between mb-2">
+        <div className="text-xs text-gray-400">Add Nodes</div>
+        <button aria-label="toggle" onClick={() => setOpen((p) => ({ Flow: !p.Flow, Business: !p.Business }))} className="text-gray-400 hover:text-white text-xs">Collapse</button>
+      </div>
+      <div className="relative mb-3">
+        <Search className="w-4 h-4 text-gray-400 absolute left-2 top-2.5" />
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search nodes"
+          className="w-full pl-8 pr-2 py-2 bg-white/10 border border-white/20 rounded text-sm text-white placeholder-gray-500"
+        />
+      </div>
+      {(['Flow','Business'] as const).map((cat) => (
+        <div key={cat} className="mb-3">
+          <button onClick={() => setOpen((p) => ({ ...p, [cat]: !p[cat] }))} className="w-full text-left text-[11px] uppercase tracking-wide text-gray-500 mb-2">
+            {cat}
+          </button>
+          {open[cat] && (
+            <div className="grid grid-cols-2 gap-2">
+              {filtered.filter((c) => c.category === cat).map((c) => (
+                <button key={c.kind} onClick={() => onPick(c.kind)} className="flex items-center gap-2 px-2 py-1.5 rounded bg-white/5 hover:bg-white/10 border border-white/10">
+                  <IconFor kind={c.kind} />
+                  <span className="text-sm text-white truncate">{c.label}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
     </div>
   )
 }

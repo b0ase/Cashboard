@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useRef, useEffect } from 'react'
+import WorkflowReactFlowCanvas from '@/components/WorkflowReactFlowCanvas'
 import { 
   Menu, 
   X, 
@@ -3351,60 +3352,9 @@ export default function Dashboard() {
         )}
 
         {currentView === 'workflow' && currentWorkflow && (
-          <WorkflowView 
-            workflow={currentWorkflow}
-            boardRef={boardRef}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseDown={handleMouseDown}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-            onNodeUpdate={updateNode}
-            onNodeDelete={deleteNode}
-            onNodesDelete={handleNodesDelete}
-            onNodesCopy={handleNodesCopy}
-            onNodesPaste={handleNodesPaste}
-            onStartConnection={startConnection}
-            onCompleteConnection={completeConnection}
-            onDoubleClick={(id: string) => {
-              if (!currentWorkflow) return
-              setAppState(prev => ({
-                ...prev,
-                workflows: prev.workflows.map(w => 
-                  w.id === currentWorkflow.id 
-                    ? { ...w, selectedNode: id }
-                    : w
-                )
-              }))
-              // Also open node details modal
-              setSelectedNodeDetails(id)
-            }}
-            onToggleExpansion={toggleNodeExpansion}
-            onToolChange={handleToolChange}
-            onSelectionChange={handleSelectionChange}
-            onAddNode={handleAddNode}
-            getNodeIcon={getNodeIcon}
-            getStatusColor={getStatusColor}
-            getConnectionColor={getConnectionColor}
-            getNodePosition={getNodePosition}
-            isMobile={isMobile}
-            canvasScale={canvasScale}
-            canvasOffset={canvasOffset}
-            resetCanvasView={resetCanvasView}
-            setCanvasScale={setCanvasScale}
-            setCanvasOffset={setCanvasOffset}
-            sidebarOpen={sidebarOpen}
-            onBackToWorkflows={() => setAppState(prev => ({ ...prev, selectedWorkflow: null }))}
-            selectedNodeDetails={selectedNodeDetails}
-            setSelectedNodeDetails={setSelectedNodeDetails}
-            organizations={organizations}
-            roles={roles}
-            instruments={instruments}
-            contracts={contracts}
-            wallets={wallets}
-            workflows={workflows}
-          />
+          <div className="relative h-[calc(100vh-140px)]">
+            <WorkflowReactFlowCanvas workflow={currentWorkflow} />
+          </div>
         )}
 
         {currentView === 'organizations' && (

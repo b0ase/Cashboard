@@ -563,6 +563,8 @@ interface InstrumentsViewProps {
   onCreateInstrument: (instrument: Omit<FinancialInstrument, 'id' | 'createdAt' | 'updatedAt'>) => void
   onUpdateInstrument: (id: string, updates: Partial<FinancialInstrument>) => void
   onDeleteInstrument: (id: string) => void
+  onSelectOrganization: (orgId: string) => void
+  onDeselectOrganization: () => void
 }
 
 interface SecurityProduct {
@@ -2917,82 +2919,88 @@ export default function Dashboard() {
               {/* Demo Button */}
               <button
                 onClick={() => setShowDemoModal(true)}
-                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-4 py-3 rounded-lg transition-all duration-200 hover:scale-[1.02] flex items-center justify-center space-x-3 shadow-lg"
+                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-3 py-2 rounded-lg transition-all duration-200 hover:scale-[1.02] flex items-center justify-center space-x-2 shadow-lg"
               >
-                <PlayCircle className="w-5 h-5" />
-                <span className="font-medium">Watch Demo</span>
+                <PlayCircle className="w-4 h-4" />
+                <span className="font-medium text-sm">Watch Demo</span>
               </button>
 
               {/* Divider */}
               <div className="border-t border-white/10 my-4"></div>
 
               <button
-                onClick={() => setCurrentView('workflow')}
-                className={`w-full text-left px-4 py-3 rounded-lg transition-all ${
+                onClick={() => {
+                  setAppState(prev => ({ 
+                    ...prev, 
+                    currentView: 'workflow',
+                    selectedWorkflow: null // Always go to workflows dashboard
+                  }))
+                }}
+                className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
                   currentView === 'workflow' 
                     ? 'bg-white/20 text-white' 
                     : 'text-gray-400 hover:text-white hover:bg-white/10'
                 }`}
               >
-                <div className="flex items-center space-x-3">
-                  <Target className="w-5 h-5" />
-                  <span>Workflows</span>
+                <div className="flex items-center space-x-2">
+                  <Target className="w-4 h-4" />
+                  <span className="text-sm">Workflows</span>
                 </div>
               </button>
               
               <button
                 onClick={() => setCurrentView('organizations')}
-                className={`w-full text-left px-4 py-3 rounded-lg transition-all ${
+                className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
                   currentView === 'organizations' 
                     ? 'bg-white/20 text-white' 
                     : 'text-gray-400 hover:text-white hover:bg-white/10'
                 }`}
               >
-                <div className="flex items-center space-x-3">
-                  <Building2 className="w-5 h-5" />
-                  <span>Organizations</span>
+                <div className="flex items-center space-x-2">
+                  <Building2 className="w-4 h-4" />
+                  <span className="text-sm">Organizations</span>
                 </div>
               </button>
               
               <button
                 onClick={() => setCurrentView('roles')}
-                className={`w-full text-left px-4 py-3 rounded-lg transition-all ${
+                className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
                   currentView === 'roles' 
                     ? 'bg-white/20 text-white' 
                     : 'text-gray-400 hover:text-white hover:bg-white/10'
                 }`}
               >
-                <div className="flex items-center space-x-3">
-                  <Crown className="w-5 h-5" />
-                  <span>Roles</span>
+                <div className="flex items-center space-x-2">
+                  <Crown className="w-4 h-4" />
+                  <span className="text-sm">Roles</span>
                 </div>
               </button>
               
               <button
                 onClick={() => setCurrentView('agents')}
-                className={`w-full text-left px-4 py-3 rounded-lg transition-all ${
+                className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
                   currentView === 'agents' 
                     ? 'bg-white/20 text-white' 
                     : 'text-gray-400 hover:text-white hover:bg-white/10'
                 }`}
               >
-                <div className="flex items-center space-x-3">
-                  <Bot className="w-5 h-5" />
-                  <span>Agents</span>
+                <div className="flex items-center space-x-2">
+                  <Bot className="w-4 h-4" />
+                  <span className="text-sm">Agents</span>
                 </div>
               </button>
               
               <button
                 onClick={() => setCurrentView('people')}
-                className={`w-full text-left px-4 py-3 rounded-lg transition-all ${
+                className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
                   currentView === 'people' 
                     ? 'bg-white/20 text-white' 
                     : 'text-gray-400 hover:text-white hover:bg-white/10'
                 }`}
               >
-                <div className="flex items-center space-x-3">
-                  <Users className="w-5 h-5" />
-                  <span>People</span>
+                <div className="flex items-center space-x-2">
+                  <Users className="w-4 h-4" />
+                  <span className="text-sm">People</span>
                 </div>
               </button>
               
@@ -3440,6 +3448,8 @@ export default function Dashboard() {
                 instruments: prev.instruments.filter(instrument => instrument.id !== id)
               }))
             }}
+            onSelectOrganization={selectOrganization}
+            onDeselectOrganization={deselectOrganization}
           />
         )}
 
@@ -4176,6 +4186,139 @@ function IntegrationsView() {
   )
 }
 
+// Workflow Preview Component for Cards
+function WorkflowPreview({ workflow }: { workflow: WorkflowState }) {
+  const previewWidth = 200
+  const previewHeight = 100
+  
+  // Calculate bounds of all nodes to fit them in preview
+  const getNodeBounds = () => {
+    if (workflow.nodes.length === 0) return { minX: 0, minY: 0, maxX: 200, maxY: 100 }
+    
+    const positions = workflow.nodes.map(node => ({ x: node.x, y: node.y }))
+    const minX = Math.min(...positions.map(p => p.x))
+    const maxX = Math.max(...positions.map(p => p.x))
+    const minY = Math.min(...positions.map(p => p.y))
+    const maxY = Math.max(...positions.map(p => p.y))
+    
+    return { minX, minY, maxX, maxY }
+  }
+  
+  const bounds = getNodeBounds()
+  const boundsWidth = bounds.maxX - bounds.minX || 200
+  const boundsHeight = bounds.maxY - bounds.minY || 100
+  
+  // Calculate scale to fit nodes in preview
+  const scaleX = (previewWidth - 40) / boundsWidth
+  const scaleY = (previewHeight - 40) / boundsHeight
+  const scale = Math.min(scaleX, scaleY, 0.3) // Max scale of 0.3 to keep nodes small
+  
+  // Transform node position to preview coordinates
+  const transformPosition = (x: number, y: number) => ({
+    x: ((x - bounds.minX) * scale) + 20,
+    y: ((y - bounds.minY) * scale) + 20
+  })
+  
+  // Get node color based on type
+  const getNodeColor = (type: string) => {
+    switch (type) {
+      case 'start': return '#10b981' // green
+      case 'end': return '#ef4444' // red
+      case 'process': return '#3b82f6' // blue
+      case 'decision': return '#f59e0b' // yellow
+      case 'ai-agent': return '#8b5cf6' // purple
+      case 'human-task': return '#f97316' // orange
+      case 'integration': return '#06b6d4' // cyan
+      default: return '#6b7280' // gray
+    }
+  }
+  
+  if (workflow.nodes.length === 0) {
+    return (
+      <div 
+        className="bg-black/20 border border-white/10 rounded-lg flex items-center justify-center"
+        style={{ width: previewWidth, height: previewHeight }}
+      >
+        <div className="text-center">
+          <div className="w-8 h-8 bg-gray-500/20 rounded-full flex items-center justify-center mb-2 mx-auto">
+            <Zap className="w-4 h-4 text-gray-400" />
+          </div>
+          <span className="text-xs text-gray-400">Empty Workflow</span>
+        </div>
+      </div>
+    )
+  }
+  
+  return (
+    <div 
+      className="bg-black/20 border border-white/10 rounded-lg relative overflow-hidden"
+      style={{ width: previewWidth, height: previewHeight }}
+    >
+      <svg 
+        width={previewWidth} 
+        height={previewHeight}
+        className="absolute inset-0"
+      >
+        {/* Render connections */}
+        {workflow.connections.map((connection, index) => {
+          const fromNode = workflow.nodes.find(n => n.id === connection.from)
+          const toNode = workflow.nodes.find(n => n.id === connection.to)
+          
+          if (!fromNode || !toNode) return null
+          
+          const fromPos = transformPosition(fromNode.x, fromNode.y)
+          const toPos = transformPosition(toNode.x, toNode.y)
+          
+          return (
+            <line
+              key={index}
+              x1={fromPos.x + 6} // Offset for node center
+              y1={fromPos.y + 6}
+              x2={toPos.x + 6}
+              y2={toPos.y + 6}
+              stroke="rgba(255,255,255,0.3)"
+              strokeWidth="1"
+              strokeDasharray="2,2"
+            />
+          )
+        })}
+        
+        {/* Render nodes */}
+        {workflow.nodes.map((node) => {
+          const pos = transformPosition(node.x, node.y)
+          const nodeColor = getNodeColor(node.type)
+          
+          return (
+            <g key={node.id}>
+              <circle
+                cx={pos.x + 6}
+                cy={pos.y + 6}
+                r="6"
+                fill={nodeColor}
+                opacity="0.8"
+              />
+              {/* Node type indicator */}
+              <circle
+                cx={pos.x + 6}
+                cy={pos.y + 6}
+                r="3"
+                fill="rgba(255,255,255,0.8)"
+              />
+            </g>
+          )
+        })}
+      </svg>
+      
+      {/* Overlay info */}
+      <div className="absolute bottom-1 right-1 bg-black/50 rounded px-1 py-0.5">
+        <span className="text-xs text-gray-300">
+          {workflow.nodes.length}n • {workflow.connections.length}c
+        </span>
+      </div>
+    </div>
+  )
+}
+
 // Workflows List View Component
 function WorkflowsView({ 
   workflows, 
@@ -4372,6 +4515,11 @@ function WorkflowsView({
                   </div>
                   <div className="text-xs text-gray-400">Connections</div>
                 </div>
+              </div>
+
+              {/* Workflow Preview */}
+              <div className="mb-4">
+                <WorkflowPreview workflow={workflow} />
               </div>
 
               {/* Footer */}
@@ -7033,6 +7181,599 @@ function RolesView({ roles, selectedOrganization, onAddMember, onCreateRole, onU
       defaultShareAllocation: 5,
       automationType: 'ai-agent' as const,
       category: 'Consulting'
+    },
+    
+    // Healthcare & Medical
+    {
+      name: 'Chief Medical Officer',
+      description: 'Medical leadership, clinical strategy, and healthcare operations',
+      icon: 'heart',
+      permissions: ['admin', 'operations', 'legal'],
+      defaultShareAllocation: 20,
+      automationType: 'workflow' as const,
+      category: 'Healthcare'
+    },
+    {
+      name: 'Physician',
+      description: 'Patient care, medical diagnosis, and treatment planning',
+      icon: 'stethoscope',
+      permissions: ['operations', 'legal'],
+      defaultShareAllocation: 15,
+      automationType: 'hybrid' as const,
+      category: 'Healthcare'
+    },
+    {
+      name: 'Nurse Practitioner',
+      description: 'Advanced nursing care, patient assessment, and treatment',
+      icon: 'heart-pulse',
+      permissions: ['operations'],
+      defaultShareAllocation: 8,
+      automationType: 'hybrid' as const,
+      category: 'Healthcare'
+    },
+    {
+      name: 'Medical Assistant',
+      description: 'Patient support, clinical assistance, and administrative tasks',
+      icon: 'clipboard-heart',
+      permissions: ['operations'],
+      defaultShareAllocation: 4,
+      automationType: 'ai-agent' as const,
+      category: 'Healthcare'
+    },
+    {
+      name: 'Healthcare Administrator',
+      description: 'Healthcare operations, facility management, and regulatory compliance',
+      icon: 'building',
+      permissions: ['admin', 'operations', 'legal'],
+      defaultShareAllocation: 10,
+      automationType: 'workflow' as const,
+      category: 'Healthcare'
+    },
+    {
+      name: 'Medical Researcher',
+      description: 'Clinical research, data analysis, and medical studies',
+      icon: 'microscope',
+      permissions: ['data-analysis', 'legal'],
+      defaultShareAllocation: 8,
+      automationType: 'ai-agent' as const,
+      category: 'Healthcare'
+    },
+    
+    // Education & Training
+    {
+      name: 'Education Director',
+      description: 'Educational program leadership, curriculum development, and academic strategy',
+      icon: 'graduation-cap',
+      permissions: ['admin', 'operations'],
+      defaultShareAllocation: 15,
+      automationType: 'workflow' as const,
+      category: 'Education'
+    },
+    {
+      name: 'Teacher/Instructor',
+      description: 'Classroom instruction, student assessment, and educational delivery',
+      icon: 'book-open',
+      permissions: ['operations'],
+      defaultShareAllocation: 6,
+      automationType: 'hybrid' as const,
+      category: 'Education'
+    },
+    {
+      name: 'Curriculum Developer',
+      description: 'Educational content creation, learning design, and instructional materials',
+      icon: 'book',
+      permissions: ['operations', 'marketing'],
+      defaultShareAllocation: 7,
+      automationType: 'ai-agent' as const,
+      category: 'Education'
+    },
+    {
+      name: 'Training Specialist',
+      description: 'Corporate training, skill development, and professional education',
+      icon: 'presentation',
+      permissions: ['operations', 'admin'],
+      defaultShareAllocation: 5,
+      automationType: 'hybrid' as const,
+      category: 'Education'
+    },
+    {
+      name: 'Student Advisor',
+      description: 'Student guidance, academic counseling, and educational support',
+      icon: 'user-check',
+      permissions: ['operations'],
+      defaultShareAllocation: 4,
+      automationType: 'ai-agent' as const,
+      category: 'Education'
+    },
+    
+    // Manufacturing & Production
+    {
+      name: 'Production Manager',
+      description: 'Manufacturing oversight, production planning, and quality control',
+      icon: 'factory',
+      permissions: ['operations', 'admin'],
+      defaultShareAllocation: 10,
+      automationType: 'workflow' as const,
+      category: 'Manufacturing'
+    },
+    {
+      name: 'Quality Control Inspector',
+      description: 'Product inspection, quality assurance, and compliance testing',
+      icon: 'check-circle',
+      permissions: ['operations'],
+      defaultShareAllocation: 5,
+      automationType: 'ai-agent' as const,
+      category: 'Manufacturing'
+    },
+    {
+      name: 'Machine Operator',
+      description: 'Equipment operation, production line work, and machinery maintenance',
+      icon: 'cog',
+      permissions: ['operations'],
+      defaultShareAllocation: 4,
+      automationType: 'workflow' as const,
+      category: 'Manufacturing'
+    },
+    {
+      name: 'Safety Coordinator',
+      description: 'Workplace safety, compliance monitoring, and risk prevention',
+      icon: 'shield-check',
+      permissions: ['operations', 'legal'],
+      defaultShareAllocation: 6,
+      automationType: 'ai-agent' as const,
+      category: 'Manufacturing'
+    },
+    {
+      name: 'Supply Chain Manager',
+      description: 'Inventory management, supplier relations, and logistics coordination',
+      icon: 'truck',
+      permissions: ['operations', 'finance'],
+      defaultShareAllocation: 8,
+      automationType: 'workflow' as const,
+      category: 'Manufacturing'
+    },
+    
+    // Retail & Customer Service
+    {
+      name: 'Store Manager',
+      description: 'Retail operations, staff management, and sales performance',
+      icon: 'store',
+      permissions: ['operations', 'admin', 'marketing'],
+      defaultShareAllocation: 8,
+      automationType: 'workflow' as const,
+      category: 'Retail'
+    },
+    {
+      name: 'Sales Associate',
+      description: 'Customer service, product sales, and retail assistance',
+      icon: 'shopping-bag',
+      permissions: ['marketing'],
+      defaultShareAllocation: 3,
+      automationType: 'ai-agent' as const,
+      category: 'Retail'
+    },
+    {
+      name: 'Cashier',
+      description: 'Transaction processing, payment handling, and customer checkout',
+      icon: 'credit-card',
+      permissions: ['operations'],
+      defaultShareAllocation: 2,
+      automationType: 'workflow' as const,
+      category: 'Retail'
+    },
+    {
+      name: 'Inventory Specialist',
+      description: 'Stock management, inventory tracking, and supply coordination',
+      icon: 'package',
+      permissions: ['operations'],
+      defaultShareAllocation: 4,
+      automationType: 'ai-agent' as const,
+      category: 'Retail'
+    },
+    {
+      name: 'Visual Merchandiser',
+      description: 'Store displays, product presentation, and retail aesthetics',
+      icon: 'eye',
+      permissions: ['marketing'],
+      defaultShareAllocation: 5,
+      automationType: 'ai-agent' as const,
+      category: 'Retail'
+    },
+    
+    // Food Service & Hospitality
+    {
+      name: 'Restaurant Manager',
+      description: 'Restaurant operations, staff coordination, and customer experience',
+      icon: 'utensils',
+      permissions: ['operations', 'admin', 'marketing'],
+      defaultShareAllocation: 10,
+      automationType: 'workflow' as const,
+      category: 'Food Service'
+    },
+    {
+      name: 'Head Chef',
+      description: 'Kitchen management, menu development, and culinary leadership',
+      icon: 'chef-hat',
+      permissions: ['operations', 'marketing'],
+      defaultShareAllocation: 12,
+      automationType: 'workflow' as const,
+      category: 'Food Service'
+    },
+    {
+      name: 'Server/Waiter',
+      description: 'Customer service, order taking, and dining experience delivery',
+      icon: 'coffee',
+      permissions: ['marketing'],
+      defaultShareAllocation: 3,
+      automationType: 'ai-agent' as const,
+      category: 'Food Service'
+    },
+    {
+      name: 'Bartender',
+      description: 'Beverage preparation, customer interaction, and bar operations',
+      icon: 'wine',
+      permissions: ['marketing', 'operations'],
+      defaultShareAllocation: 4,
+      automationType: 'hybrid' as const,
+      category: 'Food Service'
+    },
+    {
+      name: 'Hotel Manager',
+      description: 'Hotel operations, guest services, and hospitality management',
+      icon: 'building',
+      permissions: ['operations', 'admin', 'marketing'],
+      defaultShareAllocation: 12,
+      automationType: 'workflow' as const,
+      category: 'Hospitality'
+    },
+    {
+      name: 'Front Desk Agent',
+      description: 'Guest check-in/out, customer service, and hotel administration',
+      icon: 'key',
+      permissions: ['operations', 'marketing'],
+      defaultShareAllocation: 3,
+      automationType: 'ai-agent' as const,
+      category: 'Hospitality'
+    },
+    
+    // Transportation & Logistics
+    {
+      name: 'Logistics Manager',
+      description: 'Transportation coordination, shipping oversight, and supply chain management',
+      icon: 'truck',
+      permissions: ['operations', 'finance'],
+      defaultShareAllocation: 9,
+      automationType: 'workflow' as const,
+      category: 'Logistics'
+    },
+    {
+      name: 'Delivery Driver',
+      description: 'Package delivery, route management, and customer interaction',
+      icon: 'map-pin',
+      permissions: ['operations'],
+      defaultShareAllocation: 3,
+      automationType: 'ai-agent' as const,
+      category: 'Logistics'
+    },
+    {
+      name: 'Warehouse Worker',
+      description: 'Inventory handling, order fulfillment, and warehouse operations',
+      icon: 'box',
+      permissions: ['operations'],
+      defaultShareAllocation: 3,
+      automationType: 'workflow' as const,
+      category: 'Logistics'
+    },
+    {
+      name: 'Fleet Manager',
+      description: 'Vehicle management, maintenance coordination, and transportation planning',
+      icon: 'car',
+      permissions: ['operations', 'finance'],
+      defaultShareAllocation: 7,
+      automationType: 'workflow' as const,
+      category: 'Logistics'
+    },
+    
+    // Creative & Media
+    {
+      name: 'Creative Director',
+      description: 'Creative vision, artistic leadership, and brand development',
+      icon: 'palette',
+      permissions: ['marketing', 'admin'],
+      defaultShareAllocation: 12,
+      automationType: 'workflow' as const,
+      category: 'Creative'
+    },
+    {
+      name: 'Video Editor',
+      description: 'Video production, post-production editing, and multimedia content creation',
+      icon: 'video',
+      permissions: ['marketing', 'tech'],
+      defaultShareAllocation: 6,
+      automationType: 'ai-agent' as const,
+      category: 'Creative'
+    },
+    {
+      name: 'Photographer',
+      description: 'Photography services, visual content creation, and image production',
+      icon: 'camera',
+      permissions: ['marketing'],
+      defaultShareAllocation: 5,
+      automationType: 'hybrid' as const,
+      category: 'Creative'
+    },
+    {
+      name: 'Copywriter',
+      description: 'Content writing, marketing copy, and brand messaging',
+      icon: 'pen-tool',
+      permissions: ['marketing'],
+      defaultShareAllocation: 5,
+      automationType: 'ai-agent' as const,
+      category: 'Creative'
+    },
+    {
+      name: 'Social Media Manager',
+      description: 'Social media strategy, content planning, and community management',
+      icon: 'share',
+      permissions: ['marketing', 'data-analysis'],
+      defaultShareAllocation: 6,
+      automationType: 'ai-agent' as const,
+      category: 'Creative'
+    },
+    {
+      name: 'Animator',
+      description: '2D/3D animation, motion graphics, and visual effects',
+      icon: 'play',
+      permissions: ['marketing', 'tech'],
+      defaultShareAllocation: 7,
+      automationType: 'hybrid' as const,
+      category: 'Creative'
+    },
+    
+    // Finance & Accounting
+    {
+      name: 'Controller',
+      description: 'Financial reporting, accounting oversight, and fiscal management',
+      icon: 'calculator',
+      permissions: ['finance', 'admin'],
+      defaultShareAllocation: 12,
+      automationType: 'workflow' as const,
+      category: 'Finance'
+    },
+    {
+      name: 'Accountant',
+      description: 'Financial record keeping, tax preparation, and bookkeeping',
+      icon: 'file-text',
+      permissions: ['finance'],
+      defaultShareAllocation: 6,
+      automationType: 'ai-agent' as const,
+      category: 'Finance'
+    },
+    {
+      name: 'Financial Analyst',
+      description: 'Financial modeling, investment analysis, and market research',
+      icon: 'trending-up',
+      permissions: ['finance', 'data-analysis'],
+      defaultShareAllocation: 8,
+      automationType: 'ai-agent' as const,
+      category: 'Finance'
+    },
+    {
+      name: 'Payroll Specialist',
+      description: 'Payroll processing, benefits administration, and compensation management',
+      icon: 'dollar-sign',
+      permissions: ['finance', 'admin'],
+      defaultShareAllocation: 5,
+      automationType: 'workflow' as const,
+      category: 'Finance'
+    },
+    {
+      name: 'Investment Advisor',
+      description: 'Investment strategy, portfolio management, and financial planning',
+      icon: 'pie-chart',
+      permissions: ['finance', 'data-analysis'],
+      defaultShareAllocation: 10,
+      automationType: 'ai-agent' as const,
+      category: 'Finance'
+    },
+    {
+      name: 'Risk Manager',
+      description: 'Risk assessment, compliance monitoring, and financial risk mitigation',
+      icon: 'shield',
+      permissions: ['finance', 'legal'],
+      defaultShareAllocation: 8,
+      automationType: 'ai-agent' as const,
+      category: 'Finance'
+    },
+    
+    // Real Estate
+    {
+      name: 'Real Estate Agent',
+      description: 'Property sales, client representation, and market expertise',
+      icon: 'home',
+      permissions: ['marketing', 'operations'],
+      defaultShareAllocation: 8,
+      automationType: 'hybrid' as const,
+      category: 'Real Estate'
+    },
+    {
+      name: 'Property Manager',
+      description: 'Property maintenance, tenant relations, and facility management',
+      icon: 'building',
+      permissions: ['operations', 'finance'],
+      defaultShareAllocation: 7,
+      automationType: 'workflow' as const,
+      category: 'Real Estate'
+    },
+    {
+      name: 'Real Estate Appraiser',
+      description: 'Property valuation, market analysis, and appraisal services',
+      icon: 'search',
+      permissions: ['data-analysis', 'operations'],
+      defaultShareAllocation: 6,
+      automationType: 'ai-agent' as const,
+      category: 'Real Estate'
+    },
+    {
+      name: 'Construction Supervisor',
+      description: 'Construction oversight, project management, and quality control',
+      icon: 'hard-hat',
+      permissions: ['operations', 'admin'],
+      defaultShareAllocation: 9,
+      automationType: 'workflow' as const,
+      category: 'Real Estate'
+    },
+    {
+      name: 'Architect',
+      description: 'Building design, architectural planning, and construction documentation',
+      icon: 'ruler',
+      permissions: ['operations', 'tech'],
+      defaultShareAllocation: 12,
+      automationType: 'hybrid' as const,
+      category: 'Real Estate'
+    },
+    
+    // Agriculture & Environment
+    {
+      name: 'Farm Manager',
+      description: 'Agricultural operations, crop management, and farm business oversight',
+      icon: 'tractor',
+      permissions: ['operations', 'finance'],
+      defaultShareAllocation: 10,
+      automationType: 'workflow' as const,
+      category: 'Agriculture'
+    },
+    {
+      name: 'Agricultural Scientist',
+      description: 'Crop research, soil analysis, and agricultural innovation',
+      icon: 'leaf',
+      permissions: ['data-analysis', 'operations'],
+      defaultShareAllocation: 8,
+      automationType: 'ai-agent' as const,
+      category: 'Agriculture'
+    },
+    {
+      name: 'Environmental Specialist',
+      description: 'Environmental compliance, sustainability planning, and ecological assessment',
+      icon: 'globe',
+      permissions: ['legal', 'data-analysis'],
+      defaultShareAllocation: 7,
+      automationType: 'ai-agent' as const,
+      category: 'Environment'
+    },
+    {
+      name: 'Sustainability Manager',
+      description: 'Green initiatives, environmental strategy, and corporate sustainability',
+      icon: 'recycle',
+      permissions: ['operations', 'admin'],
+      defaultShareAllocation: 8,
+      automationType: 'workflow' as const,
+      category: 'Environment'
+    },
+    
+    // Non-Profit & Social Services
+    {
+      name: 'Program Director',
+      description: 'Program management, community outreach, and social impact leadership',
+      icon: 'heart',
+      permissions: ['admin', 'operations', 'marketing'],
+      defaultShareAllocation: 12,
+      automationType: 'workflow' as const,
+      category: 'Non-Profit'
+    },
+    {
+      name: 'Social Worker',
+      description: 'Client services, case management, and community support',
+      icon: 'users',
+      permissions: ['operations'],
+      defaultShareAllocation: 6,
+      automationType: 'hybrid' as const,
+      category: 'Non-Profit'
+    },
+    {
+      name: 'Grant Writer',
+      description: 'Funding proposals, grant applications, and donor relations',
+      icon: 'edit',
+      permissions: ['marketing', 'finance'],
+      defaultShareAllocation: 7,
+      automationType: 'ai-agent' as const,
+      category: 'Non-Profit'
+    },
+    {
+      name: 'Volunteer Coordinator',
+      description: 'Volunteer management, community engagement, and program support',
+      icon: 'handshake',
+      permissions: ['operations', 'marketing'],
+      defaultShareAllocation: 4,
+      automationType: 'hybrid' as const,
+      category: 'Non-Profit'
+    },
+    
+    // Government & Public Service
+    {
+      name: 'City Manager',
+      description: 'Municipal administration, public services, and government operations',
+      icon: 'landmark',
+      permissions: ['admin', 'operations', 'finance'],
+      defaultShareAllocation: 15,
+      automationType: 'workflow' as const,
+      category: 'Government'
+    },
+    {
+      name: 'Policy Analyst',
+      description: 'Policy research, regulatory analysis, and government advisory',
+      icon: 'file-text',
+      permissions: ['data-analysis', 'legal'],
+      defaultShareAllocation: 8,
+      automationType: 'ai-agent' as const,
+      category: 'Government'
+    },
+    {
+      name: 'Public Relations Specialist',
+      description: 'Government communications, media relations, and public engagement',
+      icon: 'megaphone',
+      permissions: ['marketing', 'admin'],
+      defaultShareAllocation: 6,
+      automationType: 'ai-agent' as const,
+      category: 'Government'
+    },
+    
+    // Sports & Entertainment
+    {
+      name: 'Event Coordinator',
+      description: 'Event planning, venue management, and entertainment production',
+      icon: 'calendar',
+      permissions: ['operations', 'marketing'],
+      defaultShareAllocation: 7,
+      automationType: 'workflow' as const,
+      category: 'Entertainment'
+    },
+    {
+      name: 'Athletic Director',
+      description: 'Sports program management, team coordination, and athletic administration',
+      icon: 'trophy',
+      permissions: ['admin', 'operations'],
+      defaultShareAllocation: 10,
+      automationType: 'workflow' as const,
+      category: 'Sports'
+    },
+    {
+      name: 'Fitness Trainer',
+      description: 'Personal training, fitness instruction, and health coaching',
+      icon: 'dumbbell',
+      permissions: ['operations'],
+      defaultShareAllocation: 4,
+      automationType: 'hybrid' as const,
+      category: 'Sports'
+    },
+    {
+      name: 'Music Producer',
+      description: 'Audio production, recording supervision, and music creation',
+      icon: 'music',
+      permissions: ['marketing', 'tech'],
+      defaultShareAllocation: 9,
+      automationType: 'hybrid' as const,
+      category: 'Entertainment'
     }
   ]
 
@@ -7518,7 +8259,7 @@ function RolesView({ roles, selectedOrganization, onAddMember, onCreateRole, onU
 }
 
 // Instruments View Component
-function InstrumentsView({ instruments, organizations, selectedOrganization, onCreateInstrument, onDeleteInstrument }: Omit<InstrumentsViewProps, 'onUpdateInstrument'>) {
+function InstrumentsView({ instruments, organizations, selectedOrganization, onCreateInstrument, onDeleteInstrument, onSelectOrganization, onDeselectOrganization }: Omit<InstrumentsViewProps, 'onUpdateInstrument'>) {
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [showTemplates, setShowTemplates] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState('All')
@@ -7792,30 +8533,77 @@ function InstrumentsView({ instruments, organizations, selectedOrganization, onC
 
         {!selectedOrganization ? (
           <div className="space-y-6">
-            {/* Global Instruments Overview */}
-            <div className="bg-black/60 backdrop-blur-xl border border-white/20 rounded-xl p-6">
-              <h2 className="text-xl font-semibold text-white mb-4">All Financial Instruments - Global View</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-white/10 rounded-lg p-4">
-                  <div className="text-2xl font-bold text-white">{instruments.length}</div>
-                  <div className="text-gray-400 text-sm">Total Instruments</div>
-                </div>
-                <div className="bg-white/10 rounded-lg p-4">
-                  <div className="text-2xl font-bold text-green-400">
-                    {instruments.filter(i => i.status === 'active').length}
+            {/* Organization Selection Cards */}
+            <div className="mb-8">
+              <h2 className="text-xl font-semibold text-white mb-4">Choose Organization or View All Instruments</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {/* Global/All Instruments Card */}
+                <div
+                  onClick={() => onDeselectOrganization()}
+                  className="bg-gradient-to-br from-purple-500/20 to-blue-500/20 border border-purple-400/30 rounded-xl p-6 cursor-pointer transition-all hover:scale-105 hover:border-purple-400/50"
+                >
+                  <div className="flex items-center space-x-3 mb-4">
+                    <div className="p-2 bg-purple-500/20 rounded-lg">
+                      <Globe className="w-6 h-6 text-purple-400" />
+                    </div>
+                    <div>
+                      <h3 className="text-white font-semibold">All Organizations</h3>
+                      <p className="text-purple-300 text-sm">Global View</p>
+                    </div>
                   </div>
-                  <div className="text-gray-400 text-sm">Active</div>
-                </div>
-                <div className="bg-white/10 rounded-lg p-4">
-                  <div className="text-2xl font-bold text-white">{organizations.length}</div>
-                  <div className="text-gray-400 text-sm">Organizations</div>
-                </div>
-                <div className="bg-white/10 rounded-lg p-4">
-                  <div className="text-2xl font-bold text-blue-400">
-                    {instruments.filter(i => !i.organizationId).length}
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-400">Templates:</span>
+                      <span className="text-purple-400 font-medium">{instrumentTemplates.length}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-400">Organizations:</span>
+                      <span className="text-purple-400 font-medium">{organizations.length}</span>
+                    </div>
                   </div>
-                  <div className="text-gray-400 text-sm">Global Instruments</div>
                 </div>
+
+                {/* Organization Cards */}
+                {organizations.map((org) => (
+                  <div
+                    key={org.id}
+                    onClick={() => onSelectOrganization(org.id)}
+                    className="bg-black/60 backdrop-blur-xl border border-white/20 rounded-xl p-6 cursor-pointer transition-all hover:scale-105 hover:border-blue-400/50 hover:bg-black/80"
+                  >
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className="p-2 bg-blue-500/20 rounded-lg">
+                        <Building2 className="w-6 h-6 text-blue-400" />
+                      </div>
+                      <div>
+                        <h3 className="text-white font-semibold">{org.name}</h3>
+                        <p className="text-gray-400 text-sm">{org.description}</p>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-400">Members:</span>
+                        <span className="text-blue-400 font-medium">{org.members.length}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-400">Instruments:</span>
+                        <span className="text-blue-400 font-medium">
+                          {instruments.filter(i => i.organizationId === org.id).length}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-400">Status:</span>
+                        <span className={`font-medium capitalize ${
+                          org.status === 'active' ? 'text-green-400' : 'text-yellow-400'
+                        }`}>
+                          {org.status}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="mt-4 pt-3 border-t border-white/10">
+                      <p className="text-xs text-center text-blue-400">Click to view organization instruments →</p>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 

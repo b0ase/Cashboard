@@ -1778,7 +1778,12 @@ export default function Dashboard() {
     const checkMobile = () => {
       const mobile = window.innerWidth <= 768 || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
       setIsMobile(mobile)
-      setAppState(prev => ({ ...prev, isMobile: mobile }))
+      setAppState(prev => ({
+        ...prev,
+        isMobile: mobile,
+        // Ensure assistant is closed by default on mobile
+        ...(mobile && prev.isChatOpen ? { isChatOpen: false } : {})
+      }))
       
       // Adjust initial node positions for mobile
       if (mobile) {

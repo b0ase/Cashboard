@@ -5676,11 +5676,192 @@ function AgentsView({
     aiPrompt: ''
   })
 
-  // Filter to show only AI agents and hybrid roles
-  const agents = roles.filter(role => 
-    role.automationType === 'ai-agent' || 
-    (role.automationType === 'hybrid' && role.isAutomated)
-  )
+  // AI Agent Templates for Agents Dashboard
+  const agentTemplates = [
+    { 
+      id: 'ai-1', 
+      name: 'Marketing AI Agent', 
+      description: 'Automated social media posting, content creation, and campaign optimization', 
+      icon: 'bot', 
+      permissions: ['marketing', 'data-analysis'], 
+      defaultShareAllocation: 8,
+      automationType: 'ai-agent' as const,
+      isAutomated: true,
+      workflowId: null,
+      aiPrompt: 'You are a marketing AI agent focused on creating engaging content, managing social media campaigns, and optimizing marketing ROI through data-driven insights.'
+    },
+    { 
+      id: 'ai-2', 
+      name: 'Trading Bot', 
+      description: 'Automated trading strategies, market analysis, and portfolio management', 
+      icon: 'trending-up', 
+      permissions: ['finance', 'data-analysis'], 
+      defaultShareAllocation: 12,
+      automationType: 'ai-agent' as const,
+      isAutomated: true,
+      workflowId: null,
+      aiPrompt: 'You are a sophisticated trading bot that analyzes market trends, executes trades based on predefined strategies, and manages risk to optimize portfolio performance.'
+    },
+    { 
+      id: 'ai-3', 
+      name: 'Customer Service AI', 
+      description: 'Automated customer support, ticket routing, and response generation', 
+      icon: 'bot', 
+      permissions: ['marketing', 'operations'], 
+      defaultShareAllocation: 6,
+      automationType: 'ai-agent' as const,
+      isAutomated: true,
+      workflowId: null,
+      aiPrompt: 'You are a customer service AI agent that provides helpful, accurate, and empathetic responses to customer inquiries while escalating complex issues to human agents.'
+    },
+    { 
+      id: 'ai-4', 
+      name: 'Content Generator AI', 
+      description: 'Automated blog posts, product descriptions, and marketing copy creation', 
+      icon: 'bot', 
+      permissions: ['marketing', 'workflow-creation'], 
+      defaultShareAllocation: 7,
+      automationType: 'ai-agent' as const,
+      isAutomated: true,
+      workflowId: null,
+      aiPrompt: 'You are a creative content generation AI that produces high-quality, engaging written content tailored to specific audiences and brand voices.'
+    },
+    { 
+      id: 'ai-5', 
+      name: 'Data Analysis AI', 
+      description: 'Automated data processing, insights generation, and report creation', 
+      icon: 'bar-chart-3', 
+      permissions: ['data-analysis', 'finance'], 
+      defaultShareAllocation: 9,
+      automationType: 'ai-agent' as const,
+      isAutomated: true,
+      workflowId: null,
+      aiPrompt: 'You are a data analysis AI that processes large datasets, identifies patterns and trends, and generates actionable insights for business decision-making.'
+    },
+    { 
+      id: 'ai-6', 
+      name: 'SEO Optimization AI', 
+      description: 'Automated keyword research, content optimization, and ranking monitoring', 
+      icon: 'zap', 
+      permissions: ['marketing', 'data-analysis'], 
+      defaultShareAllocation: 5,
+      automationType: 'ai-agent' as const,
+      isAutomated: true,
+      workflowId: null,
+      aiPrompt: 'You are an SEO optimization AI that researches keywords, optimizes content for search engines, and monitors ranking performance to improve organic visibility.'
+    },
+    { 
+      id: 'ai-7', 
+      name: 'Lead Generation AI', 
+      description: 'Automated prospect identification, outreach, and lead qualification', 
+      icon: 'bot', 
+      permissions: ['marketing', 'operations'], 
+      defaultShareAllocation: 8,
+      automationType: 'ai-agent' as const,
+      isAutomated: true,
+      workflowId: null,
+      aiPrompt: 'You are a lead generation AI that identifies potential customers, personalizes outreach messages, and qualifies leads based on predefined criteria.'
+    },
+    { 
+      id: 'ai-8', 
+      name: 'Inventory Management AI', 
+      description: 'Automated stock monitoring, reorder alerts, and demand forecasting', 
+      icon: 'settings', 
+      permissions: ['operations', 'data-analysis'], 
+      defaultShareAllocation: 6,
+      automationType: 'ai-agent' as const,
+      isAutomated: true,
+      workflowId: null,
+      aiPrompt: 'You are an inventory management AI that monitors stock levels, predicts demand patterns, and automates reordering to prevent stockouts and optimize inventory costs.'
+    },
+    { 
+      id: 'ai-9', 
+      name: 'Financial Advisor AI', 
+      description: 'Automated budget analysis, expense tracking, and financial recommendations', 
+      icon: 'bar-chart-3', 
+      permissions: ['finance', 'data-analysis'], 
+      defaultShareAllocation: 10,
+      automationType: 'ai-agent' as const,
+      isAutomated: true,
+      workflowId: null,
+      aiPrompt: 'You are a financial advisor AI that analyzes spending patterns, tracks budgets, and provides personalized financial recommendations to optimize financial health.'
+    },
+    { 
+      id: 'ai-10', 
+      name: 'Quality Assurance AI', 
+      description: 'Automated testing, bug detection, and quality monitoring', 
+      icon: 'shield', 
+      permissions: ['tech', 'operations'], 
+      defaultShareAllocation: 7,
+      automationType: 'ai-agent' as const,
+      isAutomated: true,
+      workflowId: null,
+      aiPrompt: 'You are a quality assurance AI that performs automated testing, detects bugs and issues, and ensures product quality meets established standards.'
+    },
+    { 
+      id: 'ai-11', 
+      name: 'HR Recruitment AI', 
+      description: 'Automated resume screening, candidate matching, and interview scheduling', 
+      icon: 'bot', 
+      permissions: ['operations', 'data-analysis'], 
+      defaultShareAllocation: 6,
+      automationType: 'ai-agent' as const,
+      isAutomated: true,
+      workflowId: null,
+      aiPrompt: 'You are an HR recruitment AI that screens resumes, matches candidates to job requirements, and streamlines the hiring process while ensuring fair and unbiased evaluation.'
+    },
+    { 
+      id: 'ai-12', 
+      name: 'Competitive Analysis AI', 
+      description: 'Automated competitor monitoring, price tracking, and market intelligence', 
+      icon: 'zap', 
+      permissions: ['marketing', 'data-analysis'], 
+      defaultShareAllocation: 5,
+      automationType: 'ai-agent' as const,
+      isAutomated: true,
+      workflowId: null,
+      aiPrompt: 'You are a competitive analysis AI that monitors competitor activities, tracks pricing changes, and provides market intelligence to inform strategic decisions.'
+    },
+    { 
+      id: 'ai-13', 
+      name: 'Social Media AI Manager', 
+      description: 'Automated posting, engagement monitoring, and community management', 
+      icon: 'bot', 
+      permissions: ['marketing', 'workflow-creation'], 
+      defaultShareAllocation: 7,
+      automationType: 'ai-agent' as const,
+      isAutomated: true,
+      workflowId: null,
+      aiPrompt: 'You are a social media management AI that creates and schedules posts, monitors engagement, responds to comments, and manages online community presence.'
+    },
+    { 
+      id: 'ai-14', 
+      name: 'Email Marketing AI', 
+      description: 'Automated email campaigns, personalization, and performance optimization', 
+      icon: 'zap', 
+      permissions: ['marketing', 'data-analysis'], 
+      defaultShareAllocation: 6,
+      automationType: 'ai-agent' as const,
+      isAutomated: true,
+      workflowId: null,
+      aiPrompt: 'You are an email marketing AI that creates personalized email campaigns, optimizes send times, and analyzes performance metrics to improve engagement rates.'
+    },
+    { 
+      id: 'ai-15', 
+      name: 'Fraud Detection AI', 
+      description: 'Automated transaction monitoring, anomaly detection, and risk assessment', 
+      icon: 'shield', 
+      permissions: ['finance', 'data-analysis'], 
+      defaultShareAllocation: 8,
+      automationType: 'ai-agent' as const,
+      isAutomated: true,
+      workflowId: null,
+      aiPrompt: 'You are a fraud detection AI that monitors transactions, identifies suspicious patterns, and assesses risk levels to prevent fraudulent activities.'
+    }
+  ]
+
+  // Use agent templates instead of filtering roles
+  const agents = agentTemplates
 
   const handleCreate = () => {
     if (formData.name && formData.description) {

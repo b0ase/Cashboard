@@ -30,8 +30,8 @@ const mockOrganizations = [
 
 export default function OrganizationsPage() {
   return (
-    <div className="min-h-screen p-6 overflow-y-auto scrollbar-always-visible">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen p-6 overflow-y-auto overflow-x-hidden w-full">
+      <div className="w-full max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>

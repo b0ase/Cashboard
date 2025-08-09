@@ -339,7 +339,7 @@ interface Role {
 
 interface WorkflowNode {
   id: string
-  type: 'payment' | 'contract' | 'task' | 'decision' | 'milestone' | 'team' | 'kpi' | 'employee' | 'deliverable' | 'asset' | 'mint' | 'payroll' | 'production' | 'marketing' | 'sales' | 'legal' | 'finance' | 'hr' | 'it' | 'operations' | 'api' | 'database' | 'loop' | 'condition' | 'trigger' | 'webhook' | 'email' | 'sms' | 'notification' | 'approval' | 'review' | 'timer' | 'counter' | 'calculator' | 'transformer' | 'validator' | 'aggregator' | 'filter' | 'sorter' | 'merger' | 'splitter' | 'gateway' | 'service' | 'function' | 'script' | 'organization' | 'role' | 'member' | 'instrument' | 'integration'
+  type: 'payment' | 'contract' | 'task' | 'decision' | 'milestone' | 'team' | 'kpi' | 'employee' | 'deliverable' | 'asset' | 'mint' | 'payroll' | 'production' | 'marketing' | 'sales' | 'legal' | 'finance' | 'hr' | 'it' | 'operations' | 'api' | 'database' | 'loop' | 'condition' | 'trigger' | 'webhook' | 'email' | 'sms' | 'notification' | 'approval' | 'review' | 'timer' | 'counter' | 'calculator' | 'transformer' | 'validator' | 'aggregator' | 'filter' | 'sorter' | 'merger' | 'splitter' | 'gateway' | 'service' | 'function' | 'script' | 'organization' | 'role' | 'member' | 'instrument' | 'integration' | 'switch' | 'router' | 'delay' | 'queue' | 'batch' | 'parallel' | 'sequence' | 'retry'
   name: string
   description: string
   x: number
@@ -413,9 +413,9 @@ interface ChatMessage {
 }
 
 interface AppState {
-  currentView: 'workflow' | 'organizations' | 'roles' | 'members' | 'instruments' | 'contracts' | 'wallets' | 'security' | 'integrations' | 'agents' | 'settings' | 'profile' | 'billing'
+  currentView: 'workflow' | 'organizations' | 'roles' | 'people' | 'instruments' | 'contracts' | 'wallets' | 'security' | 'integrations' | 'agents' | 'settings' | 'profile' | 'billing'
   selectedOrganization: string | null
-  selectedMember: HandCashHandle | null
+  selectedPerson: HandCashHandle | null
   sidebarOpen: boolean
   isMobile: boolean
   organizations: Organization[]
@@ -528,10 +528,10 @@ interface RolesViewProps {
   onDeleteRole: (roleId: string) => void
 }
 
-interface MembersViewProps {
+interface PeopleViewProps {
   organizations: Organization[]
   selectedOrganization: string | null
-  onUpdateShareAllocation: (organizationId: string, memberId: string, shares: number) => void
+  onUpdateShareAllocation: (organizationId: string, personId: string, shares: number) => void
 }
 
 interface FinancialInstrument {
@@ -625,7 +625,7 @@ export default function Dashboard() {
   const [appState, setAppState] = useState<AppState>({
     currentView: 'workflow',
     selectedOrganization: null,
-    selectedMember: null,
+    selectedPerson: null,
     sidebarOpen: true,
     organizations: [
       {
@@ -1959,6 +1959,14 @@ export default function Dashboard() {
       case 'service': return <Server className={iconSize} />
       case 'function': return <Code className={iconSize} />
       case 'script': return <Terminal className={iconSize} />
+      case 'switch': return <GitBranch className={iconSize} />
+      case 'router': return <Router className={iconSize} />
+      case 'delay': return <Clock className={iconSize} />
+      case 'queue': return <Layers className={iconSize} />
+      case 'batch': return <Package className={iconSize} />
+      case 'parallel': return <Copy className={iconSize} />
+      case 'sequence': return <ArrowRight className={iconSize} />
+      case 'retry': return <RefreshCw className={iconSize} />
       default: return <Circle className={iconSize} />
     }
   }
@@ -2573,7 +2581,7 @@ export default function Dashboard() {
   // Function to navigate to member modal from team nodes
   const navigateToMember = (memberName: string) => {
     // Switch to members view
-    setCurrentView('members')
+    setCurrentView('people')
     
     // Find the member by name in the current organization
     const currentOrg = organizations.find(org => org.id === selectedOrganization)
@@ -2589,7 +2597,7 @@ export default function Dashboard() {
         // This will be handled by the MembersView component
         setAppState(prev => ({ 
           ...prev, 
-          currentView: 'members',
+          currentView: 'people',
           selectedMember: member // We'll add this to AppState
         }))
       }
@@ -2824,16 +2832,16 @@ export default function Dashboard() {
               </button>
               
               <button
-                onClick={() => setCurrentView('members')}
+                onClick={() => setCurrentView('people')}
                 className={`w-full text-left px-4 py-3 rounded-lg transition-all ${
-                  currentView === 'members' 
+                  currentView === 'people' 
                     ? 'bg-white/20 text-white' 
                     : 'text-gray-400 hover:text-white hover:bg-white/10'
                 }`}
               >
                 <div className="flex items-center space-x-3">
                   <Users className="w-5 h-5" />
-                  <span>Members</span>
+                  <span>People</span>
                 </div>
               </button>
               
@@ -3255,8 +3263,8 @@ export default function Dashboard() {
           />
         )}
 
-                {currentView === 'members' && (
-          <MembersView
+                {currentView === 'people' && (
+          <PeopleView
             organizations={organizations}
             selectedOrganization={selectedOrganization}
             onUpdateShareAllocation={updateShareAllocation}
@@ -4253,6 +4261,14 @@ function WorkflowView({
       case 'approval': return <CheckSquare className={`${iconSize} text-green-600`} />
       case 'review': return <Eye className={`${iconSize} text-orange-500`} />
       case 'timer': return <Clock className={`${iconSize} text-slate-400`} />
+      case 'switch': return <GitBranch className={`${iconSize} text-indigo-500`} />
+      case 'router': return <Router className={`${iconSize} text-cyan-500`} />
+      case 'delay': return <Clock className={`${iconSize} text-amber-400`} />
+      case 'queue': return <Layers className={`${iconSize} text-gray-500`} />
+      case 'batch': return <Package className={`${iconSize} text-orange-400`} />
+      case 'parallel': return <Copy className={`${iconSize} text-blue-400`} />
+      case 'sequence': return <ArrowRight className={`${iconSize} text-green-400`} />
+      case 'retry': return <RefreshCw className={`${iconSize} text-red-400`} />
       default: return getNodeIcon(type)
     }
   }
@@ -4286,6 +4302,14 @@ function WorkflowView({
     { type: 'loop' as const, name: 'Loop', icon: getColoredNodeIcon('loop'), category: 'Logic' },
     { type: 'condition' as const, name: 'Condition', icon: getColoredNodeIcon('condition'), category: 'Logic' },
     { type: 'trigger' as const, name: 'Trigger', icon: getColoredNodeIcon('trigger'), category: 'Logic' },
+    { type: 'switch' as const, name: 'Switch', icon: getColoredNodeIcon('switch'), category: 'Logic' },
+    { type: 'router' as const, name: 'Router', icon: getColoredNodeIcon('router'), category: 'Logic' },
+    { type: 'delay' as const, name: 'Delay', icon: getColoredNodeIcon('delay'), category: 'Logic' },
+    { type: 'queue' as const, name: 'Queue', icon: getColoredNodeIcon('queue'), category: 'Logic' },
+    { type: 'batch' as const, name: 'Batch', icon: getColoredNodeIcon('batch'), category: 'Logic' },
+    { type: 'parallel' as const, name: 'Parallel', icon: getColoredNodeIcon('parallel'), category: 'Logic' },
+    { type: 'sequence' as const, name: 'Sequence', icon: getColoredNodeIcon('sequence'), category: 'Logic' },
+    { type: 'retry' as const, name: 'Retry', icon: getColoredNodeIcon('retry'), category: 'Logic' },
     
     // Process Management
     { type: 'approval' as const, name: 'Approval', icon: getColoredNodeIcon('approval'), category: 'Process' },
@@ -4436,8 +4460,8 @@ function WorkflowView({
           isPaletteCollapsed 
             ? 'max-h-12' 
             : isChatOpen 
-              ? 'max-h-80' 
-              : 'max-h-[32rem]'
+              ? 'max-h-96' 
+              : 'max-h-[40rem]'
         } overflow-hidden`}>
           {/* Palette Header with Collapse Button */}
           <div className="flex items-center justify-between mb-2">
@@ -7380,8 +7404,8 @@ function InstrumentsView({ instruments, organizations, selectedOrganization, onC
   )
 }
 
-// Members View Component
-function MembersView({ organizations, selectedOrganization, onUpdateShareAllocation }: MembersViewProps) {
+// People View Component
+function PeopleView({ organizations, selectedOrganization, onUpdateShareAllocation }: PeopleViewProps) {
   const [selectedMember, setSelectedMember] = useState<HandCashHandle | null>(null)
   const [showMemberProfile, setShowMemberProfile] = useState(false)
   const [editingMember, setEditingMember] = useState<HandCashHandle | null>(null)
@@ -7546,7 +7570,7 @@ function MembersView({ organizations, selectedOrganization, onUpdateShareAllocat
       <div className="max-w-7xl mx-auto p-6 pb-8">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2">Team Members</h1>
+            <h1 className="text-3xl font-bold text-white mb-2">People</h1>
             <p className="text-gray-300">Manage team members, KYC status, and share allocations</p>
           </div>
           <button

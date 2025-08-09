@@ -20,7 +20,7 @@ import ReactFlow, {
 } from 'reactflow'
 import 'reactflow/dist/style.css'
 import NodePalette from '@/components/NodePalette'
-import { DollarSign, FileText, Target, AlertTriangle, Building, Crown, UserCheck, Banknote, Plug, Split, Play, Zap, User } from 'lucide-react'
+import { DollarSign, FileText, Target, AlertTriangle, Building, Crown, UserCheck, Banknote, Plug, Split, Play, Zap, User, Workflow, Wallet } from 'lucide-react'
 
 type NodeKind = string
 
@@ -37,7 +37,8 @@ function IconFor({ kind }: { kind: NodeKind }) {
     case 'role': return <Crown className={`${cls} text-amber-400`} />
     case 'member': return <UserCheck className={`${cls} text-cyan-400`} />
     case 'instrument': return <Banknote className={`${cls} text-emerald-400`} />
-    case 'contact': return <User className={`${cls} text-blue-300`} />
+    case 'wallets': return <Wallet className={`${cls} text-teal-300`} />
+    case 'workflow': return <Target className={`${cls} text-indigo-400`} />
     case 'trigger': return <Zap className={`${cls} text-yellow-500`} />
     case 'youtube': return <Play className={`${cls} text-red-500`} />
     default: return <Target className={`${cls} text-white`} />
@@ -67,8 +68,8 @@ const PALETTE = [
   { type: 'decision', name: 'Decision', category: 'Basic' },
   { type: 'payment', name: 'Payment', category: 'Basic' },
   { type: 'milestone', name: 'Milestone', category: 'Basic' },
-  { type: 'contract', name: 'Contract', category: 'Basic' },
   { type: 'team', name: 'Team', category: 'Basic' },
+  // Business (replace Contact with Contract; move Contract here)
   { type: 'workflow', name: 'Workflows', category: 'Business' },
   { type: 'organization', name: 'Organizations', category: 'Business' },
   { type: 'role', name: 'Roles', category: 'Business' },
@@ -76,7 +77,8 @@ const PALETTE = [
   { type: 'member', name: 'People', category: 'Business' },
   { type: 'instrument', name: 'Instruments', category: 'Business' },
   { type: 'wallets', name: 'Wallets', category: 'Business' },
-  { type: 'contact', name: 'Contact', category: 'Business' },
+  { type: 'contract', name: 'Contract', category: 'Business' },
+  // Integration
   { type: 'youtube', name: 'YouTube', category: 'Integration' },
   { type: 'api', name: 'API Call', category: 'Integration' },
   { type: 'database', name: 'Database', category: 'Integration' },
@@ -86,6 +88,10 @@ const PALETTE = [
   { type: 'notification', name: 'Notification', category: 'Communication' },
   { type: 'trigger', name: 'Trigger', category: 'Logic' },
 ]
+
+const BUSINESS_KINDS = new Set(['workflow','organization','role','ai-agent','member','instrument','wallets','contract'])
+
+type TemplateItem = { id: string; name: string; description?: string }
 
 export default function WorkflowReactFlowCanvas({ workflow }: { workflow: any }) {
   const initialNodes = useMemo<Node<RFNodeData>[]>(() =>
@@ -107,8 +113,49 @@ export default function WorkflowReactFlowCanvas({ workflow }: { workflow: any })
   const [nodes, setNodes, onNodesChange] = useNodesState<RFNodeData>(initialNodes)
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
   const onConnect = useCallback((params: Edge | Connection) => setEdges((eds) => addEdge({ ...params, animated: true }, eds)), [setEdges])
+  const [templateModal, setTemplateModal] = useState<{ kind: string; items: TemplateItem[] } | null>(null)
 
   const handlePick = useCallback((type: string, rf: ReturnType<typeof useReactFlow>) => {
+    if (BUSINESS_KINDS.has(type)) {
+      // Gather templates from the existing dashboards in page.tsx (basic mock via kind)
+      let items: TemplateItem[] = []
+      // Minimal mapping – we can expand if needed by importing from page.tsx later
+      if (type === 'organization') items = [
+        { id: 'org-corp', name: 'Delaware C‑Corp' },
+        { id: 'org-llc', name: 'Wyoming LLC' },
+        { id: 'org-npo', name: 'Nonprofit' },
+      ]
+      else if (type === 'instrument') items = [
+        { id: 'instr-common', name: 'Common Stock' },
+        { id: 'instr-token', name: 'Access Token' },
+        { id: 'instr-royalty', name: 'Royalty Share' },
+      ]
+      else if (type === 'role') items = [
+        { id: 'role-ceo', name: 'CEO' },
+        { id: 'role-cto', name: 'CTO' },
+        { id: 'role-cmo', name: 'CMO' },
+      ]
+      else if (type === 'member') items = [
+        { id: 'member-artist', name: 'Artist' },
+        { id: 'member-producer', name: 'Producer' },
+        { id: 'member-marketer', name: 'Marketer' },
+      ]
+      else if (type === 'contract') items = [
+        { id: 'contract-nda', name: 'NDA' },
+        { id: 'contract-service', name: 'Service Agreement' },
+        { id: 'contract-licensing', name: 'Licensing' },
+      ]
+      else if (type === 'wallets') items = [
+        { id: 'wallet-treasury', name: 'Treasury Wallet' },
+        { id: 'wallet-custody', name: 'Custody Wallet' },
+      ]
+      else if (type === 'workflow') items = [
+        { id: 'wf-blank', name: 'Blank Workflow' },
+        { id: 'wf-audex', name: 'AUDEX Revenue Split' },
+      ]
+      setTemplateModal({ kind: type, items })
+      return
+    }
     const viewport = rf.getViewport()
     const rect = (rf as any).viewport?.getBoundingClientRect?.() || { width: 800, height: 600 }
     const centerScreen = { x: viewport.x + rect.width / 2, y: viewport.y + rect.height / 2 }
@@ -160,6 +207,39 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
           onPick={(t) => onPick(t, rf)}
         />
       </Panel>
+      {templateModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="bg-black/90 border border-white/20 rounded-lg p-4 w-[520px] max-h-[70vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-white text-sm font-medium">Select {templateModal.kind} Template</h3>
+              <button className="text-gray-400 hover:text-white" onClick={() => setTemplateModal(null)}>Close</button>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {templateModal.items.map((it) => (
+                <button
+                  key={it.id}
+                  onClick={() => {
+                    const viewport = rf.getViewport()
+                    const rect = (rf as any).viewport?.getBoundingClientRect?.() || { width: 800, height: 600 }
+                    const centerScreen = { x: viewport.x + rect.width / 2, y: viewport.y + rect.height / 2 }
+                    const pos = rf.project(centerScreen)
+                    const id = `n${Date.now()}`
+                    setNodes((nds) => nds.concat({ id, type: 'colored', position: pos, data: { label: it.name, kind: templateModal.kind } }))
+                    setTemplateModal(null)
+                  }}
+                  className="p-3 rounded bg-white/5 hover:bg-white/10 border border-white/10 text-left"
+                >
+                  <div className="text-white text-sm font-medium">{it.name}</div>
+                  {it.description && <div className="text-xs text-gray-400">{it.description}</div>}
+                </button>
+              ))}
+            </div>
+            {templateModal.items.length === 0 && (
+              <div className="text-gray-400 text-sm">No templates yet.</div>
+            )}
+          </div>
+        </div>
+      )}
     </ReactFlow>
   )
 }

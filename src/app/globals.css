@@ -43,4 +43,27 @@
   .scrollbar-always-visible::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.5);
   }
+  
+  .border-gradient-demo {
+    border: 2px solid transparent;
+    background: linear-gradient(black, black) padding-box,
+                linear-gradient(45deg, #3b82f6, #8b5cf6, #06b6d4, #3b82f6) border-box;
+  }
+  
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite alternate;
+  }
+  
+  @keyframes pulse-glow {
+    0% {
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.3),
+                  0 0 40px rgba(59, 130, 246, 0.2),
+                  0 0 60px rgba(59, 130, 246, 0.1);
+    }
+    100% {
+      box-shadow: 0 0 30px rgba(59, 130, 246, 0.5),
+                  0 0 60px rgba(59, 130, 246, 0.3),
+                  0 0 90px rgba(59, 130, 246, 0.2);
+    }
+  }
 }

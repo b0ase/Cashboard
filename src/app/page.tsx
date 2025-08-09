@@ -998,7 +998,7 @@ export default function Dashboard() {
     workflows: [
       {
         id: '1',
-        name: 'Development Project Workflow',
+        name: 'Demo Workflow',
         description: 'Complete development project with payment, contract, and team coordination',
         nodes: [
           {
@@ -1136,7 +1136,7 @@ export default function Dashboard() {
       status: 'sent'
     }
   ],
-  isChatOpen: false,
+  isChatOpen: true,
   isMobile: false,
       instruments: [
       {
@@ -3006,57 +3006,57 @@ export default function Dashboard() {
               
               <button
                 onClick={() => setCurrentView('instruments')}
-                className={`w-full text-left px-4 py-3 rounded-lg transition-all ${
+                className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
                   currentView === 'instruments' 
                     ? 'bg-white/20 text-white' 
                     : 'text-gray-400 hover:text-white hover:bg-white/10'
                 }`}
               >
-                <div className="flex items-center space-x-3">
-                  <Coins className="w-5 h-5" />
-                  <span>Instruments</span>
+                <div className="flex items-center space-x-2">
+                  <Coins className="w-4 h-4" />
+                  <span className="text-sm">Instruments</span>
                 </div>
               </button>
               
               <button
                 onClick={() => setCurrentView('contracts')}
-                className={`w-full text-left px-4 py-3 rounded-lg transition-all ${
+                className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
                   currentView === 'contracts' 
                     ? 'bg-white/20 text-white' 
                     : 'text-gray-400 hover:text-white hover:bg-white/10'
                 }`}
               >
-                <div className="flex items-center space-x-3">
-                  <FileText className="w-5 h-5" />
-                  <span>Contracts</span>
+                <div className="flex items-center space-x-2">
+                  <FileText className="w-4 h-4" />
+                  <span className="text-sm">Contracts</span>
                 </div>
               </button>
               
               <button
                 onClick={() => setCurrentView('wallets')}
-                className={`w-full text-left px-4 py-3 rounded-lg transition-all ${
+                className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
                   currentView === 'wallets' 
                     ? 'bg-white/20 text-white' 
                     : 'text-gray-400 hover:text-white hover:bg-white/10'
                 }`}
               >
-                <div className="flex items-center space-x-3">
-                  <Wallet className="w-5 h-5" />
-                  <span>Wallets</span>
+                <div className="flex items-center space-x-2">
+                  <Wallet className="w-4 h-4" />
+                  <span className="text-sm">Wallets</span>
                 </div>
               </button>
               
               <button
                 onClick={() => setCurrentView('integrations')}
-                className={`w-full text-left px-4 py-3 rounded-lg transition-all ${
+                className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
                   currentView === 'integrations' 
                     ? 'bg-white/20 text-white' 
                     : 'text-gray-400 hover:text-white hover:bg-white/10'
                 }`}
               >
-                <div className="flex items-center space-x-3">
-                  <Settings className="w-5 h-5" />
-                  <span>Integrations</span>
+                <div className="flex items-center space-x-2">
+                  <Settings className="w-4 h-4" />
+                  <span className="text-sm">Integrations</span>
                 </div>
               </button>
             </nav>
@@ -3068,43 +3068,43 @@ export default function Dashboard() {
               <nav className="space-y-2">
                   <button
                     onClick={() => setCurrentView('billing')}
-                    className={`w-full text-left px-4 py-3 rounded-lg transition-all ${
+                    className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
                       currentView === 'billing' 
                         ? 'bg-white/20 text-white' 
                         : 'text-gray-400 hover:text-white hover:bg-white/10'
                     }`}
                   >
-                    <div className="flex items-center space-x-3">
-                      <CreditCard className="w-5 h-5" />
-                      <span>Billing & Plans</span>
+                    <div className="flex items-center space-x-2">
+                      <CreditCard className="w-4 h-4" />
+                      <span className="text-sm">Billing & Plans</span>
                     </div>
                   </button>
                   
                 <button
                   onClick={() => setCurrentView('settings')}
-                  className={`w-full text-left px-4 py-3 rounded-lg transition-all ${
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
                     currentView === 'settings' 
                       ? 'bg-white/20 text-white' 
                       : 'text-gray-400 hover:text-white hover:bg-white/10'
                   }`}
                 >
-                  <div className="flex items-center space-x-3">
-                    <Settings className="w-5 h-5" />
-                    <span>Settings</span>
+                  <div className="flex items-center space-x-2">
+                    <Settings className="w-4 h-4" />
+                    <span className="text-sm">Settings</span>
                   </div>
                 </button>
                 
                 <button
                   onClick={() => setCurrentView('profile')}
-                  className={`w-full text-left px-4 py-3 rounded-lg transition-all ${
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
                     currentView === 'profile' 
                       ? 'bg-white/20 text-white' 
                       : 'text-gray-400 hover:text-white hover:bg-white/10'
                   }`}
                 >
-                  <div className="flex items-center space-x-3">
-                    <User className="w-5 h-5" />
-                    <span>Profile</span>
+                  <div className="flex items-center space-x-2">
+                    <User className="w-4 h-4" />
+                    <span className="text-sm">Profile</span>
                   </div>
                 </button>
               </nav>
@@ -3544,6 +3544,19 @@ function FloatingAIAssistant({
   isMobile: boolean
 }) {
   const [inputMessage, setInputMessage] = useState('')
+  const [isDragging, setIsDragging] = useState(false)
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
+  const [position, setPosition] = useState(() => {
+    // Try to get saved position from localStorage
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('aiAssistantPosition')
+      if (saved) {
+        return JSON.parse(saved)
+      }
+    }
+    // Default centered position
+    return { x: 0, y: 0 }
+  })
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault()
@@ -3553,6 +3566,71 @@ function FloatingAIAssistant({
     }
   }
 
+  // Drag handlers
+  const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
+    setIsDragging(true)
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
+    
+    const rect = (e.target as HTMLElement).closest('.ai-assistant')?.getBoundingClientRect()
+    if (rect) {
+      setDragOffset({
+        x: clientX - rect.left,
+        y: clientY - rect.top
+      })
+    }
+  }
+
+  const handleDragMove = (e: MouseEvent | TouchEvent) => {
+    if (!isDragging) return
+    
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
+    
+    const newX = clientX - dragOffset.x
+    const newY = clientY - dragOffset.y
+    
+    // Constrain to viewport bounds
+    const maxX = window.innerWidth - (isMobile ? window.innerWidth - 32 : 384) // Account for width
+    const maxY = window.innerHeight - (isMobile ? 288 : 320) // Account for height
+    
+    const constrainedX = Math.max(16, Math.min(newX, maxX))
+    const constrainedY = Math.max(16, Math.min(newY, maxY))
+    
+    setPosition({ x: constrainedX, y: constrainedY })
+  }
+
+  const handleDragEnd = () => {
+    setIsDragging(false)
+    // Save position to localStorage
+    localStorage.setItem('aiAssistantPosition', JSON.stringify(position))
+  }
+
+  // Set up global event listeners for drag
+  React.useEffect(() => {
+    if (isDragging) {
+      const handleMouseMove = (e: MouseEvent) => handleDragMove(e)
+      const handleMouseUp = () => handleDragEnd()
+      const handleTouchMove = (e: TouchEvent) => {
+        e.preventDefault() // Prevent scrolling
+        handleDragMove(e)
+      }
+      const handleTouchEnd = () => handleDragEnd()
+
+      document.addEventListener('mousemove', handleMouseMove)
+      document.addEventListener('mouseup', handleMouseUp)
+      document.addEventListener('touchmove', handleTouchMove, { passive: false })
+      document.addEventListener('touchend', handleTouchEnd)
+
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove)
+        document.removeEventListener('mouseup', handleMouseUp)
+        document.removeEventListener('touchmove', handleTouchMove)
+        document.removeEventListener('touchend', handleTouchEnd)
+      }
+    }
+  }, [isDragging, dragOffset, position, isMobile])
+
   return (
     <>
       {/* Floating Toggle Button */}
@@ -3561,8 +3639,8 @@ function FloatingAIAssistant({
           onClick={onToggle}
           className={`fixed z-50 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg transition-all duration-300 hover:scale-110 ${
             isMobile 
-              ? 'bottom-4 right-4 w-12 h-12' 
-              : 'bottom-6 right-6 w-14 h-14'
+              ? 'bottom-4 left-1/2 transform -translate-x-1/2 w-12 h-12' 
+              : 'bottom-6 left-1/2 transform -translate-x-1/2 w-14 h-14'
           }`}
         >
           <Bot className={`${isMobile ? 'w-6 h-6' : 'w-7 h-7'} mx-auto`} />
@@ -3571,16 +3649,45 @@ function FloatingAIAssistant({
 
       {/* Floating Chat Window */}
       {isOpen && (
-        <div className={`fixed z-50 bg-black/95 backdrop-blur-xl border border-white/20 rounded-xl shadow-2xl transition-all duration-300 ${
-          isMobile 
-            ? 'bottom-4 right-4 left-4 h-80' 
-            : 'bottom-6 right-6 h-96'
-        }`} style={!isMobile ? { left: '272px' } : {}}>
+        <div 
+          className={`ai-assistant fixed z-50 bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl shadow-2xl transition-all duration-300 ${
+            isDragging ? 'cursor-grabbing shadow-3xl' : 'cursor-grab'
+          } ${
+            isMobile ? 'h-72' : 'h-80 w-96'
+          }`}
+          style={{
+            left: position.x === 0 && position.y === 0 
+              ? isMobile ? '16px' : '50%'
+              : `${position.x}px`,
+            right: position.x === 0 && position.y === 0 && isMobile ? '16px' : 'auto',
+            bottom: position.x === 0 && position.y === 0 
+              ? isMobile ? '16px' : '24px'
+              : 'auto',
+            top: position.x === 0 && position.y === 0 
+              ? 'auto' 
+              : `${position.y}px`,
+            transform: position.x === 0 && position.y === 0 && !isMobile 
+              ? 'translateX(-50%)' 
+              : 'none',
+            opacity: isDragging ? 0.8 : 1,
+            userSelect: isDragging ? 'none' : 'auto'
+          }}
+        >
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-white/20">
+          <div 
+            className="flex items-center justify-between p-4 border-b border-white/20 cursor-grab active:cursor-grabbing"
+            onMouseDown={handleDragStart}
+            onTouchStart={handleDragStart}
+          >
             <div className="flex items-center space-x-3">
               <Bot className="w-5 h-5 text-blue-400" />
               <span className="text-white font-medium">AI Assistant</span>
+              <div className="flex space-x-1 ml-2">
+                <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+                <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+                <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+                <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+              </div>
             </div>
             <button
               onClick={onToggle}
@@ -3591,7 +3698,7 @@ function FloatingAIAssistant({
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-3 max-h-64">
+          <div className="flex-1 overflow-y-auto p-4 space-y-3 max-h-48">
             {messages.length === 0 ? (
               <div className="text-gray-400 text-center py-8">
                 <Bot className="w-12 h-12 mx-auto mb-3 text-blue-400" />
@@ -3624,7 +3731,7 @@ function FloatingAIAssistant({
           </div>
 
           {/* Input */}
-          <form onSubmit={handleSendMessage} className="p-4 border-t border-white/20">
+          <form onSubmit={handleSendMessage} className="p-3 border-t border-white/20">
             <div className="flex space-x-2">
               <input
                 type="text"
@@ -4476,7 +4583,11 @@ function WorkflowsView({
           {workflows.map((workflow) => (
             <div
               key={workflow.id}
-              className={`bg-black/40 backdrop-blur-xl border border-white/20 rounded-xl p-6 hover:bg-black/60 transition-all duration-200 cursor-pointer group ${
+              className={`bg-black/40 backdrop-blur-xl border rounded-xl p-6 hover:bg-black/60 transition-all duration-200 cursor-pointer group ${
+                workflow.name === 'Demo Workflow' 
+                  ? 'border-gradient-demo animate-pulse-glow shadow-2xl shadow-blue-500/20' 
+                  : 'border-white/20'
+              } ${
                 selectedWorkflow === workflow.id ? 'ring-2 ring-blue-400/50 bg-blue-500/10' : ''
               }`}
               onClick={() => onOpenWorkflow(workflow.id)}
@@ -4711,6 +4822,26 @@ function WorkflowView({
   const [isPaletteCollapsed, setIsPaletteCollapsed] = React.useState(false)
   const [snapToGrid, setSnapToGrid] = React.useState(false)
   
+  // Business selection modal state
+  const [showBusinessModal, setShowBusinessModal] = React.useState<string | null>(null)
+  const [pendingNodePosition, setPendingNodePosition] = React.useState<{ x: number; y: number } | null>(null)
+  
+  // Handle business item selection
+  const handleBusinessItemClick = (businessType: string, position: { x: number; y: number }) => {
+    setShowBusinessModal(businessType)
+    setPendingNodePosition(position)
+  }
+  
+  // Handle selection from business modal
+  const handleBusinessItemSelect = (item: any) => {
+    if (pendingNodePosition) {
+      // Create a node based on the selected item
+      onAddNode(showBusinessModal as any, pendingNodePosition)
+      setShowBusinessModal(null)
+      setPendingNodePosition(null)
+    }
+  }
+  
 
   
   // Types for node content
@@ -4911,6 +5042,8 @@ function WorkflowView({
       case 'sequence': return <ArrowRight className={`${iconSize} text-green-400`} />
       case 'retry': return <RefreshCw className={`${iconSize} text-red-400`} />
       case 'ai-agent': return <Bot className={`${iconSize} text-blue-500`} />
+      case 'workflow': return <Target className={`${iconSize} text-indigo-500`} />
+      case 'wallets': return <Wallet className={`${iconSize} text-green-500`} />
       case 'instagram': return <Users className={`${iconSize} text-pink-500`} />
       case 'snapchat': return <MessageSquare className={`${iconSize} text-yellow-400`} />
       case 'threads': return <MessageSquare className={`${iconSize} text-gray-800`} />
@@ -4961,14 +5094,17 @@ function WorkflowView({
     { type: 'team' as const, name: 'Team', icon: getColoredNodeIcon('team'), category: 'Basic' },
     
     // Business Entities
-    { type: 'organization' as const, name: 'Organization', icon: getColoredNodeIcon('organization'), category: 'Business' },
-    { type: 'role' as const, name: 'Role', icon: getColoredNodeIcon('role'), category: 'Business' },
-    { type: 'member' as const, name: 'Member', icon: getColoredNodeIcon('member'), category: 'Business' },
-    { type: 'instrument' as const, name: 'Instrument', icon: getColoredNodeIcon('instrument'), category: 'Business' },
-    { type: 'ai-agent' as const, name: 'AI Agent', icon: getColoredNodeIcon('ai-agent'), category: 'Business' },
+    { type: 'workflow' as const, name: 'Workflows', icon: getColoredNodeIcon('workflow'), category: 'Business' },
+    { type: 'organization' as const, name: 'Organizations', icon: getColoredNodeIcon('organization'), category: 'Business' },
+    { type: 'role' as const, name: 'Roles', icon: getColoredNodeIcon('role'), category: 'Business' },
+    { type: 'ai-agent' as const, name: 'Agents', icon: getColoredNodeIcon('ai-agent'), category: 'Business' },
+    { type: 'member' as const, name: 'People', icon: getColoredNodeIcon('member'), category: 'Business' },
+    { type: 'instrument' as const, name: 'Instruments', icon: getColoredNodeIcon('instrument'), category: 'Business' },
+    { type: 'contract' as const, name: 'Contracts', icon: getColoredNodeIcon('contract'), category: 'Business' },
+    { type: 'wallets' as const, name: 'Wallets', icon: getColoredNodeIcon('wallets'), category: 'Business' },
+    { type: 'integration' as const, name: 'Integrations', icon: getColoredNodeIcon('integration'), category: 'Business' },
     
     // Integrations
-    { type: 'integration' as const, name: 'Integration', icon: getColoredNodeIcon('integration'), category: 'Integration' },
     { type: 'api' as const, name: 'API Call', icon: getColoredNodeIcon('api'), category: 'Integration' },
     { type: 'database' as const, name: 'Database', icon: getColoredNodeIcon('database'), category: 'Integration' },
     { type: 'webhook' as const, name: 'Webhook', icon: getColoredNodeIcon('webhook'), category: 'Integration' },
@@ -5228,7 +5364,14 @@ function WorkflowView({
                         if (rect) {
                           const centerX = (rect.width / 2 - canvasOffset.x) / canvasScale
                           const centerY = (rect.height / 2 - canvasOffset.y) / canvasScale
-                          onAddNode(nodeType.type, { x: centerX, y: centerY })
+                          
+                          // Check if this is a business item that needs a selection modal
+                          const businessTypes = ['workflow', 'organization', 'role', 'ai-agent', 'member', 'instrument', 'contract', 'wallets', 'integration']
+                          if (category === 'Business' && businessTypes.includes(nodeType.type)) {
+                            handleBusinessItemClick(nodeType.type, { x: centerX, y: centerY })
+                          } else {
+                            onAddNode(nodeType.type, { x: centerX, y: centerY })
+                          }
                         }
                       }}
                       className="p-2 rounded-lg text-white hover:text-white hover:bg-white/10 transition-all flex items-center space-x-1 text-xs"
@@ -6075,7 +6218,7 @@ function AgentsView({
   }
 
   return (
-    <div className="absolute inset-0 top-20 p-6">
+    <div className="absolute inset-0 top-20 p-6 overflow-y-auto scrollbar-always-visible">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -6105,7 +6248,7 @@ function AgentsView({
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-8">
             {agents.map((agent) => (
               <div key={agent.id} className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all">
                 <div className="flex items-start justify-between mb-4">
@@ -6633,7 +6776,95 @@ function OrganizationsView({
           </div>
         )}
 
+        {/* Organization Templates Section */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-xl font-semibold text-white mb-1">Organization Templates</h2>
+              <p className="text-gray-400 text-sm">Browse and create organizations from pre-built templates</p>
+            </div>
+            <div className="text-sm text-gray-400">
+              {filteredOrganizationTemplates.length} templates available
+            </div>
+          </div>
+
+          {/* Category Filter */}
+          <div className="flex flex-wrap gap-2 mb-6">
+            {organizationCategories.map((category) => (
+              <button
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  selectedCategory === category
+                    ? 'bg-blue-500 text-white shadow-lg'
+                    : 'bg-white/10 text-gray-300 hover:bg-white/20 hover:text-white'
+                }`}
+              >
+                {category}
+                <span className="ml-2 text-xs opacity-75">
+                  ({category === 'All' 
+                    ? organizationTemplates.length 
+                    : organizationTemplates.filter(t => t.category === category).length})
+                </span>
+              </button>
+            ))}
+          </div>
+
+          {/* Templates Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 max-h-96 overflow-y-auto scrollbar-always-visible">
+            {filteredOrganizationTemplates.map((template) => (
+              <div
+                key={template.id}
+                onClick={() => {
+                  applyOrganizationTemplate(template)
+                  setShowCreateForm(true)
+                }}
+                className="bg-black/40 backdrop-blur-xl border border-white/20 hover:border-blue-400/50 rounded-xl p-4 cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/10 group"
+              >
+                <div className="flex items-center space-x-3 mb-3">
+                  <div className="text-2xl group-hover:scale-110 transition-transform">{template.icon}</div>
+                  <div className="flex-1 min-w-0">
+                    <h5 className="text-white font-medium text-sm truncate">{template.name}</h5>
+                    <p className="text-gray-400 text-xs">{template.jurisdiction} • {template.businessType.toUpperCase()}</p>
+                  </div>
+                </div>
+                <p className="text-gray-300 text-xs line-clamp-3 mb-3">{template.description}</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-blue-400 text-xs font-mono bg-blue-500/10 px-2 py-1 rounded">{template.tokenSymbol}</span>
+                  <span className="text-gray-400 text-xs capitalize bg-white/5 px-2 py-1 rounded">{template.size}</span>
+                </div>
+                <div className="mt-3 pt-3 border-t border-white/10">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-gray-400">{template.industry}</span>
+                    <span className="text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                      Click to create →
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Empty State */}
+          {filteredOrganizationTemplates.length === 0 && (
+            <div className="text-center py-12 bg-black/20 rounded-xl border border-white/10">
+              <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-white mb-2">No templates found</h3>
+              <p className="text-gray-400">Try selecting a different category or clear your filters</p>
+            </div>
+          )}
+        </div>
+
         {/* Organizations Grid */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-xl font-semibold text-white mb-1">Your Organizations</h2>
+              <p className="text-gray-400 text-sm">Manage your existing organizations</p>
+            </div>
+          </div>
+        </div>
+        
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {organizations.map((org: Organization) => (
             <div

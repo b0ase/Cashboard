@@ -784,86 +784,80 @@ export default function Dashboard() {
       },
       { 
         id: '2', 
-        name: 'Marketing AI Agent', 
-        description: 'Automated marketing campaigns, social media management, and customer engagement', 
+        name: 'Marketing Manager', 
+        description: 'Marketing campaigns, social media management, and customer engagement', 
         icon: 'trending-up', 
-        permissions: ['marketing', 'automation', 'data-analysis'], 
+        permissions: ['marketing', 'data-analysis'], 
         defaultShareAllocation: 15,
-        automationType: 'ai-agent',
-        isAutomated: true,
-        workflowId: null,
-        aiPrompt: 'You are a Marketing AI agent. You handle automated marketing campaigns, social media management, and customer engagement strategies.'
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null
       },
       { 
         id: '3', 
-        name: 'Finance AI Agent', 
-        description: 'Financial analysis, budget tracking, and automated reporting', 
+        name: 'Finance Manager', 
+        description: 'Financial analysis, budget tracking, and reporting', 
         icon: 'bar-chart-3', 
         permissions: ['finance', 'admin', 'data-analysis'], 
         defaultShareAllocation: 20,
-        automationType: 'ai-agent',
-        isAutomated: true,
-        workflowId: null,
-        aiPrompt: 'You are a Finance AI agent. You handle financial analysis, budget tracking, expense monitoring, and generate automated financial reports.'
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null
       },
       { 
         id: '4', 
-        name: 'Tech Lead AI Agent', 
+        name: 'Tech Lead', 
         description: 'Code review, technical documentation, and development workflows', 
-        icon: 'bot', 
-        permissions: ['tech', 'workflow-creation', 'ai-training'], 
+        icon: 'code', 
+        permissions: ['tech', 'workflow-creation'], 
         defaultShareAllocation: 25,
         automationType: 'hybrid',
-        isAutomated: true,
-        workflowId: null,
-        aiPrompt: 'You are a Tech Lead AI agent. You assist with code reviews, technical documentation, architecture decisions, and development workflow optimization.'
+        isAutomated: false,
+        workflowId: null
       },
       { 
         id: '5', 
-        name: 'Operations AI Agent', 
-        description: 'Process automation, workflow optimization, and operational efficiency', 
+        name: 'Operations Manager', 
+        description: 'Process management, workflow optimization, and operational efficiency', 
         icon: 'settings', 
-        permissions: ['operations', 'automation', 'workflow-creation'], 
+        permissions: ['operations', 'workflow-creation'], 
         defaultShareAllocation: 12,
         automationType: 'workflow',
-        isAutomated: true,
+        isAutomated: false,
         workflowId: null
       },
       { 
         id: '6', 
-        name: 'Creative Director AI', 
-        description: 'Content creation, brand management, and creative workflows', 
+        name: 'Creative Director', 
+        description: 'Content creation, brand management, and creative strategy', 
         icon: 'palette', 
-        permissions: ['marketing', 'automation', 'workflow-creation'], 
+        permissions: ['marketing', 'workflow-creation'], 
         defaultShareAllocation: 15,
         automationType: 'hybrid',
-        isAutomated: true,
-        workflowId: null,
-        aiPrompt: 'You are a Creative Director AI agent. You assist with content creation, brand management, creative strategy, and visual design workflows.'
+        isAutomated: false,
+        workflowId: null
       },
       { 
         id: '7', 
-        name: 'Legal AI Agent', 
+        name: 'Legal Counsel', 
         description: 'Contract analysis, compliance monitoring, and legal documentation', 
         icon: 'shield', 
         permissions: ['legal', 'admin', 'data-analysis'], 
         defaultShareAllocation: 18,
-        automationType: 'ai-agent',
-        isAutomated: true,
-        workflowId: null,
-        aiPrompt: 'You are a Legal AI agent. You handle contract analysis, compliance monitoring, legal documentation, and regulatory guidance.'
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null
       },
       { 
         id: '8', 
-        name: 'Customer Success AI', 
-        description: 'Customer support, feedback analysis, and satisfaction monitoring', 
+        name: 'Customer Success Manager', 
+        description: 'Customer support, relationship management, and satisfaction monitoring', 
         icon: 'users', 
-        permissions: ['marketing', 'data-analysis', 'automation'], 
+        permissions: ['marketing', 'data-analysis'], 
         defaultShareAllocation: 10,
-        automationType: 'ai-agent',
-        isAutomated: true,
-        workflowId: null,
-        aiPrompt: 'You are a Customer Success AI agent. You handle customer support, analyze feedback, monitor satisfaction metrics, and improve customer experiences.'
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null
       }
     ],
     workflows: [
@@ -3437,8 +3431,8 @@ function FloatingAIAssistant({
         <div className={`fixed z-50 bg-black/95 backdrop-blur-xl border border-white/20 rounded-xl shadow-2xl transition-all duration-300 ${
           isMobile 
             ? 'bottom-4 right-4 left-4 h-80' 
-            : 'bottom-6 right-6 left-6 h-96'
-        }`}>
+            : 'bottom-6 right-6 h-96'
+        }`} style={!isMobile ? { left: '272px' } : {}}>
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-white/20">
             <div className="flex items-center space-x-3">

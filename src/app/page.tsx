@@ -3174,7 +3174,19 @@ export default function Dashboard() {
               {isMobile && mobileMenuOpen && (
                 <div className="absolute left-3 top-14 z-30 w-56 bg-black/90 border border-white/15 rounded-lg shadow-xl">
                   <div className="p-2 space-y-1">
-                    <button onClick={() => { setCurrentView('workflow'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Workflows</button>
+                    <button
+                      onClick={() => {
+                        setAppState(prev => ({
+                          ...prev,
+                          currentView: 'workflow',
+                          selectedWorkflow: null
+                        }))
+                        setMobileMenuOpen(false)
+                      }}
+                      className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm"
+                    >
+                      Workflows
+                    </button>
                     <button onClick={() => { setCurrentView('organizations'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Organizations</button>
                     <button onClick={() => { setCurrentView('roles'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Roles</button>
                     <button onClick={() => { setCurrentView('agents'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Agents</button>

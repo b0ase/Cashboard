@@ -1754,6 +1754,7 @@ export default function Dashboard() {
   const { workflows, selectedWorkflow, organizations, roles, currentView, selectedOrganization, sidebarOpen, chatMessages, isChatOpen, instruments, apiKeys, sshKeys, mcpServers, userProfile, contracts, wallets } = appState
 
   const boardRef = useRef<HTMLDivElement>(null)
+  const headerRef = useRef<HTMLDivElement>(null)
   
   // Helper function to get current workflow
   const getCurrentWorkflow = () => {
@@ -1764,6 +1765,7 @@ export default function Dashboard() {
   
   // Mobile detection and responsive state
   const [isMobile, setIsMobile] = useState(false)
+  const [mobileAddTop, setMobileAddTop] = useState<number>(96)
   const [canvasScale, setCanvasScale] = useState(0.7)
   const [canvasOffset, setCanvasOffset] = useState({ x: 0, y: 0 })
   const [isDraggingCanvas, setIsDraggingCanvas] = useState(false)
@@ -1805,6 +1807,19 @@ export default function Dashboard() {
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
+
+  // Compute sticky Add Node button position under the header
+  useEffect(() => {
+    const updateTop = () => {
+      if (headerRef.current) {
+        const rect = headerRef.current.getBoundingClientRect()
+        setMobileAddTop(rect.bottom + 8)
+      }
+    }
+    updateTop()
+    window.addEventListener('resize', updateTop)
+    return () => window.removeEventListener('resize', updateTop)
+  }, [isMobile])
 
   // Touch event handlers for canvas dragging
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -3147,7 +3162,7 @@ export default function Dashboard() {
       {/* Main Content */}
       <div className="flex-1 relative min-h-0">
         {/* Header */}
-        <div className={`absolute top-0 left-0 right-0 z-20 ${isMobile ? 'p-3' : 'p-6'}`}>
+        <div ref={headerRef} className={`absolute top-0 left-0 right-0 z-20 ${isMobile ? 'p-3' : 'p-6'}`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               {isMobile ? (
@@ -5409,7 +5424,7 @@ function WorkflowView({
 
       {/* Mobile Add Node sticky bar */}
       {isMobile && (
-        <div className="fixed z-40 left-3 right-3 top-24">
+        <div className="fixed z-40 left-3 right-3" style={{ top: mobileAddTop }}>
           <div className="flex items-center justify-center">
             <button
               onClick={() => setMobileNodeMenuOpen(v => !v)}

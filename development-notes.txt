@@ -5,3 +5,7 @@ The wallet page needs HandCash and Yours wallet connections, that's all. (You co
 Wallet Connections 
 Click into wallet to see assets 
 Demo video needs hella work  
+AI Assistant needs relentless work 
+I dont' liek that Roles have speficfi share allocations defined. That's dumb. 
+
+The 'People' Dashbaord needs work. Uliuamtely this is abotu 'People Canvases' 

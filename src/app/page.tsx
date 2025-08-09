@@ -2736,13 +2736,21 @@ export default function Dashboard() {
         <div className="relative min-h-screen w-64 bg-black/80 backdrop-blur-xl border-r border-white/20 z-30 flex-shrink-0">
           <div className="p-6">
             <div className="flex items-center justify-between mb-8">
-              <button
-                onClick={toggleSidebar}
-                className="text-gray-400 hover:text-white transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-              <h2 className="text-xl font-bold text-white">$CASHBOARD</h2>
+              {/* Close button - only show on mobile */}
+              {isMobile && (
+                <button
+                  onClick={toggleSidebar}
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              )}
+              {/* Centered brand for desktop, right-aligned for mobile */}
+              <div className={`${isMobile ? 'flex-1 text-right' : 'w-full flex justify-center'}`}>
+                <div className="inline-flex items-center justify-center px-4 py-2 border-2 border-white/30 rounded-lg hover:border-white/50 transition-colors">
+                  <h2 className="text-xl font-bold text-white">$CASHBOARD</h2>
+                </div>
+              </div>
             </div>
             
             {/* Navigation */}

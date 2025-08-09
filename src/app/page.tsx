@@ -7819,9 +7819,50 @@ function InstrumentsView({ instruments, organizations, selectedOrganization, onC
               </div>
             </div>
 
-            {/* Global Instruments Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {instruments.map((instrument) => (
+            {/* Instrument Templates Grid */}
+            <div className="mb-8">
+              <h3 className="text-xl font-semibold text-white mb-4">Financial Instrument Templates ({instrumentTemplates.length} Available)</h3>
+              <div className="mb-4">
+                <div className="flex flex-wrap gap-2">
+                  {instrumentCategories.map((category) => (
+                    <button
+                      key={category}
+                      onClick={() => setSelectedCategory(category)}
+                      className={`px-3 py-1 rounded-lg text-sm transition-colors ${
+                        selectedCategory === category
+                          ? 'bg-blue-500 text-white'
+                          : 'bg-white/10 text-gray-300 hover:bg-white/20'
+                      }`}
+                    >
+                      {category}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 max-h-96 overflow-y-auto">
+                {filteredInstrumentTemplates.map((template) => (
+                  <div
+                    key={template.id}
+                    onClick={() => {
+                      applyInstrumentTemplate(template)
+                      setShowCreateForm(true)
+                    }}
+                    className="bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/40 rounded-lg p-4 cursor-pointer transition-all hover:scale-105"
+                  >
+                    <div className="text-3xl mb-3 text-center">{template.icon}</div>
+                    <h5 className="text-white font-medium mb-2 text-sm text-center">{template.name}</h5>
+                    <p className="text-gray-300 text-xs mb-2 text-center capitalize">{template.type} • {template.category}</p>
+                    <p className="text-blue-400 text-xs text-center">Supply: {template.totalSupply.toLocaleString()}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Created Instruments Grid */}
+            <div>
+              <h3 className="text-xl font-semibold text-white mb-4">Created Instruments ({instruments.length})</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {instruments.map((instrument) => (
                 <div key={instrument.id} className="bg-black/60 backdrop-blur-xl border border-white/20 rounded-xl p-6 hover:border-white/40 transition-all duration-300">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center space-x-3">
@@ -7938,6 +7979,53 @@ function InstrumentsView({ instruments, organizations, selectedOrganization, onC
                 </div>
               </div>
             ))}
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            {/* Organization Summary */}
+            <div className="bg-black/40 backdrop-blur-xl border border-white/20 rounded-xl p-6">
+              <div className="flex items-center space-x-3 mb-4">
+                <Building className="w-8 h-8 text-blue-400" />
+                <div>
+                  <h3 className="text-lg font-semibold text-white">{currentOrg?.name}</h3>
+                  <p className="text-gray-400 text-sm">{currentOrg?.description}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <div className="text-2xl font-bold text-white">{orgInstruments.length}</div>
+                  <div className="text-gray-400 text-sm">Total Instruments</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-green-400">
+                    {orgInstruments.filter(i => i.status === 'active').length}
+                  </div>
+                  <div className="text-gray-400 text-sm">Active</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Organization Instruments */}
+            <div className="lg:col-span-2 space-y-4">
+              {orgInstruments.map((instrument) => (
+                <div key={instrument.id} className="bg-black/40 backdrop-blur-xl border border-white/20 rounded-xl p-4 hover:border-white/40 transition-all duration-300">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      {getInstrumentIcon(instrument.type)}
+                      <div>
+                        <h4 className="text-white font-medium">{instrument.name}</h4>
+                        <p className="text-gray-400 text-sm">{instrument.symbol}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-white font-medium">{instrument.totalSupply.toLocaleString()}</div>
+                      <div className="text-gray-400 text-sm capitalize">{instrument.type}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 

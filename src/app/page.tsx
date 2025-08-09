@@ -5398,6 +5398,51 @@ function WorkflowView({
       <div className="absolute z-40 flex flex-col space-y-2 w-64 top-2 right-4">
 
         {/* Add Nodes Palette */}
+        {isMobile ? (
+          <div className="bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl transition-all duration-300 p-2">
+            {/* Mobile: compact dropdown */}
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center space-x-2">
+                <Grid className="w-3 h-3 text-gray-500" />
+                <h3 className="text-xs font-medium text-gray-300 px-1">Add Node</h3>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <select
+                className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-sm text-white"
+                defaultValue=""
+                onChange={(e) => {
+                  const typeStr = e.target.value
+                  if (!typeStr) return
+                  const choice = nodeTypes.find((n) => n.type === typeStr)
+                  const rect = boardRef.current?.getBoundingClientRect()
+                  if (!choice || !rect) return
+                  const centerX = (rect.width / 2 - canvasOffset.x) / canvasScale
+                  const centerY = (rect.height / 2 - canvasOffset.y) / canvasScale
+                  if (choice.category === 'Business' && isBusinessType(choice.type)) {
+                    handleBusinessItemClick(choice.type, { x: centerX, y: centerY })
+                  } else {
+                    onAddNode(choice.type, { x: centerX, y: centerY })
+                  }
+                  e.currentTarget.selectedIndex = 0
+                }}
+              >
+                <option value="">Select a node…</option>
+                {['Basic', 'Business', 'Integration', 'Communication', 'Logic', 'Process'].map((category) => (
+                  <optgroup key={category} label={category}>
+                    {nodeTypes
+                      .filter((node) => node.category === category)
+                      .map((nodeType) => (
+                        <option key={nodeType.type} value={nodeType.type}>
+                          {nodeType.name}
+                        </option>
+                      ))}
+                  </optgroup>
+                ))}
+              </select>
+            </div>
+          </div>
+        ) : (
         <div className={`bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl transition-all duration-300 p-2 ${
           isPaletteCollapsed ? 'max-h-12 overflow-hidden' : 'max-h-[40rem]'
         }`}>
@@ -5473,6 +5518,7 @@ function WorkflowView({
             ))}
           </div>
         </div>
+        )}
 
 
 

@@ -43,8 +43,7 @@ import {
   ArrowUpRight,
   ArrowDownLeft,
   RefreshCw,
-  Download,
-  Edit,
+
   Package,
   Home,
   // New icons for enhanced canvas
@@ -80,9 +79,12 @@ import {
   Copy,
   Clipboard,
   Grid,
-  Move,
+
   ZoomIn,
-  ZoomOut
+  ZoomOut,
+  UserCheck,
+  Banknote,
+  Plug
 } from 'lucide-react'
 import DemoModal from '../components/DemoModal'
 
@@ -338,7 +340,7 @@ interface Role {
 
 interface WorkflowNode {
   id: string
-  type: 'payment' | 'contract' | 'task' | 'decision' | 'milestone' | 'team' | 'kpi' | 'employee' | 'deliverable' | 'asset' | 'mint' | 'payroll' | 'production' | 'marketing' | 'sales' | 'legal' | 'finance' | 'hr' | 'it' | 'operations' | 'api' | 'database' | 'loop' | 'condition' | 'trigger' | 'webhook' | 'email' | 'sms' | 'notification' | 'approval' | 'review' | 'timer' | 'counter' | 'calculator' | 'transformer' | 'validator' | 'aggregator' | 'filter' | 'sorter' | 'merger' | 'splitter' | 'gateway' | 'service' | 'function' | 'script'
+  type: 'payment' | 'contract' | 'task' | 'decision' | 'milestone' | 'team' | 'kpi' | 'employee' | 'deliverable' | 'asset' | 'mint' | 'payroll' | 'production' | 'marketing' | 'sales' | 'legal' | 'finance' | 'hr' | 'it' | 'operations' | 'api' | 'database' | 'loop' | 'condition' | 'trigger' | 'webhook' | 'email' | 'sms' | 'notification' | 'approval' | 'review' | 'timer' | 'counter' | 'calculator' | 'transformer' | 'validator' | 'aggregator' | 'filter' | 'sorter' | 'merger' | 'splitter' | 'gateway' | 'service' | 'function' | 'script' | 'organization' | 'role' | 'member' | 'instrument' | 'integration'
   name: string
   description: string
   x: number
@@ -351,6 +353,12 @@ interface WorkflowNode {
   connections: string[]
   metadata?: Record<string, unknown>
   isExpanded?: boolean
+  // Business entity references
+  organizationRef?: string  // ID of linked organization
+  roleRef?: string         // ID of linked role
+  memberRef?: string       // ID of linked member
+  instrumentRef?: string   // ID of linked instrument
+  integrationRef?: string  // ID of linked integration
   childNodes?: WorkflowNode[]
   memberCount?: number
   width?: number
@@ -1734,6 +1742,38 @@ export default function Dashboard() {
     setCanvasOffset({ x: 0, y: 0 })
   }
 
+  // Helper function for centered zoom operations (for keyboard shortcuts)
+  const zoomToCenterFromKeyboard = (newScale: number) => {
+    const canvasElement = boardRef.current
+    if (!canvasElement) {
+      setCanvasScale(newScale)
+      return
+    }
+    
+    const rect = canvasElement.getBoundingClientRect()
+    const centerX = rect.width / 2
+    const centerY = rect.height / 2
+    
+    setCanvasScale(prev => {
+      if (newScale !== prev) {
+        // Calculate the world position of the screen center
+        const worldCenterX = (centerX - canvasOffset.x) / prev
+        const worldCenterY = (centerY - canvasOffset.y) / prev
+        
+        // Calculate new offset to keep the center at the same world position
+        const newOffsetX = centerX - worldCenterX * newScale
+        const newOffsetY = centerY - worldCenterY * newScale
+        
+        setCanvasOffset({
+          x: newOffsetX,
+          y: newOffsetY
+        })
+      }
+      
+      return newScale
+    })
+  }
+
   // Keyboard shortcuts for zoom controls
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -1746,11 +1786,11 @@ export default function Dashboard() {
           case '=':
           case '+':
             e.preventDefault()
-            setCanvasScale(prev => Math.min(3, prev + 0.25))
+            zoomToCenterFromKeyboard(Math.min(5, canvasScale + 0.25))
             break
           case '-':
             e.preventDefault()
-            setCanvasScale(prev => Math.max(0.25, prev - 0.25))
+            zoomToCenterFromKeyboard(Math.max(0.1, canvasScale - 0.25))
             break
           case '0':
             e.preventDefault()
@@ -1764,16 +1804,57 @@ export default function Dashboard() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [currentView, currentWorkflow])
 
-  // Mouse wheel zoom support
+  // Enhanced mouse wheel zoom support with proper mouse-centered zooming
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
-      // Only handle zoom when in workflow view and Ctrl/Cmd is pressed
-      if (currentView !== 'workflow' || !currentWorkflow || !(e.ctrlKey || e.metaKey)) return
+      // Only handle zoom when in workflow view
+      if (currentView !== 'workflow' || !currentWorkflow) return
+
+      // Check if we're over the node palette or other UI elements
+      const target = e.target as HTMLElement
+      if (target.closest('.scrollbar-always-visible') || target.closest('button') || target.closest('input')) {
+        return // Don't zoom when scrolling in UI elements
+      }
 
       e.preventDefault()
       
-      const delta = e.deltaY > 0 ? -0.1 : 0.1
-      setCanvasScale(prev => Math.max(0.25, Math.min(3, prev + delta)))
+      // Get the canvas element and its bounds
+      const canvasElement = boardRef.current
+      if (!canvasElement) return
+      
+      const rect = canvasElement.getBoundingClientRect()
+      
+      // Get mouse position relative to canvas
+      const mouseX = e.clientX - rect.left
+      const mouseY = e.clientY - rect.top
+      
+      // Calculate zoom delta - more sensitive without modifier keys
+      const zoomSensitivity = e.ctrlKey || e.metaKey ? 0.1 : 0.05
+      const delta = e.deltaY > 0 ? -zoomSensitivity : zoomSensitivity
+      
+      setCanvasScale(prev => {
+        const newScale = Math.max(0.1, Math.min(5, prev + delta))
+        
+        // Only adjust offset if scale actually changed
+        if (newScale !== prev) {
+          const scaleRatio = newScale / prev
+          
+          // Calculate the world position of the mouse cursor
+          const worldMouseX = (mouseX - canvasOffset.x) / prev
+          const worldMouseY = (mouseY - canvasOffset.y) / prev
+          
+          // Calculate new offset to keep the mouse cursor at the same world position
+          const newOffsetX = mouseX - worldMouseX * newScale
+          const newOffsetY = mouseY - worldMouseY * newScale
+          
+          setCanvasOffset({
+            x: newOffsetX,
+            y: newOffsetY
+          })
+        }
+        
+        return newScale
+      })
     }
 
     const canvasElement = boardRef.current
@@ -1798,6 +1879,11 @@ export default function Dashboard() {
       case 'asset': return <Home className={iconSize} />
       case 'mint': return <Coins className={iconSize} />
       case 'payroll': return <CreditCard className={iconSize} />
+      case 'organization': return <Building className={iconSize} />
+      case 'role': return <Crown className={iconSize} />
+      case 'member': return <UserCheck className={iconSize} />
+      case 'instrument': return <Banknote className={iconSize} />
+      case 'integration': return <Plug className={iconSize} />
       case 'production': return <Settings className={iconSize} />
       case 'marketing': return <TrendingUp className={iconSize} />
       case 'sales': return <ShoppingCart className={iconSize} />
@@ -3774,28 +3860,78 @@ function WorkflowView({
     { id: 'zoom', name: 'Zoom', icon: <ZoomIn className="w-4 h-4" />, description: 'Zoom in/out', shortcut: 'Z', active: workflow.currentTool === 'zoom' }
   ]
 
+  // Node palette state
+  const [isPaletteCollapsed, setIsPaletteCollapsed] = React.useState(false)
+  
+  // Helper function for centered zoom operations
+  const zoomToCenter = (newScale: number) => {
+    const canvasElement = boardRef.current
+    if (!canvasElement) return
+    
+    const rect = canvasElement.getBoundingClientRect()
+    const centerX = rect.width / 2
+    const centerY = rect.height / 2
+    
+    setCanvasScale(prev => {
+      if (newScale !== prev) {
+        // Calculate the world position of the screen center
+        const worldCenterX = (centerX - canvasOffset.x) / prev
+        const worldCenterY = (centerY - canvasOffset.y) / prev
+        
+        // Calculate new offset to keep the center at the same world position
+        const newOffsetX = centerX - worldCenterX * newScale
+        const newOffsetY = centerY - worldCenterY * newScale
+        
+        setCanvasOffset({
+          x: newOffsetX,
+          y: newOffsetY
+        })
+      }
+      
+      return newScale
+    })
+  }
+
   // Node types for the palette
   const nodeTypes = [
     { type: 'task' as const, name: 'Task', icon: getNodeIcon('task'), category: 'Basic' },
     { type: 'decision' as const, name: 'Decision', icon: getNodeIcon('decision'), category: 'Basic' },
     { type: 'payment' as const, name: 'Payment', icon: getNodeIcon('payment'), category: 'Basic' },
     { type: 'milestone' as const, name: 'Milestone', icon: getNodeIcon('milestone'), category: 'Basic' },
+    { type: 'contract' as const, name: 'Contract', icon: getNodeIcon('contract'), category: 'Basic' },
+    { type: 'team' as const, name: 'Team', icon: getNodeIcon('team'), category: 'Basic' },
+    
+    // Business Entities
+    { type: 'organization' as const, name: 'Organization', icon: getNodeIcon('organization'), category: 'Business' },
+    { type: 'role' as const, name: 'Role', icon: getNodeIcon('role'), category: 'Business' },
+    { type: 'member' as const, name: 'Member', icon: getNodeIcon('member'), category: 'Business' },
+    { type: 'instrument' as const, name: 'Instrument', icon: getNodeIcon('instrument'), category: 'Business' },
+    
+    // Integrations
+    { type: 'integration' as const, name: 'Integration', icon: getNodeIcon('integration'), category: 'Integration' },
     { type: 'api' as const, name: 'API Call', icon: getNodeIcon('api'), category: 'Integration' },
     { type: 'database' as const, name: 'Database', icon: getNodeIcon('database'), category: 'Integration' },
     { type: 'webhook' as const, name: 'Webhook', icon: getNodeIcon('webhook'), category: 'Integration' },
+    
+    // Communication
     { type: 'email' as const, name: 'Email', icon: getNodeIcon('email'), category: 'Communication' },
     { type: 'sms' as const, name: 'SMS', icon: getNodeIcon('sms'), category: 'Communication' },
     { type: 'notification' as const, name: 'Notification', icon: getNodeIcon('notification'), category: 'Communication' },
+    
+    // Logic & Flow Control
     { type: 'loop' as const, name: 'Loop', icon: getNodeIcon('loop'), category: 'Logic' },
     { type: 'condition' as const, name: 'Condition', icon: getNodeIcon('condition'), category: 'Logic' },
     { type: 'trigger' as const, name: 'Trigger', icon: getNodeIcon('trigger'), category: 'Logic' },
+    
+    // Process Management
     { type: 'approval' as const, name: 'Approval', icon: getNodeIcon('approval'), category: 'Process' },
     { type: 'review' as const, name: 'Review', icon: getNodeIcon('review'), category: 'Process' },
     { type: 'timer' as const, name: 'Timer', icon: getNodeIcon('timer'), category: 'Process' }
   ]
 
   const handleCanvasClick = (e: React.MouseEvent) => {
-    if (workflow.currentTool === 'select' && e.target === e.currentTarget) {
+    // Only handle selection changes in select mode, and not if we just finished panning
+    if (workflow.currentTool === 'select' && e.target === e.currentTarget && !isPanning) {
       onSelectionChange([])
     }
   }
@@ -3867,7 +4003,15 @@ function WorkflowView({
   }
 
   const handleCanvasPanStart = (e: React.MouseEvent) => {
-    if (isSpacePressed) {
+    // Allow panning in multiple scenarios:
+    // 1. When spacebar is held (universal override)
+    // 2. When in dedicated pan mode
+    // 3. When in select mode and clicking empty canvas (unified drag)
+    const isEmptyCanvasClick = e.target === e.currentTarget
+    const shouldStartPanning = workflow.currentTool === 'pan' || 
+                              (workflow.currentTool === 'select' && isEmptyCanvasClick)
+    
+    if (shouldStartPanning) {
       e.preventDefault()
       setIsPanning(true)
       setPanStart({ x: e.clientX, y: e.clientY })
@@ -3875,7 +4019,13 @@ function WorkflowView({
   }
 
   const handleCanvasPanMove = (e: React.MouseEvent) => {
-    if (isPanning && isSpacePressed) {
+    // Allow panning in the same scenarios as pan start
+    const shouldContinuePanning = isPanning && (
+      workflow.currentTool === 'pan' || 
+      workflow.currentTool === 'select'  // Continue panning if started in select mode
+    )
+    
+    if (shouldContinuePanning) {
       e.preventDefault()
       const deltaX = e.clientX - panStart.x
       const deltaY = e.clientY - panStart.y
@@ -3906,28 +4056,81 @@ function WorkflowView({
     <div className="absolute inset-0 top-24 flex flex-col">
       {/* Enhanced Canvas Tools */}
       <div className="absolute top-4 left-4 z-40 flex flex-col space-y-2">
+        {/* Active Tool Status */}
+        <div className="bg-black/90 backdrop-blur-xl border border-white/20 rounded-xl px-3 py-2 flex items-center space-x-2">
+          <div className={`w-2 h-2 rounded-full ${
+            workflow.currentTool === 'select' ? 'bg-blue-400' :
+            workflow.currentTool === 'pan' ? 'bg-green-400' :
+            workflow.currentTool === 'connect' ? 'bg-purple-400' :
+            workflow.currentTool === 'delete' ? 'bg-red-400' :
+            'bg-yellow-400'
+          }`}></div>
+          <span className="text-white text-sm font-medium">
+            {canvasTools.find(t => t.id === workflow.currentTool)?.name || 'Unknown'}
+          </span>
+          {workflow.currentTool === 'connect' && workflow.isConnecting && (
+            <span className="text-purple-300 text-xs">
+              (connecting...)
+            </span>
+          )}
+        </div>
+        
+        {/* Tool Buttons */}
         <div className="bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl p-2 flex items-center space-x-1">
           {canvasTools.map((tool) => (
             <button
               key={tool.id}
               onClick={() => onToolChange(tool.id as WorkflowState['currentTool'])}
-              className={`p-2 rounded-lg transition-all ${
+              className={`p-2 rounded-lg transition-all relative ${
                 tool.active 
-                  ? 'bg-blue-500 text-white shadow-lg' 
+                  ? 'bg-blue-500 text-white shadow-lg ring-2 ring-blue-400/50' 
                   : 'text-gray-400 hover:text-white hover:bg-white/10'
               }`}
-              title={`${tool.description} (${tool.shortcut})`}
+              title={`${tool.description}${tool.shortcut ? ` (${tool.shortcut})` : ''}`}
             >
               {tool.icon}
+              {tool.active && (
+                <div className="absolute -top-1 -right-1 w-2 h-2 bg-blue-400 rounded-full"></div>
+              )}
             </button>
           ))}
         </div>
         
         {/* Node Palette */}
-        <div className="bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl p-2 max-h-96 overflow-y-auto">
-          <h3 className="text-xs font-medium text-gray-300 mb-2 px-1">Add Nodes</h3>
-          <div className="space-y-1">
-            {['Basic', 'Integration', 'Communication', 'Logic', 'Process'].map((category) => (
+        <div className={`bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl transition-all duration-300 ${
+          isPaletteCollapsed ? 'p-2' : 'p-2'
+        } ${
+          // Auto-resize based on AI Assistant state and collapsed state
+          isPaletteCollapsed 
+            ? 'max-h-12' 
+            : isChatOpen 
+              ? 'max-h-80' 
+              : 'max-h-[32rem]'
+        } overflow-hidden`}>
+          {/* Palette Header with Collapse Button */}
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center space-x-2">
+              <h3 className="text-xs font-medium text-gray-300 px-1">Add Nodes</h3>
+              {isPaletteCollapsed && (
+                <span className="text-xs text-gray-500 bg-white/5 px-2 py-0.5 rounded">
+                  {nodeTypes.length} nodes
+                </span>
+              )}
+            </div>
+            <button
+              onClick={() => setIsPaletteCollapsed(!isPaletteCollapsed)}
+              className="text-gray-400 hover:text-white transition-colors p-1 rounded hover:bg-white/10"
+              title={isPaletteCollapsed ? 'Expand palette' : 'Collapse palette'}
+            >
+              {isPaletteCollapsed ? <ChevronDown className="w-3 h-3" /> : <ChevronUp className="w-3 h-3" />}
+            </button>
+          </div>
+          
+          {/* Palette Content */}
+          <div className={`transition-all duration-300 ${
+            isPaletteCollapsed ? 'opacity-0 max-h-0' : 'opacity-100'
+          } overflow-y-scroll scrollbar-always-visible space-y-1`}>
+            {['Basic', 'Business', 'Integration', 'Communication', 'Logic', 'Process'].map((category) => (
               <div key={category}>
                 <div className="text-xs text-gray-500 px-1 py-1">{category}</div>
                 <div className="grid grid-cols-2 gap-1">
@@ -3948,14 +4151,77 @@ function WorkflowView({
           </div>
         </div>
 
-        {/* Spacebar Panning Indicator */}
-        {isSpacePressed && (
+        {/* Zoom Indicator */}
+        <div className="bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl p-2 flex items-center space-x-2">
+          <ZoomIn className="w-4 h-4 text-gray-400" />
+          <span className="text-white text-sm font-medium">{Math.round(canvasScale * 100)}%</span>
+          <div className="flex items-center space-x-1">
+            <button
+              onClick={() => zoomToCenter(Math.max(0.1, canvasScale - 0.1))}
+              className="text-gray-400 hover:text-white transition-colors"
+              title="Zoom Out"
+            >
+              <ZoomOut className="w-3 h-3" />
+            </button>
+            <button
+              onClick={() => zoomToCenter(1)}
+              className="text-gray-400 hover:text-white transition-colors px-1"
+              title="Reset Zoom"
+            >
+              1:1
+            </button>
+            <button
+              onClick={() => zoomToCenter(Math.min(5, canvasScale + 0.1))}
+              className="text-gray-400 hover:text-white transition-colors"
+              title="Zoom In"
+            >
+              <ZoomIn className="w-3 h-3" />
+            </button>
+          </div>
+        </div>
+
+        {/* Tool Instructions */}
+        {workflow.currentTool === 'select' && (
           <div className="bg-blue-500/90 backdrop-blur-xl border border-blue-400/30 rounded-xl p-3 flex items-center space-x-2 shadow-lg">
-            <Hand className="w-4 h-4 text-white" />
-            <span className="text-white text-sm font-medium">Pan Mode Active</span>
-            <span className="text-blue-200 text-xs">Hold Space + Drag</span>
+            <MousePointer className="w-4 h-4 text-white" />
+            <span className="text-white text-sm font-medium">Select Mode</span>
+            <span className="text-blue-200 text-xs">Drag nodes to move • Drag canvas to pan</span>
           </div>
         )}
+        
+        {workflow.currentTool === 'connect' && !workflow.isConnecting && (
+          <div className="bg-purple-500/90 backdrop-blur-xl border border-purple-400/30 rounded-xl p-3 flex items-center space-x-2 shadow-lg">
+            <Link className="w-4 h-4 text-white" />
+            <span className="text-white text-sm font-medium">Connect Mode</span>
+            <span className="text-purple-200 text-xs">Click nodes to connect them</span>
+          </div>
+        )}
+        
+        {workflow.currentTool === 'delete' && (
+          <div className="bg-red-500/90 backdrop-blur-xl border border-red-400/30 rounded-xl p-3 flex items-center space-x-2 shadow-lg">
+            <Trash2 className="w-4 h-4 text-white" />
+            <span className="text-white text-sm font-medium">Delete Mode</span>
+            <span className="text-red-200 text-xs">Click nodes to delete them</span>
+          </div>
+        )}
+
+        {workflow.currentTool === 'pan' && (
+          <div className="bg-green-500/90 backdrop-blur-xl border border-green-400/30 rounded-xl p-3 flex items-center space-x-2 shadow-lg">
+            <Hand className="w-4 h-4 text-white" />
+            <span className="text-white text-sm font-medium">Pan Mode</span>
+            <span className="text-green-200 text-xs">Drag anywhere to move canvas</span>
+          </div>
+        )}
+
+        {workflow.currentTool === 'zoom' && (
+          <div className="bg-yellow-500/90 backdrop-blur-xl border border-yellow-400/30 rounded-xl p-3 flex items-center space-x-2 shadow-lg">
+            <ZoomIn className="w-4 h-4 text-white" />
+            <span className="text-white text-sm font-medium">Zoom Mode</span>
+            <span className="text-yellow-200 text-xs">Scroll wheel or use zoom controls</span>
+          </div>
+        )}
+
+
       </div>
 
       {/* Workflow Header */}
@@ -4059,7 +4325,7 @@ function WorkflowView({
         className={`flex-1 relative overflow-hidden transition-all duration-300 ${
           isChatOpen ? (isMobile ? 'mb-64' : 'mb-96') : (isMobile ? 'mb-20' : 'mb-16')
         } ${
-          isSpacePressed || isPanning ? 'cursor-grab active:cursor-grabbing' :
+          isPanning ? 'cursor-grab active:cursor-grabbing' :
           workflow.currentTool === 'pan' ? 'cursor-grab active:cursor-grabbing' :
           workflow.currentTool === 'connect' ? 'cursor-crosshair' :
           workflow.currentTool === 'delete' ? 'cursor-not-allowed' :
@@ -4068,7 +4334,14 @@ function WorkflowView({
         onClick={handleCanvasClick}
         onMouseDown={(e) => {
           handleCanvasPanStart(e)
-          onMouseDown(e)
+          // Only call onMouseDown for node dragging if we're not starting canvas panning
+          const isEmptyCanvasClick = e.target === e.currentTarget
+          const willStartCanvasPanning = workflow.currentTool === 'pan' || 
+                                        (workflow.currentTool === 'select' && isEmptyCanvasClick)
+          
+          if (!willStartCanvasPanning) {
+            onMouseDown(e)
+          }
         }}
         onMouseMove={(e) => {
           handleCanvasPanMove(e)
@@ -4356,6 +4629,86 @@ function WorkflowView({
             {node.type === 'team' && node.assignees && (
               <div className="text-pink-400 text-xs">
                 Team: {node.assignees.length} members
+              </div>
+            )}
+            
+            {/* Organization Node Display */}
+            {node.type === 'organization' && (
+              <div className="space-y-2">
+                <div className="text-blue-400 text-xs">
+                  {node.organizationRef ? `Org ID: ${node.organizationRef}` : 'No organization selected'}
+                </div>
+                {Boolean(node.metadata?.tokenSymbol) && (
+                  <div className="text-yellow-400 text-xs">
+                    Token: {node.metadata?.tokenSymbol as string}
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {/* Role Node Display */}
+            {node.type === 'role' && (
+              <div className="space-y-2">
+                <div className="text-purple-400 text-xs">
+                  {node.roleRef ? `Role ID: ${node.roleRef}` : 'No role selected'}
+                </div>
+                {Boolean(node.metadata?.shareAllocation) && (
+                  <div className="text-green-400 text-xs">
+                    Shares: {node.metadata?.shareAllocation as number}%
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {/* Member Node Display */}
+            {node.type === 'member' && (
+              <div className="space-y-2">
+                <div className="text-cyan-400 text-xs">
+                  {node.memberRef ? `Member ID: ${node.memberRef}` : 'No member selected'}
+                </div>
+                {Boolean(node.metadata?.handle) && (
+                  <div className="text-orange-400 text-xs">
+                    @{node.metadata?.handle as string}
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {/* Instrument Node Display */}
+            {node.type === 'instrument' && (
+              <div className="space-y-2">
+                <div className="text-green-400 text-xs">
+                  {node.instrumentRef ? `Instrument ID: ${node.instrumentRef}` : 'No instrument selected'}
+                </div>
+                {Boolean(node.metadata?.type) && (
+                  <div className="text-yellow-400 text-xs">
+                    Type: {node.metadata?.type as string}
+                  </div>
+                )}
+                {node.amount && (
+                  <div className="text-green-300 text-xs">
+                    Amount: ${node.amount.toLocaleString()}
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {/* Integration Node Display */}
+            {node.type === 'integration' && (
+              <div className="space-y-2">
+                <div className="text-indigo-400 text-xs">
+                  {node.integrationRef ? `Integration ID: ${node.integrationRef}` : 'No integration selected'}
+                </div>
+                {Boolean(node.metadata?.service) && (
+                  <div className="text-blue-400 text-xs">
+                    Service: {node.metadata?.service as string}
+                  </div>
+                )}
+                {Boolean(node.metadata?.status) && (
+                  <div className={`text-xs ${(node.metadata?.status as string) === 'connected' ? 'text-green-400' : 'text-red-400'}`}>
+                    Status: {node.metadata?.status as string}
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -5056,449 +5409,417 @@ function RolesView({ roles, selectedOrganization, onAddMember, onCreateRole, onU
     }))
   }
 
-  // Comprehensive role templates
+  // Traditional payroll role templates for blockchain-based compensation
   const roleTemplates = [
-    // Executive & Leadership
+    // Executive Leadership
     {
-      name: 'CEO AI Advisor',
-      description: 'Strategic decision support, market analysis, and executive insights',
+      name: 'Chief Executive Officer',
+      description: 'Overall company leadership, strategic direction, and stakeholder relations',
       icon: 'crown',
       permissions: ['admin', 'finance', 'operations', 'data-analysis'],
-      defaultShareAllocation: 30,
-      automationType: 'ai-agent' as const,
-      category: 'Executive'
-    },
-    {
-      name: 'CTO AI Assistant',
-      description: 'Technology strategy, architecture decisions, and innovation guidance',
-      icon: 'bot',
-      permissions: ['tech', 'admin', 'workflow-creation', 'ai-training'],
       defaultShareAllocation: 25,
+      automationType: 'ai-agent' as const,
+      category: 'Executive'
+    },
+    {
+      name: 'Chief Technology Officer',
+      description: 'Technology strategy, product development, and engineering leadership',
+      icon: 'cpu',
+      permissions: ['tech', 'admin', 'workflow-creation'],
+      defaultShareAllocation: 20,
       automationType: 'hybrid' as const,
       category: 'Executive'
     },
     {
-      name: 'COO AI Agent',
-      description: 'Operations oversight, process optimization, and performance monitoring',
+      name: 'Chief Operating Officer',
+      description: 'Daily operations, process optimization, and business execution',
       icon: 'settings',
-      permissions: ['operations', 'admin', 'automation', 'data-analysis'],
-      defaultShareAllocation: 22,
+      permissions: ['operations', 'admin', 'finance'],
+      defaultShareAllocation: 18,
       automationType: 'hybrid' as const,
       category: 'Executive'
     },
-    
-    // Marketing & Sales
     {
-      name: 'Marketing AI Agent',
-      description: 'Campaign automation, social media management, and customer engagement',
-      icon: 'trending-up',
-      permissions: ['marketing', 'automation', 'data-analysis'],
-      defaultShareAllocation: 15,
-      automationType: 'ai-agent' as const,
-      category: 'Marketing'
-    },
-    {
-      name: 'Sales AI Agent',
-      description: 'Lead generation, CRM management, and sales pipeline automation',
-      icon: 'trending-up',
-      permissions: ['marketing', 'data-analysis', 'automation'],
-      defaultShareAllocation: 18,
-      automationType: 'ai-agent' as const,
-      category: 'Sales'
-    },
-    {
-      name: 'Content Marketing AI',
-      description: 'Content creation, SEO optimization, and editorial workflows',
-      icon: 'palette',
-      permissions: ['marketing', 'automation', 'workflow-creation'],
-      defaultShareAllocation: 12,
-      automationType: 'hybrid' as const,
-      category: 'Marketing'
-    },
-    {
-      name: 'Social Media AI',
-      description: 'Social media scheduling, engagement tracking, and community management',
-      icon: 'users',
-      permissions: ['marketing', 'automation', 'data-analysis'],
-      defaultShareAllocation: 10,
-      automationType: 'ai-agent' as const,
-      category: 'Marketing'
-    },
-    {
-      name: 'Brand Manager AI',
-      description: 'Brand consistency monitoring, asset management, and reputation tracking',
-      icon: 'palette',
-      permissions: ['marketing', 'operations', 'data-analysis'],
-      defaultShareAllocation: 14,
-      automationType: 'ai-agent' as const,
-      category: 'Marketing'
-    },
-    {
-      name: 'Growth Hacker AI',
-      description: 'Growth experiments, A/B testing, and conversion optimization',
-      icon: 'trending-up',
-      permissions: ['marketing', 'tech', 'data-analysis', 'automation'],
-      defaultShareAllocation: 16,
-      automationType: 'hybrid' as const,
-      category: 'Growth'
-    },
-    
-    // Finance & Accounting
-    {
-      name: 'Finance AI Agent',
-      description: 'Financial analysis, budget tracking, and automated reporting',
+      name: 'Chief Financial Officer',
+      description: 'Financial planning, budgeting, fundraising, and fiscal management',
       icon: 'bar-chart-3',
       permissions: ['finance', 'admin', 'data-analysis'],
-      defaultShareAllocation: 20,
-      automationType: 'ai-agent' as const,
-      category: 'Finance'
-    },
-    {
-      name: 'Accounting AI',
-      description: 'Bookkeeping automation, expense tracking, and tax preparation',
-      icon: 'bar-chart-3',
-      permissions: ['finance', 'automation', 'data-analysis'],
       defaultShareAllocation: 15,
-      automationType: 'workflow' as const,
-      category: 'Finance'
+      automationType: 'ai-agent' as const,
+      category: 'Executive'
     },
     {
-      name: 'Investment AI Advisor',
-      description: 'Portfolio analysis, market research, and investment recommendations',
+      name: 'Chief Marketing Officer',
+      description: 'Marketing strategy, brand management, and customer acquisition',
       icon: 'trending-up',
-      permissions: ['finance', 'data-analysis', 'admin'],
-      defaultShareAllocation: 22,
+      permissions: ['marketing', 'admin', 'data-analysis'],
+      defaultShareAllocation: 12,
       automationType: 'ai-agent' as const,
-      category: 'Finance'
-    },
-    {
-      name: 'Risk Management AI',
-      description: 'Risk assessment, compliance monitoring, and fraud detection',
-      icon: 'shield',
-      permissions: ['finance', 'legal', 'data-analysis', 'automation'],
-      defaultShareAllocation: 18,
-      automationType: 'ai-agent' as const,
-      category: 'Risk'
-    },
-    {
-      name: 'Treasury AI',
-      description: 'Cash flow management, liquidity optimization, and payment processing',
-      icon: 'bar-chart-3',
-      permissions: ['finance', 'operations', 'automation'],
-      defaultShareAllocation: 16,
-      automationType: 'hybrid' as const,
-      category: 'Finance'
+      category: 'Executive'
     },
     
-    // Technology & Engineering
+    // Engineering & Development
     {
-      name: 'Tech Lead AI Agent',
-      description: 'Code review, technical documentation, and development workflows',
-      icon: 'bot',
-      permissions: ['tech', 'workflow-creation', 'ai-training'],
-      defaultShareAllocation: 25,
+      name: 'Senior Software Engineer',
+      description: 'Full-stack development, architecture decisions, and technical mentorship',
+      icon: 'code',
+      permissions: ['tech', 'workflow-creation'],
+      defaultShareAllocation: 8,
       automationType: 'hybrid' as const,
-      category: 'Technology'
+      category: 'Engineering'
     },
     {
-      name: 'DevOps AI Engineer',
-      description: 'CI/CD automation, infrastructure monitoring, and deployment management',
-      icon: 'settings',
-      permissions: ['tech', 'operations', 'automation', 'workflow-creation'],
-      defaultShareAllocation: 20,
+      name: 'Frontend Developer',
+      description: 'User interface development, responsive design, and user experience',
+      icon: 'monitor',
+      permissions: ['tech', 'marketing'],
+      defaultShareAllocation: 6,
       automationType: 'workflow' as const,
-      category: 'Technology'
+      category: 'Engineering'
     },
     {
-      name: 'Security AI Analyst',
-      description: 'Threat detection, vulnerability scanning, and security compliance',
-      icon: 'shield',
-      permissions: ['tech', 'legal', 'automation', 'data-analysis'],
-      defaultShareAllocation: 18,
+      name: 'Backend Developer',
+      description: 'Server-side development, API design, and database management',
+      icon: 'server',
+      permissions: ['tech', 'operations'],
+      defaultShareAllocation: 6,
+      automationType: 'workflow' as const,
+      category: 'Engineering'
+    },
+    {
+      name: 'DevOps Engineer',
+      description: 'Infrastructure automation, deployment pipelines, and system monitoring',
+      icon: 'cloud',
+      permissions: ['tech', 'operations', 'automation'],
+      defaultShareAllocation: 7,
+      automationType: 'workflow' as const,
+      category: 'Engineering'
+    },
+    {
+      name: 'Quality Assurance Engineer',
+      description: 'Testing automation, bug tracking, and quality standards enforcement',
+      icon: 'shield-check',
+      permissions: ['tech', 'operations'],
+      defaultShareAllocation: 5,
+      automationType: 'workflow' as const,
+      category: 'Engineering'
+    },
+    {
+      name: 'Data Engineer',
+      description: 'Data pipeline development, analytics infrastructure, and data modeling',
+      icon: 'database',
+      permissions: ['tech', 'data-analysis'],
+      defaultShareAllocation: 7,
       automationType: 'ai-agent' as const,
-      category: 'Security'
+      category: 'Engineering'
     },
+    
+    // Product & Design
     {
-      name: 'Data Scientist AI',
-      description: 'Data analysis, machine learning models, and predictive analytics',
-      icon: 'bar-chart-3',
-      permissions: ['tech', 'data-analysis', 'ai-training', 'automation'],
-      defaultShareAllocation: 22,
-      automationType: 'ai-agent' as const,
-      category: 'Data'
-    },
-    {
-      name: 'Product Manager AI',
-      description: 'Feature prioritization, user research, and product roadmap planning',
+      name: 'Product Manager',
+      description: 'Product strategy, feature prioritization, and stakeholder coordination',
       icon: 'users',
-      permissions: ['tech', 'marketing', 'data-analysis', 'operations'],
-      defaultShareAllocation: 19,
+      permissions: ['tech', 'marketing', 'operations'],
+      defaultShareAllocation: 8,
       automationType: 'ai-agent' as const,
       category: 'Product'
     },
     {
-      name: 'QA Engineer AI',
-      description: 'Automated testing, bug tracking, and quality assurance workflows',
-      icon: 'shield',
-      permissions: ['tech', 'operations', 'automation'],
-      defaultShareAllocation: 12,
-      automationType: 'workflow' as const,
-      category: 'Quality'
+      name: 'UI/UX Designer',
+      description: 'User interface design, user experience research, and design systems',
+      icon: 'palette',
+      permissions: ['marketing', 'tech'],
+      defaultShareAllocation: 6,
+      automationType: 'hybrid' as const,
+      category: 'Design'
     },
     {
-      name: 'UI/UX Designer AI',
-      description: 'Design system management, user experience optimization, and prototyping',
-      icon: 'palette',
-      permissions: ['marketing', 'tech', 'automation'],
-      defaultShareAllocation: 14,
+      name: 'Graphic Designer',
+      description: 'Visual design, branding materials, and marketing collateral',
+      icon: 'image',
+      permissions: ['marketing'],
+      defaultShareAllocation: 4,
       automationType: 'ai-agent' as const,
       category: 'Design'
     },
     
-    // Operations & Process Management
+    // Marketing & Sales
     {
-      name: 'Operations AI Agent',
-      description: 'Process automation, workflow optimization, and operational efficiency',
+      name: 'Marketing Manager',
+      description: 'Campaign management, content strategy, and brand development',
+      icon: 'megaphone',
+      permissions: ['marketing', 'data-analysis'],
+      defaultShareAllocation: 7,
+      automationType: 'ai-agent' as const,
+      category: 'Marketing'
+    },
+    {
+      name: 'Sales Manager',
+      description: 'Sales strategy, client relationships, and revenue generation',
+      icon: 'trending-up',
+      permissions: ['marketing', 'finance'],
+      defaultShareAllocation: 8,
+      automationType: 'ai-agent' as const,
+      category: 'Sales'
+    },
+    {
+      name: 'Content Creator',
+      description: 'Content production, social media management, and community engagement',
+      icon: 'edit',
+      permissions: ['marketing'],
+      defaultShareAllocation: 4,
+      automationType: 'ai-agent' as const,
+      category: 'Marketing'
+    },
+    {
+      name: 'Digital Marketing Specialist',
+      description: 'Online advertising, SEO optimization, and digital campaign management',
+      icon: 'globe',
+      permissions: ['marketing', 'data-analysis'],
+      defaultShareAllocation: 5,
+      automationType: 'ai-agent' as const,
+      category: 'Marketing'
+    },
+    {
+      name: 'Business Development Representative',
+      description: 'Lead generation, client outreach, and partnership development',
+      icon: 'handshake',
+      permissions: ['marketing', 'operations'],
+      defaultShareAllocation: 5,
+      automationType: 'ai-agent' as const,
+      category: 'Sales'
+    },
+    
+    // Operations & Administration
+    {
+      name: 'Operations Manager',
+      description: 'Daily operations oversight, process improvement, and team coordination',
       icon: 'settings',
-      permissions: ['operations', 'automation', 'workflow-creation'],
-      defaultShareAllocation: 16,
+      permissions: ['operations', 'admin'],
+      defaultShareAllocation: 7,
       automationType: 'workflow' as const,
       category: 'Operations'
     },
     {
-      name: 'Supply Chain AI',
-      description: 'Inventory management, vendor relations, and logistics optimization',
-      icon: 'settings',
-      permissions: ['operations', 'finance', 'data-analysis', 'automation'],
-      defaultShareAllocation: 15,
-      automationType: 'hybrid' as const,
+      name: 'Administrative Assistant',
+      description: 'Administrative support, scheduling, and office management',
+      icon: 'clipboard',
+      permissions: ['operations'],
+      defaultShareAllocation: 3,
+      automationType: 'workflow' as const,
+      category: 'Administration'
+    },
+    {
+      name: 'Project Manager',
+      description: 'Project planning, timeline management, and resource coordination',
+      icon: 'calendar',
+      permissions: ['operations', 'admin'],
+      defaultShareAllocation: 6,
+      automationType: 'ai-agent' as const,
       category: 'Operations'
     },
     {
-      name: 'Project Manager AI',
-      description: 'Project planning, resource allocation, and timeline management',
-      icon: 'users',
-      permissions: ['operations', 'admin', 'workflow-creation'],
-      defaultShareAllocation: 17,
+      name: 'Business Analyst',
+      description: 'Process analysis, requirements gathering, and business optimization',
+      icon: 'bar-chart',
+      permissions: ['operations', 'data-analysis'],
+      defaultShareAllocation: 6,
       automationType: 'ai-agent' as const,
-      category: 'Management'
+      category: 'Operations'
+    },
+    
+    // Finance & Accounting
+    {
+      name: 'Accountant',
+      description: 'Financial record keeping, tax preparation, and compliance reporting',
+      icon: 'calculator',
+      permissions: ['finance', 'legal'],
+      defaultShareAllocation: 5,
+      automationType: 'workflow' as const,
+      category: 'Finance'
     },
     {
-      name: 'Business Analyst AI',
-      description: 'Process analysis, requirements gathering, and improvement recommendations',
-      icon: 'bar-chart-3',
-      permissions: ['operations', 'data-analysis', 'workflow-creation'],
-      defaultShareAllocation: 13,
+      name: 'Financial Analyst',
+      description: 'Financial modeling, budget analysis, and investment research',
+      icon: 'trending-up',
+      permissions: ['finance', 'data-analysis'],
+      defaultShareAllocation: 6,
       automationType: 'ai-agent' as const,
-      category: 'Analysis'
+      category: 'Finance'
+    },
+    {
+      name: 'Bookkeeper',
+      description: 'Daily financial transactions, expense tracking, and record maintenance',
+      icon: 'book',
+      permissions: ['finance'],
+      defaultShareAllocation: 4,
+      automationType: 'workflow' as const,
+      category: 'Finance'
     },
     
     // Human Resources
     {
-      name: 'HR AI Agent',
-      description: 'Recruitment automation, employee onboarding, and team management',
+      name: 'HR Manager',
+      description: 'Employee relations, recruitment, and policy development',
       icon: 'users',
-      permissions: ['admin', 'operations'],
-      defaultShareAllocation: 14,
+      permissions: ['admin', 'legal'],
+      defaultShareAllocation: 7,
       automationType: 'ai-agent' as const,
       category: 'Human Resources'
     },
     {
-      name: 'Recruitment AI',
-      description: 'Candidate screening, interview scheduling, and talent acquisition',
-      icon: 'users',
-      permissions: ['admin', 'marketing', 'automation'],
-      defaultShareAllocation: 12,
+      name: 'HR Coordinator',
+      description: 'Employee onboarding, benefits administration, and HR support',
+      icon: 'user-plus',
+      permissions: ['admin'],
+      defaultShareAllocation: 4,
+      automationType: 'workflow' as const,
+      category: 'Human Resources'
+    },
+    {
+      name: 'Recruiter',
+      description: 'Talent acquisition, candidate screening, and hiring coordination',
+      icon: 'search',
+      permissions: ['admin', 'marketing'],
+      defaultShareAllocation: 5,
       automationType: 'hybrid' as const,
       category: 'Human Resources'
     },
+    
+    // Customer Support
     {
-      name: 'Learning & Development AI',
-      description: 'Training program management, skill assessment, and career development',
-      icon: 'users',
-      permissions: ['admin', 'operations', 'data-analysis'],
-      defaultShareAllocation: 10,
+      name: 'Customer Support Manager',
+      description: 'Support team leadership, escalation handling, and service quality',
+      icon: 'headphones',
+      permissions: ['operations', 'marketing'],
+      defaultShareAllocation: 6,
       automationType: 'ai-agent' as const,
-      category: 'Human Resources'
+      category: 'Customer Support'
     },
     {
-      name: 'Performance Management AI',
-      description: 'Employee evaluation, goal tracking, and performance analytics',
-      icon: 'bar-chart-3',
-      permissions: ['admin', 'data-analysis', 'operations'],
-      defaultShareAllocation: 11,
+      name: 'Customer Support Representative',
+      description: 'Customer assistance, issue resolution, and service delivery',
+      icon: 'message-circle',
+      permissions: ['operations'],
+      defaultShareAllocation: 3,
       automationType: 'ai-agent' as const,
-      category: 'Human Resources'
+      category: 'Customer Support'
+    },
+    {
+      name: 'Technical Support Specialist',
+      description: 'Technical troubleshooting, product support, and user guidance',
+      icon: 'tool',
+      permissions: ['tech', 'operations'],
+      defaultShareAllocation: 4,
+      automationType: 'hybrid' as const,
+      category: 'Customer Support'
     },
     
     // Legal & Compliance
     {
-      name: 'Legal AI Agent',
-      description: 'Contract analysis, compliance monitoring, and legal documentation',
-      icon: 'shield',
-      permissions: ['legal', 'admin', 'data-analysis'],
-      defaultShareAllocation: 18,
-      automationType: 'ai-agent' as const,
-      category: 'Legal'
-    },
-    {
-      name: 'Compliance AI Officer',
-      description: 'Regulatory compliance, policy enforcement, and audit preparation',
-      icon: 'shield',
-      permissions: ['legal', 'operations', 'data-analysis', 'automation'],
-      defaultShareAllocation: 16,
-      automationType: 'ai-agent' as const,
-      category: 'Legal'
-    },
-    {
-      name: 'IP Management AI',
-      description: 'Intellectual property tracking, patent research, and trademark monitoring',
-      icon: 'shield',
-      permissions: ['legal', 'tech', 'data-analysis'],
-      defaultShareAllocation: 13,
-      automationType: 'ai-agent' as const,
-      category: 'Legal'
-    },
-    
-    // Customer Service & Support
-    {
-      name: 'Customer Success AI',
-      description: 'Customer support automation, satisfaction monitoring, and retention strategies',
-      icon: 'users',
-      permissions: ['marketing', 'data-analysis', 'automation'],
-      defaultShareAllocation: 14,
-      automationType: 'ai-agent' as const,
-      category: 'Customer Success'
-    },
-    {
-      name: 'Support Chatbot AI',
-      description: 'Automated customer support, ticket routing, and FAQ management',
-      icon: 'bot',
-      permissions: ['marketing', 'automation', 'tech'],
+      name: 'Legal Counsel',
+      description: 'Legal advice, contract review, and regulatory compliance',
+      icon: 'scale',
+      permissions: ['legal', 'admin'],
       defaultShareAllocation: 8,
       automationType: 'ai-agent' as const,
-      category: 'Customer Success'
+      category: 'Legal'
     },
     {
-      name: 'Account Manager AI',
-      description: 'Client relationship management, upselling opportunities, and renewal tracking',
-      icon: 'users',
-      permissions: ['marketing', 'finance', 'data-analysis'],
-      defaultShareAllocation: 16,
+      name: 'Compliance Officer',
+      description: 'Regulatory compliance, policy enforcement, and risk management',
+      icon: 'shield',
+      permissions: ['legal', 'operations'],
+      defaultShareAllocation: 6,
       automationType: 'ai-agent' as const,
-      category: 'Account Management'
+      category: 'Legal'
     },
     
-    // Specialized Industry Roles
+    // Specialized Roles
     {
-      name: 'E-commerce AI Manager',
-      description: 'Online store optimization, inventory management, and sales analytics',
-      icon: 'trending-up',
-      permissions: ['marketing', 'operations', 'finance', 'data-analysis'],
-      defaultShareAllocation: 17,
+      name: 'Security Specialist',
+      description: 'Information security, threat assessment, and security protocols',
+      icon: 'lock',
+      permissions: ['tech', 'legal'],
+      defaultShareAllocation: 6,
+      automationType: 'ai-agent' as const,
+      category: 'Security'
+    },
+    {
+      name: 'Blockchain Developer',
+      description: 'Smart contract development, DApp creation, and blockchain integration',
+      icon: 'link',
+      permissions: ['tech', 'finance'],
+      defaultShareAllocation: 8,
       automationType: 'hybrid' as const,
-      category: 'E-commerce'
+      category: 'Blockchain'
     },
     {
-      name: 'Healthcare AI Coordinator',
-      description: 'Patient data management, appointment scheduling, and compliance monitoring',
-      icon: 'shield',
-      permissions: ['operations', 'legal', 'data-analysis', 'automation'],
-      defaultShareAllocation: 19,
-      automationType: 'ai-agent' as const,
-      category: 'Healthcare'
-    },
-    {
-      name: 'Real Estate AI Agent',
-      description: 'Property valuation, market analysis, and client matching',
-      icon: 'trending-up',
-      permissions: ['marketing', 'finance', 'data-analysis'],
-      defaultShareAllocation: 15,
-      automationType: 'ai-agent' as const,
-      category: 'Real Estate'
-    },
-    {
-      name: 'Manufacturing AI Supervisor',
-      description: 'Production planning, quality control, and equipment monitoring',
-      icon: 'settings',
-      permissions: ['operations', 'tech', 'data-analysis', 'automation'],
-      defaultShareAllocation: 18,
-      automationType: 'workflow' as const,
-      category: 'Manufacturing'
-    },
-    {
-      name: 'Education AI Assistant',
-      description: 'Student progress tracking, curriculum planning, and learning analytics',
-      icon: 'users',
-      permissions: ['operations', 'data-analysis', 'automation'],
-      defaultShareAllocation: 12,
-      automationType: 'ai-agent' as const,
-      category: 'Education'
-    },
-    {
-      name: 'Logistics AI Coordinator',
-      description: 'Route optimization, delivery tracking, and warehouse management',
-      icon: 'settings',
-      permissions: ['operations', 'data-analysis', 'automation'],
-      defaultShareAllocation: 14,
-      automationType: 'hybrid' as const,
-      category: 'Logistics'
-    },
-    {
-      name: 'Research AI Analyst',
-      description: 'Market research, competitive analysis, and trend identification',
-      icon: 'bar-chart-3',
-      permissions: ['data-analysis', 'marketing', 'ai-training'],
-      defaultShareAllocation: 13,
+      name: 'Research Analyst',
+      description: 'Market research, competitive analysis, and industry insights',
+      icon: 'search',
+      permissions: ['data-analysis', 'marketing'],
+      defaultShareAllocation: 5,
       automationType: 'ai-agent' as const,
       category: 'Research'
     },
+    
+    // Entry Level & Intern Positions
     {
-      name: 'Environmental AI Monitor',
-      description: 'Sustainability tracking, carbon footprint analysis, and green initiatives',
-      icon: 'shield',
-      permissions: ['operations', 'data-analysis', 'legal'],
-      defaultShareAllocation: 11,
-      automationType: 'ai-agent' as const,
-      category: 'Sustainability'
+      name: 'Junior Developer',
+      description: 'Entry-level development, learning-focused role with mentorship',
+      icon: 'code',
+      permissions: ['tech'],
+      defaultShareAllocation: 2,
+      automationType: 'workflow' as const,
+      category: 'Entry Level'
+    },
+    {
+      name: 'Marketing Intern',
+      description: 'Marketing support, campaign assistance, and learning opportunities',
+      icon: 'user',
+      permissions: ['marketing'],
+      defaultShareAllocation: 1,
+      automationType: 'workflow' as const,
+      category: 'Entry Level'
+    },
+    {
+      name: 'Business Intern',
+      description: 'General business support, project assistance, and skill development',
+      icon: 'briefcase',
+      permissions: ['operations'],
+      defaultShareAllocation: 1,
+      automationType: 'workflow' as const,
+      category: 'Entry Level'
     },
     
-    // Creative & Content
+    // Consultant & Contract Roles
     {
-      name: 'Creative Director AI',
-      description: 'Creative strategy, brand management, and campaign development',
-      icon: 'palette',
-      permissions: ['marketing', 'automation', 'workflow-creation'],
-      defaultShareAllocation: 16,
+      name: 'Technical Consultant',
+      description: 'Specialized technical expertise, project-based engagement',
+      icon: 'cpu',
+      permissions: ['tech', 'operations'],
+      defaultShareAllocation: 10,
       automationType: 'hybrid' as const,
-      category: 'Creative'
+      category: 'Consulting'
     },
     {
-      name: 'Content Writer AI',
-      description: 'Automated content generation, editing, and publishing workflows',
-      icon: 'palette',
-      permissions: ['marketing', 'automation'],
-      defaultShareAllocation: 9,
-      automationType: 'ai-agent' as const,
-      category: 'Content'
-    },
-    {
-      name: 'Video Production AI',
-      description: 'Video editing automation, content optimization, and distribution',
-      icon: 'palette',
-      permissions: ['marketing', 'tech', 'automation'],
-      defaultShareAllocation: 12,
-      automationType: 'workflow' as const,
-      category: 'Media'
-    },
-    {
-      name: 'Podcast Manager AI',
-      description: 'Podcast production, guest coordination, and distribution automation',
-      icon: 'users',
-      permissions: ['marketing', 'operations', 'automation'],
+      name: 'Business Consultant',
+      description: 'Strategic advisory, process improvement, and business optimization',
+      icon: 'briefcase',
+      permissions: ['operations', 'finance'],
       defaultShareAllocation: 8,
-      automationType: 'hybrid' as const,
-      category: 'Media'
+      automationType: 'ai-agent' as const,
+      category: 'Consulting'
+    },
+    {
+      name: 'Freelance Designer',
+      description: 'Project-based design work, creative services, and visual content',
+      icon: 'palette',
+      permissions: ['marketing'],
+      defaultShareAllocation: 5,
+      automationType: 'ai-agent' as const,
+      category: 'Consulting'
     }
   ]
 
@@ -5565,8 +5886,8 @@ function RolesView({ roles, selectedOrganization, onAddMember, onCreateRole, onU
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2">AI Agents & Roles</h1>
-            <p className="text-gray-300">Create automated AI agents and manage team roles</p>
+            <h1 className="text-3xl font-bold text-white mb-2">Employee Roles & Positions</h1>
+            <p className="text-gray-300">Manage employee roles, compensation, and blockchain-based payroll</p>
           </div>
           <div className="flex space-x-3">
             <button

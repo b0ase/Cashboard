@@ -72,7 +72,7 @@ const borderClassFor = (kind: NodeKind) => {
   }
 }
 
-function ColoredNode({ data }: { data: NodeData }) {
+function ColoredNode({ data, isConnectMode }: { data: NodeData; isConnectMode?: boolean }) {
   return (
     <div className={`bg-black/70 backdrop-blur-xl border ${borderClassFor(data.kind)} rounded-xl px-3 py-2 text-white min-w-[160px] shadow-xl`}> 
       <div className="flex items-center gap-2">
@@ -82,13 +82,16 @@ function ColoredNode({ data }: { data: NodeData }) {
           {data.subtitle && <div className="text-[11px] text-gray-400">{data.subtitle}</div>}
         </div>
       </div>
-      <Handle type="target" position={Position.Left} className="!bg-white/60" />
-      <Handle type="source" position={Position.Right} className="!bg-white/60" />
+      {isConnectMode && <Handle type="target" position={Position.Left} className="!bg-white/60" />}
+      {isConnectMode && <Handle type="source" position={Position.Right} className="!bg-white/60" />}
     </div>
   )
 }
 
-const nodeTypes = { colored: ColoredNode }
+// Pass connect mode to node via props
+const nodeTypes = {
+  colored: (props: any) => <ColoredNode {...props} isConnectMode={props.data?.isConnectMode} />,
+}
 
 const initialNodes: Node<NodeData>[] = [
   { id: 'n1', type: 'colored', position: { x: 100, y: 100 }, data: { label: 'YouTube Ad Revenue', kind: 'youtube', subtitle: 'AdSense receipts' } },
@@ -184,6 +187,9 @@ export default function ReactFlowDemoPage() {
   const [nodes, setNodes, onNodesChange] = useNodesState<NodeData>(initialNodes)
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
   const [selectedKind, setSelectedKind] = useState<NodeKind | ''>('')
+  const [currentTool, setCurrentTool] = useState<'select' | 'connect'>('select')
+  const [snapToGrid, setSnapToGrid] = useState<boolean>(true)
+  const [selectedNodeIds, setSelectedNodeIds] = useState<string[]>([])
 
   const onConnect = useCallback((params: Edge | Connection) => setEdges((eds) => addEdge({ ...params, animated: true }, eds)), [setEdges])
 
@@ -194,6 +200,12 @@ export default function ReactFlowDemoPage() {
 
   const nodeTypesMemo = useMemo(() => nodeTypes, [])
 
+  // Reflect connect mode into node data for handles visibility
+  const nodesWithMode = useMemo(
+    () => nodes.map((n) => ({ ...n, data: { ...n.data, isConnectMode: currentTool === 'connect' } })),
+    [nodes, currentTool]
+  )
+
   return (
     <div className="min-h-screen p-4">
       <div className="max-w-7xl mx-auto">
@@ -201,22 +213,96 @@ export default function ReactFlowDemoPage() {
         <div className="h-[75vh] bg-black/50 border border-white/20 rounded-lg overflow-hidden relative">
           <ReactFlowProvider>
             <ReactFlow
-              nodes={nodes}
+              nodes={nodesWithMode}
               edges={edges}
               onNodesChange={onNodesChange}
               onEdgesChange={onEdgesChange}
               onConnect={onConnect}
               nodeTypes={nodeTypesMemo}
               fitView
+              snapToGrid={snapToGrid}
+              onSelectionChange={(sel) => setSelectedNodeIds(sel?.nodes?.map((n) => n.id) || [])}
             >
               <Background color="rgba(255,255,255,0.1)" />
               <MiniMap pannable zoomable style={{ background: 'rgba(0,0,0,0.6)' }} />
               <Controls showInteractive={false} />
               <OverlayPanel selectedKind={selectedKind} setSelectedKind={setSelectedKind} onAdd={handleAddAtPos} />
+
+              {/* Toolbar: tools and zoom */}
+              <Panel position="top-right">
+                <Toolbar
+                  currentTool={currentTool}
+                  setCurrentTool={setCurrentTool}
+                  snapToGrid={snapToGrid}
+                  setSnapToGrid={setSnapToGrid}
+                  selectedIds={selectedNodeIds}
+                  deleteSelected={() => setNodes((nds) => nds.filter((n) => !selectedNodeIds.includes(n.id)))}
+                />
+              </Panel>
+
+              {/* Inspector */}
+              {selectedNodeIds.length === 1 && (
+                <Panel position="bottom-right">
+                  <Inspector node={nodes.find((n) => n.id === selectedNodeIds[0]) as Node<NodeData> | undefined} onRename={(name) => setNodes((nds) => nds.map((n) => (n.id === selectedNodeIds[0] ? { ...n, data: { ...n.data, label: name } } : n)))} />
+                </Panel>
+              )}
             </ReactFlow>
           </ReactFlowProvider>
         </div>
       </div>
+    </div>
+  )
+}
+
+function Toolbar({
+  currentTool,
+  setCurrentTool,
+  snapToGrid,
+  setSnapToGrid,
+  selectedIds,
+  deleteSelected,
+}: {
+  currentTool: 'select' | 'connect'
+  setCurrentTool: (t: 'select' | 'connect') => void
+  snapToGrid: boolean
+  setSnapToGrid: (v: boolean) => void
+  selectedIds: string[]
+  deleteSelected: () => void
+}) {
+  const rf = useReactFlow()
+  return (
+    <div className="glass-card bg-black/70 backdrop-blur-xl border border-white/20 rounded-lg p-2 flex items-center gap-2">
+      <button onClick={() => setCurrentTool('select')} className={`px-2 py-1 rounded text-sm ${currentTool === 'select' ? 'bg-white/20 text-white' : 'text-gray-300 hover:bg-white/10'}`}>Select</button>
+      <button onClick={() => setCurrentTool('connect')} className={`px-2 py-1 rounded text-sm ${currentTool === 'connect' ? 'bg-white/20 text-white' : 'text-gray-300 hover:bg-white/10'}`}>Connect</button>
+      <span className="mx-2 h-5 w-px bg-white/20" />
+      <button onClick={() => rf.zoomIn()} className="px-2 py-1 rounded text-sm text-gray-300 hover:bg-white/10">Zoom In</button>
+      <button onClick={() => rf.zoomOut()} className="px-2 py-1 rounded text-sm text-gray-300 hover:bg-white/10">Zoom Out</button>
+      <button onClick={() => rf.fitView({ padding: 0.2 })} className="px-2 py-1 rounded text-sm text-gray-300 hover:bg-white/10">Reset</button>
+      <span className="mx-2 h-5 w-px bg-white/20" />
+      <label className="flex items-center gap-1 text-sm text-gray-300">
+        <input type="checkbox" checked={snapToGrid} onChange={(e) => setSnapToGrid(e.target.checked)} />
+        Snap
+      </label>
+      <span className="mx-2 h-5 w-px bg-white/20" />
+      <button disabled={selectedIds.length === 0} onClick={deleteSelected} className={`px-2 py-1 rounded text-sm ${selectedIds.length ? 'text-red-300 hover:bg-red-500/10' : 'text-gray-500 cursor-not-allowed'}`}>Delete</button>
+    </div>
+  )
+}
+
+function Inspector({ node, onRename }: { node?: Node<NodeData>; onRename: (name: string) => void }) {
+  if (!node) return null
+  return (
+    <div className="glass-card bg-black/70 backdrop-blur-xl border border-white/20 rounded-lg p-3 text-white min-w-[220px]">
+      <div className="text-sm text-gray-400 mb-1">Node</div>
+      <input
+        value={node.data.label}
+        onChange={(e) => onRename(e.target.value)}
+        className="w-full bg-white/10 border border-white/20 rounded px-2 py-1 text-sm mb-2"
+      />
+      <div className="text-xs text-gray-400">Type: <span className="text-gray-200">{node.data.kind}</span></div>
+      {node.data.subtitle && (
+        <div className="text-xs text-gray-400">Subtitle: <span className="text-gray-200">{node.data.subtitle}</span></div>
+      )}
     </div>
   )
 }

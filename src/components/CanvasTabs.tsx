@@ -278,16 +278,19 @@ export default function CanvasTabs({
       {/* Canvas Content */}
       <div className="flex-1 relative">
         {activeTab && (
-          <WorkflowReactFlowCanvas
-            key={activeTab.id} // Force re-render when tab changes
-            workflow={activeTab.workflow}
-            templates={activeTab.templates}
-            onTemplateSelect={createNewTab}
-            onNodeCanvasSelect={createNodeCanvasTab}
-            tabTitle={activeTab.title}
-            nodeCanvasData={activeTab.nodeCanvasData}
-            onAddNode={(type: string) => true} // Enable the canvas node addition
-          />
+          <div>
+            {console.log('Rendering canvas for tab:', activeTab.id, activeTab.title, 'nodeCanvasData:', !!activeTab.nodeCanvasData)}
+            <WorkflowReactFlowCanvas
+              key={activeTab.id} // Force re-render when tab changes
+              workflow={activeTab.workflow}
+              templates={activeTab.templates}
+              onTemplateSelect={createNewTab}
+              onNodeCanvasSelect={createNodeCanvasTab}
+              tabTitle={activeTab.title}
+              nodeCanvasData={activeTab.nodeCanvasData}
+              onAddNode={(type: string) => true} // Enable the canvas node addition
+            />
+          </div>
         )}
       </div>
     </div>

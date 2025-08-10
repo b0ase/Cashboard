@@ -11682,6 +11682,22 @@ function ContractsView({ organizations, selectedOrganization, roles = [], instru
     { type: 'accounting' as const, name: 'Accounting System', description: 'Financial record integration', icon: '📊' }
   ]
 
+  // Expose dashboard templates for other canvases (React Flow) to reuse
+  useEffect(() => {
+    try {
+      (window as any).__templates = {
+        organizationTemplates,
+        roleTemplates,
+        agentTemplates,
+        instrumentTemplates,
+        contractTemplates,
+        integrationTemplates,
+      }
+      localStorage.setItem('__templates', JSON.stringify((window as any).__templates))
+    } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const handleTemplateSelect = (template: typeof contractTemplates[0]) => {
     const endDate = new Date()
     endDate.setMonth(endDate.getMonth() + template.defaultDuration)

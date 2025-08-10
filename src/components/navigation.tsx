@@ -20,7 +20,7 @@ export function Navigation() {
     <nav className="glass-card p-4 mb-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-8">
-          <Link href="/" className="text-base font-semibold text-white opacity-90">
+          <Link href="/" className="text-xs md:text-base lg:text-lg font-semibold text-white opacity-90">
             Cashboard
           </Link>
           <div className="flex items-center space-x-1">

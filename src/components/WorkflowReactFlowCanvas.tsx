@@ -20,12 +20,13 @@ import ReactFlow, {
 } from 'reactflow'
 import 'reactflow/dist/style.css'
 import NodePalette from '@/components/NodePalette'
-import { getOrganizationTemplates, getRoleTemplates, getAgentTemplates, getInstrumentTemplates, getContractTemplates, getIntegrationTemplates } from '@/data/templates'
+import { getOrganizationTemplates, getRoleTemplates, getAgentTemplates, getInstrumentTemplates, getContractTemplates, getIntegrationTemplates, TemplateItem } from '@/data/templates'
+import { getOrganizationCanvasTemplate } from '@/data/organizationCanvasTemplates'
 import { DollarSign, FileText, Target, AlertTriangle, Building, Crown, UserCheck, Banknote, Plug, Split, Play, Zap, User, Workflow, Wallet } from 'lucide-react'
 
 type NodeKind = string
 
-type RFNodeData = { label: string; kind: NodeKind; subtitle?: string }
+type RFNodeData = { label: string; kind: NodeKind; subtitle?: string; template?: TemplateItem }
 
 function IconFor({ kind }: { kind: NodeKind }) {
   const cls = 'w-4 h-4'
@@ -92,9 +93,9 @@ const PALETTE = [
 
 const BUSINESS_KINDS = new Set(['workflow','organization','role','ai-agent','member','instrument','wallets','contract'])
 
-type TemplateItem = { id: string; name: string; description?: string }
 
-export default function WorkflowReactFlowCanvas({ workflow }: { workflow: any }) {
+
+export default function WorkflowReactFlowCanvas({ workflow, templates }: { workflow: any; templates?: any }) {
   const initialNodes = useMemo<Node<RFNodeData>[]>(() =>
     (workflow?.nodes || []).map((n: any) => ({
       id: String(n.id),
@@ -120,14 +121,22 @@ export default function WorkflowReactFlowCanvas({ workflow }: { workflow: any })
     if (BUSINESS_KINDS.has(type)) {
       // Gather templates from the existing dashboards in page.tsx (basic mock via kind)
       let items: TemplateItem[] = []
-      // Minimal mapping – we can expand if needed by importing from page.tsx later
-      if (type === 'organization') items = getOrganizationTemplates().map(t => ({ id: t.id || t.name, name: t.name, description: t.description }))
-      else if (type === 'instrument') items = getInstrumentTemplates().map(t => ({ id: t.id || t.name, name: t.name, description: t.description }))
-      else if (type === 'role') items = getRoleTemplates().map(t => ({ id: t.id || t.name, name: t.name, description: t.description }))
-      else if (type === 'member') items = getAgentTemplates().map(t => ({ id: t.id || t.name, name: t.name, description: t.description }))
-      else if (type === 'contract') items = getContractTemplates().map(t => ({ id: t.id || t.name, name: t.name, description: t.description }))
+      const live = templates || {
+        organizations: getOrganizationTemplates(),
+        roles: getRoleTemplates(),
+        agents: getAgentTemplates(),
+        instruments: getInstrumentTemplates(),
+        contracts: getContractTemplates(),
+        integrations: getIntegrationTemplates(),
+      }
+      const pick = <T extends { id?: string; name: string; description?: string; country?: string; type?: string; code?: string; size?: string; category?: string }>(arr?: T[]) => (arr || []).map(t => ({ id: (t as any).id || t.name, name: t.name, description: t.description, country: t.country, type: t.type, code: t.code, size: t.size, category: t.category }))
+      if (type === 'organization') items = pick(live.organizations)
+      else if (type === 'instrument') items = pick(live.instruments)
+      else if (type === 'role') items = pick(live.roles)
+      else if (type === 'member') items = pick(live.agents)
+      else if (type === 'contract') items = pick(live.contracts)
       else if (type === 'workflow') items = [ { id: 'wf-blank', name: 'Blank Workflow' } ]
-      else if (type === 'integration') items = getIntegrationTemplates().map(t => ({ id: t.name, name: t.name, description: t.description }))
+      else if (type === 'integration') items = pick(live.integrations)
       setTemplateModal({ kind: type, items })
       return
     }
@@ -152,14 +161,16 @@ export default function WorkflowReactFlowCanvas({ workflow }: { workflow: any })
           palette={PALETTE}
           templateModal={templateModal}
           setTemplateModal={setTemplateModal}
+          setNodes={setNodes}
+          setEdges={setEdges}
         />
       </ReactFlowProvider>
     </div>
   )
 }
 
-function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick, palette, templateModal, setTemplateModal }:
-  { nodes: Node<RFNodeData>[]; edges: Edge[]; onNodesChange: any; onEdgesChange: any; onConnect: any; onPick: (type: string, rf: any) => void; palette: any[]; templateModal: { kind: string; items: TemplateItem[] } | null; setTemplateModal: (v: any) => void }) {
+function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick, palette, templateModal, setTemplateModal, setNodes, setEdges }:
+  { nodes: Node<RFNodeData>[]; edges: Edge[]; onNodesChange: any; onEdgesChange: any; onConnect: any; onPick: (type: string, rf: any) => void; palette: any[]; templateModal: { kind: string; items: TemplateItem[] } | null; setTemplateModal: (v: any) => void; setNodes: any; setEdges: any }) {
   const rf = useReactFlow()
   return (
     <ReactFlow
@@ -186,34 +197,50 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
       </Panel>
       {templateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-          <div className="bg-black/90 border border-white/20 rounded-lg p-4 w-[520px] max-h-[70vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-white text-sm font-medium">Select {templateModal.kind} Template</h3>
-              <button className="text-gray-400 hover:text-white" onClick={() => setTemplateModal(null)}>Close</button>
+          <div className="bg-black/90 border border-white/20 rounded-lg p-6 w-[900px] max-h-[80vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-white text-xl font-semibold">Select {templateModal.kind} Template</h3>
+              <button className="text-gray-400 hover:text-white text-lg" onClick={() => setTemplateModal(null)}>✕</button>
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {templateModal.items.map((it) => (
                 <button
                   key={it.id}
                   onClick={() => {
-                    const viewport = rf.getViewport()
-                    const rect = (rf as any).viewport?.getBoundingClientRect?.() || { width: 800, height: 600 }
-                    const centerScreen = { x: viewport.x + rect.width / 2, y: viewport.y + rect.height / 2 }
-                    const pos = rf.project(centerScreen)
-                    const id = `n${Date.now()}`
-                    setNodes((nds) => nds.concat({ id, type: 'colored', position: pos, data: { label: it.name, kind: templateModal.kind } }))
+                    if (templateModal.kind === 'organization' && it.category) {
+                      // Load the full organization canvas template
+                      const canvasTemplate = getOrganizationCanvasTemplate(it)
+                      setNodes(canvasTemplate.nodes)
+                      setEdges(canvasTemplate.edges)
+                    } else {
+                      // Default behavior for other template types
+                      const viewport = rf.getViewport()
+                      const rect = (rf as any).viewport?.getBoundingClientRect?.() || { width: 800, height: 600 }
+                      const centerScreen = { x: viewport.x + rect.width / 2, y: viewport.y + rect.height / 2 }
+                      const pos = rf.project(centerScreen)
+                      const id = `n${Date.now()}`
+                      setNodes((nds: Node<RFNodeData>[]) => nds.concat({ id, type: 'colored', position: pos, data: { label: it.name, kind: templateModal.kind, template: it } }))
+                    }
                     setTemplateModal(null)
                   }}
-                  className="p-3 rounded bg-white/5 hover:bg-white/10 border border-white/10 text-left"
+                  className="p-4 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-left transition-all hover:scale-105 hover:border-white/30"
                 >
-                  <div className="text-white text-sm font-medium">{it.name}</div>
-                  {it.description && <div className="text-xs text-gray-400">{it.description}</div>}
+                  <div className="flex items-center gap-3 mb-3">
+                    {it.icon && <span className="text-2xl">{it.icon}</span>}
+                    <div className="flex-1">
+                      <div className="text-white text-sm font-medium">{it.name}</div>
+                      <div className="text-xs text-gray-400">
+                        {it.country} • {it.type}
+                      </div>
+                    </div>
+                  </div>
+                  {it.description && <div className="text-xs text-gray-300 mb-2">{it.description}</div>}
+                  {it.code && <div className="text-xs text-blue-400">{it.code}</div>}
+                  {it.size && <div className="text-xs text-gray-500 capitalize">{it.size}</div>}
+                  <div className="mt-2 text-xs text-green-400">Click to create →</div>
                 </button>
               ))}
             </div>
-            {templateModal.items.length === 0 && (
-              <div className="text-gray-400 text-sm">No templates yet.</div>
-            )}
           </div>
         </div>
       )}

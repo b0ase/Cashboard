@@ -30,6 +30,7 @@ export default function NodePaletteSimple({
   // Dragging state
   const [isDragging, setIsDragging] = useState(false)
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
+  const [position, setPosition] = useState({ x: 0, y: 0 })
   const paletteRef = useRef<HTMLDivElement>(null)
   
   const handleDragStart = useCallback((e: React.MouseEvent) => {
@@ -38,17 +39,15 @@ export default function NodePaletteSimple({
     
     setIsDragging(true)
     
-    const rect = paletteRef.current?.getBoundingClientRect()
-    if (rect) {
-      setDragOffset({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top
-      })
-    }
+    // Store the offset from the mouse to the element's top-left corner
+    setDragOffset({
+      x: e.clientX - position.x,
+      y: e.clientY - position.y
+    })
     
     document.body.style.userSelect = 'none'
     document.body.style.cursor = 'grabbing'
-  }, [])
+  }, [position])
   
   const handleDragMove = useCallback((e: MouseEvent) => {
     if (!isDragging || !paletteRef.current) return
@@ -58,7 +57,8 @@ export default function NodePaletteSimple({
     const newX = e.clientX - dragOffset.x
     const newY = e.clientY - dragOffset.y
     
-    // Update position using transform instead of changing Panel position
+    // Update position state and transform
+    setPosition({ x: newX, y: newY })
     paletteRef.current.style.transform = `translate(${newX}px, ${newY}px)`
   }, [isDragging, dragOffset])
   
@@ -93,6 +93,9 @@ export default function NodePaletteSimple({
       className={`bg-black/80 backdrop-blur-xl border border-white/20 rounded-lg p-3 min-w-[260px] w-[260px] max-h-[70vh] overflow-y-auto transition-all ${
         isDragging ? 'shadow-2xl scale-[1.02] border-blue-400/50' : 'shadow-lg'
       }`}
+      style={{
+        transform: `translate(${position.x}px, ${position.y}px)`
+      }}
     >
       <div 
         className="flex items-center justify-between mb-2 cursor-grab active:cursor-grabbing hover:bg-white/5 p-2 -m-2 mb-0 rounded transition-colors"

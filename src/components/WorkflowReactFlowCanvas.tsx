@@ -241,8 +241,14 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
         />
       </Panel>
       {templateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-          <div className="bg-black/90 border border-white/20 rounded-lg p-6 w-[900px] max-h-[80vh] overflow-y-auto">
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+          onClick={() => setTemplateModal(null)}
+        >
+          <div 
+            className="bg-black/90 border border-white/20 rounded-lg p-6 w-[900px] max-h-[80vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-white text-xl font-semibold">Select {templateModal.kind} Template</h3>
               <button className="text-gray-400 hover:text-white text-lg" onClick={() => setTemplateModal(null)}>✕</button>

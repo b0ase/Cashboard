@@ -19,7 +19,7 @@ import ReactFlow, {
   MarkerType,
 } from 'reactflow'
 import 'reactflow/dist/style.css'
-import NodePalette from '@/components/NodePalette'
+import NodePaletteSimple from '@/components/NodePaletteSimple'
 import { getOrganizationTemplates, getRoleTemplates, getAgentTemplates, getInstrumentTemplates, getContractTemplates, getIntegrationTemplates, getCryptoTemplates, getWalletTemplates, TemplateItem } from '@/data/templates'
 import { getOrganizationCanvasTemplate } from '@/data/organizationCanvasTemplates'
 import NodeEditor from '@/components/NodeEditor'
@@ -460,13 +460,15 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
       <Background color="rgba(255,255,255,0.1)" />
       <MiniMap pannable zoomable style={{ background: 'rgba(0,0,0,0.6)' }} />
       <Controls position="bottom-left" showInteractive={false} />
-      <NodePalette
-        title="Add Nodes"
-        nodeTypes={palette as any}
-        categories={[...new Set(palette.map((p) => p.category))]}
-        onPick={(t) => onPick(t, rf)}
-        visible={true}
-      />
+      <Panel position="top-right" className="m-2">
+        <NodePaletteSimple
+          title="Add Nodes"
+          nodeTypes={palette as any}
+          categories={[...new Set(palette.map((p) => p.category))]}
+          onPick={(t) => onPick(t, rf)}
+          visible={true}
+        />
+      </Panel>
       {templateModal && (
         <div 
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"

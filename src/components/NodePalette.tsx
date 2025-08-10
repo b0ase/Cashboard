@@ -58,9 +58,12 @@ export function NodePalette({
 
   // Drag handlers
   const handleDragStart = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+    // More aggressive event handling
     e.preventDefault()
     e.stopPropagation()
+    e.nativeEvent.stopImmediatePropagation()
     
+    console.log('🎯 Drag start triggered!')
     setIsDragging(true)
     
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
@@ -76,12 +79,19 @@ export function NodePalette({
     
     document.body.style.userSelect = 'none'
     document.body.style.cursor = 'grabbing'
+    
+    // Ensure React Flow doesn't interfere
+    if (paletteRef.current) {
+      paletteRef.current.style.pointerEvents = 'auto'
+    }
   }, [])
 
   const handleDragMove = useCallback((e: MouseEvent | TouchEvent) => {
     if (!isDragging || !paletteRef.current) return
     
+    console.log('🎯 Drag move!')
     e.preventDefault()
+    e.stopImmediatePropagation()
     
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
@@ -161,7 +171,8 @@ export function NodePalette({
         top: `${position.y}px`,
         zIndex: isDragging ? 9999 : 9998, // Much higher z-index to be above React Flow and modals
         userSelect: 'none',
-        willChange: isDragging ? 'transform' : 'auto'
+        willChange: isDragging ? 'transform' : 'auto',
+        pointerEvents: 'auto' // Ensure it can receive events
       }}
 
     >

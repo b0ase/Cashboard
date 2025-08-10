@@ -95,7 +95,17 @@ const BUSINESS_KINDS = new Set(['workflow','organization','role','ai-agent','mem
 
 
 
-export default function WorkflowReactFlowCanvas({ workflow, templates }: { workflow: any; templates?: any }) {
+export default function WorkflowReactFlowCanvas({ 
+  workflow, 
+  templates, 
+  onTemplateSelect,
+  tabTitle 
+}: { 
+  workflow: any; 
+  templates?: any; 
+  onTemplateSelect?: (template: TemplateItem) => void;
+  tabTitle?: string;
+}) {
   const initialNodes = useMemo<Node<RFNodeData>[]>(() =>
     (workflow?.nodes || []).map((n: any) => ({
       id: String(n.id),
@@ -146,7 +156,7 @@ export default function WorkflowReactFlowCanvas({ workflow, templates }: { workf
     const pos = rf.project(centerScreen)
     const id = `n${Date.now()}`
     setNodes((nds) => nds.concat({ id, type: 'colored', position: pos, data: { label: type.toUpperCase(), kind: type } }))
-  }, [setNodes])
+  }, [setNodes, templates])
 
   return (
     <div className="absolute inset-0">
@@ -163,14 +173,15 @@ export default function WorkflowReactFlowCanvas({ workflow, templates }: { workf
           setTemplateModal={setTemplateModal}
           setNodes={setNodes}
           setEdges={setEdges}
+          onTemplateSelect={onTemplateSelect}
         />
       </ReactFlowProvider>
     </div>
   )
 }
 
-function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick, palette, templateModal, setTemplateModal, setNodes, setEdges }:
-  { nodes: Node<RFNodeData>[]; edges: Edge[]; onNodesChange: any; onEdgesChange: any; onConnect: any; onPick: (type: string, rf: any) => void; palette: any[]; templateModal: { kind: string; items: TemplateItem[] } | null; setTemplateModal: (v: any) => void; setNodes: any; setEdges: any }) {
+function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick, palette, templateModal, setTemplateModal, setNodes, setEdges, onTemplateSelect }:
+  { nodes: Node<RFNodeData>[]; edges: Edge[]; onNodesChange: any; onEdgesChange: any; onConnect: any; onPick: (type: string, rf: any) => void; palette: any[]; templateModal: { kind: string; items: TemplateItem[] } | null; setTemplateModal: (v: any) => void; setNodes: any; setEdges: any; onTemplateSelect?: (template: TemplateItem) => void }) {
   const rf = useReactFlow()
   return (
     <ReactFlow
@@ -207,8 +218,11 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
                 <button
                   key={it.id}
                   onClick={() => {
-                    if (templateModal.kind === 'organization' && it.category) {
-                      // Load the full organization canvas template
+                    if (templateModal.kind === 'organization' && it.category && onTemplateSelect) {
+                      // Create a new tab with the organization template
+                      onTemplateSelect(it)
+                    } else if (templateModal.kind === 'organization' && it.category) {
+                      // Fallback: Load the full organization canvas template in current tab
                       const canvasTemplate = getOrganizationCanvasTemplate(it)
                       setNodes(canvasTemplate.nodes)
                       setEdges(canvasTemplate.edges)

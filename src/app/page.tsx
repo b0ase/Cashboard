@@ -1,7 +1,15 @@
 'use client'
 
 import React, { useState, useRef, useEffect } from 'react'
-import WorkflowReactFlowCanvas from '@/components/WorkflowReactFlowCanvas'
+import CanvasTabs from '@/components/CanvasTabs'
+import { 
+  getOrganizationTemplates, 
+  getRoleTemplates, 
+  getAgentTemplates, 
+  getInstrumentTemplates, 
+  getContractTemplates, 
+  getIntegrationTemplates 
+} from '@/data/templates'
 import { 
   Menu, 
   X, 
@@ -3329,7 +3337,10 @@ export default function Dashboard() {
 
         {currentView === 'workflow' && currentWorkflow && (
           <div className="relative h-[calc(100vh-140px)]">
-            <WorkflowReactFlowCanvas workflow={currentWorkflow} />
+            <CanvasTabs 
+              initialWorkflow={currentWorkflow} 
+              initialTitle={currentWorkflow?.name || "Main Canvas"}
+            />
           </div>
         )}
 
@@ -11686,12 +11697,12 @@ function ContractsView({ organizations, selectedOrganization, roles = [], instru
   useEffect(() => {
     try {
       (window as any).__templates = {
-        organizationTemplates,
-        roleTemplates,
-        agentTemplates,
-        instrumentTemplates,
-        contractTemplates,
-        integrationTemplates,
+        organizationTemplates: getOrganizationTemplates(),
+        roleTemplates: getRoleTemplates(),
+        agentTemplates: getAgentTemplates(),
+        instrumentTemplates: getInstrumentTemplates(),
+        contractTemplates: getContractTemplates(),
+        integrationTemplates: getIntegrationTemplates(),
       }
       localStorage.setItem('__templates', JSON.stringify((window as any).__templates))
     } catch {}

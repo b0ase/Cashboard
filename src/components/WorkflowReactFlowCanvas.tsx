@@ -49,13 +49,28 @@ function IconFor({ kind }: { kind: NodeKind }) {
 }
 
 function ColoredNode({ data }: { data: RFNodeData }) {
+  // Check if this is an AI assistant node that should be wide and short
+  const isAIAssistant = data.label?.toLowerCase().includes('openai') || 
+                       data.label?.toLowerCase().includes('anthropic') ||
+                       data.label?.toLowerCase().includes('claude') ||
+                       data.kind === 'ai-agent' ||
+                       (data.template && data.template.category === 'AI & Machine Learning')
+  
+  const containerClass = isAIAssistant 
+    ? "bg-black/70 backdrop-blur-xl border border-white/30 rounded-xl px-4 py-1.5 text-white min-w-[416px] max-w-[416px] h-[32px] shadow-xl flex items-center"
+    : "bg-black/70 backdrop-blur-xl border border-white/30 rounded-xl px-3 py-2 text-white min-w-[160px] shadow-xl"
+  
+  const contentClass = isAIAssistant 
+    ? "flex items-center gap-3 w-full"
+    : "flex items-center gap-2"
+
   return (
-    <div className="bg-black/70 backdrop-blur-xl border border-white/30 rounded-xl px-3 py-2 text-white min-w-[160px] shadow-xl">
-      <div className="flex items-center gap-2">
+    <div className={containerClass}>
+      <div className={contentClass}>
         <IconFor kind={data.kind} />
-        <div className="leading-tight">
-          <div className="text-sm font-medium">{data.label}</div>
-          {data.subtitle && <div className="text-[11px] text-gray-400">{data.subtitle}</div>}
+        <div className="leading-tight flex-1">
+          <div className={`font-medium ${isAIAssistant ? 'text-xs' : 'text-sm'}`}>{data.label}</div>
+          {data.subtitle && <div className="text-[10px] text-gray-400">{data.subtitle}</div>}
         </div>
       </div>
       <Handle type="target" position={Position.Left} className="!bg-white/60" />

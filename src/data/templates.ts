@@ -99,9 +99,60 @@ const stubs = {
     { id: 'frin-fr', name: 'French Innovation SARL', description: 'French technology innovation company', icon: '🇫🇷', country: 'FR', type: 'CORPORATION', code: 'FRIN', size: 'medium', category: 'Technology' },
   ],
   roleTemplates: [
-    { name: 'CEO' },
-    { name: 'CTO' },
-    { name: 'CMO' },
+    // C-Suite (Executive Leadership)
+    { id: 'ceo', name: 'CEO', description: 'Chief Executive Officer - Strategic leadership and decision making', icon: '👑', category: 'C-Suite', shareAllocation: 25, permissions: ['admin', 'finance', 'operations'], type: 'executive' },
+    { id: 'cfo', name: 'CFO', description: 'Chief Financial Officer - Financial planning, analysis, and strategic financial management', icon: '💰', category: 'C-Suite', shareAllocation: 22, permissions: ['admin', 'finance', 'data-analysis'], type: 'executive' },
+    { id: 'cto', name: 'CTO', description: 'Chief Technology Officer - Technology strategy, architecture, and innovation leadership', icon: '⚙️', category: 'C-Suite', shareAllocation: 20, permissions: ['admin', 'tech', 'workflow-creation'], type: 'executive' },
+    { id: 'coo', name: 'COO', description: 'Chief Operating Officer - Operations management, process optimization, and execution', icon: '🔧', category: 'C-Suite', shareAllocation: 20, permissions: ['admin', 'operations', 'workflow-creation'], type: 'executive' },
+    { id: 'cmo', name: 'CMO', description: 'Chief Marketing Officer - Marketing strategy, brand management, and growth initiatives', icon: '📊', category: 'C-Suite', shareAllocation: 18, permissions: ['admin', 'marketing', 'data-analysis'], type: 'executive' },
+    { id: 'chro', name: 'CHRO', description: 'Chief Human Resources Officer - People strategy, culture, and organizational development', icon: '👥', category: 'C-Suite', shareAllocation: 12, permissions: ['admin', 'operations'], type: 'executive' },
+    { id: 'general-counsel', name: 'General Counsel', description: 'Chief Legal Officer - Legal strategy, compliance, risk management, and corporate governance', icon: '⚖️', category: 'C-Suite', shareAllocation: 14, permissions: ['admin', 'legal'], type: 'executive' },
+    
+    // Vice Presidents (Senior Leadership)
+    { id: 'vp-engineering', name: 'VP of Engineering', description: 'Vice President of Engineering - Engineering leadership, technical delivery, and team management', icon: '🔬', category: 'Vice President', shareAllocation: 18, permissions: ['tech', 'workflow-creation', 'operations'], type: 'senior-leadership' },
+    { id: 'vp-sales', name: 'VP of Sales', description: 'Vice President of Sales - Sales strategy, team leadership, and revenue generation', icon: '💼', category: 'Vice President', shareAllocation: 16, permissions: ['marketing', 'data-analysis'], type: 'senior-leadership' },
+    { id: 'vp-product', name: 'VP of Product', description: 'Vice President of Product - Product strategy, roadmap, and user experience leadership', icon: '🎯', category: 'Vice President', shareAllocation: 15, permissions: ['workflow-creation', 'data-analysis', 'marketing'], type: 'senior-leadership' },
+    
+    // Department Heads (Senior Management)
+    { id: 'head-of-data', name: 'Head of Data', description: 'Chief Data Officer - Data strategy, analytics, and business intelligence leadership', icon: '📈', category: 'Department Head', shareAllocation: 13, permissions: ['data-analysis', 'tech', 'workflow-creation'], type: 'senior-management' },
+    { id: 'head-of-security', name: 'Head of Security', description: 'Chief Security Officer - Information security, risk assessment, and cybersecurity strategy', icon: '🔒', category: 'Department Head', shareAllocation: 11, permissions: ['tech', 'admin', 'operations'], type: 'senior-management' },
+    { id: 'head-of-customer-success', name: 'Head of Customer Success', description: 'Customer Success Leadership - Customer retention, satisfaction, and growth strategies', icon: '🎧', category: 'Department Head', shareAllocation: 10, permissions: ['marketing', 'data-analysis', 'operations'], type: 'senior-management' },
+    
+    // Senior Managers (Middle Management)
+    { id: 'tech-lead', name: 'Tech Lead', description: 'Code review, technical documentation, and development workflows', icon: '💻', category: 'Senior Manager', shareAllocation: 25, permissions: ['tech', 'workflow-creation'], type: 'middle-management' },
+    { id: 'finance-manager', name: 'Finance Manager', description: 'Financial analysis, budget tracking, and reporting', icon: '📊', category: 'Senior Manager', shareAllocation: 20, permissions: ['finance', 'admin', 'data-analysis'], type: 'middle-management' },
+    { id: 'operations-manager', name: 'Operations Manager', description: 'Process management, workflow optimization, and operational efficiency', icon: '⚙️', category: 'Senior Manager', shareAllocation: 12, permissions: ['operations', 'workflow-creation'], type: 'middle-management' },
+    { id: 'legal-counsel', name: 'Legal Counsel', description: 'Contract analysis, compliance monitoring, and legal documentation', icon: '⚖️', category: 'Senior Manager', shareAllocation: 18, permissions: ['legal', 'admin', 'data-analysis'], type: 'middle-management' },
+    { id: 'creative-director', name: 'Creative Director', description: 'Content creation, brand management, and creative strategy', icon: '🎨', category: 'Senior Manager', shareAllocation: 15, permissions: ['marketing', 'workflow-creation'], type: 'middle-management' },
+    
+    // Managers (Operational Management)
+    { id: 'marketing-manager', name: 'Marketing Manager', description: 'Marketing campaigns, social media management, and customer engagement', icon: '📱', category: 'Manager', shareAllocation: 15, permissions: ['marketing', 'data-analysis'], type: 'management' },
+    { id: 'customer-success-manager', name: 'Customer Success Manager', description: 'Customer support, relationship management, and satisfaction monitoring', icon: '🎧', category: 'Manager', shareAllocation: 10, permissions: ['marketing', 'data-analysis'], type: 'management' },
+    { id: 'project-manager', name: 'Project Manager', description: 'Project coordination, timeline management, and cross-functional collaboration', icon: '📋', category: 'Manager', shareAllocation: 8, permissions: ['workflow-creation', 'operations'], type: 'management' },
+    { id: 'product-manager', name: 'Product Manager', description: 'Product development, feature prioritization, and user research', icon: '🎯', category: 'Manager', shareAllocation: 12, permissions: ['workflow-creation', 'data-analysis', 'marketing'], type: 'management' },
+    { id: 'sales-manager', name: 'Sales Manager', description: 'Sales team leadership, pipeline management, and revenue optimization', icon: '💼', category: 'Manager', shareAllocation: 14, permissions: ['marketing', 'data-analysis'], type: 'management' },
+    { id: 'hr-manager', name: 'HR Manager', description: 'Recruitment, employee relations, and performance management', icon: '👥', category: 'Manager', shareAllocation: 8, permissions: ['operations', 'admin'], type: 'management' },
+    { id: 'it-manager', name: 'IT Manager', description: 'Infrastructure management, system administration, and technical support', icon: '🖥️', category: 'Manager', shareAllocation: 10, permissions: ['tech', 'operations'], type: 'management' },
+    { id: 'quality-manager', name: 'Quality Manager', description: 'Quality assurance, testing protocols, and process improvement', icon: '✅', category: 'Manager', shareAllocation: 7, permissions: ['operations', 'workflow-creation'], type: 'management' },
+    
+    // Senior Specialists (Subject Matter Experts)
+    { id: 'senior-developer', name: 'Senior Developer', description: 'Advanced software development, architecture design, and mentoring', icon: '👨‍💻', category: 'Senior Specialist', shareAllocation: 12, permissions: ['tech', 'workflow-creation'], type: 'specialist' },
+    { id: 'senior-designer', name: 'Senior Designer', description: 'UI/UX design, design systems, and creative leadership', icon: '🎨', category: 'Senior Specialist', shareAllocation: 10, permissions: ['workflow-creation', 'marketing'], type: 'specialist' },
+    { id: 'senior-analyst', name: 'Senior Analyst', description: 'Data analysis, business intelligence, and strategic insights', icon: '📊', category: 'Senior Specialist', shareAllocation: 9, permissions: ['data-analysis', 'finance'], type: 'specialist' },
+    { id: 'senior-consultant', name: 'Senior Consultant', description: 'Strategic consulting, process optimization, and business transformation', icon: '💡', category: 'Senior Specialist', shareAllocation: 11, permissions: ['workflow-creation', 'operations'], type: 'specialist' },
+    
+    // Team Leads (Team Leadership)
+    { id: 'dev-team-lead', name: 'Development Team Lead', description: 'Development team coordination, code reviews, and technical guidance', icon: '👨‍💻', category: 'Team Lead', shareAllocation: 8, permissions: ['tech', 'workflow-creation'], type: 'team-lead' },
+    { id: 'design-team-lead', name: 'Design Team Lead', description: 'Design team coordination, creative direction, and design standards', icon: '🎨', category: 'Team Lead', shareAllocation: 7, permissions: ['workflow-creation', 'marketing'], type: 'team-lead' },
+    { id: 'qa-team-lead', name: 'QA Team Lead', description: 'Quality assurance team leadership, testing strategies, and quality standards', icon: '🔍', category: 'Team Lead', shareAllocation: 6, permissions: ['operations', 'workflow-creation'], type: 'team-lead' },
+    { id: 'sales-team-lead', name: 'Sales Team Lead', description: 'Sales team coordination, performance tracking, and client relationships', icon: '📈', category: 'Team Lead', shareAllocation: 9, permissions: ['marketing', 'data-analysis'], type: 'team-lead' },
+    
+    // Specialists (Individual Contributors)
+    { id: 'business-analyst', name: 'Business Analyst', description: 'Requirements analysis, process documentation, and stakeholder communication', icon: '📋', category: 'Specialist', shareAllocation: 5, permissions: ['data-analysis', 'workflow-creation'], type: 'individual-contributor' },
+    { id: 'data-scientist', name: 'Data Scientist', description: 'Statistical analysis, machine learning, and predictive modeling', icon: '🔬', category: 'Specialist', shareAllocation: 8, permissions: ['data-analysis', 'tech'], type: 'individual-contributor' },
+    { id: 'security-specialist', name: 'Security Specialist', description: 'Cybersecurity implementation, threat analysis, and security protocols', icon: '🔐', category: 'Specialist', shareAllocation: 6, permissions: ['tech', 'operations'], type: 'individual-contributor' },
+    { id: 'compliance-officer', name: 'Compliance Officer', description: 'Regulatory compliance, policy development, and risk assessment', icon: '📜', category: 'Specialist', shareAllocation: 5, permissions: ['legal', 'admin'], type: 'individual-contributor' },
+    { id: 'content-strategist', name: 'Content Strategist', description: 'Content planning, editorial calendar, and brand messaging', icon: '✍️', category: 'Specialist', shareAllocation: 4, permissions: ['marketing', 'workflow-creation'], type: 'individual-contributor' },
   ],
   agentTemplates: [
     { id: 'marketing-ai', name: 'Marketing AI Agent', description: 'Automated social media posting, content creation, and campaign optimization', icon: '📱', status: 'Active', permissions: ['marketing', 'data-analysis'], shareAllocation: 8, type: 'ai-agent' },

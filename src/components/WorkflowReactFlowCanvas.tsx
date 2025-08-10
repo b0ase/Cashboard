@@ -73,8 +73,8 @@ function ColoredNode({ data }: { data: RFNodeData }) {
           {data.subtitle && <div className="text-[10px] text-gray-400">{data.subtitle}</div>}
         </div>
       </div>
-      <Handle type="target" position={Position.Left} className="!bg-white/60" />
-      <Handle type="source" position={Position.Right} className="!bg-white/60" />
+      <Handle type="target" position={Position.Top} className="!bg-white/60" />
+      <Handle type="source" position={Position.Bottom} className="!bg-white/60" />
     </div>
   )
 }
@@ -174,8 +174,13 @@ export default function WorkflowReactFlowCanvas({
     }
     const viewport = rf.getViewport()
     const rect = (rf as any).viewport?.getBoundingClientRect?.() || { width: 800, height: 600 }
-    const centerScreen = { x: viewport.x + rect.width / 2, y: viewport.y + rect.height / 2 }
-    const pos = rf.project(centerScreen)
+    const existingNodes = rf.getNodes()
+    
+    // Position new nodes in a vertical layout with some spacing
+    let newX = viewport.x + rect.width / 2
+    let newY = viewport.y + 100 + (existingNodes.length * 120) // 120px vertical spacing
+    
+    const pos = rf.project({ x: newX, y: newY })
     const id = `n${Date.now()}`
     setNodes((nds) => nds.concat({ id, type: 'colored', position: pos, data: { label: type.toUpperCase(), kind: type } }))
   }, [setNodes, templates])
@@ -246,7 +251,11 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
       onNodeDoubleClick={onNodeDoubleClick}
       nodeTypes={nodeTypes}
       fitView
-      defaultEdgeOptions={{ style: { stroke: 'rgba(255,255,255,0.7)', strokeWidth: 2 }, markerEnd: { type: MarkerType.ArrowClosed, color: 'rgba(255,255,255,0.8)' } }}
+      defaultEdgeOptions={{ 
+        style: { stroke: 'rgba(255,255,255,0.7)', strokeWidth: 2 }, 
+        markerEnd: { type: MarkerType.ArrowClosed, color: 'rgba(255,255,255,0.8)' },
+        type: 'smoothstep'
+      }}
       connectionLineStyle={{ stroke: 'rgba(255,255,255,0.6)', strokeWidth: 2 }}
     >
       <Background color="rgba(255,255,255,0.1)" />
@@ -299,11 +308,16 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
                       setNodes(canvasTemplate.nodes)
                       setEdges(canvasTemplate.edges)
                     } else {
-                      // Default behavior for other template types
+                      // Default behavior for other template types - use vertical positioning
                       const viewport = rf.getViewport()
                       const rect = (rf as any).viewport?.getBoundingClientRect?.() || { width: 800, height: 600 }
-                      const centerScreen = { x: viewport.x + rect.width / 2, y: viewport.y + rect.height / 2 }
-                      const pos = rf.project(centerScreen)
+                      const existingNodes = rf.getNodes()
+                      
+                      // Position new nodes in a vertical layout
+                      let newX = viewport.x + rect.width / 2
+                      let newY = viewport.y + 100 + (existingNodes.length * 120) // 120px vertical spacing
+                      
+                      const pos = rf.project({ x: newX, y: newY })
                       const id = `n${Date.now()}`
                       setNodes((nds: Node<RFNodeData>[]) => nds.concat({ id, type: 'colored', position: pos, data: { label: it.name, kind: templateModal.kind, template: it } }))
                     }

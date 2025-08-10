@@ -184,6 +184,7 @@ export default function CanvasTabs({
             templates={activeTab.templates}
             onTemplateSelect={createNewTab}
             tabTitle={activeTab.title}
+            onAddNode={(type: string) => true} // Enable the canvas node addition
           />
         )}
       </div>

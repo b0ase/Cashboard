@@ -2776,6 +2776,102 @@ export default function Dashboard() {
   const processAICommand = (command: string): string => {
     const lowerCommand = command.toLowerCase()
     
+    // Canvas node creation commands - more flexible patterns
+    if ((lowerCommand.includes('add') || lowerCommand.includes('create')) && 
+        (lowerCommand.includes('node') || lowerCommand.includes('to canvas') || lowerCommand.includes('to the canvas') ||
+         lowerCommand.includes('ceo') || lowerCommand.includes('youtube') || lowerCommand.includes('shareholder') ||
+         lowerCommand.includes('database') || lowerCommand.includes('api') || lowerCommand.includes('contract'))) {
+      
+      // Extract node types from the command
+      const nodeTypes = {
+        'ceo': 'role',
+        'chief executive officer': 'role',
+        'cto': 'role',
+        'chief technology officer': 'role',
+        'cfo': 'role', 
+        'chief financial officer': 'role',
+        'cmo': 'role',
+        'chief marketing officer': 'role',
+        'youtube': 'youtube',
+        'youtube node': 'youtube',
+        'shareholder': 'member',
+        'shareholders': 'member',
+        'organization': 'organization',
+        'org': 'organization',
+        'payment': 'payment',
+        'contract': 'contract',
+        'team': 'team',
+        'task': 'task',
+        'decision': 'decision',
+        'milestone': 'milestone',
+        'database': 'database',
+        'db': 'database',
+        'api': 'api',
+        'api call': 'api',
+        'email': 'email',
+        'webhook': 'webhook',
+        'integration': 'integration',
+        'wallet': 'wallets',
+        'wallets': 'wallets',
+        'instrument': 'instrument',
+        'financial instrument': 'instrument'
+      }
+      
+      const foundNodes = []
+      for (const [keyword, nodeType] of Object.entries(nodeTypes)) {
+        if (lowerCommand.includes(keyword)) {
+          foundNodes.push({ keyword, type: nodeType })
+        }
+      }
+      
+      // Remove duplicates based on type
+      const uniqueNodes = foundNodes.filter((node, index, self) => 
+        index === self.findIndex(n => n.type === node.type)
+      )
+      
+      if (uniqueNodes.length > 0) {
+        // Check if we have access to the active canvas
+        const addNodeToActiveCanvas = (window as any).addNodeToActiveCanvas
+        if (addNodeToActiveCanvas) {
+          const addedNodes: string[] = []
+          uniqueNodes.forEach(({ keyword, type }) => {
+            const success = addNodeToActiveCanvas(type)
+            if (success) {
+              addedNodes.push(keyword)
+            }
+          })
+          
+          if (addedNodes.length > 0) {
+            const nodeList = addedNodes.map(n => n.toUpperCase()).join(', ')
+            return `✅ Added ${nodeList} node${addedNodes.length > 1 ? 's' : ''} to the canvas! You can see ${addedNodes.length > 1 ? 'them' : 'it'} in your current workflow and connect ${addedNodes.length > 1 ? 'them' : 'it'} to other nodes.`
+          } else {
+            return `❌ Failed to add nodes to the canvas. Please try again.`
+          }
+        } else {
+          return `❌ Please make sure you have a workflow canvas open. Go to Workflows section and open or create a workflow first.`
+        }
+      } else if (uniqueNodes.length > 0 && !currentWorkflow) {
+        return `❌ Please create or select a workflow first before adding nodes to the canvas. Go to the Workflows section to create a new workflow.`
+      } else {
+        return `I can add these types of nodes to your canvas:
+        
+        **👥 Business & Roles**
+        • CEO, CTO, CFO, CMO (leadership roles)
+        • Organization, Team, Shareholder
+        
+        **⚙️ Process & Workflow**  
+        • Task, Decision, Payment, Milestone, Contract
+        
+        **🔗 Integrations**
+        • YouTube, Database, API, Email, Webhook, Wallet
+        
+        **Examples:**
+        • "Add a CEO node to the canvas"
+        • "Create a YouTube and Database node"
+        • "Add shareholder and contract nodes"`
+      }
+    }
+
     // Organization creation
     if (lowerCommand.includes('create') && lowerCommand.includes('organization')) {
       const name = command.match(/organization\s+(?:called\s+)?([a-zA-Z\s]+)/i)?.[1] || 'New Organization'
@@ -2819,15 +2915,53 @@ export default function Dashboard() {
       return `✅ I can help you expand your team. Please specify the number of people and their roles.`
     }
 
+    // Help and capabilities
+    if (lowerCommand.includes('help') || lowerCommand.includes('what can you do')) {
+      return `🤖 **I can help you build and manage workflows!**
+      
+      **🎯 Canvas Operations**
+      • Add nodes: "Add a CEO node to the canvas"
+      • Multiple nodes: "Create YouTube and Database nodes"
+      • Business roles: CEO, CTO, CFO, CMO, Shareholder
+      
+      **🏢 Organization Management**  
+      • Create organizations: "Create organization called Acme Corp"
+      • Manage roles and equity allocation
+      
+      **⚙️ Workflow Tools**
+      • Add process nodes: Task, Decision, Payment, Milestone
+      • Integration nodes: YouTube, API, Database, Email
+      
+      **💡 Try these commands:**
+      • "Add a CEO and CTO node"
+      • "Create a YouTube integration"
+      • "Add shareholder and contract nodes"
+      
+      What would you like to create?`
+    }
+
+    // Workflow creation
+    if (lowerCommand.includes('create') && lowerCommand.includes('workflow')) {
+      return `✅ To create a new workflow, go to the **Workflows** section in the sidebar and click "Create Workflow". Once you have a workflow, I can help you add nodes to it!`
+    }
+
     // Default response
     return `I understand you want to: "${command}". I can help you with:
-    • Creating organizations and roles
-    • Allocating equity and shares
-    • Generating contracts and workflows
-    • Managing team members
-    • Token creation and management
     
-    Please be more specific about what you'd like me to do.`
+    **🎯 Canvas Nodes**: Add CEO, YouTube, Database, API, and other nodes to your workflow
+    **🏢 Organizations**: Create and manage organizations  
+    **👥 Roles & Equity**: Allocate roles and equity shares
+    **📄 Contracts**: Generate employment and business contracts
+    **🔧 Team Management**: Expand and organize teams
+    **🪙 Tokens**: Create and manage blockchain tokens
+    
+    **Quick Examples:**
+    • "Add a CEO node to the canvas"
+    • "Create a YouTube and Database node"  
+    • "Create organization called Acme Corp"
+    • "Help" - to see all my capabilities
+    
+    What would you like me to help you with?`
   }
 
   return (
@@ -3494,6 +3628,8 @@ function FloatingAIAssistant({
   const [isDragging, setIsDragging] = useState(false)
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
   const [position, setPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 })
+  const [dragStartTime, setDragStartTime] = useState(0)
+  const assistantRef = React.useRef<HTMLDivElement>(null)
 
   // Load saved position after mount to avoid SSR/CSR mismatch
   useEffect(() => {
@@ -3518,23 +3654,34 @@ function FloatingAIAssistant({
     }
   }
 
-  // Drag handlers
-  const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
+  // Improved drag handlers with better precision and smoothness
+  const handleDragStart = React.useCallback((e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
     setIsDragging(true)
+    setDragStartTime(Date.now())
+    
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
     
-    const rect = (e.target as HTMLElement).closest('.ai-assistant')?.getBoundingClientRect()
+    const rect = assistantRef.current?.getBoundingClientRect()
     if (rect) {
       setDragOffset({
         x: clientX - rect.left,
         y: clientY - rect.top
       })
     }
-  }
+    
+    // Add dragging class for immediate visual feedback
+    document.body.style.userSelect = 'none'
+    document.body.style.cursor = 'grabbing'
+  }, [])
 
-  const handleDragMove = (e: MouseEvent | TouchEvent) => {
-    if (!isDragging) return
+  const handleDragMove = React.useCallback((e: MouseEvent | TouchEvent) => {
+    if (!isDragging || !assistantRef.current) return
+    
+    e.preventDefault()
     
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
@@ -3542,46 +3689,63 @@ function FloatingAIAssistant({
     const newX = clientX - dragOffset.x
     const newY = clientY - dragOffset.y
     
-    // Constrain to viewport bounds
-    const maxX = window.innerWidth - (isMobile ? window.innerWidth - 32 : 384) // Account for width
-    const maxY = window.innerHeight - (isMobile ? 288 : 320) // Account for height
+    // Get dynamic dimensions for better constraint calculation
+    const rect = assistantRef.current.getBoundingClientRect()
+    const viewportWidth = window.innerWidth
+    const viewportHeight = window.innerHeight
     
-    const constrainedX = Math.max(16, Math.min(newX, maxX))
-    const constrainedY = Math.max(16, Math.min(newY, maxY))
+    // Improved viewport constraints with padding
+    const padding = 16
+    const maxX = viewportWidth - rect.width - padding
+    const maxY = viewportHeight - rect.height - padding
     
-    setPosition({ x: constrainedX, y: constrainedY })
-  }
+    const constrainedX = Math.max(padding, Math.min(newX, maxX))
+    const constrainedY = Math.max(padding, Math.min(newY, maxY))
+    
+    // Use requestAnimationFrame for smoother updates
+    requestAnimationFrame(() => {
+      setPosition({ x: constrainedX, y: constrainedY })
+    })
+  }, [isDragging, dragOffset])
 
-  const handleDragEnd = () => {
+  const handleDragEnd = React.useCallback(() => {
+    if (!isDragging) return
+    
     setIsDragging(false)
-    // Save position to localStorage
-    localStorage.setItem('aiAssistantPosition', JSON.stringify(position))
-  }
+    
+    // Restore body styles
+    document.body.style.userSelect = ''
+    document.body.style.cursor = ''
+    
+    // Save position to localStorage with error handling
+    try {
+      localStorage.setItem('aiAssistantPosition', JSON.stringify(position))
+    } catch (error) {
+      console.warn('Failed to save AI Assistant position:', error)
+    }
+  }, [isDragging, position])
 
   // Set up global event listeners for drag
   React.useEffect(() => {
     if (isDragging) {
-      const handleMouseMove = (e: MouseEvent) => handleDragMove(e)
-      const handleMouseUp = () => handleDragEnd()
       const handleTouchMove = (e: TouchEvent) => {
         e.preventDefault() // Prevent scrolling
         handleDragMove(e)
       }
-      const handleTouchEnd = () => handleDragEnd()
 
-      document.addEventListener('mousemove', handleMouseMove)
-      document.addEventListener('mouseup', handleMouseUp)
+      document.addEventListener('mousemove', handleDragMove)
+      document.addEventListener('mouseup', handleDragEnd)
       document.addEventListener('touchmove', handleTouchMove, { passive: false })
-      document.addEventListener('touchend', handleTouchEnd)
+      document.addEventListener('touchend', handleDragEnd)
 
       return () => {
-        document.removeEventListener('mousemove', handleMouseMove)
-        document.removeEventListener('mouseup', handleMouseUp)
+        document.removeEventListener('mousemove', handleDragMove)
+        document.removeEventListener('mouseup', handleDragEnd)
         document.removeEventListener('touchmove', handleTouchMove)
-        document.removeEventListener('touchend', handleTouchEnd)
+        document.removeEventListener('touchend', handleDragEnd)
       }
     }
-  }, [isDragging, dragOffset, position, isMobile])
+  }, [isDragging, handleDragMove, handleDragEnd])
 
   return (
     <>
@@ -3602,10 +3766,11 @@ function FloatingAIAssistant({
       {/* Floating Chat Window */}
       {isOpen && (
         <div 
-          className={`ai-assistant fixed z-50 bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl shadow-2xl transition-all duration-300 ${
-            isDragging ? 'cursor-grabbing shadow-3xl' : 'cursor-grab'
+          ref={assistantRef}
+          className={`ai-assistant fixed z-50 bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl shadow-2xl overflow-hidden flex flex-col transition-all duration-200 ${
+            isDragging ? 'cursor-grabbing shadow-3xl scale-[1.02] border-blue-400/50' : 'cursor-grab hover:shadow-3xl'
           } ${
-            isMobile ? 'h-72' : 'h-80 w-96'
+            isMobile ? 'h-72' : 'h-64 w-[700px]'
           }`}
           style={{
             left: position.x === 0 && position.y === 0 
@@ -3621,13 +3786,15 @@ function FloatingAIAssistant({
             transform: position.x === 0 && position.y === 0 && !isMobile 
               ? 'translateX(-50%)' 
               : 'none',
-            opacity: isDragging ? 0.8 : 1,
-            userSelect: isDragging ? 'none' : 'auto'
+            opacity: isDragging ? 0.95 : 1,
+            userSelect: 'none',
+            pointerEvents: 'auto',
+            willChange: isDragging ? 'transform' : 'auto'
           }}
         >
           {/* Header */}
           <div 
-            className="flex items-center justify-between p-4 border-b border-white/20 cursor-grab active:cursor-grabbing"
+            className="flex items-center justify-between p-4 border-b border-white/20 cursor-grab active:cursor-grabbing flex-shrink-0"
             onMouseDown={handleDragStart}
             onTouchStart={handleDragStart}
           >
@@ -3683,19 +3850,19 @@ function FloatingAIAssistant({
           </div>
 
           {/* Input */}
-          <form onSubmit={handleSendMessage} className="p-3 border-t border-white/20">
-            <div className="flex space-x-2">
+          <form onSubmit={handleSendMessage} className="p-3 border-t border-white/20 flex-shrink-0">
+            <div className="flex space-x-2 w-full">
               <input
                 type="text"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 placeholder="Ask me anything..."
-                className="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400"
+                className="flex-1 min-w-0 bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400"
               />
               <button
                 type="submit"
                 disabled={!inputMessage.trim()}
-                className="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg px-4 py-2 transition-colors"
+                className="flex-shrink-0 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg px-4 py-2 transition-colors"
               >
                 <Send className="w-4 h-4" />
               </button>

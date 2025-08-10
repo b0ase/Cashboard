@@ -23,7 +23,10 @@ import NodePalette from '@/components/NodePalette'
 import { getOrganizationTemplates, getRoleTemplates, getAgentTemplates, getInstrumentTemplates, getContractTemplates, getIntegrationTemplates, getCryptoTemplates, getWalletTemplates, TemplateItem } from '@/data/templates'
 import { getOrganizationCanvasTemplate } from '@/data/organizationCanvasTemplates'
 import NodeEditor from '@/components/NodeEditor'
-import { DollarSign, FileText, Target, AlertTriangle, Building, Crown, UserCheck, Banknote, Plug, Split, Play, Zap, User, Workflow, Wallet } from 'lucide-react'
+import { 
+  DollarSign, FileText, Target, AlertTriangle, Building, Crown, UserCheck, Banknote, Plug, Split, Play, Zap, User, Workflow, Wallet,
+  CheckSquare, GitBranch, Flag, Users, Mail, MessageSquare, Bell, Database, Code, Laptop, TrendingUp, Bot
+} from 'lucide-react'
 
 type NodeKind = string
 
@@ -82,30 +85,37 @@ function ColoredNode({ data }: { data: RFNodeData }) {
 const nodeTypes = { colored: ColoredNode }
 
 const PALETTE = [
-  { type: 'task', name: 'Task', category: 'Basic' },
-  { type: 'decision', name: 'Decision', category: 'Basic' },
-  { type: 'payment', name: 'Payment', category: 'Basic' },
-  { type: 'milestone', name: 'Milestone', category: 'Basic' },
-  { type: 'team', name: 'Team', category: 'Basic' },
-  // Business (replace Contact with Contract; move Contract here)
-  { type: 'workflow', name: 'Workflows', category: 'Business' },
-  { type: 'organization', name: 'Organizations', category: 'Business' },
-  { type: 'role', name: 'Roles', category: 'Business' },
-  { type: 'ai-agent', name: 'Agents', category: 'Business' },
-  { type: 'member', name: 'People', category: 'Business' },
-  { type: 'instrument', name: 'Instruments', category: 'Business' },
-  { type: 'wallets', name: 'Wallets', category: 'Business' },
-  { type: 'contract', name: 'Contract', category: 'Business' },
-  { type: 'integration', name: 'Integrations', category: 'Business' },
+  // Basic
+  { type: 'task', name: 'Task', category: 'Basic', icon: <CheckSquare className="w-4 h-4 text-emerald-400" /> },
+  { type: 'decision', name: 'Decision', category: 'Basic', icon: <GitBranch className="w-4 h-4 text-amber-400" /> },
+  { type: 'payment', name: 'Payment', category: 'Basic', icon: <DollarSign className="w-4 h-4 text-green-400" /> },
+  { type: 'milestone', name: 'Milestone', category: 'Basic', icon: <Flag className="w-4 h-4 text-red-400" /> },
+  { type: 'team', name: 'Team', category: 'Basic', icon: <Users className="w-4 h-4 text-green-400" /> },
+  
+  // Business
+  { type: 'workflow', name: 'Workflows', category: 'Business', icon: <Workflow className="w-4 h-4 text-blue-400" /> },
+  { type: 'organization', name: 'Organizations', category: 'Business', icon: <Building className="w-4 h-4 text-blue-400" /> },
+  { type: 'role', name: 'Roles', category: 'Business', icon: <Crown className="w-4 h-4 text-amber-400" /> },
+  { type: 'ai-agent', name: 'Agents', category: 'Business', icon: <Bot className="w-4 h-4 text-purple-400" /> },
+  { type: 'member', name: 'People', category: 'Business', icon: <UserCheck className="w-4 h-4 text-purple-400" /> },
+  { type: 'instrument', name: 'Instruments', category: 'Business', icon: <TrendingUp className="w-4 h-4 text-orange-400" /> },
+  { type: 'wallets', name: 'Wallets', category: 'Business', icon: <Wallet className="w-4 h-4 text-amber-400" /> },
+  { type: 'contract', name: 'Contract', category: 'Business', icon: <FileText className="w-4 h-4 text-gray-400" /> },
+  { type: 'integration', name: 'Integrations', category: 'Business', icon: <Plug className="w-4 h-4 text-violet-400" /> },
+  
   // Integration
-  { type: 'youtube', name: 'YouTube', category: 'Integration' },
-  { type: 'api', name: 'API Call', category: 'Integration' },
-  { type: 'database', name: 'Database', category: 'Integration' },
-  { type: 'webhook', name: 'Webhook', category: 'Integration' },
-  { type: 'email', name: 'Email', category: 'Communication' },
-  { type: 'sms', name: 'SMS', category: 'Communication' },
-  { type: 'notification', name: 'Notification', category: 'Communication' },
-  { type: 'trigger', name: 'Trigger', category: 'Logic' },
+  { type: 'youtube', name: 'YouTube', category: 'Integration', icon: <Play className="w-4 h-4 text-red-500" /> },
+  { type: 'api', name: 'API Call', category: 'Integration', icon: <Code className="w-4 h-4 text-purple-400" /> },
+  { type: 'database', name: 'Database', category: 'Integration', icon: <Database className="w-4 h-4 text-blue-400" /> },
+  { type: 'webhook', name: 'Webhook', category: 'Integration', icon: <Zap className="w-4 h-4 text-violet-400" /> },
+  
+  // Communication
+  { type: 'email', name: 'Email', category: 'Communication', icon: <Mail className="w-4 h-4 text-red-400" /> },
+  { type: 'sms', name: 'SMS', category: 'Communication', icon: <MessageSquare className="w-4 h-4 text-green-400" /> },
+  { type: 'notification', name: 'Notification', category: 'Communication', icon: <Bell className="w-4 h-4 text-yellow-400" /> },
+  
+  // Logic
+  { type: 'trigger', name: 'Trigger', category: 'Logic', icon: <Zap className="w-4 h-4 text-yellow-400" /> },
 ]
 
 const BUSINESS_KINDS = new Set(['workflow','organization','role','ai-agent','member','instrument','wallets','contract','integration'])
@@ -116,12 +126,14 @@ export default function WorkflowReactFlowCanvas({
   workflow, 
   templates, 
   onTemplateSelect,
-  tabTitle 
+  tabTitle,
+  onAddNode
 }: { 
   workflow: any; 
   templates?: any; 
   onTemplateSelect?: (template: TemplateItem) => void;
   tabTitle?: string;
+  onAddNode?: (type: string) => void;
 }) {
   const initialNodes = useMemo<Node<RFNodeData>[]>(() =>
     (workflow?.nodes || []).map((n: any) => ({
@@ -144,6 +156,37 @@ export default function WorkflowReactFlowCanvas({
   const onConnect = useCallback((params: Edge | Connection) => setEdges((eds) => addEdge({ ...params, animated: true }, eds)), [setEdges])
   const [templateModal, setTemplateModal] = useState<{ kind: string; items: TemplateItem[] } | null>(null)
   const [editingNode, setEditingNode] = useState<Node<RFNodeData> | null>(null)
+
+  // External node addition function for chatbot
+  const addNodeToCanvas = useCallback((type: string) => {
+    const existingNodes = nodes
+    
+    // Position new nodes in a vertical layout with some spacing
+    let newX = 100 + Math.random() * 200 // Add some randomness to avoid overlap
+    let newY = 100 + (existingNodes.length * 120) // 120px vertical spacing
+    
+    const id = `n${Date.now()}`
+    const newNode = { 
+      id, 
+      type: 'colored', 
+      position: { x: newX, y: newY }, 
+      data: { label: type.toUpperCase(), kind: type } 
+    }
+    
+    setNodes((nds) => nds.concat(newNode))
+    return true
+  }, [nodes, setNodes])
+
+  // Expose the addNode function to parent
+  React.useEffect(() => {
+    // Always expose the function when this canvas is active
+    (window as any).addNodeToActiveCanvas = addNodeToCanvas
+    
+    // Cleanup when component unmounts
+    return () => {
+      (window as any).addNodeToActiveCanvas = null
+    }
+  }, [addNodeToCanvas])
 
   const handlePick = useCallback((type: string, rf: ReturnType<typeof useReactFlow>) => {
     if (BUSINESS_KINDS.has(type)) {
@@ -261,14 +304,13 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
       <Background color="rgba(255,255,255,0.1)" />
       <MiniMap pannable zoomable style={{ background: 'rgba(0,0,0,0.6)' }} />
       <Controls position="bottom-left" showInteractive={false} />
-      <Panel position="top-right" style={{ right: 16, top: 16 }}>
-        <NodePalette
-          title="Add Nodes"
-          nodeTypes={palette as any}
-          categories={[...new Set(palette.map((p) => p.category))]}
-          onPick={(t) => onPick(t, rf)}
-        />
-      </Panel>
+      <NodePalette
+        title="Add Nodes"
+        nodeTypes={palette as any}
+        categories={[...new Set(palette.map((p) => p.category))]}
+        onPick={(t) => onPick(t, rf)}
+        visible={true}
+      />
       {templateModal && (
         <div 
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"

@@ -152,6 +152,11 @@ export default function CanvasTabs({
   }, [activeTabId])
 
   const activeTab = tabs.find(tab => tab.id === activeTabId)
+  
+  // Debug logging for tab switching
+  React.useEffect(() => {
+    console.log('🔄 Active tab changed:', activeTabId, activeTab?.title)
+  }, [activeTabId, activeTab])
 
   return (
     <div className="flex flex-col h-full">
@@ -166,7 +171,10 @@ export default function CanvasTabs({
                   ? 'bg-white/15 text-white border border-white/30 shadow-lg'
                   : 'text-gray-400 hover:text-white hover:bg-white/8 border border-transparent'
               }`}
-              onClick={() => setActiveTabId(tab.id)}
+              onClick={() => {
+                console.log('🔄 Tab clicked:', tab.id, tab.title, 'Current:', activeTabId)
+                setActiveTabId(tab.id)
+              }}
             >
               {/* Tab Icon */}
               {tab.isTemplate && tab.templateData?.icon ? (

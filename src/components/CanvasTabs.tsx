@@ -166,7 +166,10 @@ export default function CanvasTabs({
                   ? 'bg-white/15 text-white border border-white/30 shadow-lg'
                   : 'text-gray-400 hover:text-white hover:bg-white/8 border border-transparent'
               }`}
-              onClick={() => setActiveTabId(tab.id)}
+              onClick={() => {
+                console.log('🔄 Tab clicked:', tab.id, tab.title, 'Current:', activeTabId)
+                setActiveTabId(tab.id)
+              }}
             >
               {/* Tab Icon */}
               {tab.isTemplate && tab.templateData?.icon ? (
@@ -278,19 +281,16 @@ export default function CanvasTabs({
       {/* Canvas Content */}
       <div className="flex-1 relative">
         {activeTab && (
-          <div>
-            {console.log('Rendering canvas for tab:', activeTab.id, activeTab.title, 'nodeCanvasData:', !!activeTab.nodeCanvasData)}
-            <WorkflowReactFlowCanvas
-              key={activeTab.id} // Force re-render when tab changes
-              workflow={activeTab.workflow}
-              templates={activeTab.templates}
-              onTemplateSelect={createNewTab}
-              onNodeCanvasSelect={createNodeCanvasTab}
-              tabTitle={activeTab.title}
-              nodeCanvasData={activeTab.nodeCanvasData}
-              onAddNode={(type: string) => true} // Enable the canvas node addition
-            />
-          </div>
+          <WorkflowReactFlowCanvas
+            key={activeTab.id} // Force re-render when tab changes
+            workflow={activeTab.workflow}
+            templates={activeTab.templates}
+            onTemplateSelect={createNewTab}
+            onNodeCanvasSelect={createNodeCanvasTab}
+            tabTitle={activeTab.title}
+            nodeCanvasData={activeTab.nodeCanvasData}
+            onAddNode={(type: string) => true} // Enable the canvas node addition
+          />
         )}
       </div>
     </div>

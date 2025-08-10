@@ -172,7 +172,8 @@ function ColoredNode({ data }: { data: RFNodeData }) {
   )
 }
 
-export const nodeTypes = { colored: ColoredNode }
+const nodeTypes = { colored: ColoredNode }
+export { nodeTypes }
 
 const PALETTE = [
   // Basic
@@ -276,12 +277,6 @@ export default function WorkflowReactFlowCanvas({
 
   const [nodes, setNodes, onNodesChange] = useNodesState<RFNodeData>(initialNodes)
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
-  
-  // Reset nodes and edges when the tab changes
-  React.useEffect(() => {
-    setNodes(initialNodes)
-    setEdges(initialEdges)
-  }, [initialNodes, initialEdges, setNodes, setEdges])
   const onConnect = useCallback((params: Edge | Connection) => setEdges((eds) => addEdge({ ...params, animated: true }, eds)), [setEdges])
   const [templateModal, setTemplateModal] = useState<{ kind: string; items: TemplateItem[] } | null>(null)
   const [editingNode, setEditingNode] = useState<Node<RFNodeData> | null>(null)

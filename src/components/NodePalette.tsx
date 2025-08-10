@@ -80,7 +80,6 @@ export function NodePalette({
     e.preventDefault()
     e.stopPropagation()
     
-    console.log('NodePalette drag start')
     setIsDragging(true)
     
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
@@ -102,7 +101,6 @@ export function NodePalette({
     if (!isDragging || !paletteRef.current) return
     
     e.preventDefault()
-    console.log('NodePalette drag move', { isDragging })
     
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY

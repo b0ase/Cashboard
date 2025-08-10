@@ -23,6 +23,7 @@ import NodePalette from '@/components/NodePalette'
 import { getOrganizationTemplates, getRoleTemplates, getAgentTemplates, getInstrumentTemplates, getContractTemplates, getIntegrationTemplates, getCryptoTemplates, getWalletTemplates, TemplateItem } from '@/data/templates'
 import { getOrganizationCanvasTemplate } from '@/data/organizationCanvasTemplates'
 import NodeEditor from '@/components/NodeEditor'
+import NodeCanvasModal from '@/components/NodeCanvasModal'
 import { 
   DollarSign, FileText, Target, AlertTriangle, Building, Crown, UserCheck, Banknote, Plug, Split, Play, Zap, User, Workflow, Wallet,
   CheckSquare, GitBranch, Flag, Users, Mail, MessageSquare, Bell, Database, Code, Laptop, TrendingUp, Bot
@@ -30,7 +31,7 @@ import {
 
 type NodeKind = string
 
-type RFNodeData = { label: string; kind: NodeKind; subtitle?: string; template?: TemplateItem }
+export type RFNodeData = { label: string; kind: NodeKind; subtitle?: string; template?: TemplateItem }
 
 function IconFor({ kind }: { kind: NodeKind }) {
   const cls = 'w-4 h-4'
@@ -82,7 +83,7 @@ function ColoredNode({ data }: { data: RFNodeData }) {
   )
 }
 
-const nodeTypes = { colored: ColoredNode }
+export const nodeTypes = { colored: ColoredNode }
 
 const PALETTE = [
   // Basic
@@ -156,6 +157,7 @@ export default function WorkflowReactFlowCanvas({
   const onConnect = useCallback((params: Edge | Connection) => setEdges((eds) => addEdge({ ...params, animated: true }, eds)), [setEdges])
   const [templateModal, setTemplateModal] = useState<{ kind: string; items: TemplateItem[] } | null>(null)
   const [editingNode, setEditingNode] = useState<Node<RFNodeData> | null>(null)
+  const [nodeCanvasModal, setNodeCanvasModal] = useState<Node<RFNodeData> | null>(null)
 
   // External node addition function for chatbot
   const addNodeToCanvas = useCallback((type: string) => {
@@ -228,8 +230,15 @@ export default function WorkflowReactFlowCanvas({
     setNodes((nds) => nds.concat({ id, type: 'colored', position: pos, data: { label: type.toUpperCase(), kind: type } }))
   }, [setNodes, templates])
 
+  const handleNodeClick = useCallback((event: React.MouseEvent, node: Node<RFNodeData>) => {
+    event.stopPropagation()
+    // Single click opens the node canvas modal
+    setNodeCanvasModal(node)
+  }, [])
+
   const handleNodeDoubleClick = useCallback((event: React.MouseEvent, node: Node<RFNodeData>) => {
     event.stopPropagation()
+    // Double click opens the node editor
     setEditingNode(node)
   }, [])
 
@@ -266,6 +275,7 @@ export default function WorkflowReactFlowCanvas({
           setNodes={setNodes}
           setEdges={setEdges}
           onTemplateSelect={onTemplateSelect}
+          onNodeClick={handleNodeClick}
           onNodeDoubleClick={handleNodeDoubleClick}
         />
         
@@ -276,13 +286,20 @@ export default function WorkflowReactFlowCanvas({
           onClose={() => setEditingNode(null)}
           onSave={handleNodeSave}
         />
+        
+        {/* Node Canvas Modal */}
+        <NodeCanvasModal
+          node={nodeCanvasModal}
+          isOpen={!!nodeCanvasModal}
+          onClose={() => setNodeCanvasModal(null)}
+        />
       </ReactFlowProvider>
     </div>
   )
 }
 
-function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick, palette, templateModal, setTemplateModal, setNodes, setEdges, onTemplateSelect, onNodeDoubleClick }:
-  { nodes: Node<RFNodeData>[]; edges: Edge[]; onNodesChange: any; onEdgesChange: any; onConnect: any; onPick: (type: string, rf: any) => void; palette: any[]; templateModal: { kind: string; items: TemplateItem[] } | null; setTemplateModal: (v: any) => void; setNodes: any; setEdges: any; onTemplateSelect?: (template: TemplateItem) => void; onNodeDoubleClick?: (event: React.MouseEvent, node: Node<RFNodeData>) => void }) {
+function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick, palette, templateModal, setTemplateModal, setNodes, setEdges, onTemplateSelect, onNodeClick, onNodeDoubleClick }:
+  { nodes: Node<RFNodeData>[]; edges: Edge[]; onNodesChange: any; onEdgesChange: any; onConnect: any; onPick: (type: string, rf: any) => void; palette: any[]; templateModal: { kind: string; items: TemplateItem[] } | null; setTemplateModal: (v: any) => void; setNodes: any; setEdges: any; onTemplateSelect?: (template: TemplateItem) => void; onNodeClick?: (event: React.MouseEvent, node: Node<RFNodeData>) => void; onNodeDoubleClick?: (event: React.MouseEvent, node: Node<RFNodeData>) => void }) {
   const rf = useReactFlow()
   return (
     <ReactFlow
@@ -291,6 +308,7 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
       onNodesChange={onNodesChange}
       onEdgesChange={onEdgesChange}
       onConnect={onConnect}
+      onNodeClick={onNodeClick}
       onNodeDoubleClick={onNodeDoubleClick}
       nodeTypes={nodeTypes}
       fitView
@@ -351,17 +369,37 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
                       setEdges(canvasTemplate.edges)
                     } else {
                       // Default behavior for other template types - use vertical positioning
+                      console.log('Adding template node:', { name: it.name, kind: templateModal.kind, template: it })
+                      
                       const viewport = rf.getViewport()
                       const rect = (rf as any).viewport?.getBoundingClientRect?.() || { width: 800, height: 600 }
                       const existingNodes = rf.getNodes()
                       
-                      // Position new nodes in a vertical layout
-                      let newX = viewport.x + rect.width / 2
-                      let newY = viewport.y + 100 + (existingNodes.length * 120) // 120px vertical spacing
+                      // Position new nodes in a vertical layout with some randomness
+                      let newX = viewport.x + rect.width / 2 + Math.random() * 200 - 100
+                      let newY = viewport.y + 100 + (existingNodes.length * 120) + Math.random() * 50
                       
                       const pos = rf.project({ x: newX, y: newY })
                       const id = `n${Date.now()}`
-                      setNodes((nds: Node<RFNodeData>[]) => nds.concat({ id, type: 'colored', position: pos, data: { label: it.name, kind: templateModal.kind, template: it } }))
+                      
+                      const newNode = { 
+                        id, 
+                        type: 'colored', 
+                        position: pos, 
+                        data: { 
+                          label: it.name, 
+                          kind: templateModal.kind, 
+                          template: it,
+                          subtitle: it.description || it.category || ''
+                        } 
+                      }
+                      
+                      console.log('Creating new node:', newNode)
+                      setNodes((nds: Node<RFNodeData>[]) => {
+                        const updatedNodes = nds.concat(newNode)
+                        console.log('Updated nodes array:', updatedNodes)
+                        return updatedNodes
+                      })
                     }
                     setTemplateModal(null)
                   }}

@@ -1,6 +1,7 @@
 "use client"
 
-import React, { useState } from 'react'
+import React, { useState, useRef, useCallback } from 'react'
+import { GripVertical } from 'lucide-react'
 
 export type PaletteItem = {
   type: string
@@ -25,19 +26,92 @@ export default function NodePaletteSimple({
   const [open, setOpen] = useState<Record<string, boolean>>(
     Object.fromEntries(categories.map((c) => [c, true])) as Record<string, boolean>
   )
+  
+  // Dragging state
+  const [isDragging, setIsDragging] = useState(false)
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
+  const paletteRef = useRef<HTMLDivElement>(null)
+  
+  const handleDragStart = useCallback((e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    setIsDragging(true)
+    
+    const rect = paletteRef.current?.getBoundingClientRect()
+    if (rect) {
+      setDragOffset({
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+      })
+    }
+    
+    document.body.style.userSelect = 'none'
+    document.body.style.cursor = 'grabbing'
+  }, [])
+  
+  const handleDragMove = useCallback((e: MouseEvent) => {
+    if (!isDragging || !paletteRef.current) return
+    
+    e.preventDefault()
+    
+    const newX = e.clientX - dragOffset.x
+    const newY = e.clientY - dragOffset.y
+    
+    // Update position using transform instead of changing Panel position
+    paletteRef.current.style.transform = `translate(${newX}px, ${newY}px)`
+  }, [isDragging, dragOffset])
+  
+  const handleDragEnd = useCallback(() => {
+    if (!isDragging) return
+    
+    setIsDragging(false)
+    document.body.style.userSelect = ''
+    document.body.style.cursor = ''
+  }, [isDragging])
+  
+  // Set up drag event listeners
+  React.useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleDragMove)
+      document.addEventListener('mouseup', handleDragEnd)
+      
+      return () => {
+        document.removeEventListener('mousemove', handleDragMove)
+        document.removeEventListener('mouseup', handleDragEnd)
+      }
+    }
+  }, [isDragging, handleDragMove, handleDragEnd])
 
   if (!visible) {
     return null
   }
 
   return (
-    <div className="bg-black/80 backdrop-blur-xl border border-white/20 rounded-lg p-3 min-w-[260px] w-[260px] max-h-[70vh] overflow-y-auto shadow-lg">
-      <div className="flex items-center justify-between mb-2">
-        <div className="text-xs text-gray-400">
-          {title} <span className="text-[10px] text-gray-500">({nodeTypes.length})</span>
+    <div 
+      ref={paletteRef}
+      className={`bg-black/80 backdrop-blur-xl border border-white/20 rounded-lg p-3 min-w-[260px] w-[260px] max-h-[70vh] overflow-y-auto transition-all ${
+        isDragging ? 'shadow-2xl scale-[1.02] border-blue-400/50' : 'shadow-lg'
+      }`}
+    >
+      <div 
+        className="flex items-center justify-between mb-2 cursor-grab active:cursor-grabbing hover:bg-white/5 p-2 -m-2 mb-0 rounded transition-colors"
+        onMouseDown={handleDragStart}
+        title="Drag to move palette"
+      >
+        <div className="flex items-center gap-2">
+          <div className="text-gray-400 hover:text-white">
+            <GripVertical className="w-4 h-4" />
+          </div>
+          <div className="text-xs text-gray-400">
+            {title} <span className="text-[10px] text-gray-500">({nodeTypes.length})</span>
+          </div>
         </div>
         <button
-          onClick={() => setOpen(prev => Object.fromEntries(Object.keys(prev).map(k => [k, false])))}
+          onClick={(e) => {
+            e.stopPropagation() // Prevent drag from starting
+            setOpen(prev => Object.fromEntries(Object.keys(prev).map(k => [k, false])))
+          }}
           className="text-gray-400 hover:text-white text-xs hover:bg-white/10 px-2 py-1 rounded"
         >
           Collapse

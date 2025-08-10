@@ -468,7 +468,7 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
       )}
       <MiniMap pannable zoomable position="bottom-right" style={{ background: 'rgba(0,0,0,0.6)', marginRight: '8px', marginBottom: '60px' }} />
       <Controls position="bottom-right" showInteractive={false} style={{ marginRight: '8px', marginBottom: '8px' }} />
-      <Panel position="top-right" className="m-2" draggable>
+      <Panel position="top-right" className="m-2">
         <NodePaletteSimple
           title="Add Nodes"
           nodeTypes={palette as any}

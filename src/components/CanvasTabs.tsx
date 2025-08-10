@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useCallback } from 'react'
-import { X, Plus } from 'lucide-react'
+import { X, Plus, Play, Pause, Zap, ArrowRight, ZoomOut, ZoomIn } from 'lucide-react'
 import WorkflowReactFlowCanvas from './WorkflowReactFlowCanvas'
 import { TemplateItem } from '@/data/templates'
 import { getOrganizationCanvasTemplate } from '@/data/organizationCanvasTemplates'
@@ -42,6 +42,32 @@ export default function CanvasTabs({
     }
   ])
   const [activeTabId, setActiveTabId] = useState('main')
+  
+  // Canvas control states
+  const [isRunning, setIsRunning] = useState(false)
+  const [autoMode, setAutoMode] = useState(false)
+  const [canvasScale, setCanvasScale] = useState(0.35)
+  
+  // Canvas control handlers
+  const toggleWorkflowStatus = useCallback(() => {
+    setIsRunning(prev => !prev)
+  }, [])
+  
+  const toggleAutoMode = useCallback(() => {
+    setAutoMode(prev => !prev)
+  }, [])
+  
+  const zoomOut = useCallback(() => {
+    setCanvasScale(prev => Math.max(0.1, prev - 0.1))
+  }, [])
+  
+  const zoomIn = useCallback(() => {
+    setCanvasScale(prev => Math.min(5, prev + 0.1))
+  }, [])
+  
+  const resetView = useCallback(() => {
+    setCanvasScale(0.35)
+  }, [])
 
   const createNodeCanvasTab = useCallback((node: any) => {
     // Create a new tab for the node canvas
@@ -185,15 +211,67 @@ export default function CanvasTabs({
           ))}
         </div>
 
-        {/* Tab Controls */}
-        <div className="flex items-center gap-3 text-xs text-gray-500 ml-4 border-l border-white/10 pl-4">
-          <span className="font-medium">{tabs.length} tab{tabs.length !== 1 ? 's' : ''}</span>
-          {tabs.length > 1 && (
-            <span className="text-gray-600">•</span>
-          )}
-          {activeTab?.isTemplate && (
-            <span className="text-blue-400 font-medium">Template</span>
-          )}
+        {/* Canvas Controls */}
+        <div className="flex items-center gap-2 ml-4 border-l border-white/10 pl-4">
+          {/* Workflow Controls */}
+          <button
+            onClick={toggleWorkflowStatus}
+            className={`rounded-lg flex items-center space-x-1 transition-all border px-2 py-1 ${
+              isRunning
+                ? 'bg-green-500/20 text-green-400 border-green-400/30' 
+                : 'bg-yellow-500/20 text-yellow-400 border-yellow-400/30'
+            }`}
+            title={isRunning ? 'Pause Workflow' : 'Start Workflow'}
+          >
+            {isRunning ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3" />}
+            <span className="text-xs font-medium">{isRunning ? 'Running' : 'Paused'}</span>
+          </button>
+          
+          <button
+            onClick={toggleAutoMode}
+            className={`rounded-lg flex items-center space-x-1 transition-all border px-2 py-1 ${
+              autoMode
+                ? 'bg-blue-500/20 text-blue-400 border-blue-400/30' 
+                : 'bg-white/10 text-gray-400 hover:text-white hover:bg-white/20 border-white/20'
+            }`}
+            title="Toggle Auto Mode"
+          >
+            <Zap className="w-3 h-3" />
+            <span className="text-xs font-medium">Auto</span>
+          </button>
+          
+          {/* Zoom Controls */}
+          <div className="flex items-center gap-1 ml-2">
+            <button
+              onClick={zoomOut}
+              className="rounded-lg bg-white/10 text-gray-400 hover:text-white hover:bg-white/20 border border-white/20 transition-all p-1"
+              title="Zoom Out"
+            >
+              <ZoomOut className="w-3 h-3" />
+            </button>
+            
+            <div className="bg-white/10 border border-white/20 rounded-lg px-2 py-1">
+              <span className="text-white font-medium text-xs">
+                {Math.round(canvasScale * 100)}%
+              </span>
+            </div>
+            
+            <button
+              onClick={resetView}
+              className="rounded-lg bg-white/10 text-gray-400 hover:text-white hover:bg-white/20 border border-white/20 transition-all px-2 py-1"
+              title="Reset View"
+            >
+              <span className="font-medium text-xs">Reset</span>
+            </button>
+            
+            <button
+              onClick={zoomIn}
+              className="rounded-lg bg-white/10 text-gray-400 hover:text-white hover:bg-white/20 border border-white/20 transition-all p-1"
+              title="Zoom In"
+            >
+              <ZoomIn className="w-3 h-3" />
+            </button>
+          </div>
         </div>
       </div>
 

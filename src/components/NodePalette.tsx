@@ -189,25 +189,6 @@ export function NodePalette({
           Collapse
         </button>
       </div>
-      {favItems.length > 0 && (
-        <div className="mb-3">
-          <div className="text-[11px] uppercase tracking-wide text-gray-500 mb-2">Favorites</div>
-          <div className="grid grid-cols-2 gap-2">
-            {favItems.map((n) => (
-              <button
-                key={`fav:${n.type}`}
-                onClick={() => onPick(n.type)}
-                className="flex items-center gap-2 px-2 py-1.5 rounded bg-white/5 hover:bg-white/10 border border-white/10 text-left"
-                title={`Add ${n.name}`}
-              >
-                <span className="inline-flex items-center justify-center">{n.icon}</span>
-                <span className="text-sm text-white truncate">{n.name}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
       {categories.map((cat) => (
         <div key={cat} className="mb-3">
           <button

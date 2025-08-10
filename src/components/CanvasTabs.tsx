@@ -166,10 +166,7 @@ export default function CanvasTabs({
                   ? 'bg-white/15 text-white border border-white/30 shadow-lg'
                   : 'text-gray-400 hover:text-white hover:bg-white/8 border border-transparent'
               }`}
-              onClick={() => {
-                console.log('🔄 Tab clicked:', tab.id, tab.title, 'Current:', activeTabId)
-                setActiveTabId(tab.id)
-              }}
+              onClick={() => setActiveTabId(tab.id)}
             >
               {/* Tab Icon */}
               {tab.isTemplate && tab.templateData?.icon ? (

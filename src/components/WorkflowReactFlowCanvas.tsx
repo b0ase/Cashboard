@@ -458,9 +458,9 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
       connectionLineStyle={{ stroke: 'rgba(255,255,255,0.6)', strokeWidth: 2 }}
     >
       <Background color="rgba(255,255,255,0.1)" />
-      <MiniMap pannable zoomable style={{ background: 'rgba(0,0,0,0.6)' }} />
-      <Controls position="bottom-left" showInteractive={false} />
-      <Panel position="top-right" className="m-2">
+      <MiniMap pannable zoomable position="bottom-right" style={{ background: 'rgba(0,0,0,0.6)', marginRight: '8px', marginBottom: '60px' }} />
+      <Controls position="bottom-right" showInteractive={false} style={{ marginRight: '8px', marginBottom: '8px' }} />
+      <Panel position="top-right" className="m-2" draggable>
         <NodePaletteSimple
           title="Add Nodes"
           nodeTypes={palette as any}

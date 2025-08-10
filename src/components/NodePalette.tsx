@@ -178,7 +178,7 @@ export function NodePalette({
         position: 'fixed',
         left: `${position.x}px`,
         top: `${position.y}px`,
-        zIndex: isDragging ? 1000 : 999, // Higher z-index to be above React Flow
+        zIndex: isDragging ? 9999 : 9998, // Much higher z-index to be above React Flow and modals
         userSelect: 'none',
         willChange: isDragging ? 'transform' : 'auto'
       }}

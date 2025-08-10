@@ -29,6 +29,95 @@ import {
   CheckSquare, GitBranch, Flag, Users, Mail, MessageSquare, Bell, Database, Code, Laptop, TrendingUp, Bot
 } from 'lucide-react'
 
+// Node canvas configurations (copied from NodeCanvasModal)
+const NODE_CANVAS_CONFIGS = {
+  instrument: {
+    initialNodes: [
+      { id: 'issuer', position: { x: 100, y: 100 }, data: { label: 'Issuer', kind: 'organization' } },
+      { id: 'terms', position: { x: 300, y: 100 }, data: { label: 'Terms & Conditions', kind: 'contract' } },
+      { id: 'payments', position: { x: 200, y: 250 }, data: { label: 'Payment Schedule', kind: 'workflow' } },
+      { id: 'rating', position: { x: 400, y: 250 }, data: { label: 'Credit Rating', kind: 'assessment' } }
+    ],
+    initialEdges: [
+      { id: 'issuer-terms', source: 'issuer', target: 'terms' },
+      { id: 'terms-payments', source: 'terms', target: 'payments' },
+      { id: 'issuer-rating', source: 'issuer', target: 'rating' }
+    ]
+  },
+  wallets: {
+    initialNodes: [
+      { id: 'keys', position: { x: 100, y: 100 }, data: { label: 'Private Keys', kind: 'security' } },
+      { id: 'transactions', position: { x: 300, y: 100 }, data: { label: 'Transactions', kind: 'workflow' } },
+      { id: 'backup', position: { x: 200, y: 250 }, data: { label: 'Backup & Recovery', kind: 'security' } },
+      { id: 'monitoring', position: { x: 400, y: 250 }, data: { label: 'Monitoring', kind: 'integration' } }
+    ],
+    initialEdges: [
+      { id: 'keys-transactions', source: 'keys', target: 'transactions' },
+      { id: 'keys-backup', source: 'keys', target: 'backup' },
+      { id: 'transactions-monitoring', source: 'transactions', target: 'monitoring' }
+    ]
+  },
+  organization: {
+    initialNodes: [
+      { id: 'governance', position: { x: 100, y: 100 }, data: { label: 'Governance', kind: 'workflow' } },
+      { id: 'departments', position: { x: 300, y: 100 }, data: { label: 'Departments', kind: 'organization' } },
+      { id: 'compliance', position: { x: 200, y: 250 }, data: { label: 'Compliance', kind: 'contract' } },
+      { id: 'reporting', position: { x: 400, y: 250 }, data: { label: 'Reporting', kind: 'integration' } }
+    ],
+    initialEdges: [
+      { id: 'governance-departments', source: 'governance', target: 'departments' },
+      { id: 'governance-compliance', source: 'governance', target: 'compliance' },
+      { id: 'compliance-reporting', source: 'compliance', target: 'reporting' }
+    ]
+  },
+  role: {
+    initialNodes: [
+      { id: 'responsibilities', position: { x: 100, y: 100 }, data: { label: 'Responsibilities', kind: 'workflow' } },
+      { id: 'permissions', position: { x: 300, y: 100 }, data: { label: 'Permissions', kind: 'security' } },
+      { id: 'reporting', position: { x: 200, y: 250 }, data: { label: 'Reporting Lines', kind: 'organization' } },
+      { id: 'kpis', position: { x: 400, y: 250 }, data: { label: 'KPIs & Metrics', kind: 'assessment' } }
+    ],
+    initialEdges: [
+      { id: 'responsibilities-permissions', source: 'responsibilities', target: 'permissions' },
+      { id: 'responsibilities-reporting', source: 'responsibilities', target: 'reporting' },
+      { id: 'reporting-kpis', source: 'reporting', target: 'kpis' }
+    ]
+  },
+  contract: {
+    initialNodes: [
+      { id: 'code', position: { x: 100, y: 100 }, data: { label: 'Contract Code', kind: 'integration' } },
+      { id: 'functions', position: { x: 300, y: 100 }, data: { label: 'Functions', kind: 'workflow' } },
+      { id: 'events', position: { x: 200, y: 250 }, data: { label: 'Events & Logs', kind: 'monitoring' } },
+      { id: 'security', position: { x: 400, y: 250 }, data: { label: 'Security Audit', kind: 'assessment' } }
+    ],
+    initialEdges: [
+      { id: 'code-functions', source: 'code', target: 'functions' },
+      { id: 'functions-events', source: 'functions', target: 'events' },
+      { id: 'code-security', source: 'code', target: 'security' }
+    ]
+  },
+  workflow: {
+    initialNodes: [
+      { id: 'trigger', position: { x: 100, y: 100 }, data: { label: 'Trigger Event', kind: 'integration' } },
+      { id: 'process', position: { x: 300, y: 100 }, data: { label: 'Process Steps', kind: 'workflow' } },
+      { id: 'approval', position: { x: 200, y: 250 }, data: { label: 'Approval Gate', kind: 'role' } },
+      { id: 'completion', position: { x: 400, y: 250 }, data: { label: 'Completion', kind: 'integration' } }
+    ],
+    initialEdges: [
+      { id: 'trigger-process', source: 'trigger', target: 'process' },
+      { id: 'process-approval', source: 'process', target: 'approval' },
+      { id: 'approval-completion', source: 'approval', target: 'completion' }
+    ]
+  }
+}
+
+const DEFAULT_NODE_CONFIG = {
+  initialNodes: [
+    { id: 'properties', position: { x: 200, y: 150 }, data: { label: 'Properties', kind: 'info' } }
+  ],
+  initialEdges: []
+}
+
 type NodeKind = string
 
 export type RFNodeData = { label: string; kind: NodeKind; subtitle?: string; template?: TemplateItem }
@@ -127,30 +216,63 @@ export default function WorkflowReactFlowCanvas({
   workflow, 
   templates, 
   onTemplateSelect,
+  onNodeCanvasSelect,
   tabTitle,
+  nodeCanvasData,
   onAddNode
 }: { 
   workflow: any; 
   templates?: any; 
   onTemplateSelect?: (template: TemplateItem) => void;
+  onNodeCanvasSelect?: (node: any) => void;
   tabTitle?: string;
+  nodeCanvasData?: any;
   onAddNode?: (type: string) => void;
 }) {
-  const initialNodes = useMemo<Node<RFNodeData>[]>(() =>
-    (workflow?.nodes || []).map((n: any) => ({
+  const initialNodes = useMemo<Node<RFNodeData>[]>(() => {
+    // If this is a node canvas tab, use the node canvas data
+    if (nodeCanvasData) {
+      const config = NODE_CANVAS_CONFIGS[nodeCanvasData.data.kind as keyof typeof NODE_CANVAS_CONFIGS] || DEFAULT_NODE_CONFIG
+      return config.initialNodes.map(n => ({
+        ...n,
+        id: `${nodeCanvasData.id}-${n.id}`,
+        type: 'colored' as const,
+        data: { ...n.data, label: n.data.label }
+      }))
+    }
+    
+    // Otherwise use the regular workflow nodes
+    return (workflow?.nodes || []).map((n: any) => ({
       id: String(n.id),
       type: 'colored',
       position: { x: Number(n.x) || 0, y: Number(n.y) || 0 },
       data: { label: String(n.name || n.type), kind: String(n.type || 'task') },
-    })), [workflow])
+    }))
+  }, [workflow, nodeCanvasData])
 
-  const initialEdges = useMemo<Edge[]>(() =>
-    (workflow?.connections || []).map((e: any) => ({
+  const initialEdges = useMemo<Edge[]>(() => {
+    // If this is a node canvas tab, use the node canvas edges
+    if (nodeCanvasData) {
+      const config = NODE_CANVAS_CONFIGS[nodeCanvasData.data.kind as keyof typeof NODE_CANVAS_CONFIGS] || DEFAULT_NODE_CONFIG
+      return config.initialEdges.map(e => ({
+        ...e,
+        id: `${nodeCanvasData.id}-${e.id}`,
+        source: `${nodeCanvasData.id}-${e.source}`,
+        target: `${nodeCanvasData.id}-${e.target}`,
+        animated: true,
+        style: { stroke: 'rgba(255,255,255,0.7)', strokeWidth: 2 },
+        markerEnd: { type: MarkerType.ArrowClosed, color: 'rgba(255,255,255,0.8)' }
+      }))
+    }
+    
+    // Otherwise use the regular workflow edges
+    return (workflow?.connections || []).map((e: any) => ({
       id: String(e.id || `${e.from}-${e.to}`),
       source: String(e.from),
       target: String(e.to),
       animated: e.type === 'payment',
-    })), [workflow])
+    }))
+  }, [workflow, nodeCanvasData])
 
   const [nodes, setNodes, onNodesChange] = useNodesState<RFNodeData>(initialNodes)
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
@@ -217,24 +339,39 @@ export default function WorkflowReactFlowCanvas({
       setTemplateModal({ kind: type, items })
       return
     }
+    
+    // Position new nodes at the center of the current viewport
     const viewport = rf.getViewport()
-    const rect = (rf as any).viewport?.getBoundingClientRect?.() || { width: 800, height: 600 }
-    const existingNodes = rf.getNodes()
+    const reactFlowBounds = rf.getViewport()
     
-    // Position new nodes in a vertical layout with some spacing
-    let newX = viewport.x + rect.width / 2
-    let newY = viewport.y + 100 + (existingNodes.length * 120) // 120px vertical spacing
+    // Get the center of the current view with some randomness to avoid overlap
+    const centerX = -viewport.x + (window.innerWidth / 2) / viewport.zoom
+    const centerY = -viewport.y + (window.innerHeight / 2) / viewport.zoom
     
-    const pos = rf.project({ x: newX, y: newY })
+    // Add some randomness to avoid nodes stacking exactly on top of each other
+    const randomOffsetX = (Math.random() - 0.5) * 200
+    const randomOffsetY = (Math.random() - 0.5) * 200
+    
+    const pos = { 
+      x: centerX + randomOffsetX, 
+      y: centerY + randomOffsetY 
+    }
+    
     const id = `n${Date.now()}`
+    console.log('Creating node at position:', pos)
     setNodes((nds) => nds.concat({ id, type: 'colored', position: pos, data: { label: type.toUpperCase(), kind: type } }))
   }, [setNodes, templates])
 
   const handleNodeClick = useCallback((event: React.MouseEvent, node: Node<RFNodeData>) => {
     event.stopPropagation()
-    // Single click opens the node canvas modal
-    setNodeCanvasModal(node)
-  }, [])
+    // Single click opens the node canvas as a new tab if callback is provided
+    if (onNodeCanvasSelect) {
+      onNodeCanvasSelect(node)
+    } else {
+      // Fallback to modal if no tab callback is provided
+      setNodeCanvasModal(node)
+    }
+  }, [onNodeCanvasSelect])
 
   const handleNodeDoubleClick = useCallback((event: React.MouseEvent, node: Node<RFNodeData>) => {
     event.stopPropagation()
@@ -368,18 +505,23 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
                       setNodes(canvasTemplate.nodes)
                       setEdges(canvasTemplate.edges)
                     } else {
-                      // Default behavior for other template types - use vertical positioning
+                      // Default behavior for other template types - position at viewport center
                       console.log('Adding template node:', { name: it.name, kind: templateModal.kind, template: it })
                       
                       const viewport = rf.getViewport()
-                      const rect = (rf as any).viewport?.getBoundingClientRect?.() || { width: 800, height: 600 }
-                      const existingNodes = rf.getNodes()
                       
-                      // Position new nodes in a vertical layout with some randomness
-                      let newX = viewport.x + rect.width / 2 + Math.random() * 200 - 100
-                      let newY = viewport.y + 100 + (existingNodes.length * 120) + Math.random() * 50
+                      // Position at the center of the current viewport with some randomness
+                      const centerX = -viewport.x + (window.innerWidth / 2) / viewport.zoom
+                      const centerY = -viewport.y + (window.innerHeight / 2) / viewport.zoom
                       
-                      const pos = rf.project({ x: newX, y: newY })
+                      // Add randomness to avoid nodes stacking exactly on top of each other
+                      const randomOffsetX = (Math.random() - 0.5) * 200
+                      const randomOffsetY = (Math.random() - 0.5) * 200
+                      
+                      const pos = { 
+                        x: centerX + randomOffsetX, 
+                        y: centerY + randomOffsetY 
+                      }
                       const id = `n${Date.now()}`
                       
                       const newNode = { 

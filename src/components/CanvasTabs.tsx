@@ -13,6 +13,7 @@ export type CanvasTab = {
   templates?: any
   isTemplate?: boolean
   templateData?: TemplateItem
+  nodeCanvasData?: any
 }
 
 interface CanvasTabsProps {
@@ -41,6 +42,27 @@ export default function CanvasTabs({
     }
   ])
   const [activeTabId, setActiveTabId] = useState('main')
+
+  const createNodeCanvasTab = useCallback((node: any) => {
+    // Create a new tab for the node canvas
+    const newTabId = `node-${node.id}-${Date.now()}`
+    const cleanTitle = `${node.data.label} Details`
+    
+    const newTab: CanvasTab = {
+      id: newTabId,
+      title: cleanTitle,
+      workflow: {
+        nodes: [], // Will be populated by NodeCanvasModal content
+        connections: []
+      },
+      templates: initialTemplates,
+      isTemplate: false,
+      nodeCanvasData: node // Store the node data for the canvas
+    }
+
+    setTabs(prev => [...prev, newTab])
+    setActiveTabId(newTabId)
+  }, [initialTemplates])
 
   const createNewTab = useCallback((template: TemplateItem) => {
     // Check if a tab with this template already exists
@@ -183,7 +205,9 @@ export default function CanvasTabs({
             workflow={activeTab.workflow}
             templates={activeTab.templates}
             onTemplateSelect={createNewTab}
+            onNodeCanvasSelect={createNodeCanvasTab}
             tabTitle={activeTab.title}
+            nodeCanvasData={activeTab.nodeCanvasData}
             onAddNode={(type: string) => true} // Enable the canvas node addition
           />
         )}

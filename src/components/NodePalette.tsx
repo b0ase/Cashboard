@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react'
-import { Star, GripVertical } from 'lucide-react'
+import { GripVertical } from 'lucide-react'
 
 export type PaletteItem = {
   type: string
@@ -26,7 +26,6 @@ export function NodePalette({
   const [open, setOpen] = useState<Record<string, boolean>>(
     Object.fromEntries(categories.map((c) => [c, true])) as Record<string, boolean>
   )
-  const [favorites, setFavorites] = useState<string[]>([])
   
   // Draggable state
   const [isDragging, setIsDragging] = useState(false)
@@ -39,19 +38,6 @@ export function NodePalette({
   })
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
   const paletteRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('nodePalette.favorites')
-      if (saved) setFavorites(JSON.parse(saved))
-    } catch {}
-  }, [])
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('nodePalette.favorites', JSON.stringify(favorites))
-    } catch {}
-  }, [favorites])
 
   // Load saved position
   useEffect(() => {
@@ -69,11 +55,6 @@ export function NodePalette({
       console.warn('Failed to load palette position:', error)
     }
   }, [])
-
-  const favItems = useMemo(
-    () => nodeTypes.filter((n) => favorites.includes(n.type)),
-    [nodeTypes, favorites]
-  )
 
   // Drag handlers
   const handleDragStart = useCallback((e: React.MouseEvent | React.TouchEvent) => {
@@ -248,9 +229,6 @@ export function NodePalette({
                   >
                     <span className="inline-flex items-center justify-center">{n.icon}</span>
                     <span className="text-sm text-white truncate">{n.name}</span>
-                    <span className="ml-auto text-yellow-400/70 hover:text-yellow-300" onClick={(e) => { e.stopPropagation(); setFavorites((f) => f.includes(n.type) ? f.filter((t) => t !== n.type) : f.concat(n.type)) }}>
-                      <Star className={`w-3.5 h-3.5 ${favorites.includes(n.type) ? 'fill-yellow-400/70' : ''}`} />
-                    </span>
                   </button>
                 ))}
             </div>

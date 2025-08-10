@@ -20,7 +20,7 @@ import ReactFlow, {
 } from 'reactflow'
 import 'reactflow/dist/style.css'
 import NodePalette from '@/components/NodePalette'
-import { getOrganizationTemplates, getRoleTemplates, getAgentTemplates, getInstrumentTemplates, getContractTemplates, getIntegrationTemplates, TemplateItem } from '@/data/templates'
+import { getOrganizationTemplates, getRoleTemplates, getAgentTemplates, getInstrumentTemplates, getContractTemplates, getIntegrationTemplates, getCryptoTemplates, getWalletTemplates, TemplateItem } from '@/data/templates'
 import { getOrganizationCanvasTemplate } from '@/data/organizationCanvasTemplates'
 import NodeEditor from '@/components/NodeEditor'
 import { DollarSign, FileText, Target, AlertTriangle, Building, Crown, UserCheck, Banknote, Plug, Split, Play, Zap, User, Workflow, Wallet } from 'lucide-react'
@@ -156,6 +156,8 @@ export default function WorkflowReactFlowCanvas({
         instruments: getInstrumentTemplates(),
         contracts: getContractTemplates(),
         integrations: getIntegrationTemplates(),
+        crypto: getCryptoTemplates(),
+        wallets: getWalletTemplates(),
       }
       const pick = <T extends { id?: string; name: string; description?: string; country?: string; type?: string; code?: string; size?: string; category?: string }>(arr?: T[]) => (arr || []).map(t => ({ id: (t as any).id || t.name, name: t.name, description: t.description, country: t.country, type: t.type, code: t.code, size: t.size, category: t.category }))
       if (type === 'organization') items = pick(live.organizations)
@@ -165,6 +167,8 @@ export default function WorkflowReactFlowCanvas({
       else if (type === 'contract') items = pick(live.contracts)
       else if (type === 'workflow') items = [ { id: 'wf-blank', name: 'Blank Workflow' } ]
       else if (type === 'integration') items = pick(live.integrations)
+      else if (type === 'crypto') items = pick(live.crypto)
+      else if (type === 'wallets') items = pick(live.wallets)
       setTemplateModal({ kind: type, items })
       return
     }
@@ -274,6 +278,18 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
                 <button
                   key={it.id}
                   onClick={() => {
+                    // Handle special crypto modal case
+                    if (templateModal.kind === 'instrument' && (it as any).type === 'crypto-modal') {
+                      const cryptoItems = getCryptoTemplates().map(crypto => ({ 
+                        id: crypto.id || crypto.name, 
+                        name: crypto.name, 
+                        description: crypto.description, 
+                        category: crypto.category 
+                      }))
+                      setTemplateModal({ kind: 'crypto', items: cryptoItems })
+                      return
+                    }
+                    
                     if (templateModal.kind === 'organization' && it.category && onTemplateSelect) {
                       // Create a new tab with the organization template
                       onTemplateSelect(it)
@@ -321,6 +337,18 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
                   {(it as any).defaultDuration && (
                     <div className="text-xs text-amber-300 mb-2">
                       Default: {(it as any).defaultDuration} months
+                    </div>
+                  )}
+                  {(it as any).marketCap && (
+                    <div className="text-xs text-green-300 mb-2">
+                      Market Cap: {(it as any).marketCap}
+                      {(it as any).symbol && ` • ${(it as any).symbol}`}
+                    </div>
+                  )}
+                  {(it as any).supportedChains && (
+                    <div className="text-xs text-purple-300 mb-2">
+                      Chains: {(it as any).supportedChains.slice(0, 3).join(', ')}
+                      {(it as any).supportedChains.length > 3 && '...'}
                     </div>
                   )}
                   {it.code && <div className="text-xs text-blue-400">{it.code}</div>}

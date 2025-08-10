@@ -26,6 +26,8 @@ type TemplateBag = {
   contractTemplates?: TemplateItem[]
   integrationTemplates?: TemplateItem[]
   contactTemplates?: TemplateItem[]
+  cryptoTemplates?: TemplateItem[]
+  walletTemplates?: TemplateItem[]
 }
 
 function readBag(): TemplateBag | null {
@@ -193,6 +195,9 @@ const stubs = {
     { name: 'Film Royalties', description: 'equity • Rights — Supply: 100,000', icon: '🎬' },
     { name: 'Patent Rights', description: 'equity • Rights — Supply: 50,000', icon: '📜' },
     { name: 'Software License', description: 'utility • Rights — Supply: 1,000,000', icon: '💻' },
+    
+    // Cryptocurrencies
+    { id: 'crypto', name: 'Crypto', description: 'Digital cryptocurrencies and tokens', icon: '₿', category: 'Cryptocurrency', type: 'crypto-modal' },
   ],
   contractTemplates: [
     // Service Contracts
@@ -315,6 +320,83 @@ const stubs = {
     { name: 'Business Contact', icon: '🏢' },
     { name: 'AI Agent Contact', icon: '🤖' },
   ],
+  cryptoTemplates: [
+    // BitcoinSV Ecosystem (Leading)
+    { id: 'bsv', name: 'BitcoinSV (BSV)', description: 'Original Bitcoin protocol with unlimited scalability', icon: '🟡', category: 'BitcoinSV', marketCap: '$1.2B', symbol: 'BSV', type: 'Layer 1' },
+    
+    // Major Cryptocurrencies
+    { id: 'btc', name: 'Bitcoin (BTC)', description: 'The original cryptocurrency and digital gold', icon: '₿', category: 'Major', marketCap: '$800B', symbol: 'BTC', type: 'Layer 1' },
+    { id: 'eth', name: 'Ethereum (ETH)', description: 'Smart contract platform and world computer', icon: '⟠', category: 'Major', marketCap: '$400B', symbol: 'ETH', type: 'Layer 1' },
+    { id: 'bnb', name: 'BNB', description: 'Binance Smart Chain native token', icon: '🟡', category: 'Major', marketCap: '$90B', symbol: 'BNB', type: 'Layer 1' },
+    { id: 'xrp', name: 'XRP', description: 'Cross-border payment solution', icon: '💧', category: 'Major', marketCap: '$75B', symbol: 'XRP', type: 'Layer 1' },
+    { id: 'ada', name: 'Cardano (ADA)', description: 'Research-driven blockchain platform', icon: '🔷', category: 'Major', marketCap: '$35B', symbol: 'ADA', type: 'Layer 1' },
+    { id: 'sol', name: 'Solana (SOL)', description: 'High-performance blockchain for DeFi and Web3', icon: '🌟', category: 'Major', marketCap: '$45B', symbol: 'SOL', type: 'Layer 1' },
+    { id: 'dot', name: 'Polkadot (DOT)', description: 'Multi-chain interoperability protocol', icon: '⚪', category: 'Major', marketCap: '$25B', symbol: 'DOT', type: 'Layer 0' },
+    { id: 'avax', name: 'Avalanche (AVAX)', description: 'Fast, low-cost, and eco-friendly blockchain', icon: '🔺', category: 'Major', marketCap: '$20B', symbol: 'AVAX', type: 'Layer 1' },
+    { id: 'matic', name: 'Polygon (MATIC)', description: 'Ethereum scaling and infrastructure', icon: '🟣', category: 'Major', marketCap: '$15B', symbol: 'MATIC', type: 'Layer 2' },
+    
+    // DeFi Tokens
+    { id: 'uni', name: 'Uniswap (UNI)', description: 'Decentralized exchange protocol', icon: '🦄', category: 'DeFi', marketCap: '$8B', symbol: 'UNI', type: 'Governance' },
+    { id: 'aave', name: 'Aave (AAVE)', description: 'Decentralized lending protocol', icon: '👻', category: 'DeFi', marketCap: '$5B', symbol: 'AAVE', type: 'Governance' },
+    { id: 'comp', name: 'Compound (COMP)', description: 'Algorithmic money market protocol', icon: '🏛️', category: 'DeFi', marketCap: '$2B', symbol: 'COMP', type: 'Governance' },
+    { id: 'mkr', name: 'Maker (MKR)', description: 'Decentralized autonomous organization for DAI', icon: '🎯', category: 'DeFi', marketCap: '$3B', symbol: 'MKR', type: 'Governance' },
+    { id: 'snx', name: 'Synthetix (SNX)', description: 'Synthetic asset protocol', icon: '⚡', category: 'DeFi', marketCap: '$1.5B', symbol: 'SNX', type: 'Utility' },
+    
+    // Stablecoins
+    { id: 'usdt', name: 'Tether (USDT)', description: 'USD-pegged stablecoin', icon: '💵', category: 'Stablecoin', marketCap: '$120B', symbol: 'USDT', type: 'Stablecoin' },
+    { id: 'usdc', name: 'USD Coin (USDC)', description: 'Regulated USD stablecoin', icon: '🔵', category: 'Stablecoin', marketCap: '$50B', symbol: 'USDC', type: 'Stablecoin' },
+    { id: 'dai', name: 'Dai (DAI)', description: 'Decentralized USD stablecoin', icon: '🟡', category: 'Stablecoin', marketCap: '$8B', symbol: 'DAI', type: 'Stablecoin' },
+    { id: 'busd', name: 'Binance USD (BUSD)', description: 'Binance-issued USD stablecoin', icon: '🟨', category: 'Stablecoin', marketCap: '$15B', symbol: 'BUSD', type: 'Stablecoin' },
+    
+    // Layer 2 Solutions
+    { id: 'arb', name: 'Arbitrum (ARB)', description: 'Ethereum Layer 2 scaling solution', icon: '🔷', category: 'Layer 2', marketCap: '$3B', symbol: 'ARB', type: 'Layer 2' },
+    { id: 'op', name: 'Optimism (OP)', description: 'Ethereum Layer 2 optimistic rollup', icon: '🔴', category: 'Layer 2', marketCap: '$2B', symbol: 'OP', type: 'Layer 2' },
+    
+    // Meme Coins
+    { id: 'doge', name: 'Dogecoin (DOGE)', description: 'The original meme cryptocurrency', icon: '🐕', category: 'Meme', marketCap: '$25B', symbol: 'DOGE', type: 'Currency' },
+    { id: 'shib', name: 'Shiba Inu (SHIB)', description: 'Ethereum-based meme token', icon: '🐕‍🦺', category: 'Meme', marketCap: '$8B', symbol: 'SHIB', type: 'Token' },
+    
+    // Privacy Coins
+    { id: 'xmr', name: 'Monero (XMR)', description: 'Privacy-focused cryptocurrency', icon: '🔒', category: 'Privacy', marketCap: '$3B', symbol: 'XMR', type: 'Currency' },
+    { id: 'zec', name: 'Zcash (ZEC)', description: 'Shielded cryptocurrency with privacy', icon: '🛡️', category: 'Privacy', marketCap: '$1B', symbol: 'ZEC', type: 'Currency' },
+    
+    // Enterprise & Institutional
+    { id: 'link', name: 'Chainlink (LINK)', description: 'Decentralized oracle network', icon: '🔗', category: 'Infrastructure', marketCap: '$12B', symbol: 'LINK', type: 'Utility' },
+    { id: 'vet', name: 'VeChain (VET)', description: 'Supply chain and business processes', icon: '✅', category: 'Enterprise', marketCap: '$3B', symbol: 'VET', type: 'Utility' },
+    { id: 'xlm', name: 'Stellar (XLM)', description: 'Cross-border payments and remittances', icon: '⭐', category: 'Payments', marketCap: '$4B', symbol: 'XLM', type: 'Currency' },
+    
+    // Gaming & NFT
+    { id: 'axs', name: 'Axie Infinity (AXS)', description: 'Play-to-earn gaming ecosystem', icon: '🎮', category: 'Gaming', marketCap: '$2B', symbol: 'AXS', type: 'Governance' },
+    { id: 'sand', name: 'The Sandbox (SAND)', description: 'Virtual world and gaming metaverse', icon: '🏖️', category: 'Metaverse', marketCap: '$1.5B', symbol: 'SAND', type: 'Utility' },
+    { id: 'mana', name: 'Decentraland (MANA)', description: 'Virtual reality platform', icon: '🌐', category: 'Metaverse', marketCap: '$1B', symbol: 'MANA', type: 'Utility' },
+  ],
+  walletTemplates: [
+    // BitcoinSV Wallets (Leading)
+    { id: 'handcash', name: 'HandCash', description: 'User-friendly BitcoinSV wallet with social features', icon: '💳', category: 'BitcoinSV', status: 'Available', features: ['Social Payments', 'Handle System', 'Instant Transactions', 'Low Fees'], supportedChains: ['BSV'], type: 'Mobile' },
+    { id: 'yours-wallet', name: 'Yours Wallet', description: 'Professional BitcoinSV wallet for businesses', icon: '👤', category: 'BitcoinSV', status: 'Available', features: ['Business Tools', 'Multi-sig', 'API Access', 'Bulk Payments'], supportedChains: ['BSV'], type: 'Web/Mobile' },
+    
+    // Multi-Chain Wallets
+    { id: 'metamask', name: 'MetaMask', description: 'Popular Ethereum and EVM wallet', icon: '🦊', category: 'Multi-Chain', status: 'Available', features: ['DeFi Access', 'NFT Support', 'dApp Browser', 'Hardware Integration'], supportedChains: ['Ethereum', 'Polygon', 'BSC', 'Avalanche'], type: 'Browser Extension' },
+    { id: 'phantom', name: 'Phantom', description: 'Leading Solana wallet with multi-chain support', icon: '👻', category: 'Multi-Chain', status: 'Available', features: ['Solana DeFi', 'NFT Gallery', 'Staking', 'Multi-chain'], supportedChains: ['Solana', 'Ethereum', 'Polygon'], type: 'Browser Extension' },
+    { id: 'trust-wallet', name: 'Trust Wallet', description: 'Binance official multi-cryptocurrency wallet', icon: '🛡️', category: 'Multi-Chain', status: 'Available', features: ['Multi-chain', 'DeFi Access', 'NFT Support', 'Staking'], supportedChains: ['Bitcoin', 'Ethereum', 'BSC', 'Solana'], type: 'Mobile' },
+    { id: 'coinbase-wallet', name: 'Coinbase Wallet', description: 'Self-custody wallet by Coinbase', icon: '🔵', category: 'Multi-Chain', status: 'Available', features: ['DeFi Access', 'NFT Support', 'Easy Onboarding', 'Recovery Phrase'], supportedChains: ['Ethereum', 'Polygon', 'Avalanche', 'BSC'], type: 'Mobile/Web' },
+    
+    // Bitcoin Wallets
+    { id: 'electrum', name: 'Electrum', description: 'Lightweight Bitcoin wallet', icon: '⚡', category: 'Bitcoin', status: 'Available', features: ['Lightweight', 'Cold Storage', 'Multi-sig', 'Hardware Support'], supportedChains: ['Bitcoin'], type: 'Desktop' },
+    { id: 'exodus', name: 'Exodus', description: 'Beautiful multi-asset wallet', icon: '🌈', category: 'Multi-Chain', status: 'Available', features: ['Portfolio Tracker', 'Built-in Exchange', 'Staking', 'NFT Support'], supportedChains: ['Bitcoin', 'Ethereum', 'Solana', 'Cardano'], type: 'Desktop/Mobile' },
+    
+    // Hardware Wallets
+    { id: 'ledger', name: 'Ledger', description: 'Hardware wallet for maximum security', icon: '🔐', category: 'Hardware', status: 'Available', features: ['Cold Storage', 'Multi-chain', 'Secure Element', 'Mobile App'], supportedChains: ['Bitcoin', 'Ethereum', 'Solana', 'Cardano'], type: 'Hardware' },
+    { id: 'trezor', name: 'Trezor', description: 'Open-source hardware wallet', icon: '🔒', category: 'Hardware', status: 'Available', features: ['Open Source', 'Cold Storage', 'Multi-chain', 'Recovery Seed'], supportedChains: ['Bitcoin', 'Ethereum', 'Litecoin', 'Cardano'], type: 'Hardware' },
+    
+    // Enterprise & Institutional
+    { id: 'privy', name: 'Privy', description: 'Embedded wallet infrastructure for apps', icon: '🔑', category: 'Enterprise', status: 'Available', features: ['Embedded Wallets', 'Social Login', 'Developer APIs', 'White-label'], supportedChains: ['Ethereum', 'Polygon', 'BSC', 'Solana'], type: 'SDK/API' },
+    { id: 'fireblocks', name: 'Fireblocks', description: 'Institutional digital asset platform', icon: '🏦', category: 'Enterprise', status: 'Available', features: ['MPC Technology', 'Compliance', 'Treasury Management', 'DeFi Access'], supportedChains: ['Bitcoin', 'Ethereum', 'Solana', 'Polygon'], type: 'Enterprise' },
+    
+    // Specialized Wallets
+    { id: 'rainbow', name: 'Rainbow', description: 'Ethereum wallet focused on DeFi and NFTs', icon: '🌈', category: 'Ethereum', status: 'Available', features: ['DeFi Portfolio', 'NFT Gallery', 'ENS Support', 'Beautiful UI'], supportedChains: ['Ethereum', 'Polygon', 'Arbitrum', 'Optimism'], type: 'Mobile' },
+    { id: 'argent', name: 'Argent', description: 'Smart contract wallet with social recovery', icon: '🛡️', category: 'Ethereum', status: 'Available', features: ['Social Recovery', 'DeFi Integration', 'No Seed Phrase', 'Guardians'], supportedChains: ['Ethereum', 'zkSync'], type: 'Mobile' },
+  ],
 }
 
 export const getOrganizationTemplates = () => readBag()?.organizationTemplates || stubs.organizationTemplates
@@ -324,5 +406,7 @@ export const getInstrumentTemplates = () => readBag()?.instrumentTemplates || st
 export const getContractTemplates = () => readBag()?.contractTemplates || stubs.contractTemplates
 export const getIntegrationTemplates = () => readBag()?.integrationTemplates || stubs.integrationTemplates
 export const getContactTemplates = () => readBag()?.contactTemplates || stubs.contactTemplates
+export const getCryptoTemplates = () => readBag()?.cryptoTemplates || stubs.cryptoTemplates
+export const getWalletTemplates = () => readBag()?.walletTemplates || stubs.walletTemplates
 
 

@@ -22,6 +22,7 @@ import 'reactflow/dist/style.css'
 import NodePalette from '@/components/NodePalette'
 import { getOrganizationTemplates, getRoleTemplates, getAgentTemplates, getInstrumentTemplates, getContractTemplates, getIntegrationTemplates, TemplateItem } from '@/data/templates'
 import { getOrganizationCanvasTemplate } from '@/data/organizationCanvasTemplates'
+import NodeEditor from '@/components/NodeEditor'
 import { DollarSign, FileText, Target, AlertTriangle, Building, Crown, UserCheck, Banknote, Plug, Split, Play, Zap, User, Workflow, Wallet } from 'lucide-react'
 
 type NodeKind = string
@@ -126,6 +127,7 @@ export default function WorkflowReactFlowCanvas({
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
   const onConnect = useCallback((params: Edge | Connection) => setEdges((eds) => addEdge({ ...params, animated: true }, eds)), [setEdges])
   const [templateModal, setTemplateModal] = useState<{ kind: string; items: TemplateItem[] } | null>(null)
+  const [editingNode, setEditingNode] = useState<Node<RFNodeData> | null>(null)
 
   const handlePick = useCallback((type: string, rf: ReturnType<typeof useReactFlow>) => {
     if (BUSINESS_KINDS.has(type)) {
@@ -158,6 +160,28 @@ export default function WorkflowReactFlowCanvas({
     setNodes((nds) => nds.concat({ id, type: 'colored', position: pos, data: { label: type.toUpperCase(), kind: type } }))
   }, [setNodes, templates])
 
+  const handleNodeDoubleClick = useCallback((event: React.MouseEvent, node: Node<RFNodeData>) => {
+    event.stopPropagation()
+    setEditingNode(node)
+  }, [])
+
+  const handleNodeSave = useCallback((nodeId: string, updates: any) => {
+    setNodes(nds => 
+      nds.map(node => 
+        node.id === nodeId 
+          ? { 
+              ...node, 
+              data: { 
+                ...node.data, 
+                ...updates,
+                label: updates.name || updates.title || node.data.label
+              }
+            }
+          : node
+      )
+    )
+  }, [setNodes])
+
   return (
     <div className="absolute inset-0">
       <ReactFlowProvider>
@@ -174,14 +198,23 @@ export default function WorkflowReactFlowCanvas({
           setNodes={setNodes}
           setEdges={setEdges}
           onTemplateSelect={onTemplateSelect}
+          onNodeDoubleClick={handleNodeDoubleClick}
+        />
+        
+        {/* Node Editor Modal */}
+        <NodeEditor
+          node={editingNode}
+          isOpen={!!editingNode}
+          onClose={() => setEditingNode(null)}
+          onSave={handleNodeSave}
         />
       </ReactFlowProvider>
     </div>
   )
 }
 
-function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick, palette, templateModal, setTemplateModal, setNodes, setEdges, onTemplateSelect }:
-  { nodes: Node<RFNodeData>[]; edges: Edge[]; onNodesChange: any; onEdgesChange: any; onConnect: any; onPick: (type: string, rf: any) => void; palette: any[]; templateModal: { kind: string; items: TemplateItem[] } | null; setTemplateModal: (v: any) => void; setNodes: any; setEdges: any; onTemplateSelect?: (template: TemplateItem) => void }) {
+function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick, palette, templateModal, setTemplateModal, setNodes, setEdges, onTemplateSelect, onNodeDoubleClick }:
+  { nodes: Node<RFNodeData>[]; edges: Edge[]; onNodesChange: any; onEdgesChange: any; onConnect: any; onPick: (type: string, rf: any) => void; palette: any[]; templateModal: { kind: string; items: TemplateItem[] } | null; setTemplateModal: (v: any) => void; setNodes: any; setEdges: any; onTemplateSelect?: (template: TemplateItem) => void; onNodeDoubleClick?: (event: React.MouseEvent, node: Node<RFNodeData>) => void }) {
   const rf = useReactFlow()
   return (
     <ReactFlow
@@ -190,6 +223,7 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
       onNodesChange={onNodesChange}
       onEdgesChange={onEdgesChange}
       onConnect={onConnect}
+      onNodeDoubleClick={onNodeDoubleClick}
       nodeTypes={nodeTypes}
       fitView
       defaultEdgeOptions={{ style: { stroke: 'rgba(255,255,255,0.7)', strokeWidth: 2 }, markerEnd: { type: MarkerType.ArrowClosed, color: 'rgba(255,255,255,0.8)' } }}

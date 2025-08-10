@@ -415,6 +415,7 @@ export default function WorkflowReactFlowCanvas({
           onTemplateSelect={onTemplateSelect}
           onNodeClick={handleNodeClick}
           onNodeDoubleClick={handleNodeDoubleClick}
+          tabTitle={tabTitle}
         />
         
         {/* Node Editor Modal */}
@@ -436,8 +437,8 @@ export default function WorkflowReactFlowCanvas({
   )
 }
 
-function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick, palette, templateModal, setTemplateModal, setNodes, setEdges, onTemplateSelect, onNodeClick, onNodeDoubleClick }:
-  { nodes: Node<RFNodeData>[]; edges: Edge[]; onNodesChange: any; onEdgesChange: any; onConnect: any; onPick: (type: string, rf: any) => void; palette: any[]; templateModal: { kind: string; items: TemplateItem[] } | null; setTemplateModal: (v: any) => void; setNodes: any; setEdges: any; onTemplateSelect?: (template: TemplateItem) => void; onNodeClick?: (event: React.MouseEvent, node: Node<RFNodeData>) => void; onNodeDoubleClick?: (event: React.MouseEvent, node: Node<RFNodeData>) => void }) {
+function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick, palette, templateModal, setTemplateModal, setNodes, setEdges, onTemplateSelect, onNodeClick, onNodeDoubleClick, tabTitle }:
+  { nodes: Node<RFNodeData>[]; edges: Edge[]; onNodesChange: any; onEdgesChange: any; onConnect: any; onPick: (type: string, rf: any) => void; palette: any[]; templateModal: { kind: string; items: TemplateItem[] } | null; setTemplateModal: (v: any) => void; setNodes: any; setEdges: any; onTemplateSelect?: (template: TemplateItem) => void; onNodeClick?: (event: React.MouseEvent, node: Node<RFNodeData>) => void; onNodeDoubleClick?: (event: React.MouseEvent, node: Node<RFNodeData>) => void; tabTitle?: string }) {
   const rf = useReactFlow()
   return (
     <ReactFlow
@@ -458,6 +459,13 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
       connectionLineStyle={{ stroke: 'rgba(255,255,255,0.6)', strokeWidth: 2 }}
     >
       <Background color="rgba(255,255,255,0.1)" />
+      {tabTitle && (
+        <Panel position="top-left" className="m-2">
+          <div className="bg-black/80 backdrop-blur-xl border border-white/20 rounded-lg px-3 py-2">
+            <div className="text-sm text-white font-medium">{tabTitle}</div>
+          </div>
+        </Panel>
+      )}
       <MiniMap pannable zoomable position="bottom-right" style={{ background: 'rgba(0,0,0,0.6)', marginRight: '8px', marginBottom: '60px' }} />
       <Controls position="bottom-right" showInteractive={false} style={{ marginRight: '8px', marginBottom: '8px' }} />
       <Panel position="top-right" className="m-2" draggable>

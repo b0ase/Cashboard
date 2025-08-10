@@ -1,0 +1,117 @@
+[
+  // Executive Leadership (5 nodes)
+  { "id": "exec1", "type": "person", "name": "CEO", "description": "Chief Executive Officer - Strategic vision and company direction", "x": 600, "y": 50, "status": "active", "connections": [], "metadata": { "department": "Executive", "role": "Leadership" } },
+  { "id": "exec2", "type": "person", "name": "CTO", "description": "Chief Technology Officer - Blockchain architecture and AI systems", "x": 400, "y": 50, "status": "active", "connections": [], "metadata": { "department": "Executive", "role": "Technology" } },
+  { "id": "exec3", "type": "person", "name": "CPO", "description": "Chief Product Officer - Product strategy and user experience", "x": 800, "y": 50, "status": "active", "connections": [], "metadata": { "department": "Executive", "role": "Product" } },
+  { "id": "exec4", "type": "person", "name": "CMO", "description": "Chief Marketing Officer - Marketing and partnerships", "x": 200, "y": 50, "status": "active", "connections": [], "metadata": { "department": "Executive", "role": "Marketing" } },
+  { "id": "exec5", "type": "person", "name": "CFO", "description": "Chief Financial Officer - Financial operations and tokenomics", "x": 1000, "y": 50, "status": "active", "connections": [], "metadata": { "department": "Executive", "role": "Finance" } },
+
+  // Blockchain Development Team (8 nodes)
+  { "id": "bc1", "type": "team", "name": "Solana Smart Contracts", "description": "Rust-based smart contract development", "x": 300, "y": 150, "status": "active", "connections": [], "metadata": { "department": "Technology", "team": "Blockchain" } },
+  { "id": "bc2", "type": "team", "name": "Web3.js Integration", "description": "Frontend blockchain integration", "x": 500, "y": 150, "status": "active", "connections": [], "metadata": { "department": "Technology", "team": "Blockchain" } },
+  { "id": "bc3", "type": "team", "name": "Metaplex NFT Framework", "description": "NFT minting and marketplace", "x": 700, "y": 150, "status": "active", "connections": [], "metadata": { "department": "Technology", "team": "Blockchain" } },
+  { "id": "bc4", "type": "system", "name": "AUDX Token Contract", "description": "Main utility token smart contract", "x": 200, "y": 200, "status": "active", "connections": [], "metadata": { "type": "Smart Contract", "blockchain": "Solana" } },
+  { "id": "bc5", "type": "system", "name": "RDST Token Contract", "description": "Royalty dividend share tokens", "x": 400, "y": 200, "status": "active", "connections": [], "metadata": { "type": "Smart Contract", "blockchain": "Solana" } },
+  { "id": "bc6", "type": "system", "name": "NFT Minting Program", "description": "Music NFT creation and metadata", "x": 600, "y": 200, "status": "active", "connections": [], "metadata": { "type": "Smart Contract", "blockchain": "Solana" } },
+  { "id": "bc7", "type": "system", "name": "Royalty Distribution", "description": "Automated royalty payments", "x": 800, "y": 200, "status": "active", "connections": [], "metadata": { "type": "Smart Contract", "blockchain": "Solana" } },
+  { "id": "bc8", "type": "system", "name": "Governance Protocol", "description": "Decentralized decision making", "x": 1000, "y": 200, "status": "active", "connections": [], "metadata": { "type": "Smart Contract", "blockchain": "Solana" } },
+
+  // AI/ML Team (7 nodes)
+  { "id": "ai1", "type": "team", "name": "AI Music Generation", "description": "Custom AI models for music creation", "x": 150, "y": 300, "status": "active", "connections": [], "metadata": { "department": "Technology", "team": "AI/ML" } },
+  { "id": "ai2", "type": "team", "name": "Audio Processing", "description": "Waveform analysis and synthesis", "x": 350, "y": 300, "status": "active", "connections": [], "metadata": { "department": "Technology", "team": "AI/ML" } },
+  { "id": "ai3", "type": "team", "name": "ML Model Training", "description": "Training and optimization of AI models", "x": 550, "y": 300, "status": "active", "connections": [], "metadata": { "department": "Technology", "team": "AI/ML" } },
+  { "id": "ai4", "type": "system", "name": "Suno AI Integration", "description": "Third-party AI music service", "x": 750, "y": 300, "status": "active", "connections": [], "metadata": { "type": "API", "service": "External" } },
+  { "id": "ai5", "type": "system", "name": "Custom AI Models", "description": "Proprietary music generation models", "x": 950, "y": 300, "status": "active", "connections": [], "metadata": { "type": "AI Model", "service": "Internal" } },
+  { "id": "ai6", "type": "system", "name": "Audio Synthesis Engine", "description": "Real-time audio generation", "x": 250, "y": 350, "status": "active", "connections": [], "metadata": { "type": "Engine", "service": "Internal" } },
+  { "id": "ai7", "type": "system", "name": "Music Recommendation", "description": "AI-powered content discovery", "x": 450, "y": 350, "status": "active", "connections": [], "metadata": { "type": "AI Model", "service": "Internal" } },
+
+  // Frontend Development (6 nodes)
+  { "id": "fe1", "type": "team", "name": "React/Next.js Developers", "description": "Web application frontend", "x": 650, "y": 350, "status": "active", "connections": [], "metadata": { "department": "Technology", "team": "Frontend" } },
+  { "id": "fe2", "type": "team", "name": "UI/UX Design Team", "description": "User interface and experience design", "x": 850, "y": 350, "status": "active", "connections": [], "metadata": { "department": "Technology", "team": "Frontend" } },
+  { "id": "fe3", "type": "team", "name": "Mobile App Developers", "description": "iOS and Android applications", "x": 1050, "y": 350, "status": "active", "connections": [], "metadata": { "department": "Technology", "team": "Frontend" } },
+  { "id": "fe4", "type": "system", "name": "Web Platform", "description": "Next.js 14 web application", "x": 750, "y": 400, "status": "active", "connections": [], "metadata": { "type": "Application", "platform": "Web" } },
+  { "id": "fe5", "type": "system", "name": "Mobile Wallet App", "description": "Hybrid wallet/music player", "x": 950, "y": 400, "status": "active", "connections": [], "metadata": { "type": "Application", "platform": "Mobile" } },
+  { "id": "fe6", "type": "system", "name": "Design System", "description": "Component library and guidelines", "x": 1150, "y": 400, "status": "active", "connections": [], "metadata": { "type": "Library", "platform": "Design" } },
+
+  // Backend Infrastructure (8 nodes)
+  { "id": "be1", "type": "team", "name": "API Development", "description": "RESTful and GraphQL APIs", "x": 100, "y": 450, "status": "active", "connections": [], "metadata": { "department": "Technology", "team": "Backend" } },
+  { "id": "be2", "type": "team", "name": "Database Architecture", "description": "PostgreSQL and Redis systems", "x": 300, "y": 450, "status": "active", "connections": [], "metadata": { "department": "Technology", "team": "Backend" } },
+  { "id": "be3", "type": "team", "name": "DevOps Engineers", "description": "Infrastructure and deployment", "x": 500, "y": 450, "status": "active", "connections": [], "metadata": { "department": "Technology", "team": "Backend" } },
+  { "id": "be4", "type": "system", "name": "PostgreSQL Database", "description": "Primary data storage", "x": 700, "y": 450, "status": "active", "connections": [], "metadata": { "type": "Database", "service": "PostgreSQL" } },
+  { "id": "be5", "type": "system", "name": "Redis Cache", "description": "High-performance caching layer", "x": 900, "y": 450, "status": "active", "connections": [], "metadata": { "type": "Cache", "service": "Redis" } },
+  { "id": "be6", "type": "system", "name": "IPFS Storage", "description": "Decentralized file storage via Pinata", "x": 1100, "y": 450, "status": "active", "connections": [], "metadata": { "type": "Storage", "service": "IPFS" } },
+  { "id": "be7", "type": "system", "name": "API Gateway", "description": "Request routing and rate limiting", "x": 200, "y": 500, "status": "active", "connections": [], "metadata": { "type": "Gateway", "service": "Internal" } },
+  { "id": "be8", "type": "system", "name": "Kafka Message Queue", "description": "Event streaming and processing", "x": 400, "y": 500, "status": "active", "connections": [], "metadata": { "type": "Queue", "service": "Apache Kafka" } },
+
+  // Security Team (5 nodes)
+  { "id": "sec1", "type": "team", "name": "Smart Contract Auditors", "description": "Blockchain security specialists", "x": 600, "y": 500, "status": "active", "connections": [], "metadata": { "department": "Technology", "team": "Security" } },
+  { "id": "sec2", "type": "team", "name": "Cybersecurity Team", "description": "Infrastructure and application security", "x": 800, "y": 500, "status": "active", "connections": [], "metadata": { "department": "Technology", "team": "Security" } },
+  { "id": "sec3", "type": "team", "name": "Penetration Testers", "description": "Security vulnerability assessment", "x": 1000, "y": 500, "status": "active", "connections": [], "metadata": { "department": "Technology", "team": "Security" } },
+  { "id": "sec4", "type": "system", "name": "Security Monitoring", "description": "Real-time threat detection", "x": 700, "y": 550, "status": "active", "connections": [], "metadata": { "type": "Monitoring", "service": "Security" } },
+  { "id": "sec5", "type": "system", "name": "Audit Reports", "description": "Security assessment documentation", "x": 900, "y": 550, "status": "active", "connections": [], "metadata": { "type": "Documentation", "service": "Security" } },
+
+  // Product Division (10 nodes)
+  { "id": "prod1", "type": "team", "name": "Platform Development", "description": "Core exchange functionality", "x": 150, "y": 600, "status": "active", "connections": [], "metadata": { "department": "Product", "team": "Platform" } },
+  { "id": "prod2", "type": "team", "name": "AI Studio Team", "description": "Music generation tools", "x": 350, "y": 600, "status": "active", "connections": [], "metadata": { "department": "Product", "team": "AI Studio" } },
+  { "id": "prod3", "type": "team", "name": "Mobile App Team", "description": "Wallet/player development", "x": 550, "y": 600, "status": "active", "connections": [], "metadata": { "department": "Product", "team": "Mobile" } },
+  { "id": "prod4", "type": "system", "name": "AUDEX Exchange", "description": "Main trading platform", "x": 750, "y": 600, "status": "active", "connections": [], "metadata": { "type": "Platform", "service": "Exchange" } },
+  { "id": "prod5", "type": "system", "name": "NFT Marketplace", "description": "Music NFT trading", "x": 950, "y": 600, "status": "active", "connections": [], "metadata": { "type": "Marketplace", "service": "NFT" } },
+  { "id": "prod6", "type": "system", "name": "AI Music Studio", "description": "Music generation interface", "x": 1150, "y": 600, "status": "active", "connections": [], "metadata": { "type": "Studio", "service": "AI" } },
+  { "id": "prod7", "type": "system", "name": "Portfolio Dashboard", "description": "User asset management", "x": 250, "y": 650, "status": "active", "connections": [], "metadata": { "type": "Dashboard", "service": "Portfolio" } },
+  { "id": "prod8", "type": "system", "name": "Analytics Platform", "description": "Market data and insights", "x": 450, "y": 650, "status": "active", "connections": [], "metadata": { "type": "Analytics", "service": "Data" } },
+  { "id": "prod9", "type": "system", "name": "Streaming Service", "description": "Music playback functionality", "x": 650, "y": 650, "status": "active", "connections": [], "metadata": { "type": "Service", "service": "Streaming" } },
+  { "id": "prod10", "type": "system", "name": "Wallet Integration", "description": "Multi-wallet support", "x": 850, "y": 650, "status": "active", "connections": [], "metadata": { "type": "Integration", "service": "Wallet" } },
+
+  // Business Development (12 nodes)
+  { "id": "biz1", "type": "team", "name": "Artist Relations", "description": "Talent acquisition and support", "x": 1050, "y": 650, "status": "active", "connections": [], "metadata": { "department": "Business", "team": "Artist Relations" } },
+  { "id": "biz2", "type": "team", "name": "Partnership Management", "description": "Strategic alliance development", "x": 100, "y": 700, "status": "active", "connections": [], "metadata": { "department": "Business", "team": "Partnerships" } },
+  { "id": "biz3", "type": "team", "name": "Institutional Sales", "description": "B2B client acquisition", "x": 300, "y": 700, "status": "active", "connections": [], "metadata": { "department": "Business", "team": "Sales" } },
+  { "id": "biz4", "type": "partner", "name": "Record Labels", "description": "Major and independent labels", "x": 500, "y": 700, "status": "active", "connections": [], "metadata": { "type": "Partner", "category": "Music Industry" } },
+  { "id": "biz5", "type": "partner", "name": "Music Distributors", "description": "Digital distribution platforms", "x": 700, "y": 700, "status": "active", "connections": [], "metadata": { "type": "Partner", "category": "Distribution" } },
+  { "id": "biz6", "type": "partner", "name": "Streaming Platforms", "description": "Spotify, Apple Music integrations", "x": 900, "y": 700, "status": "active", "connections": [], "metadata": { "type": "Partner", "category": "Streaming" } },
+  { "id": "biz7", "type": "partner", "name": "Solana Foundation", "description": "Blockchain infrastructure partner", "x": 1100, "y": 700, "status": "active", "connections": [], "metadata": { "type": "Partner", "category": "Technology" } },
+  { "id": "biz8", "type": "partner", "name": "Metaplex", "description": "NFT framework provider", "x": 200, "y": 750, "status": "active", "connections": [], "metadata": { "type": "Partner", "category": "Technology" } },
+  { "id": "biz9", "type": "partner", "name": "Pinata IPFS", "description": "Decentralized storage provider", "x": 400, "y": 750, "status": "active", "connections": [], "metadata": { "type": "Partner", "category": "Infrastructure" } },
+  { "id": "biz10", "type": "partner", "name": "VC Funds", "description": "Venture capital investors", "x": 600, "y": 750, "status": "active", "connections": [], "metadata": { "type": "Partner", "category": "Investment" } },
+  { "id": "biz11", "type": "partner", "name": "Music Festivals", "description": "Event and promotion partners", "x": 800, "y": 750, "status": "active", "connections": [], "metadata": { "type": "Partner", "category": "Events" } },
+  { "id": "biz12", "type": "partner", "name": "Artist Managers", "description": "Talent management companies", "x": 1000, "y": 750, "status": "active", "connections": [], "metadata": { "type": "Partner", "category": "Management" } },
+
+  // Operations (8 nodes)
+  { "id": "ops1", "type": "team", "name": "Community Management", "description": "Discord and social media", "x": 150, "y": 800, "status": "active", "connections": [], "metadata": { "department": "Operations", "team": "Community" } },
+  { "id": "ops2", "type": "team", "name": "Customer Support", "description": "User assistance and education", "x": 350, "y": 800, "status": "active", "connections": [], "metadata": { "department": "Operations", "team": "Support" } },
+  { "id": "ops3", "type": "team", "name": "Legal & Compliance", "description": "Regulatory and IP management", "x": 550, "y": 800, "status": "active", "connections": [], "metadata": { "department": "Operations", "team": "Legal" } },
+  { "id": "ops4", "type": "team", "name": "Finance & Accounting", "description": "Treasury and financial reporting", "x": 750, "y": 800, "status": "active", "connections": [], "metadata": { "department": "Operations", "team": "Finance" } },
+  { "id": "ops5", "type": "system", "name": "Discord Server", "description": "Community hub and support", "x": 950, "y": 800, "status": "active", "connections": [], "metadata": { "type": "Platform", "service": "Community" } },
+  { "id": "ops6", "type": "system", "name": "Help Desk", "description": "Ticketing and support system", "x": 1150, "y": 800, "status": "active", "connections": [], "metadata": { "type": "System", "service": "Support" } },
+  { "id": "ops7", "type": "system", "name": "Legal Database", "description": "Contracts and compliance tracking", "x": 250, "y": 850, "status": "active", "connections": [], "metadata": { "type": "Database", "service": "Legal" } },
+  { "id": "ops8", "type": "system", "name": "Treasury Management", "description": "Multi-sig wallets and reserves", "x": 450, "y": 850, "status": "active", "connections": [], "metadata": { "type": "Treasury", "service": "Finance" } },
+
+  // Revenue Streams (15 nodes)
+  { "id": "rev1", "type": "revenue", "name": "Trading Fees", "description": "2-3% on NFT and token trades", "x": 650, "y": 850, "status": "active", "connections": [], "metadata": { "type": "Fee", "percentage": "2-3%" } },
+  { "id": "rev2", "type": "revenue", "name": "Minting Fees", "description": "Service fees for NFT creation", "x": 850, "y": 850, "status": "active", "connections": [], "metadata": { "type": "Fee", "service": "Minting" } },
+  { "id": "rev3", "type": "revenue", "name": "Premium Features", "description": "Advanced analytics and tools", "x": 1050, "y": 850, "status": "active", "connections": [], "metadata": { "type": "Subscription", "service": "Premium" } },
+  { "id": "rev4", "type": "revenue", "name": "Partnership Revenue", "description": "Revenue sharing with partners", "x": 100, "y": 900, "status": "active", "connections": [], "metadata": { "type": "Revenue Share", "service": "Partnerships" } },
+  { "id": "rev5", "type": "revenue", "name": "AUDX Token Sales", "description": "Initial and ongoing token distribution", "x": 300, "y": 900, "status": "active", "connections": [], "metadata": { "type": "Token Sale", "token": "AUDX" } },
+  { "id": "rev6", "type": "revenue", "name": "Royalty Commissions", "description": "Percentage of royalty distributions", "x": 500, "y": 900, "status": "active", "connections": [], "metadata": { "type": "Commission", "service": "Royalties" } },
+  { "id": "rev7", "type": "revenue", "name": "API Licensing", "description": "Third-party integration fees", "x": 700, "y": 900, "status": "active", "connections": [], "metadata": { "type": "License", "service": "API" } },
+  { "id": "rev8", "type": "revenue", "name": "White Label Solutions", "description": "Platform licensing to other companies", "x": 900, "y": 900, "status": "active", "connections": [], "metadata": { "type": "License", "service": "Platform" } },
+  { "id": "rev9", "type": "revenue", "name": "Data Analytics Sales", "description": "Market insights and reports", "x": 1100, "y": 900, "status": "active", "connections": [], "metadata": { "type": "Data Sales", "service": "Analytics" } },
+  { "id": "rev10", "type": "revenue", "name": "Advertising Revenue", "description": "Platform advertising placements", "x": 200, "y": 950, "status": "active", "connections": [], "metadata": { "type": "Advertising", "service": "Platform" } },
+  { "id": "rev11", "type": "revenue", "name": "Staking Rewards", "description": "AUDX token staking incentives", "x": 400, "y": 950, "status": "active", "connections": [], "metadata": { "type": "Staking", "token": "AUDX" } },
+  { "id": "rev12", "type": "revenue", "name": "NFT Marketplace Fees", "description": "Secondary market transaction fees", "x": 600, "y": 950, "status": "active", "connections": [], "metadata": { "type": "Marketplace Fee", "service": "NFT" } },
+  { "id": "rev13", "type": "revenue", "name": "AI Studio Subscriptions", "description": "Tiered access to AI music tools", "x": 800, "y": 950, "status": "active", "connections": [], "metadata": { "type": "Subscription", "service": "AI Studio" } },
+  { "id": "rev14", "type": "revenue", "name": "Cross-Chain Fees", "description": "Multi-blockchain bridge services", "x": 1000, "y": 950, "status": "active", "connections": [], "metadata": { "type": "Bridge Fee", "service": "Cross-Chain" } },
+  { "id": "rev15", "type": "revenue", "name": "Governance Fees", "description": "DAO participation and voting fees", "x": 150, "y": 1000, "status": "active", "connections": [], "metadata": { "type": "Governance Fee", "service": "DAO" } },
+
+  // Token Economics (10 nodes)
+  { "id": "token1", "type": "currency", "name": "AUDX Token", "description": "Primary utility token (1B supply)", "x": 350, "y": 1000, "status": "active", "connections": [], "metadata": { "type": "Utility Token", "supply": "1,000,000,000" } },
+  { "id": "token2", "type": "currency", "name": "RDST Tokens", "description": "Royalty dividend share tokens", "x": 550, "y": 1000, "status": "active", "connections": [], "metadata": { "type": "Dividend Token", "supply": "Variable" } },
+  { "id": "token3", "type": "wallet", "name": "Community Rewards", "description": "40% AUDX allocation", "x": 750, "y": 1000, "status": "active", "connections": [], "metadata": { "allocation": "40%", "purpose": "Community" } },
+  { "id": "token4", "type": "wallet", "name": "Team & Advisors", "description": "25% AUDX allocation (vested)", "x": 950, "y": 1000, "status": "active", "connections": [], "metadata": { "allocation": "25%", "vesting": "Yes" } },
+  { "id": "token5", "type": "wallet", "name": "Public Sale", "description": "20% AUDX allocation", "x": 1150, "y": 1000, "status": "active", "connections": [], "metadata": { "allocation": "20%", "purpose": "Public Sale" } },
+  { "id": "token6", "type": "wallet", "name": "Development Fund", "description": "10% AUDX allocation", "x": 250, "y": 1050, "status": "active", "connections": [], "metadata": { "allocation": "10%", "purpose": "Development" } },
+  { "id": "token7", "type": "wallet", "name": "Strategic Partners", "description": "5% AUDX allocation", "x": 450, "y": 1050, "status": "active", "connections": [], "metadata": { "allocation": "5%", "purpose": "Partnerships" } },
+  { "id": "token8", "type": "system", "name": "Staking Protocol", "description": "AUDX token staking mechanism", "x": 650, "y": 1050, "status": "active", "connections": [], "metadata": { "type": "Protocol", "service": "Staking" } },
+  { "id": "token9", "type": "system", "name": "Governance DAO", "description": "Decentralized decision making", "x": 850, "y": 1050, "status": "active", "connections": [], "metadata": { "type": "DAO", "service": "Governance" } },
+  { "id": "token10", "type": "system", "name": "Treasury Vault", "description": "Multi-sig treasury management", "x": 1050, "y": 1050, "status": "active", "connections": [], "metadata": { "type": "Treasury", "service": "Multi-sig" } }
+]

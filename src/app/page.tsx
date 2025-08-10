@@ -1011,8 +1011,8 @@ export default function Dashboard() {
     workflows: [
       {
         id: '1',
-        name: 'Example Workflow',
-        description: 'YouTube ad revenue → split 70/20/10 → distribute dividends; ops and reserve allocations',
+        name: 'Example Organisation Workflow: AUDEX',
+        description: 'Complete AUDEX Corporation organizational structure with 100 nodes covering executive leadership, technology divisions, business operations, partnerships, and revenue streams',
         nodes: [
           { id: 'n1', type: 'youtube', name: 'YouTube Ad Revenue', description: 'AdSense receipts for AUDEX channel', x: 100, y: 120, status: 'active', connections: [], metadata: { mediaType: 'channel', channelId: 'UCxxxxxxxxxxxxxxxx' } },
           { id: 'n2', type: 'splitter', name: 'Split 70/20/10', description: 'Revenue allocation', x: 380, y: 120, status: 'active', connections: [], metadata: { percentages: { royaltyPool: 70, ops: 20, reserve: 10 } } },
@@ -4530,7 +4530,7 @@ function WorkflowsView({
             <div
               key={workflow.id}
               className={`bg-black/40 backdrop-blur-xl border rounded-xl p-6 hover:bg-black/60 transition-all duration-200 cursor-pointer group ${
-                workflow.name === 'Example Workflow' 
+                workflow.name === 'Example Organisation Workflow: AUDEX' 
                   ? 'border-gradient-demo animate-pulse-glow shadow-2xl shadow-blue-500/20' 
                   : 'border-white/20'
               } ${

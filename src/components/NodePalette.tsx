@@ -163,6 +163,7 @@ export function NodePalette({
         userSelect: 'none',
         willChange: isDragging ? 'transform' : 'auto'
       }}
+
     >
       <div 
         className="flex items-center justify-between mb-2 cursor-grab active:cursor-grabbing hover:bg-white/5 p-2 -m-2 mb-0 rounded transition-colors"

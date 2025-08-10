@@ -2,7 +2,21 @@
 // arrays exposed by the app (assigned to window.__templates in page.tsx).
 // They fall back to small stubs in dev if not present.
 
-export type TemplateItem = { id?: string; name: string; description?: string; icon?: string; country?: string; type?: string; code?: string; size?: string; category?: string }
+export type TemplateItem = { 
+  id?: string; 
+  name: string; 
+  description?: string; 
+  icon?: string; 
+  country?: string; 
+  type?: string; 
+  code?: string; 
+  size?: string; 
+  category?: string;
+  status?: string;
+  features?: string[];
+  lastSync?: string;
+  defaultDuration?: number;
+}
 
 type TemplateBag = {
   organizationTemplates?: TemplateItem[]
@@ -181,40 +195,117 @@ const stubs = {
     { name: 'Software License', description: 'utility • Rights — Supply: 1,000,000', icon: '💻' },
   ],
   contractTemplates: [
-    { id: 'service-agreement', name: 'Service Agreement', description: 'Standard service delivery contract', icon: '📋', defaultDuration: 12 },
-    { id: 'employment-contract', name: 'Employment Contract', description: 'Employee hiring agreement', icon: '👤', defaultDuration: 24 },
-    { id: 'partnership-agreement', name: 'Partnership Agreement', description: 'Business partnership contract', icon: '🤝', defaultDuration: 36 },
-    { id: 'licensing-agreement', name: 'Licensing Agreement', description: 'IP licensing contract', icon: '📜', defaultDuration: 12 },
-    { id: 'nda', name: 'NDA', description: 'Non-disclosure agreement', icon: '🔒', defaultDuration: 24 },
-    { id: 'consulting-agreement', name: 'Consulting Agreement', description: 'Professional consulting contract', icon: '💼', defaultDuration: 6 },
-    { id: 'vendor-agreement', name: 'Vendor Agreement', description: 'Supplier/vendor contract', icon: '🏪', defaultDuration: 12 },
-    { id: 'investment-contract', name: 'Investment Contract', description: 'Investment agreement with terms', icon: '💰', defaultDuration: 60 },
-    { id: 'software-dev-agreement', name: 'Software Development Agreement', description: 'Custom software development contract', icon: '💻', defaultDuration: 6 },
-    { id: 'marketing-services', name: 'Marketing Services Contract', description: 'Digital marketing and advertising services', icon: '📈', defaultDuration: 12 },
-    { id: 'construction-contract', name: 'Construction Contract', description: 'Building and construction services', icon: '🏗️', defaultDuration: 18 },
-    { id: 'maintenance-agreement', name: 'Maintenance Agreement', description: 'Ongoing maintenance and support services', icon: '🔧', defaultDuration: 24 },
-    { id: 'freelance-agreement', name: 'Freelance Agreement', description: 'Independent contractor agreement', icon: '👨‍💻', defaultDuration: 3 },
-    { id: 'executive-employment', name: 'Executive Employment', description: 'Senior executive employment contract', icon: '👔', defaultDuration: 36 },
-    { id: 'internship-agreement', name: 'Internship Agreement', description: 'Student internship contract', icon: '🎓', defaultDuration: 3 },
-    { id: 'remote-work-agreement', name: 'Remote Work Agreement', description: 'Remote work employment contract', icon: '🌐', defaultDuration: 12 },
-    { id: 'joint-venture', name: 'Joint Venture Agreement', description: 'Business joint venture partnership', icon: '🏢', defaultDuration: 24 },
-    { id: 'distribution-agreement', name: 'Distribution Agreement', description: 'Product distribution partnership', icon: '🚚', defaultDuration: 18 },
-    { id: 'franchise-agreement', name: 'Franchise Agreement', description: 'Business franchise contract', icon: '🍔', defaultDuration: 60 },
-    { id: 'supply-chain', name: 'Supply Chain Agreement', description: 'Supply chain management contract', icon: '📦', defaultDuration: 24 },
-    { id: 'software-license', name: 'Software License', description: 'Software licensing agreement', icon: '⚙️', defaultDuration: 12 },
-    { id: 'music-licensing', name: 'Music Licensing', description: 'Music and audio licensing contract', icon: '🎵', defaultDuration: 6 },
-    { id: 'patent-license', name: 'Patent License', description: 'Patent licensing agreement', icon: '🔬', defaultDuration: 36 },
-    { id: 'trademark-license', name: 'Trademark License', description: 'Trademark usage licensing', icon: '™️', defaultDuration: 24 },
-    { id: 'mutual-nda', name: 'Mutual NDA', description: 'Bilateral non-disclosure agreement', icon: '🤐', defaultDuration: 12 },
-    { id: 'employee-nda', name: 'Employee NDA', description: 'Employee confidentiality agreement', icon: '🔐', defaultDuration: 60 },
-    { id: 'vendor-nda', name: 'Vendor NDA', description: 'Third-party vendor confidentiality', icon: '🛡️', defaultDuration: 18 },
-    { id: 'it-consulting', name: 'IT Consulting', description: 'Information technology consulting', icon: '🖥️', defaultDuration: 6 },
-    { id: 'management-consulting', name: 'Management Consulting', description: 'Business management consulting', icon: '📊', defaultDuration: 9 },
-    { id: 'legal-consulting', name: 'Legal Consulting', description: 'Legal advisory services', icon: '⚖️', defaultDuration: 12 },
-    { id: 'financial-consulting', name: 'Financial Consulting', description: 'Financial advisory and planning', icon: '💹', defaultDuration: 6 },
-    { id: 'equipment-lease', name: 'Equipment Lease', description: 'Equipment leasing agreement', icon: '🏭', defaultDuration: 36 },
+    // Service Contracts
+    { id: 'service-agreement', name: 'Service Agreement', description: 'Standard service delivery contract', icon: '📋', category: 'Service Contracts', defaultDuration: 12 },
+    { id: 'consulting-agreement', name: 'Consulting Agreement', description: 'Professional consulting contract', icon: '💼', category: 'Service Contracts', defaultDuration: 6 },
+    { id: 'maintenance-agreement', name: 'Maintenance Agreement', description: 'Ongoing maintenance and support services', icon: '🔧', category: 'Service Contracts', defaultDuration: 24 },
+    { id: 'it-consulting', name: 'IT Consulting', description: 'Information technology consulting', icon: '🖥️', category: 'Service Contracts', defaultDuration: 6 },
+    { id: 'management-consulting', name: 'Management Consulting', description: 'Business management consulting', icon: '📊', category: 'Service Contracts', defaultDuration: 9 },
+    { id: 'legal-consulting', name: 'Legal Consulting', description: 'Legal advisory services', icon: '⚖️', category: 'Service Contracts', defaultDuration: 12 },
+    { id: 'financial-consulting', name: 'Financial Consulting', description: 'Financial advisory and planning', icon: '💹', category: 'Service Contracts', defaultDuration: 6 },
+    
+    // Employment Contracts
+    { id: 'employment-contract', name: 'Employment Contract', description: 'Employee hiring agreement', icon: '👤', category: 'Employment', defaultDuration: 24 },
+    { id: 'freelance-agreement', name: 'Freelance Agreement', description: 'Independent contractor agreement', icon: '👨‍💻', category: 'Employment', defaultDuration: 3 },
+    { id: 'executive-employment', name: 'Executive Employment', description: 'Senior executive employment contract', icon: '👔', category: 'Employment', defaultDuration: 36 },
+    { id: 'internship-agreement', name: 'Internship Agreement', description: 'Student internship contract', icon: '🎓', category: 'Employment', defaultDuration: 3 },
+    { id: 'remote-work-agreement', name: 'Remote Work Agreement', description: 'Remote work employment contract', icon: '🌐', category: 'Employment', defaultDuration: 12 },
+    
+    // Business Partnerships
+    { id: 'partnership-agreement', name: 'Partnership Agreement', description: 'Business partnership contract', icon: '🤝', category: 'Business Partnerships', defaultDuration: 36 },
+    { id: 'joint-venture', name: 'Joint Venture Agreement', description: 'Business joint venture partnership', icon: '🏢', category: 'Business Partnerships', defaultDuration: 24 },
+    { id: 'franchise-agreement', name: 'Franchise Agreement', description: 'Business franchise contract', icon: '🍔', category: 'Business Partnerships', defaultDuration: 60 },
+    
+    // Intellectual Property & Licensing
+    { id: 'licensing-agreement', name: 'Licensing Agreement', description: 'IP licensing contract', icon: '📜', category: 'Intellectual Property', defaultDuration: 12 },
+    { id: 'software-license', name: 'Software License', description: 'Software licensing agreement', icon: '⚙️', category: 'Intellectual Property', defaultDuration: 12 },
+    { id: 'music-licensing', name: 'Music Licensing', description: 'Music and audio licensing contract', icon: '🎵', category: 'Intellectual Property', defaultDuration: 6 },
+    { id: 'patent-license', name: 'Patent License', description: 'Patent licensing agreement', icon: '🔬', category: 'Intellectual Property', defaultDuration: 36 },
+    { id: 'trademark-license', name: 'Trademark License', description: 'Trademark usage licensing', icon: '™️', category: 'Intellectual Property', defaultDuration: 24 },
+    
+    // Confidentiality Agreements
+    { id: 'nda', name: 'NDA', description: 'Non-disclosure agreement', icon: '🔒', category: 'Confidentiality', defaultDuration: 24 },
+    { id: 'mutual-nda', name: 'Mutual NDA', description: 'Bilateral non-disclosure agreement', icon: '🤐', category: 'Confidentiality', defaultDuration: 12 },
+    { id: 'employee-nda', name: 'Employee NDA', description: 'Employee confidentiality agreement', icon: '🔐', category: 'Confidentiality', defaultDuration: 60 },
+    { id: 'vendor-nda', name: 'Vendor NDA', description: 'Third-party vendor confidentiality', icon: '🛡️', category: 'Confidentiality', defaultDuration: 18 },
+    
+    // Procurement & Supply
+    { id: 'vendor-agreement', name: 'Vendor Agreement', description: 'Supplier/vendor contract', icon: '🏪', category: 'Procurement', defaultDuration: 12 },
+    { id: 'supply-chain', name: 'Supply Chain Agreement', description: 'Supply chain management contract', icon: '📦', category: 'Procurement', defaultDuration: 24 },
+    { id: 'equipment-lease', name: 'Equipment Lease', description: 'Equipment leasing agreement', icon: '🏭', category: 'Procurement', defaultDuration: 36 },
+    
+    // Distribution & Sales
+    { id: 'distribution-agreement', name: 'Distribution Agreement', description: 'Product distribution partnership', icon: '🚚', category: 'Distribution', defaultDuration: 18 },
+    
+    // Financial & Investment
+    { id: 'investment-contract', name: 'Investment Contract', description: 'Investment agreement with terms', icon: '💰', category: 'Investment', defaultDuration: 60 },
+    
+    // Technology & Development
+    { id: 'software-dev-agreement', name: 'Software Development Agreement', description: 'Custom software development contract', icon: '💻', category: 'Technology', defaultDuration: 6 },
+    
+    // Marketing & Advertising
+    { id: 'marketing-services', name: 'Marketing Services Contract', description: 'Digital marketing and advertising services', icon: '📈', category: 'Marketing', defaultDuration: 12 },
+    
+    // Construction & Infrastructure
+    { id: 'construction-contract', name: 'Construction Contract', description: 'Building and construction services', icon: '🏗️', category: 'Construction', defaultDuration: 18 },
   ],
   integrationTemplates: [
+    // CRM & Sales Platforms
+    { id: 'salesforce', name: 'Salesforce', description: 'Customer relationship management platform', icon: '🟦', category: 'CRM & Sales', status: 'Connected', features: ['Contact Sync', 'Deal Tracking', 'Revenue Analytics'], lastSync: '2 minutes ago', defaultDuration: 12 },
+    { id: 'hubspot', name: 'HubSpot', description: 'Inbound marketing and sales platform', icon: '🟧', category: 'CRM & Sales', status: 'Available', features: ['Lead Management', 'Email Marketing', 'Analytics'], defaultDuration: 12 },
+    { id: 'pipedrive', name: 'Pipedrive', description: 'Sales pipeline management', icon: '🔴', category: 'CRM & Sales', status: 'Available', features: ['Pipeline Management', 'Activity Tracking', 'Forecasting'], defaultDuration: 12 },
+    
+    // Spreadsheets & Data
+    { id: 'google-sheets', name: 'Google Sheets', description: 'Cloud-based spreadsheet application', icon: '🟢', category: 'Spreadsheets & Data', status: 'Connected', features: ['Real-time Sync', 'Formula Support', 'Collaboration'], lastSync: '5 minutes ago', defaultDuration: 12 },
+    { id: 'microsoft-excel', name: 'Microsoft Excel', description: 'Desktop spreadsheet application', icon: '🟦', category: 'Spreadsheets & Data', status: 'Available', features: ['Advanced Formulas', 'Data Analysis', 'Charts'], defaultDuration: 12 },
+    { id: 'airtable', name: 'Airtable', description: 'Database-spreadsheet hybrid', icon: '🟣', category: 'Spreadsheets & Data', status: 'Available', features: ['Database Views', 'Automations', 'API Access'], defaultDuration: 12 },
+    
+    // Content Management
+    { id: 'wordpress', name: 'WordPress', description: 'Content management system', icon: '🔵', category: 'Content Management', status: 'Connected', features: ['Content Sync', 'User Management', 'Plugin Support'], lastSync: '1 hour ago', defaultDuration: 12 },
+    
+    // E-commerce
+    { id: 'shopify', name: 'Shopify', description: 'E-commerce platform', icon: '🟢', category: 'E-commerce', status: 'Available', features: ['Product Management', 'Order Processing', 'Analytics'], defaultDuration: 12 },
+    { id: 'woocommerce', name: 'WooCommerce', description: 'WordPress e-commerce plugin', icon: '🟠', category: 'E-commerce', status: 'Available', features: ['Product Catalog', 'Payment Processing', 'Inventory'], defaultDuration: 12 },
+    
+    // Payment Processing
+    { id: 'stripe', name: 'Stripe', description: 'Payment processing platform', icon: '💳', category: 'Payment Processing', status: 'Connected', features: ['Payment Processing', 'Subscription Management', 'Analytics'], lastSync: 'Real-time', defaultDuration: 12 },
+    { id: 'paypal', name: 'PayPal', description: 'Digital payment platform', icon: '🔵', category: 'Payment Processing', status: 'Available', features: ['Payment Gateway', 'Business Accounts', 'Mobile Payments'], defaultDuration: 12 },
+    { id: 'square', name: 'Square', description: 'Point of sale and payment processing', icon: '🟢', category: 'Payment Processing', status: 'Available', features: ['POS System', 'Payment Processing', 'Inventory Management'], defaultDuration: 12 },
+    
+    // Team Communication
+    { id: 'slack', name: 'Slack', description: 'Team communication platform', icon: '🟣', category: 'Team Communication', status: 'Connected', features: ['Channel Management', 'Bot Integration', 'File Sharing'], lastSync: 'Real-time', defaultDuration: 12 },
+    { id: 'microsoft-teams', name: 'Microsoft Teams', description: 'Collaboration and communication platform', icon: '🔵', category: 'Team Communication', status: 'Available', features: ['Video Calls', 'File Collaboration', 'App Integration'], defaultDuration: 12 },
+    { id: 'discord', name: 'Discord', description: 'Voice and text communication', icon: '🟣', category: 'Team Communication', status: 'Available', features: ['Voice Channels', 'Bot Support', 'Server Management'], defaultDuration: 12 },
+    
+    // Social Media
+    { id: 'instagram', name: 'Instagram', description: 'Photo and video sharing social network', icon: '📸', category: 'Social Media', status: 'Available', features: ['Post Publishing', 'Story Management', 'Analytics', 'DM Automation'], defaultDuration: 12 },
+    { id: 'twitter-x', name: 'Twitter/X', description: 'Microblogging and social networking', icon: '🐦', category: 'Social Media', status: 'Available', features: ['Tweet Scheduling', 'Thread Management', 'Analytics', 'DM Automation'], defaultDuration: 12 },
+    { id: 'facebook', name: 'Facebook', description: 'Social networking platform', icon: '📘', category: 'Social Media', status: 'Available', features: ['Page Management', 'Post Scheduling', 'Ad Management', 'Analytics'], defaultDuration: 12 },
+    { id: 'linkedin', name: 'LinkedIn', description: 'Professional networking platform', icon: '💼', category: 'Social Media', status: 'Available', features: ['Profile Management', 'Content Publishing', 'Connection Management', 'Analytics'], defaultDuration: 12 },
+    { id: 'tiktok', name: 'TikTok', description: 'Short-form video sharing platform', icon: '🎵', category: 'Social Media', status: 'Available', features: ['Video Publishing', 'Trend Analysis', 'Analytics', 'Comment Management'], defaultDuration: 12 },
+    { id: 'youtube', name: 'YouTube', description: 'Video sharing and streaming platform', icon: '📺', category: 'Social Media', status: 'Available', features: ['Video Upload', 'Channel Management', 'Analytics', 'Comment Moderation'], defaultDuration: 12 },
+    { id: 'snapchat', name: 'Snapchat', description: 'Multimedia messaging and stories', icon: '👻', category: 'Social Media', status: 'Available', features: ['Snap Publishing', 'Story Management', 'Ad Management', 'Analytics'], defaultDuration: 12 },
+    { id: 'threads', name: 'Threads', description: 'Text-based conversation platform', icon: '🧵', category: 'Social Media', status: 'Available', features: ['Thread Publishing', 'Community Management', 'Analytics', 'Cross-posting'], defaultDuration: 12 },
+    { id: 'reddit', name: 'Reddit', description: 'Social news aggregation and discussion', icon: '🔴', category: 'Social Media', status: 'Available', features: ['Post Management', 'Community Engagement', 'Moderation Tools', 'Analytics'], defaultDuration: 12 },
+    
+    // Messaging Platforms
+    { id: 'telegram', name: 'Telegram', description: 'Cloud-based messaging platform', icon: '✈️', category: 'Messaging', status: 'Available', features: ['Channel Management', 'Bot Integration', 'Message Broadcasting', 'Analytics'], defaultDuration: 12 },
+    { id: 'whatsapp-business', name: 'WhatsApp Business', description: 'Business messaging platform', icon: '💚', category: 'Messaging', status: 'Available', features: ['Message Automation', 'Customer Support', 'Broadcast Lists', 'Analytics'], defaultDuration: 12 },
+    
+    // AI & Machine Learning
+    { id: 'openai', name: 'OpenAI', description: 'Advanced AI models and GPT services', icon: '🤖', category: 'AI & Machine Learning', status: 'Available', features: ['Text Generation', 'Code Completion', 'Image Analysis', 'API Integration'], defaultDuration: 12 },
+    { id: 'anthropic', name: 'Anthropic', description: 'Claude AI assistant and language models', icon: '🧠', category: 'AI & Machine Learning', status: 'Available', features: ['Conversational AI', 'Content Creation', 'Analysis', 'Reasoning'], defaultDuration: 12 },
+    { id: 'eleven-labs', name: 'Eleven Labs', description: 'AI voice generation and cloning', icon: '🎤', category: 'AI & Machine Learning', status: 'Available', features: ['Voice Synthesis', 'Voice Cloning', 'Multiple Languages', 'API Access'], defaultDuration: 12 },
+    { id: 'midjourney', name: 'MidJourney', description: 'AI-powered image generation', icon: '🎨', category: 'AI & Machine Learning', status: 'Available', features: ['Image Generation', 'Style Transfer', 'Upscaling', 'Variations'], defaultDuration: 12 },
+    { id: 'stability-ai', name: 'Stability AI', description: 'Stable Diffusion and image AI models', icon: '🖼️', category: 'AI & Machine Learning', status: 'Available', features: ['Image Generation', 'Inpainting', 'Outpainting', 'Model Fine-tuning'], defaultDuration: 12 },
+    { id: 'runway-ml', name: 'Runway ML', description: 'AI-powered video and creative tools', icon: '🎬', category: 'AI & Machine Learning', status: 'Available', features: ['Video Generation', 'Background Removal', 'Motion Tracking', 'Style Transfer'], defaultDuration: 12 },
+    { id: 'replicate', name: 'Replicate', description: 'Platform for running AI models', icon: '🔄', category: 'AI & Machine Learning', status: 'Available', features: ['Model Hosting', 'API Access', 'Custom Models', 'Scaling'], defaultDuration: 12 },
+    { id: 'hugging-face', name: 'Hugging Face', description: 'Open-source AI model hub', icon: '🤗', category: 'AI & Machine Learning', status: 'Available', features: ['Model Repository', 'Transformers', 'Datasets', 'Inference API'], defaultDuration: 12 },
+    { id: 'cohere', name: 'Cohere', description: 'Language AI platform for enterprises', icon: '🔗', category: 'AI & Machine Learning', status: 'Available', features: ['Text Generation', 'Classification', 'Embeddings', 'Search'], defaultDuration: 12 },
+    { id: 'perplexity', name: 'Perplexity', description: 'AI-powered search and research', icon: '🔍', category: 'AI & Machine Learning', status: 'Available', features: ['AI Search', 'Research Assistant', 'Source Citations', 'Real-time Data'], defaultDuration: 12 },
+    { id: 'veo3', name: 'Veo3', description: 'Advanced AI video generation', icon: '📹', category: 'AI & Machine Learning', status: 'Available', features: ['Video Generation', 'Scene Creation', 'Character Animation', 'Style Control'], defaultDuration: 12 },
+    
+    // Legacy Integration Templates (keeping some for backward compatibility)
     { name: 'DocuSign', icon: '✍️' },
     { name: 'Payment Gateway', icon: '💳' },
     { name: 'Email Notifications', icon: '📧' },

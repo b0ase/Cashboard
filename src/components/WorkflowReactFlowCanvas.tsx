@@ -81,6 +81,7 @@ const PALETTE = [
   { type: 'instrument', name: 'Instruments', category: 'Business' },
   { type: 'wallets', name: 'Wallets', category: 'Business' },
   { type: 'contract', name: 'Contract', category: 'Business' },
+  { type: 'integration', name: 'Integrations', category: 'Business' },
   // Integration
   { type: 'youtube', name: 'YouTube', category: 'Integration' },
   { type: 'api', name: 'API Call', category: 'Integration' },
@@ -92,7 +93,7 @@ const PALETTE = [
   { type: 'trigger', name: 'Trigger', category: 'Logic' },
 ]
 
-const BUSINESS_KINDS = new Set(['workflow','organization','role','ai-agent','member','instrument','wallets','contract'])
+const BUSINESS_KINDS = new Set(['workflow','organization','role','ai-agent','member','instrument','wallets','contract','integration'])
 
 
 
@@ -284,11 +285,29 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
                     <div className="flex-1">
                       <div className="text-white text-sm font-medium">{it.name}</div>
                       <div className="text-xs text-gray-400">
-                        {it.country} • {it.type}
+                        {it.country && it.type ? `${it.country} • ${it.type}` : 
+                         it.category ? `${it.category}` : 
+                         'Integration'}
                       </div>
+                      {(it as any).status && (
+                        <div className={`text-xs mt-1 ${(it as any).status === 'Connected' ? 'text-green-400' : 'text-yellow-400'}`}>
+                          {(it as any).status} {(it as any).lastSync && `• Last sync: ${(it as any).lastSync}`}
+                        </div>
+                      )}
                     </div>
                   </div>
                   {it.description && <div className="text-xs text-gray-300 mb-2">{it.description}</div>}
+                  {(it as any).features && (
+                    <div className="text-xs text-blue-300 mb-2">
+                      Features: {(it as any).features.slice(0, 3).join(', ')}
+                      {(it as any).features.length > 3 && '...'}
+                    </div>
+                  )}
+                  {(it as any).defaultDuration && (
+                    <div className="text-xs text-amber-300 mb-2">
+                      Default: {(it as any).defaultDuration} months
+                    </div>
+                  )}
                   {it.code && <div className="text-xs text-blue-400">{it.code}</div>}
                   {it.size && <div className="text-xs text-gray-500 capitalize">{it.size}</div>}
                   <div className="mt-2 text-xs text-green-400">Click to create →</div>

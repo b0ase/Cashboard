@@ -102,7 +102,8 @@ import {
   Folder,
   MoreVertical,
   FolderPlus,
-  FolderMinus
+  FolderMinus,
+  Rocket
 } from 'lucide-react'
 import DemoModal from '../components/DemoModal'
 
@@ -12195,6 +12196,14 @@ function ProfileView({
 
   const totalObjects = Object.values(userObjects).reduce((sum, count) => sum + count, 0)
 
+  // Additional user statistics
+  const userStats = {
+    integrations: 3, // Mock data - would come from actual integrations (HandCash, BSV, etc.)
+    launchpadLaunches: 2, // Mock data - would come from actual token launches
+    marketTokens: 1, // Mock data - would come from tokens currently on market
+    totalRevenue: 1250.75 // Mock data - would come from actual revenue tracking
+  }
+
   return (
     <div className="absolute inset-0 top-20 p-6">
       <div className="max-w-full mx-auto h-full flex flex-col">
@@ -12218,9 +12227,12 @@ function ProfileView({
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    <h2 className="text-xl font-semibold text-white">{handCashUser.displayName}</h2>
-                    <p className="text-gray-400">@{handCashUser.handle}</p>
-                    <p className="text-gray-500 text-sm">{handCashUser.paymail}</p>
+                    <h2 className="text-2xl font-bold text-white">{handCashUser.displayName}</h2>
+                    <p className="text-green-400 font-medium">@{handCashUser.handle}</p>
+                    <p className="text-gray-400 text-sm">{handCashUser.paymail}</p>
+                    <div className="mt-2 px-3 py-1 bg-green-500/20 border border-green-500/30 rounded-full">
+                      <span className="text-green-400 text-xs font-medium">✓ HandCash Connected</span>
+                    </div>
                   </div>
 
                   {/* HandCash Wallet Info */}
@@ -12263,6 +12275,7 @@ function ProfileView({
             {!isAuthenticated && (
               <div className="mt-4">
                 <UserProfileCard />
+                <HandCashDebugInfo />
               </div>
             )}
           </div>
@@ -12355,6 +12368,42 @@ function ProfileView({
                     <span className="text-2xl font-bold text-white">{userObjects.wallets}</span>
                   </div>
                   <p className="text-gray-400 text-sm">Digital wallets and accounts</p>
+                </div>
+
+                {/* Integrations */}
+                <div className="bg-white/10 rounded-lg p-4 hover:bg-white/20 transition-colors cursor-pointer">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-3">
+                      <Zap className="w-5 h-5 text-yellow-400" />
+                      <span className="text-white font-medium">Integrations</span>
+                    </div>
+                    <span className="text-2xl font-bold text-white">{userStats.integrations}</span>
+                  </div>
+                  <p className="text-gray-400 text-sm">Connected services and APIs</p>
+                </div>
+
+                {/* Launchpad Launches */}
+                <div className="bg-white/10 rounded-lg p-4 hover:bg-white/20 transition-colors cursor-pointer">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-3">
+                      <Rocket className="w-5 h-5 text-orange-400" />
+                      <span className="text-white font-medium">Launches</span>
+                    </div>
+                    <span className="text-2xl font-bold text-white">{userStats.launchpadLaunches}</span>
+                  </div>
+                  <p className="text-gray-400 text-sm">Tokens launched on launchpad</p>
+                </div>
+
+                {/* Market Tokens */}
+                <div className="bg-white/10 rounded-lg p-4 hover:bg-white/20 transition-colors cursor-pointer">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-3">
+                      <TrendingUp className="w-5 h-5 text-green-400" />
+                      <span className="text-white font-medium">Market Tokens</span>
+                    </div>
+                    <span className="text-2xl font-bold text-white">{userStats.marketTokens}</span>
+                  </div>
+                  <p className="text-gray-400 text-sm">Active tokens on market</p>
                 </div>
               </div>
 
@@ -14001,6 +14050,69 @@ function ContractsView({ organizations, selectedOrganization, roles = [], instru
           </div>
         )}
       </div>
+    </div>
+  )
+}
+
+// HandCash Debug Info Component
+function HandCashDebugInfo() {
+  const [debugInfo, setDebugInfo] = useState<any>(null)
+  const [loading, setLoading] = useState(false)
+
+  const loadDebugInfo = async () => {
+    setLoading(true)
+    try {
+      const response = await fetch('/api/auth/handcash/debug')
+      const data = await response.json()
+      setDebugInfo(data)
+    } catch (error) {
+      console.error('Failed to load debug info:', error)
+      setDebugInfo({ error: 'Failed to load debug information' })
+    }
+    setLoading(false)
+  }
+
+  return (
+    <div className="mt-4 bg-black/40 backdrop-blur-xl border border-yellow-500/30 rounded-xl p-4">
+      <div className="flex items-center justify-between mb-3">
+        <h4 className="text-sm font-medium text-yellow-400">HandCash Debug</h4>
+        <button
+          onClick={loadDebugInfo}
+          disabled={loading}
+          className="px-2 py-1 bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 text-xs rounded transition-colors"
+        >
+          {loading ? 'Loading...' : 'Check Status'}
+        </button>
+      </div>
+      
+      {debugInfo && (
+        <div className="space-y-2 text-xs">
+          <div className="flex justify-between">
+            <span className="text-gray-400">App ID:</span>
+            <span className={debugInfo.debug?.handcashAppId === 'SET' ? 'text-green-400' : 'text-red-400'}>
+              {debugInfo.debug?.handcashAppId}
+            </span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-400">Secret:</span>
+            <span className={debugInfo.debug?.handcashSecret === 'SET' ? 'text-green-400' : 'text-red-400'}>
+              {debugInfo.debug?.handcashSecret}
+            </span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-400">SDK Status:</span>
+            <span className={debugInfo.sdk?.status === 'INITIALIZED' ? 'text-green-400' : 'text-red-400'}>
+              {debugInfo.sdk?.status}
+            </span>
+          </div>
+          {debugInfo.sdk?.error && (
+            <div className="mt-2 p-2 bg-red-500/10 border border-red-500/20 rounded text-red-400">
+              <div className="font-medium">Error:</div>
+              <div className="text-xs">{debugInfo.sdk.error.message}</div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }

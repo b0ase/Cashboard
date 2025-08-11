@@ -27,7 +27,7 @@ import {
   DollarSign, FileText, Target, AlertTriangle, Building, Crown, UserCheck, Banknote, Plug, Split, Play, Zap, User, Workflow, Wallet,
   CheckSquare, GitBranch, Flag, Users, Mail, MessageSquare, Bell, Database, Code, Laptop, TrendingUp, Bot,
   Shield, Lock, Coins, Gavel, Eye, Vote, Clock, Image, Heart, UserPlus, Camera, ArrowLeft, ChevronRight,
-  Pause, ZoomIn, ZoomOut, RotateCcw, X
+  Pause, ZoomIn, ZoomOut, RotateCcw, X, Settings, Layout
 } from 'lucide-react'
 
 // Node canvas configurations (copied from NodeCanvasModal)
@@ -183,6 +183,7 @@ function ColoredNode({ data }: { data: RFNodeData }) {
   const [isEditingMultisig, setIsEditingMultisig] = React.useState(false)
   const [multisigThreshold, setMultisigThreshold] = React.useState(data.multisigThreshold || 2)
   const [multisigSigners, setMultisigSigners] = React.useState(data.multisigSigners || [])
+  const [showButtons, setShowButtons] = React.useState(false)
   
   // Check if this is an AI assistant node that should be wide and short
   const isAIAssistant = data.label?.toLowerCase().includes('openai') || 
@@ -192,8 +193,8 @@ function ColoredNode({ data }: { data: RFNodeData }) {
                        (data.template && data.template.category === 'AI & Machine Learning')
   
   const containerClass = isAIAssistant 
-    ? "bg-black/70 backdrop-blur-xl border border-white/30 rounded-xl px-6 py-3 text-white min-w-[480px] max-w-[480px] shadow-xl"
-    : "bg-black/70 backdrop-blur-xl border border-white/30 rounded-xl px-4 py-3 text-white min-w-[220px] shadow-xl"
+    ? "relative bg-black/70 backdrop-blur-xl border border-white/30 rounded-xl px-6 py-3 text-white min-w-[480px] max-w-[480px] shadow-xl"
+    : "relative bg-black/70 backdrop-blur-xl border border-white/30 rounded-xl px-4 py-3 text-white min-w-[220px] shadow-xl"
 
   const handleSaveHandle = () => {
     data.handcashHandle = handcashHandle
@@ -231,8 +232,52 @@ function ColoredNode({ data }: { data: RFNodeData }) {
     }
   }
 
+  const handlePropertiesClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    // Trigger the existing node editor modal
+    const nodeElement = e.currentTarget.closest('.react-flow__node')
+    if (nodeElement) {
+      const nodeEvent = new MouseEvent('dblclick', { bubbles: true })
+      nodeElement.dispatchEvent(nodeEvent)
+    }
+  }
+
+  const handleCanvasClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    // Trigger navigation to node canvas
+    const nodeElement = e.currentTarget.closest('.react-flow__node')
+    if (nodeElement) {
+      const nodeEvent = new MouseEvent('click', { bubbles: true })
+      nodeElement.dispatchEvent(nodeEvent)
+    }
+  }
+
   return (
-    <div className={containerClass}>
+    <div 
+      className={containerClass}
+      onMouseEnter={() => setShowButtons(true)}
+      onMouseLeave={() => setShowButtons(false)}
+    >
+      {/* Node Action Buttons - Show on Hover */}
+      {showButtons && (
+        <div className="absolute top-1 right-1 flex gap-1 z-10">
+          <button
+            onClick={handlePropertiesClick}
+            className="p-1 bg-blue-500/80 hover:bg-blue-500 text-white rounded transition-colors"
+            title="Edit Properties"
+          >
+            <Settings className="w-3 h-3" />
+          </button>
+          <button
+            onClick={handleCanvasClick}
+            className="p-1 bg-green-500/80 hover:bg-green-500 text-white rounded transition-colors"
+            title="Open Canvas"
+          >
+            <Layout className="w-3 h-3" />
+          </button>
+        </div>
+      )}
+
       <div className="flex flex-col gap-1 w-full">
         {/* Node Header */}
         <div className="flex items-center gap-2">
@@ -564,10 +609,7 @@ export default function WorkflowReactFlowCanvas({
   const [editingNode, setEditingNode] = useState<Node<RFNodeData> | null>(null)
   const [nodeCanvasModal, setNodeCanvasModal] = useState<Node<RFNodeData> | null>(null)
   
-  // Dual modal system state
-  const [selectedNodeForDualModal, setSelectedNodeForDualModal] = useState<Node<RFNodeData> | null>(null)
-  const [showPropertiesModal, setShowPropertiesModal] = useState(false)
-  const [showCanvasModal, setShowCanvasModal] = useState(false)
+
 
   // External node addition function for chatbot
   const addNodeToCanvas = useCallback((type: string) => {
@@ -656,11 +698,9 @@ export default function WorkflowReactFlowCanvas({
 
   const handleNodeClick = useCallback((event: React.MouseEvent, node: Node<RFNodeData>) => {
     event.stopPropagation()
-    // Single click opens dual modal system (properties on left, canvas on right)
-    setSelectedNodeForDualModal(node)
-    setShowPropertiesModal(true)
-    setShowCanvasModal(true)
-  }, [])
+    // Single click navigates to node canvas using the navigation stack
+    navigateToNodeCanvas(node)
+  }, [currentCanvasIndex, navigationStack])
 
   const handleNodeDoubleClick = useCallback((event: React.MouseEvent, node: Node<RFNodeData>) => {
     event.stopPropagation()
@@ -726,128 +766,7 @@ export default function WorkflowReactFlowCanvas({
           onClose={() => setNodeCanvasModal(null)}
         />
 
-        {/* Dual Modal System - Single Modal Split in Two */}
-        {selectedNodeForDualModal && (showPropertiesModal || showCanvasModal) && (
-          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center">
-            <div className="w-[95vw] h-[90vh] max-w-7xl bg-black/90 border border-white/20 rounded-xl overflow-hidden flex">
-              
-              {/* Left Half - Node Properties */}
-              {showPropertiesModal && (
-                <div className="w-1/2 flex flex-col border-r border-white/20">
-                  <div className="p-4 border-b border-white/20 flex items-center justify-between flex-shrink-0">
-                    <h3 className="text-white text-lg font-semibold">
-                      {selectedNodeForDualModal.data.label} Properties
-                    </h3>
-                    <button
-                      onClick={() => {
-                        setShowPropertiesModal(false)
-                        if (!showCanvasModal) {
-                          setSelectedNodeForDualModal(null)
-                        }
-                      }}
-                      className="text-gray-400 hover:text-white transition-colors"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                  <div className="flex-1 overflow-y-auto p-4">
-                    <NodeEditor
-                      node={selectedNodeForDualModal}
-                      isOpen={true}
-                      onClose={() => {
-                        setShowPropertiesModal(false)
-                        if (!showCanvasModal) {
-                          setSelectedNodeForDualModal(null)
-                        }
-                      }}
-                      onSave={handleNodeSave}
-                    />
-                  </div>
-                </div>
-              )}
 
-              {/* Right Half - Node Canvas */}
-              {showCanvasModal && (
-                <div className={`${showPropertiesModal ? 'w-1/2' : 'w-full'} flex flex-col`}>
-                  <div className="p-4 border-b border-white/20 flex items-center justify-between flex-shrink-0">
-                    <h3 className="text-white text-lg font-semibold">
-                      {selectedNodeForDualModal.data.label} Canvas
-                    </h3>
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={() => {
-                          // Open in full canvas tab
-                          navigateToNodeCanvas(selectedNodeForDualModal)
-                          setShowCanvasModal(false)
-                          setShowPropertiesModal(false)
-                          setSelectedNodeForDualModal(null)
-                        }}
-                        className="px-3 py-1 bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 hover:text-blue-300 rounded text-sm transition-colors"
-                      >
-                        Open in Tab
-                      </button>
-                      <button
-                        onClick={() => {
-                          setShowCanvasModal(false)
-                          if (!showPropertiesModal) {
-                            setSelectedNodeForDualModal(null)
-                          }
-                        }}
-                        className="text-gray-400 hover:text-white transition-colors"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  </div>
-                  <div className="flex-1 overflow-hidden">
-                    {/* Embedded Node Canvas Content */}
-                    <div className="h-full bg-gray-800 rounded-lg overflow-hidden m-2">
-                      <ReactFlowProvider>
-                        <div className="h-full flex flex-col">
-                          {/* Canvas */}
-                          <div className="flex-1 relative">
-                            <ReactFlow
-                              nodes={[]}
-                              edges={[]}
-                              nodeTypes={nodeTypes}
-                              fitView
-                              defaultEdgeOptions={{
-                                style: { stroke: 'rgba(255,255,255,0.7)', strokeWidth: 2 },
-                                markerEnd: { type: MarkerType.ArrowClosed, color: 'rgba(255,255,255,0.8)' },
-                                type: 'smoothstep'
-                              }}
-                              connectionLineStyle={{ stroke: 'rgba(255,255,255,0.6)', strokeWidth: 2 }}
-                            >
-                              <Background color="rgba(255,255,255,0.1)" />
-                              <MiniMap 
-                                pannable 
-                                zoomable 
-                                style={{ background: 'rgba(0,0,0,0.6)' }}
-                                nodeColor={() => '#6b7280'}
-                              />
-                            </ReactFlow>
-                          </div>
-                        </div>
-                      </ReactFlowProvider>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Main Close Button */}
-              <button
-                onClick={() => {
-                  setShowPropertiesModal(false)
-                  setShowCanvasModal(false)
-                  setSelectedNodeForDualModal(null)
-                }}
-                className="absolute top-4 right-4 z-10 p-2 rounded-lg hover:bg-white/10 transition-colors bg-black/20"
-              >
-                <X className="w-5 h-5 text-white" />
-              </button>
-            </div>
-          </div>
-        )}
       </ReactFlowProvider>
     </div>
   )

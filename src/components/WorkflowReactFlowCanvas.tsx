@@ -118,7 +118,7 @@ const DEFAULT_NODE_CONFIG = {
 
 type NodeKind = string
 
-export type RFNodeData = { label: string; kind: NodeKind; subtitle?: string; template?: TemplateItem }
+export type RFNodeData = { label: string; kind: NodeKind; subtitle?: string; template?: TemplateItem; handcashHandle?: string }
 
 function IconFor({ kind }: { kind: NodeKind }) {
   const cls = 'w-4 h-4'
@@ -140,6 +140,9 @@ function IconFor({ kind }: { kind: NodeKind }) {
 }
 
 function ColoredNode({ data }: { data: RFNodeData }) {
+  const [isEditingHandle, setIsEditingHandle] = React.useState(false)
+  const [handcashHandle, setHandcashHandle] = React.useState(data.handcashHandle || '')
+  
   // Check if this is an AI assistant node that should be wide and short
   const isAIAssistant = data.label?.toLowerCase().includes('openai') || 
                        data.label?.toLowerCase().includes('anthropic') ||
@@ -148,20 +151,59 @@ function ColoredNode({ data }: { data: RFNodeData }) {
                        (data.template && data.template.category === 'AI & Machine Learning')
   
   const containerClass = isAIAssistant 
-    ? "bg-black/70 backdrop-blur-xl border border-white/30 rounded-xl px-4 py-1.5 text-white min-w-[416px] max-w-[416px] h-[32px] shadow-xl flex items-center"
+    ? "bg-black/70 backdrop-blur-xl border border-white/30 rounded-xl px-4 py-1.5 text-white min-w-[416px] max-w-[416px] shadow-xl"
     : "bg-black/70 backdrop-blur-xl border border-white/30 rounded-xl px-3 py-2 text-white min-w-[160px] shadow-xl"
-  
-  const contentClass = isAIAssistant 
-    ? "flex items-center gap-3 w-full"
-    : "flex items-center gap-2"
+
+  const handleSaveHandle = () => {
+    data.handcashHandle = handcashHandle
+    setIsEditingHandle(false)
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSaveHandle()
+    }
+    if (e.key === 'Escape') {
+      setHandcashHandle(data.handcashHandle || '')
+      setIsEditingHandle(false)
+    }
+  }
 
   return (
     <div className={containerClass}>
-      <div className={contentClass}>
-        <IconFor kind={data.kind} />
-        <div className="leading-tight flex-1">
-          <div className={`font-medium ${isAIAssistant ? 'text-xs' : 'text-sm'}`}>{data.label}</div>
-          {data.subtitle && <div className="text-[10px] text-gray-400">{data.subtitle}</div>}
+      <div className="flex flex-col gap-1 w-full">
+        {/* Node Header */}
+        <div className="flex items-center gap-2">
+          <IconFor kind={data.kind} />
+          <div className="leading-tight flex-1">
+            <div className={`font-medium ${isAIAssistant ? 'text-xs' : 'text-sm'}`}>{data.label}</div>
+            {data.subtitle && <div className="text-[10px] text-gray-400">{data.subtitle}</div>}
+          </div>
+        </div>
+        
+        {/* HandCash Handle */}
+        <div className="flex items-center gap-1">
+          <span className="text-[10px] text-green-400 font-mono">$</span>
+          {isEditingHandle ? (
+            <input
+              type="text"
+              value={handcashHandle}
+              onChange={(e) => setHandcashHandle(e.target.value)}
+              onBlur={handleSaveHandle}
+              onKeyDown={handleKeyDown}
+              className="bg-white/20 text-white text-[10px] font-mono px-1 py-0.5 rounded min-w-0 flex-1"
+              placeholder="HandCash_Handle"
+              autoFocus
+            />
+          ) : (
+            <div 
+              onClick={() => setIsEditingHandle(true)}
+              className="text-[10px] text-green-400 font-mono cursor-pointer hover:text-green-300 transition-colors flex-1 truncate"
+              title={`HandCash Handle: $${handcashHandle || 'Click to edit'}`}
+            >
+              {handcashHandle || 'Click_to_edit'}
+            </div>
+          )}
         </div>
       </div>
       <Handle type="target" position={Position.Top} className="!bg-white/60" />
@@ -247,7 +289,11 @@ export default function WorkflowReactFlowCanvas({
       id: String(n.id),
       type: 'colored',
       position: { x: Number(n.x) || 0, y: Number(n.y) || 0 },
-      data: { label: String(n.name || n.type), kind: String(n.type || 'task') },
+      data: { 
+        label: String(n.name || n.type), 
+        kind: String(n.type || 'task'),
+        handcashHandle: n.handcashHandle || `${String(n.name || n.type).replace(/\s+/g, '_')}_Handle`
+      },
     }))
   }, [workflow, nodeCanvasData])
 
@@ -303,7 +349,11 @@ export default function WorkflowReactFlowCanvas({
       id, 
       type: 'colored', 
       position: { x: newX, y: newY }, 
-      data: { label: type.toUpperCase(), kind: type } 
+      data: { 
+        label: type.toUpperCase(), 
+        kind: type,
+        handcashHandle: `${type.replace(/\s+/g, '_')}_${id.slice(-4)}`
+      } 
     }
     
     setNodes((nds) => nds.concat(newNode))
@@ -552,6 +602,7 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
                           label: it.name, 
                           kind: templateModal.kind, 
                           template: it,
+                          handcashHandle: `${it.name.replace(/\s+/g, '_')}_${id.slice(-4)}`,
                           subtitle: it.description || it.category || ''
                         } 
                       }

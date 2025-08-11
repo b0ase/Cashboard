@@ -3,8 +3,6 @@
 import React, { useMemo, useCallback, useState } from 'react'
 import ReactFlow, {
   Background,
-  Controls,
-  MiniMap,
   addEdge,
   useEdgesState,
   useNodesState,
@@ -474,8 +472,7 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
           </div>
         </Panel>
       )}
-      <MiniMap pannable zoomable position="bottom-center" style={{ background: 'rgba(0,0,0,0.6)', marginBottom: '8px' }} />
-      <Controls position="bottom-right" showInteractive={false} style={{ marginRight: '8px', marginBottom: '8px' }} />
+
       <Panel position="top-right" className="m-2">
         <NodePaletteSimple
           title="Add Nodes"

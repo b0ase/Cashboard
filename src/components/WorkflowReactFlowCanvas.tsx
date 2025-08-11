@@ -14,6 +14,7 @@ import ReactFlow, {
   Panel,
   useReactFlow,
   ReactFlowProvider,
+  MiniMap,
   MarkerType,
 } from 'reactflow'
 import 'reactflow/dist/style.css'
@@ -800,16 +801,36 @@ export default function WorkflowReactFlowCanvas({
                     </div>
                   </div>
                   <div className="flex-1 overflow-hidden">
-                    <NodeCanvasModal
-                      node={selectedNodeForDualModal}
-                      isOpen={true}
-                      onClose={() => {
-                        setShowCanvasModal(false)
-                        if (!showPropertiesModal) {
-                          setSelectedNodeForDualModal(null)
-                        }
-                      }}
-                    />
+                    {/* Embedded Node Canvas Content */}
+                    <div className="h-full bg-gray-900 rounded-lg overflow-hidden">
+                      <ReactFlowProvider>
+                        <div className="h-full flex flex-col">
+                          {/* Canvas */}
+                          <div className="flex-1 relative">
+                            <ReactFlow
+                              nodes={[]}
+                              edges={[]}
+                              nodeTypes={nodeTypes}
+                              fitView
+                              defaultEdgeOptions={{
+                                style: { stroke: 'rgba(255,255,255,0.7)', strokeWidth: 2 },
+                                markerEnd: { type: MarkerType.ArrowClosed, color: 'rgba(255,255,255,0.8)' },
+                                type: 'smoothstep'
+                              }}
+                              connectionLineStyle={{ stroke: 'rgba(255,255,255,0.6)', strokeWidth: 2 }}
+                            >
+                              <Background color="rgba(255,255,255,0.1)" />
+                              <MiniMap 
+                                pannable 
+                                zoomable 
+                                style={{ background: 'rgba(0,0,0,0.6)' }}
+                                nodeColor={() => '#6b7280'}
+                              />
+                            </ReactFlow>
+                          </div>
+                        </div>
+                      </ReactFlowProvider>
+                    </div>
                   </div>
                 </div>
               </div>

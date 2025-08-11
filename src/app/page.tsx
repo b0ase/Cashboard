@@ -8174,6 +8174,188 @@ function RolesView({ roles, selectedOrganization, onAddMember, onCreateRole, onU
       defaultShareAllocation: 9,
       automationType: 'hybrid' as const,
       category: 'Entertainment'
+    },
+    
+    // New Executive Roles
+    {
+      name: 'CEO',
+      description: 'Chief Executive Officer - Strategic leadership and decision making',
+      icon: 'crown',
+      permissions: ['admin', 'finance', 'operations'],
+      defaultShareAllocation: 25,
+      automationType: 'workflow' as const,
+      category: 'Executive'
+    },
+    {
+      name: 'Marketing Manager',
+      description: 'Marketing campaigns, social media management, and customer engagement',
+      icon: 'megaphone',
+      permissions: ['marketing', 'data-analysis'],
+      defaultShareAllocation: 15,
+      automationType: 'workflow' as const,
+      category: 'Management'
+    },
+    {
+      name: 'Finance Manager',
+      description: 'Financial analysis, budget tracking, and reporting',
+      icon: 'calculator',
+      permissions: ['finance', 'admin', 'data-analysis'],
+      defaultShareAllocation: 20,
+      automationType: 'workflow' as const,
+      category: 'Management'
+    },
+    {
+      name: 'Tech Lead',
+      description: 'Code review, technical documentation, and development workflows',
+      icon: 'code',
+      permissions: ['tech', 'workflow-creation'],
+      defaultShareAllocation: 25,
+      automationType: 'workflow' as const,
+      category: 'Management'
+    },
+    {
+      name: 'Operations Manager',
+      description: 'Process management, workflow optimization, and operational efficiency',
+      icon: 'settings',
+      permissions: ['operations', 'workflow-creation'],
+      defaultShareAllocation: 12,
+      automationType: 'workflow' as const,
+      category: 'Management'
+    },
+    {
+      name: 'Creative Director',
+      description: 'Content creation, brand management, and creative strategy',
+      icon: 'palette',
+      permissions: ['marketing', 'workflow-creation'],
+      defaultShareAllocation: 15,
+      automationType: 'workflow' as const,
+      category: 'Creative'
+    },
+    {
+      name: 'Legal Counsel',
+      description: 'Contract analysis, compliance monitoring, and legal documentation',
+      icon: 'scale',
+      permissions: ['legal', 'admin', 'data-analysis'],
+      defaultShareAllocation: 18,
+      automationType: 'workflow' as const,
+      category: 'Legal'
+    },
+    {
+      name: 'Customer Success Manager',
+      description: 'Customer support, relationship management, and satisfaction monitoring',
+      icon: 'heart',
+      permissions: ['marketing', 'data-analysis'],
+      defaultShareAllocation: 10,
+      automationType: 'workflow' as const,
+      category: 'Customer Support'
+    },
+    {
+      name: 'CTO',
+      description: 'Chief Technology Officer - Technology strategy, architecture, and innovation leadership',
+      icon: 'cpu',
+      permissions: ['admin', 'tech', 'workflow-creation'],
+      defaultShareAllocation: 20,
+      automationType: 'workflow' as const,
+      category: 'Executive'
+    },
+    {
+      name: 'CMO',
+      description: 'Chief Marketing Officer - Marketing strategy, brand management, and growth initiatives',
+      icon: 'trending-up',
+      permissions: ['admin', 'marketing', 'data-analysis'],
+      defaultShareAllocation: 18,
+      automationType: 'workflow' as const,
+      category: 'Executive'
+    },
+    {
+      name: 'CFO',
+      description: 'Chief Financial Officer - Financial planning, analysis, and strategic financial management',
+      icon: 'bar-chart-3',
+      permissions: ['admin', 'finance', 'data-analysis'],
+      defaultShareAllocation: 22,
+      automationType: 'workflow' as const,
+      category: 'Executive'
+    },
+    {
+      name: 'COO',
+      description: 'Chief Operating Officer - Operations management, process optimization, and execution',
+      icon: 'settings',
+      permissions: ['admin', 'operations', 'workflow-creation'],
+      defaultShareAllocation: 20,
+      automationType: 'workflow' as const,
+      category: 'Executive'
+    },
+    {
+      name: 'CHRO',
+      description: 'Chief Human Resources Officer - People strategy, culture, and organizational development',
+      icon: 'users',
+      permissions: ['admin', 'operations'],
+      defaultShareAllocation: 12,
+      automationType: 'workflow' as const,
+      category: 'Executive'
+    },
+    {
+      name: 'VP of Sales',
+      description: 'Vice President of Sales - Sales strategy, team leadership, and revenue generation',
+      icon: 'trending-up',
+      permissions: ['marketing', 'data-analysis'],
+      defaultShareAllocation: 16,
+      automationType: 'workflow' as const,
+      category: 'Leadership'
+    },
+    {
+      name: 'VP of Engineering',
+      description: 'Vice President of Engineering - Engineering leadership, technical delivery, and team management',
+      icon: 'code',
+      permissions: ['tech', 'workflow-creation', 'operations'],
+      defaultShareAllocation: 18,
+      automationType: 'workflow' as const,
+      category: 'Leadership'
+    },
+    {
+      name: 'VP of Product',
+      description: 'Vice President of Product - Product strategy, roadmap, and user experience leadership',
+      icon: 'palette',
+      permissions: ['workflow-creation', 'data-analysis', 'marketing'],
+      defaultShareAllocation: 15,
+      automationType: 'workflow' as const,
+      category: 'Leadership'
+    },
+    {
+      name: 'General Counsel',
+      description: 'Chief Legal Officer - Legal strategy, compliance, risk management, and corporate governance',
+      icon: 'scale',
+      permissions: ['admin', 'legal'],
+      defaultShareAllocation: 14,
+      automationType: 'workflow' as const,
+      category: 'Executive'
+    },
+    {
+      name: 'Head of Data',
+      description: 'Chief Data Officer - Data strategy, analytics, and business intelligence leadership',
+      icon: 'database',
+      permissions: ['data-analysis', 'tech', 'workflow-creation'],
+      defaultShareAllocation: 13,
+      automationType: 'workflow' as const,
+      category: 'Leadership'
+    },
+    {
+      name: 'Head of Security',
+      description: 'Chief Security Officer - Information security, risk assessment, and cybersecurity strategy',
+      icon: 'shield',
+      permissions: ['tech', 'admin', 'operations'],
+      defaultShareAllocation: 11,
+      automationType: 'workflow' as const,
+      category: 'Leadership'
+    },
+    {
+      name: 'Head of Customer Success',
+      description: 'Customer Success Leadership - Customer retention, satisfaction, and growth strategies',
+      icon: 'heart',
+      permissions: ['marketing', 'data-analysis'],
+      defaultShareAllocation: 10,
+      automationType: 'workflow' as const,
+      category: 'Leadership'
     }
   ]
 

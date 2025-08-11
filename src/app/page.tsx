@@ -95,7 +95,8 @@ import {
   UserCheck,
   Banknote,
   Plug,
-  Headphones
+  Headphones,
+  Folder
 } from 'lucide-react'
 import DemoModal from '../components/DemoModal'
 
@@ -403,6 +404,7 @@ interface WorkflowState {
   clipboard: WorkflowNode[]
   gridSnap: boolean
   showGrid: boolean
+  folder?: string  // Simple folder name
 }
 
 interface ChatMessage {
@@ -2444,7 +2446,7 @@ export default function Dashboard() {
   }
 
   // Workflow management functions
-  const createWorkflow = (name: string, description: string) => {
+  const createWorkflow = (name: string, description: string, folder?: string) => {
     const newWorkflow: WorkflowState = {
       id: Date.now().toString(),
       name,
@@ -2463,7 +2465,8 @@ export default function Dashboard() {
       currentTool: 'select',
       clipboard: [],
       gridSnap: true,
-      showGrid: true
+      showGrid: true,
+      folder: folder?.trim() || undefined
     }
 
     setAppState(prev => ({
@@ -3331,35 +3334,15 @@ export default function Dashboard() {
 
         {/* Content Views */}
         {currentView === 'workflow' && !currentWorkflow && (
-          <div className="absolute inset-0 top-20 p-6 overflow-y-auto">
-            <WorkflowDashboard 
-              onSelectWorkflow={(workflow) => {
-                // Convert our workflow metadata to the expected format and open it
-                const workflowState = {
-                  id: workflow.id,
-                  name: workflow.name,
-                  description: workflow.metadata.company.description || '',
-                  status: 'active' as const,
-                  nodes: workflow.nodes,
-                  connections: workflow.connections,
-                  createdAt: workflow.metadata.created,
-                  updatedAt: workflow.metadata.updated
-                }
-                // Add to workflows if not already exists
-                if (!workflows.find(w => w.id === workflow.id)) {
-                  setAppState(prev => ({
-                    ...prev,
-                    workflows: [...prev.workflows, workflowState]
-                  }))
-                }
-                openWorkflow(workflow.id)
-              }}
-              onCreateWorkflow={() => {
-                // Use existing create workflow function
-                createWorkflow("New Workflow", "Created from workflow library")
-              }}
-            />
-          </div>
+          <WorkflowsView 
+            workflows={workflows}
+            selectedWorkflow={selectedWorkflow}
+            onCreateWorkflow={createWorkflow}
+            onOpenWorkflow={openWorkflow}
+            onDeleteWorkflow={deleteWorkflow}
+            onUpdateWorkflow={updateWorkflow}
+            isMobile={isMobile}
+          />
         )}
 
         {currentView === 'workflow' && currentWorkflow && (
@@ -4447,7 +4430,7 @@ function WorkflowsView({
 }: {
   workflows: WorkflowState[]
   selectedWorkflow: string | null
-  onCreateWorkflow: (name: string, description: string) => void
+  onCreateWorkflow: (name: string, description: string, folder?: string) => void
   onOpenWorkflow: (workflowId: string) => void
   onDeleteWorkflow: (workflowId: string) => void
   onUpdateWorkflow: (workflowId: string, updates: Partial<WorkflowState>) => void
@@ -4457,6 +4440,10 @@ function WorkflowsView({
   const [newWorkflowName, setNewWorkflowName] = useState('')
   const [newWorkflowDescription, setNewWorkflowDescription] = useState('')
   const [showWorkflowTemplates, setShowWorkflowTemplates] = useState(false)
+  const [showCreateFolderModal, setShowCreateFolderModal] = useState(false)
+  const [newFolderName, setNewFolderName] = useState('')
+  const [selectedFolder, setSelectedFolder] = useState<string | null>(null)
+  const [newWorkflowFolder, setNewWorkflowFolder] = useState('')
 
   const workflowTemplates = [
     {
@@ -4502,12 +4489,33 @@ function WorkflowsView({
     setNewWorkflowDescription(template.description)
     setShowWorkflowTemplates(false)
   }
+  // Get unique folders from workflows
+  const folders = [...new Set(workflows.filter(w => w.folder).map(w => w.folder!))]
+  
+  // Filter workflows by selected folder
+  const filteredWorkflows = selectedFolder 
+    ? workflows.filter(w => w.folder === selectedFolder)
+    : workflows.filter(w => !w.folder) // Show workflows without folders when no folder is selected
+
   const handleCreate = () => {
     if (newWorkflowName.trim()) {
-      onCreateWorkflow(newWorkflowName.trim(), newWorkflowDescription.trim())
+      onCreateWorkflow(
+        newWorkflowName.trim(), 
+        newWorkflowDescription.trim(),
+        newWorkflowFolder.trim() || undefined
+      )
       setNewWorkflowName('')
       setNewWorkflowDescription('')
+      setNewWorkflowFolder('')
       setShowCreateModal(false)
+    }
+  }
+
+  const handleCreateFolder = () => {
+    if (newFolderName.trim()) {
+      // Just close the modal - folders are created implicitly when workflows are assigned to them
+      setNewFolderName('')
+      setShowCreateFolderModal(false)
     }
   }
 
@@ -4532,29 +4540,73 @@ function WorkflowsView({
   return (
     <div className="absolute inset-0 top-20 p-6 overflow-y-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className={`font-bold text-white ${isMobile ? 'text-2xl' : 'text-3xl'} mb-2`}>
             Workflow Browser
           </h1>
           <p className="text-gray-400">
-            Manage your automated business processes and workflows • {workflows.length} workflow{workflows.length !== 1 ? 's' : ''}
+            Manage your automated business processes and workflows • {filteredWorkflows.length} workflow{filteredWorkflows.length !== 1 ? 's' : ''} {selectedFolder ? `in "${selectedFolder}"` : ''}
           </p>
         </div>
         
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className={`bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all duration-200 hover:scale-105 flex items-center space-x-2 ${
-            isMobile ? 'px-3 py-2 text-sm' : 'px-4 py-2'
-          }`}
-        >
-          <Plus className={isMobile ? "w-4 h-4" : "w-5 h-5"} />
-          <span className={isMobile ? 'hidden' : ''}>Create Workflow</span>
-        </button>
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={() => setShowCreateFolderModal(true)}
+            className={`bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-all duration-200 flex items-center space-x-2 ${
+              isMobile ? 'px-3 py-2 text-sm' : 'px-3 py-2'
+            }`}
+          >
+            <Folder className={isMobile ? "w-4 h-4" : "w-4 h-4"} />
+            {!isMobile && <span>New Folder</span>}
+          </button>
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className={`bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all duration-200 hover:scale-105 flex items-center space-x-2 ${
+              isMobile ? 'px-3 py-2 text-sm' : 'px-4 py-2'
+            }`}
+          >
+            <Plus className={isMobile ? "w-4 h-4" : "w-5 h-5"} />
+            <span className={isMobile ? 'hidden' : ''}>Create Workflow</span>
+          </button>
+        </div>
       </div>
 
+      {/* Folder Navigation */}
+      {folders.length > 0 && (
+        <div className="flex items-center space-x-2 mb-6 overflow-x-auto pb-2">
+          <button
+            onClick={() => setSelectedFolder(null)}
+            className={`px-3 py-1 rounded-full text-sm whitespace-nowrap transition-colors ${
+              selectedFolder === null 
+                ? 'bg-blue-500 text-white' 
+                : 'bg-white/10 text-gray-300 hover:bg-white/20'
+            }`}
+          >
+            All Workflows
+          </button>
+          {folders.map(folder => (
+            <button
+              key={folder}
+              onClick={() => setSelectedFolder(folder)}
+              className={`px-3 py-1 rounded-full text-sm whitespace-nowrap transition-colors flex items-center space-x-1 ${
+                selectedFolder === folder 
+                  ? 'bg-blue-500 text-white' 
+                  : 'bg-white/10 text-gray-300 hover:bg-white/20'
+              }`}
+            >
+              <Folder className="w-3 h-3" />
+              <span>{folder}</span>
+              <span className="text-xs opacity-75">
+                ({workflows.filter(w => w.folder === folder).length})
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Workflows Grid */}
-      {workflows.length === 0 ? (
+      {filteredWorkflows.length === 0 ? (
         <div className="text-center py-12">
           <div className="bg-black/40 backdrop-blur-xl border border-white/20 rounded-2xl p-8 max-w-md mx-auto">
             <Zap className="w-16 h-16 text-gray-400 mx-auto mb-4" />
@@ -4589,7 +4641,7 @@ function WorkflowsView({
             </div>
           </div>
 
-          {workflows.map((workflow) => (
+          {filteredWorkflows.map((workflow) => (
             <div
               key={workflow.id}
               className={`bg-black/40 backdrop-blur-xl border rounded-xl p-6 hover:bg-black/60 transition-all duration-200 cursor-pointer group ${
@@ -4747,6 +4799,35 @@ function WorkflowsView({
                   className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                 />
               </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Folder (optional)
+                </label>
+                <input
+                  type="text"
+                  value={newWorkflowFolder}
+                  onChange={(e) => setNewWorkflowFolder(e.target.value)}
+                  placeholder="Enter folder name or leave empty..."
+                  className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                {folders.length > 0 && (
+                  <div className="mt-2">
+                    <p className="text-xs text-gray-400 mb-1">Existing folders:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {folders.map(folder => (
+                        <button
+                          key={folder}
+                          onClick={() => setNewWorkflowFolder(folder)}
+                          className="px-2 py-1 bg-white/10 hover:bg-white/20 text-xs text-gray-300 rounded transition-colors"
+                        >
+                          {folder}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
             
             <div className="flex space-x-3 mt-6 pt-4 border-t border-white/20">
@@ -4763,7 +4844,60 @@ function WorkflowsView({
                   setShowCreateModal(false)
                   setNewWorkflowName('')
                   setNewWorkflowDescription('')
+                  setNewWorkflowFolder('')
                   setShowWorkflowTemplates(false)
+                }}
+                className="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create Folder Modal */}
+      {showCreateFolderModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-xl flex items-center justify-center z-50 p-4">
+          <div className="bg-black/90 backdrop-blur-xl border border-white/20 rounded-2xl p-6 w-full max-w-md">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-semibold text-white">Create New Folder</h3>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Folder Name
+                </label>
+                <input
+                  type="text"
+                  value={newFolderName}
+                  onChange={(e) => setNewFolderName(e.target.value)}
+                  placeholder="Enter folder name..."
+                  className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleCreateFolder()
+                    }
+                  }}
+                  autoFocus
+                />
+              </div>
+            </div>
+            
+            <div className="flex space-x-3 mt-6 pt-4 border-t border-white/20">
+              <button
+                onClick={handleCreateFolder}
+                disabled={!newFolderName.trim()}
+                className="flex-1 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-500 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg transition-colors flex items-center justify-center space-x-2"
+              >
+                <Folder className="w-4 h-4" />
+                <span>Create Folder</span>
+              </button>
+              <button
+                onClick={() => {
+                  setShowCreateFolderModal(false)
+                  setNewFolderName('')
                 }}
                 className="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors"
               >

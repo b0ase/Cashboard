@@ -562,6 +562,11 @@ export default function WorkflowReactFlowCanvas({
   const [templateModal, setTemplateModal] = useState<{ kind: string; items: TemplateItem[] } | null>(null)
   const [editingNode, setEditingNode] = useState<Node<RFNodeData> | null>(null)
   const [nodeCanvasModal, setNodeCanvasModal] = useState<Node<RFNodeData> | null>(null)
+  
+  // Dual modal system state
+  const [selectedNodeForDualModal, setSelectedNodeForDualModal] = useState<Node<RFNodeData> | null>(null)
+  const [showPropertiesModal, setShowPropertiesModal] = useState(false)
+  const [showCanvasModal, setShowCanvasModal] = useState(false)
 
   // External node addition function for chatbot
   const addNodeToCanvas = useCallback((type: string) => {
@@ -650,9 +655,11 @@ export default function WorkflowReactFlowCanvas({
 
   const handleNodeClick = useCallback((event: React.MouseEvent, node: Node<RFNodeData>) => {
     event.stopPropagation()
-    // Single click navigates to node canvas using the navigation stack
-    navigateToNodeCanvas(node)
-  }, [currentCanvasIndex, navigationStack])
+    // Single click opens dual modal system (properties on left, canvas on right)
+    setSelectedNodeForDualModal(node)
+    setShowPropertiesModal(true)
+    setShowCanvasModal(true)
+  }, [])
 
   const handleNodeDoubleClick = useCallback((event: React.MouseEvent, node: Node<RFNodeData>) => {
     event.stopPropagation()
@@ -717,6 +724,100 @@ export default function WorkflowReactFlowCanvas({
           isOpen={!!nodeCanvasModal}
           onClose={() => setNodeCanvasModal(null)}
         />
+
+        {/* Dual Modal System - Properties (Left) and Canvas (Right) */}
+        {selectedNodeForDualModal && (showPropertiesModal || showCanvasModal) && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm">
+            <div className="flex h-full">
+              {/* Left Modal - Node Properties */}
+              {showPropertiesModal && (
+                <div className="w-1/2 h-full flex items-center justify-center p-4">
+                  <div className="bg-black/90 border border-white/20 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <div className="p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-white text-xl font-semibold">
+                          {selectedNodeForDualModal.data.label} Properties
+                        </h3>
+                        <button
+                          onClick={() => {
+                            setShowPropertiesModal(false)
+                            if (!showCanvasModal) {
+                              setSelectedNodeForDualModal(null)
+                            }
+                          }}
+                          className="text-gray-400 hover:text-white transition-colors"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                      <NodeEditor
+                        node={selectedNodeForDualModal}
+                        isOpen={true}
+                        onClose={() => {
+                          setShowPropertiesModal(false)
+                          if (!showCanvasModal) {
+                            setSelectedNodeForDualModal(null)
+                          }
+                        }}
+                        onSave={handleNodeSave}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Right Modal - Node Canvas */}
+              {showCanvasModal && (
+                <div className="w-1/2 h-full flex items-center justify-center p-4">
+                  <div className="bg-black/90 border border-white/20 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-hidden">
+                    <div className="p-4 border-b border-white/20 flex items-center justify-between">
+                      <h3 className="text-white text-lg font-semibold">
+                        {selectedNodeForDualModal.data.label} Canvas
+                      </h3>
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => {
+                            // Open in full canvas tab
+                            navigateToNodeCanvas(selectedNodeForDualModal)
+                            setShowCanvasModal(false)
+                            setShowPropertiesModal(false)
+                            setSelectedNodeForDualModal(null)
+                          }}
+                          className="px-3 py-1 bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 hover:text-blue-300 rounded text-sm transition-colors"
+                        >
+                          Open in Tab
+                        </button>
+                        <button
+                          onClick={() => {
+                            setShowCanvasModal(false)
+                            if (!showPropertiesModal) {
+                              setSelectedNodeForDualModal(null)
+                            }
+                          }}
+                          className="text-gray-400 hover:text-white transition-colors"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                    <div className="h-96">
+                      <NodeCanvasModal
+                        node={selectedNodeForDualModal}
+                        isOpen={true}
+                        onClose={() => {
+                          setShowCanvasModal(false)
+                          if (!showPropertiesModal) {
+                            setSelectedNodeForDualModal(null)
+                          }
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </ReactFlowProvider>
     </div>
   )
@@ -830,7 +931,7 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
       </Panel>
 
       {/* Canvas Controls Panel */}
-      <Panel position="top-left" className="m-2 ml-4">
+      <Panel position="top-right" className="m-2 mr-4">
         <div className="bg-black/80 backdrop-blur-xl border border-white/20 rounded-lg px-3 py-2">
           <div className="flex items-center gap-2">
             <button
@@ -890,7 +991,7 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
         </div>
       </Panel>
 
-      <Panel position="top-right" className="m-2">
+      <Panel position="bottom-right" className="m-2">
         <NodePaletteSimple
           title="Add Nodes"
           nodeTypes={palette as any}

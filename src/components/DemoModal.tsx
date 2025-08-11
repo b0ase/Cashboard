@@ -33,21 +33,21 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
   })
   const animationRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Canvas node positions (px) within right panel SVG coordinate space
-  // Key canvas nodes (improved spacing and layout)
-  const SRC = useMemo(() => ({ x: 120, y: 80 }), []) // YouTube Ad Revenue
-  const SPLIT = useMemo(() => ({ x: 320, y: 100 }), []) // Split 70/20/10
-  const POOL = useMemo(() => ({ x: 520, y: 100 }), []) // Royalty Pool (70%)
-  const OPS = useMemo(() => ({ x: 520, y: 220 }), []) // Ops (20%)
-  const RESERVE = useMemo(() => ({ x: 520, y: 320 }), []) // Reserve (10%)
-  const GUARD = useMemo(() => ({ x: 720, y: 100 }), []) // Runway Guardrail
-  const DIV = useMemo(() => ({ x: 920, y: 100 }), []) // Dividend Distributor
+  // Canvas node positions (px) - zoomed out view with more compact layout
+  // Key canvas nodes (scaled down for better overview)
+  const SRC = useMemo(() => ({ x: 80, y: 60 }), []) // YouTube Ad Revenue
+  const SPLIT = useMemo(() => ({ x: 220, y: 80 }), []) // Split 70/20/10
+  const POOL = useMemo(() => ({ x: 360, y: 80 }), []) // Royalty Pool (70%)
+  const OPS = useMemo(() => ({ x: 360, y: 160 }), []) // Ops (20%)
+  const RESERVE = useMemo(() => ({ x: 360, y: 220 }), []) // Reserve (10%)
+  const GUARD = useMemo(() => ({ x: 500, y: 80 }), []) // Runway Guardrail
+  const DIV = useMemo(() => ({ x: 640, y: 80 }), []) // Dividend Distributor
   const SHAREHOLDER_POS = useMemo(
     () => ({
-      'Alice (15%)': { x: 150, y: 380 },
-      'Bob (25%)': { x: 380, y: 420 },
-      'Charlie (20%)': { x: 610, y: 380 },
-      'Diana (40%)': { x: 840, y: 420 },
+      'Alice (15%)': { x: 120, y: 280 },
+      'Bob (25%)': { x: 280, y: 320 },
+      'Charlie (20%)': { x: 440, y: 280 },
+      'Diana (40%)': { x: 600, y: 320 },
     }),
     []
   )
@@ -242,99 +242,99 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
           <div className="flex-1 p-6 pb-8 relative overflow-auto" style={{ minHeight: '500px' }}>
             <h3 className="text-lg font-semibold text-white mb-4">Live Workflow Canvas</h3>
             
-            {/* Canvas container with proper dimensions */}
-            <div className="relative" style={{ width: '1200px', height: '500px' }}>
+            {/* Canvas container with zoomed out dimensions */}
+            <div className="relative" style={{ width: '800px', height: '400px', transform: 'scale(1)', transformOrigin: 'top left' }}>
             
             {/* n1: YouTube Ad Revenue */}
-            <div className="absolute" style={{ left: SRC.x - 80, top: SRC.y - 24 }}>
-              <div className="bg-green-500/20 p-3 rounded-xl border border-green-400/30 w-44">
-                <div className="flex items-center space-x-2">
-                  <CreditCard className="w-5 h-5 text-green-400" />
-                  <span className="text-white font-medium">YouTube Ad Revenue</span>
+            <div className="absolute" style={{ left: SRC.x - 50, top: SRC.y - 16 }}>
+              <div className="bg-green-500/20 p-2 rounded-lg border border-green-400/30 w-32">
+                <div className="flex items-center space-x-1">
+                  <CreditCard className="w-3 h-3 text-green-400" />
+                  <span className="text-white font-medium text-xs">YouTube Ad</span>
                 </div>
               </div>
             </div>
 
             {/* n2: Split 70/20/10 */}
-            <div className="absolute" style={{ left: SPLIT.x - 60, top: SPLIT.y - 24 }}>
-              <div className="bg-yellow-500/20 p-3 rounded-xl border border-yellow-400/30 w-36">
-                <div className="flex items-center space-x-2">
-                  <GitBranch className="w-5 h-5 text-yellow-400" />
-                  <span className="text-white font-medium">Split 70/20/10</span>
+            <div className="absolute" style={{ left: SPLIT.x - 40, top: SPLIT.y - 16 }}>
+              <div className="bg-yellow-500/20 p-2 rounded-lg border border-yellow-400/30 w-24">
+                <div className="flex items-center space-x-1">
+                  <GitBranch className="w-3 h-3 text-yellow-400" />
+                  <span className="text-white font-medium text-xs">Split</span>
                 </div>
               </div>
             </div>
 
             {/* n3: Royalty Pool (70%) */}
-            <div className="absolute" style={{ left: POOL.x - 60, top: POOL.y - 24 }}>
-              <div className="bg-purple-500/20 p-3 rounded-xl border border-purple-400/30 w-48">
-                <div className="flex items-center space-x-2">
-                  <Coins className="w-5 h-5 text-purple-400" />
-                  <span className="text-white font-medium">Royalty Pool (70%)</span>
+            <div className="absolute" style={{ left: POOL.x - 40, top: POOL.y - 16 }}>
+              <div className="bg-purple-500/20 p-2 rounded-lg border border-purple-400/30 w-32">
+                <div className="flex items-center space-x-1">
+                  <Coins className="w-3 h-3 text-purple-400" />
+                  <span className="text-white font-medium text-xs">Pool (70%)</span>
                 </div>
               </div>
             </div>
 
             {/* n3b: Ops (20%) */}
-            <div className="absolute" style={{ left: OPS.x - 44, top: OPS.y - 24 }}>
-              <div className="bg-blue-500/20 p-3 rounded-xl border border-blue-400/30 w-28">
-                <div className="flex items-center space-x-2">
-                  <Building2 className="w-5 h-5 text-blue-400" />
-                  <span className="text-white font-medium">Ops (20%)</span>
+            <div className="absolute" style={{ left: OPS.x - 32, top: OPS.y - 16 }}>
+              <div className="bg-blue-500/20 p-2 rounded-lg border border-blue-400/30 w-24">
+                <div className="flex items-center space-x-1">
+                  <Building2 className="w-3 h-3 text-blue-400" />
+                  <span className="text-white font-medium text-xs">Ops</span>
                 </div>
               </div>
             </div>
 
             {/* n3c: Reserve (10%) */}
-            <div className="absolute" style={{ left: RESERVE.x - 52, top: RESERVE.y - 24 }}>
-              <div className="bg-blue-500/20 p-3 rounded-xl border border-blue-400/30 w-36">
-                <div className="flex items-center space-x-2">
-                  <Building2 className="w-5 h-5 text-blue-400" />
-                  <span className="text-white font-medium">Reserve (10%)</span>
+            <div className="absolute" style={{ left: RESERVE.x - 36, top: RESERVE.y - 16 }}>
+              <div className="bg-blue-500/20 p-2 rounded-lg border border-blue-400/30 w-28">
+                <div className="flex items-center space-x-1">
+                  <Building2 className="w-3 h-3 text-blue-400" />
+                  <span className="text-white font-medium text-xs">Reserve</span>
                 </div>
               </div>
             </div>
 
             {/* n4: Guardrail */}
-            <div className="absolute" style={{ left: GUARD.x - 68, top: GUARD.y - 24 }}>
-              <div className="bg-blue-500/20 p-3 rounded-xl border border-blue-400/30 w-44">
-                <div className="flex items-center space-x-2">
-                  <AlertTriangle className="w-5 h-5 text-blue-400" />
-                  <span className="text-white font-medium">Runway ≥ 6 months</span>
+            <div className="absolute" style={{ left: GUARD.x - 40, top: GUARD.y - 16 }}>
+              <div className="bg-blue-500/20 p-2 rounded-lg border border-blue-400/30 w-32">
+                <div className="flex items-center space-x-1">
+                  <AlertTriangle className="w-3 h-3 text-blue-400" />
+                  <span className="text-white font-medium text-xs">Guardrail</span>
                 </div>
               </div>
             </div>
 
             {/* n5: Dividend Distributor */}
-            <div className="absolute" style={{ left: DIV.x - 80, top: DIV.y - 24 }}>
-              <div className="bg-green-500/20 p-3 rounded-xl border border-green-400/30 w-48">
-                <div className="flex items-center space-x-2">
-                  <DollarSign className="w-5 h-5 text-green-400" />
-                  <span className="text-white font-medium">Dividend Distributor</span>
+            <div className="absolute" style={{ left: DIV.x - 44, top: DIV.y - 16 }}>
+              <div className="bg-green-500/20 p-2 rounded-lg border border-green-400/30 w-36">
+                <div className="flex items-center space-x-1">
+                  <DollarSign className="w-3 h-3 text-green-400" />
+                  <span className="text-white font-medium text-xs">Distributor</span>
                 </div>
               </div>
             </div>
 
             {/* Exceptions node (failure path) */}
-            <div className="absolute" style={{ left: GUARD.x - 36, top: GUARD.y + 90 }}>
-              <div className="bg-red-500/20 p-3 rounded-xl border border-red-400/30 w-40">
-                <div className="flex items-center space-x-2">
-                  <XOctagon className="w-5 h-5 text-red-400" />
-                  <span className="text-white font-medium">Exceptions</span>
+            <div className="absolute" style={{ left: GUARD.x - 28, top: GUARD.y + 60 }}>
+              <div className="bg-red-500/20 p-2 rounded-lg border border-red-400/30 w-28">
+                <div className="flex items-center space-x-1">
+                  <XOctagon className="w-3 h-3 text-red-400" />
+                  <span className="text-white font-medium text-xs">Exceptions</span>
                 </div>
               </div>
             </div>
 
-            {/* Individual Shareholders (spaced, zoomed out) */}
+            {/* Individual Shareholders (compact, zoomed out) */}
             {(['Alice (15%)','Bob (25%)','Charlie (20%)','Diana (40%)'] as const).map((name) => (
-              <div key={name} className="absolute" style={{ left: SHAREHOLDER_POS[name].x - 60, top: SHAREHOLDER_POS[name].y - 20 }}>
-                <div className={`p-3 rounded-xl border ${recentPayouts[name] ? 'animate-pulse-glow bg-purple-500/30 border-purple-300/60' : 'bg-purple-500/20 border-purple-400/30' }`}>
-                  <div className="flex items-center space-x-2">
-                    <User className="w-4 h-4 text-purple-400" />
-                    <span className="text-white text-sm font-medium">{name}</span>
+              <div key={name} className="absolute" style={{ left: SHAREHOLDER_POS[name].x - 40, top: SHAREHOLDER_POS[name].y - 16 }}>
+                <div className={`p-2 rounded-lg border ${recentPayouts[name] ? 'animate-pulse-glow bg-purple-500/30 border-purple-300/60' : 'bg-purple-500/20 border-purple-400/30' }`}>
+                  <div className="flex items-center space-x-1">
+                    <User className="w-3 h-3 text-purple-400" />
+                    <span className="text-white text-xs font-medium">{name.split(' ')[0]}</span>
                   </div>
                   <div className="text-xs text-purple-300 mt-1">
-                    ${'{'}shareholderBalances[name].toFixed(2){'}'}
+                    ${shareholderBalances[name].toFixed(0)}
                   </div>
                 </div>
               </div>
@@ -342,9 +342,9 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
 
             {/* Animated Payment Flows (labels spread out to avoid overlap) */}
             {paymentFlows.map((flow, index) => {
-              // Spread out the positions to avoid overlap
-              const offsetX = (index % 3 - 1) * 120 // -120, 0, 120
-              const offsetY = Math.floor(index / 3) * 40 - 20 // Vertical spacing
+              // Spread out the positions to avoid overlap (scaled for zoomed out view)
+              const offsetX = (index % 3 - 1) * 80 // -80, 0, 80
+              const offsetY = Math.floor(index / 3) * 30 - 15 // Vertical spacing
               return (
                 <div
                   key={flow.id}
@@ -352,23 +352,23 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
                     activeFlows.includes(flow.id) ? 'opacity-100' : 'opacity-0'
                   }`}
                   style={{
-                    left: activeFlows.includes(flow.id) ? `${500 + offsetX}px` : `${DIV.x}px`,
-                    top: activeFlows.includes(flow.id) ? `${200 + offsetY}px` : `${DIV.y}px`,
+                    left: activeFlows.includes(flow.id) ? `${350 + offsetX}px` : `${DIV.x}px`,
+                    top: activeFlows.includes(flow.id) ? `${150 + offsetY}px` : `${DIV.y}px`,
                     transform: 'translate(-50%, -50%)',
                     zIndex: 10
                   }}
                 >
-                <div className={`px-3 py-2 rounded-lg text-sm font-medium ${
+                <div className={`px-2 py-1 rounded-lg text-xs font-medium ${
                   flow.currency === 'USD' 
                     ? 'bg-green-500/20 text-green-400 border border-green-400/30' 
                     : 'bg-orange-500/20 text-orange-400 border border-orange-400/30'
                 }`}>
-                  <div className="flex items-center space-x-2">
-                    <Coins className="w-4 h-4" />
+                  <div className="flex items-center space-x-1">
+                    <Coins className="w-3 h-3" />
                     <span>{flow.currency === 'USD' ? '$' : '₿'}{flow.amount}</span>
                   </div>
                   <div className="text-xs opacity-80 mt-1">
-                    {flow.from} → {flow.to}
+                    {flow.from.split(' ')[0]} → {flow.to.split(' ')[0]}
                   </div>
                 </div>
               </div>

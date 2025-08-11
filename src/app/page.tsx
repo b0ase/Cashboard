@@ -795,7 +795,8 @@ export default function Dashboard() {
         defaultShareAllocation: 25,
         automationType: 'hybrid',
         isAutomated: false,
-        workflowId: null
+        workflowId: null,
+        organizationId: '1'
       },
       { 
         id: '2', 
@@ -806,7 +807,8 @@ export default function Dashboard() {
         defaultShareAllocation: 15,
         automationType: 'workflow',
         isAutomated: false,
-        workflowId: null
+        workflowId: null,
+        organizationId: '1'
       },
       { 
         id: '3', 
@@ -817,7 +819,8 @@ export default function Dashboard() {
         defaultShareAllocation: 20,
         automationType: 'workflow',
         isAutomated: false,
-        workflowId: null
+        workflowId: null,
+        organizationId: '1'
       },
       { 
         id: '4', 
@@ -828,7 +831,8 @@ export default function Dashboard() {
         defaultShareAllocation: 25,
         automationType: 'hybrid',
         isAutomated: false,
-        workflowId: null
+        workflowId: null,
+        organizationId: '1'
       },
       { 
         id: '5', 
@@ -839,7 +843,8 @@ export default function Dashboard() {
         defaultShareAllocation: 12,
         automationType: 'workflow',
         isAutomated: false,
-        workflowId: null
+        workflowId: null,
+        organizationId: '1'
       },
       { 
         id: '6', 
@@ -850,7 +855,8 @@ export default function Dashboard() {
         defaultShareAllocation: 15,
         automationType: 'hybrid',
         isAutomated: false,
-        workflowId: null
+        workflowId: null,
+        organizationId: '1'
       },
       { 
         id: '7', 
@@ -861,7 +867,8 @@ export default function Dashboard() {
         defaultShareAllocation: 18,
         automationType: 'workflow',
         isAutomated: false,
-        workflowId: null
+        workflowId: null,
+        organizationId: '1'
       },
       { 
         id: '8', 
@@ -872,7 +879,8 @@ export default function Dashboard() {
         defaultShareAllocation: 10,
         automationType: 'workflow',
         isAutomated: false,
-        workflowId: null
+        workflowId: null,
+        organizationId: '1'
       },
       // Executive and Management Roles
       { 
@@ -884,7 +892,8 @@ export default function Dashboard() {
         defaultShareAllocation: 20,
         automationType: 'hybrid',
         isAutomated: false,
-        workflowId: null
+        workflowId: null,
+        organizationId: '1'
       },
       { 
         id: '10', 
@@ -895,7 +904,8 @@ export default function Dashboard() {
         defaultShareAllocation: 18,
         automationType: 'hybrid',
         isAutomated: false,
-        workflowId: null
+        workflowId: null,
+        organizationId: '1'
       },
       { 
         id: '11', 
@@ -906,7 +916,8 @@ export default function Dashboard() {
         defaultShareAllocation: 22,
         automationType: 'hybrid',
         isAutomated: false,
-        workflowId: null
+        workflowId: null,
+        organizationId: '1'
       },
       { 
         id: '12', 
@@ -917,7 +928,8 @@ export default function Dashboard() {
         defaultShareAllocation: 20,
         automationType: 'hybrid',
         isAutomated: false,
-        workflowId: null
+        workflowId: null,
+        organizationId: '1'
       },
       { 
         id: '13', 
@@ -928,7 +940,8 @@ export default function Dashboard() {
         defaultShareAllocation: 12,
         automationType: 'workflow',
         isAutomated: false,
-        workflowId: null
+        workflowId: null,
+        organizationId: '1'
       },
       { 
         id: '14', 
@@ -939,7 +952,8 @@ export default function Dashboard() {
         defaultShareAllocation: 16,
         automationType: 'workflow',
         isAutomated: false,
-        workflowId: null
+        workflowId: null,
+        organizationId: '1'
       },
       { 
         id: '15', 
@@ -950,7 +964,8 @@ export default function Dashboard() {
         defaultShareAllocation: 18,
         automationType: 'hybrid',
         isAutomated: false,
-        workflowId: null
+        workflowId: null,
+        organizationId: '1'
       },
       { 
         id: '16', 
@@ -961,7 +976,8 @@ export default function Dashboard() {
         defaultShareAllocation: 15,
         automationType: 'hybrid',
         isAutomated: false,
-        workflowId: null
+        workflowId: null,
+        organizationId: '1'
       },
       { 
         id: '17', 
@@ -972,7 +988,8 @@ export default function Dashboard() {
         defaultShareAllocation: 14,
         automationType: 'workflow',
         isAutomated: false,
-        workflowId: null
+        workflowId: null,
+        organizationId: '1'
       },
       { 
         id: '18', 
@@ -983,7 +1000,8 @@ export default function Dashboard() {
         defaultShareAllocation: 13,
         automationType: 'hybrid',
         isAutomated: false,
-        workflowId: null
+        workflowId: null,
+        organizationId: '1'
       },
       { 
         id: '19', 
@@ -994,7 +1012,8 @@ export default function Dashboard() {
         defaultShareAllocation: 11,
         automationType: 'hybrid',
         isAutomated: false,
-        workflowId: null
+        workflowId: null,
+        organizationId: '1'
       },
       { 
         id: '20', 
@@ -1005,7 +1024,8 @@ export default function Dashboard() {
         defaultShareAllocation: 10,
         automationType: 'workflow',
         isAutomated: false,
-        workflowId: null
+        workflowId: null,
+        organizationId: '1'
       }
     ],
     workflows: [

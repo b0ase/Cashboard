@@ -1,0 +1,327 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Cashboard Workflow Schema",
+  "description": "Standard JSON format for Cashboard workflow definitions",
+  "type": "object",
+  "required": ["id", "name", "version", "metadata", "nodes", "connections"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for the workflow",
+      "pattern": "^[a-z0-9_-]+$"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable name of the workflow",
+      "maxLength": 100
+    },
+    "version": {
+      "type": "string",
+      "description": "Semantic version of the workflow",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["company", "industry", "type", "created", "updated"],
+      "properties": {
+        "company": {
+          "type": "object",
+          "required": ["name", "ticker", "jurisdiction"],
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Company legal name"
+            },
+            "ticker": {
+              "type": "string",
+              "description": "Stock ticker or company abbreviation",
+              "pattern": "^[A-Z0-9]{2,6}$"
+            },
+            "jurisdiction": {
+              "type": "string",
+              "description": "Legal jurisdiction",
+              "enum": ["US", "UK", "CA", "AU", "DE", "FR", "SG", "CH", "NL", "IE"]
+            },
+            "website": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": {
+              "type": "string",
+              "maxLength": 500
+            }
+          }
+        },
+        "industry": {
+          "type": "string",
+          "enum": [
+            "Technology", "Media & Entertainment", "Financial Services", "Healthcare",
+            "Manufacturing", "Retail", "Energy", "Real Estate", "Agriculture", 
+            "Transportation", "Education", "Non-Profit", "Government", "Other"
+          ]
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of workflow mapping",
+          "enum": [
+            "asset_monetary_flow", "organizational_structure", "revenue_model",
+            "supply_chain", "governance", "compliance", "operational_process"
+          ]
+        },
+        "created": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "author": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "folder": {
+          "type": "string",
+          "description": "Folder path for organization",
+          "pattern": "^[a-zA-Z0-9_/-]+$"
+        }
+      }
+    },
+    "nodes": {
+      "type": "array",
+      "description": "Array of workflow nodes",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "type", "position"],
+        "properties": {
+          "id": {
+            "type": ["string", "number"],
+            "description": "Unique node identifier"
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name of the node",
+            "maxLength": 100
+          },
+          "type": {
+            "type": "string",
+            "description": "Node type/kind",
+            "enum": [
+              "organization", "role", "member", "workflow", "instrument", "contract",
+              "integration", "trigger", "decision", "splitter", "payment", "wallets",
+              "ai-agent", "youtube", "scrypt-multisig", "scrypt-escrow", "scrypt-token",
+              "scrypt-auction", "scrypt-oracle", "scrypt-voting", "scrypt-timelock",
+              "scrypt-nft", "schema-post", "schema-profile", "schema-like", 
+              "schema-follow", "schema-media", "task", "info"
+            ]
+          },
+          "position": {
+            "type": "object",
+            "required": ["x", "y"],
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              }
+            }
+          },
+          "handcashHandle": {
+            "type": "string",
+            "description": "HandCash handle for payments",
+            "pattern": "^[a-zA-Z0-9_-]+$"
+          },
+          "tokenAddress": {
+            "type": "string",
+            "description": "BSV Type 1 Bitcoin Ordinals address",
+            "pattern": "^1[A-HJ-NP-Za-km-z1-9]{25,34}$"
+          },
+          "properties": {
+            "type": "object",
+            "description": "Additional node-specific properties",
+            "properties": {
+              "percentage": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "amount": {
+                "type": "number",
+                "minimum": 0
+              },
+              "currency": {
+                "type": "string",
+                "enum": ["USD", "EUR", "GBP", "BSV", "BTC", "ETH"]
+              },
+              "description": {
+                "type": "string",
+                "maxLength": 500
+              },
+              "status": {
+                "type": "string",
+                "enum": ["active", "inactive", "pending", "archived"]
+              },
+              "priority": {
+                "type": "string",
+                "enum": ["low", "medium", "high", "critical"]
+              },
+              "multisigThreshold": {
+                "type": "number",
+                "minimum": 1
+              },
+              "multisigSigners": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "walletType": {
+                "type": "string",
+                "enum": ["single", "multisig", "script", "smart_contract"]
+              },
+              "schemaType": {
+                "type": "string"
+              },
+              "schemaVersion": {
+                "type": "string"
+              },
+              "contractCode": {
+                "type": "string"
+              },
+              "isComposable": {
+                "type": "boolean"
+              }
+            }
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Node metadata for documentation and analysis",
+            "properties": {
+              "tier": {
+                "type": "string",
+                "description": "Hierarchical tier (e.g., 'revenue_source', 'aggregation', 'distribution')"
+              },
+              "category": {
+                "type": "string",
+                "description": "Node category for grouping"
+              },
+              "comments": {
+                "type": "string",
+                "maxLength": 1000
+              }
+            }
+          }
+        }
+      }
+    },
+    "connections": {
+      "type": "array",
+      "description": "Array of connections between nodes",
+      "items": {
+        "type": "object",
+        "required": ["id", "from", "to"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique connection identifier"
+          },
+          "from": {
+            "type": ["string", "number"],
+            "description": "Source node ID"
+          },
+          "to": {
+            "type": ["string", "number"],
+            "description": "Target node ID"
+          },
+          "type": {
+            "type": "string",
+            "description": "Connection type",
+            "enum": ["payment", "data", "control", "ownership", "governance", "reporting"]
+          },
+          "properties": {
+            "type": "object",
+            "properties": {
+              "weight": {
+                "type": "number",
+                "description": "Connection weight or percentage"
+              },
+              "label": {
+                "type": "string",
+                "description": "Connection label"
+              },
+              "conditions": {
+                "type": "string",
+                "description": "Conditions for the connection"
+              }
+            }
+          }
+        }
+      }
+    },
+    "layout": {
+      "type": "object",
+      "description": "Layout configuration for the workflow",
+      "properties": {
+        "style": {
+          "type": "string",
+          "enum": ["pyramid", "hierarchy", "network", "process", "circular"]
+        },
+        "direction": {
+          "type": "string",
+          "enum": ["top-down", "bottom-up", "left-right", "right-left"]
+        },
+        "spacing": {
+          "type": "object",
+          "properties": {
+            "horizontal": {
+              "type": "number"
+            },
+            "vertical": {
+              "type": "number"
+            }
+          }
+        }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "description": "Validation rules and constraints",
+      "properties": {
+        "totalPercentage": {
+          "type": "number",
+          "description": "Expected total percentage (should equal 100 for distributions)"
+        },
+        "requiredNodes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "constraints": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["sum_equals", "min_nodes", "max_nodes", "required_connection"]
+              },
+              "value": {
+                "type": "number"
+              },
+              "message": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

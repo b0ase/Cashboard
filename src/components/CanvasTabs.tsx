@@ -287,7 +287,6 @@ export default function CanvasTabs({
       <div className="flex-1 relative">
         {activeTab && (
           <WorkflowReactFlowCanvas
-            key={activeTab.id} // Force re-render when tab changes
             workflow={activeTab.workflow}
             templates={activeTab.templates}
             onTemplateSelect={createNewTab}

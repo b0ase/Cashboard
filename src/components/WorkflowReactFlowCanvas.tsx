@@ -283,7 +283,7 @@ export default function WorkflowReactFlowCanvas({
     console.log('🔄 Resetting canvas for tab change:', tabTitle, 'Nodes:', initialNodes.length, 'Edges:', initialEdges.length)
     setNodes(initialNodes)
     setEdges(initialEdges)
-  }, [initialNodes, initialEdges, setNodes, setEdges, tabTitle])
+  }, [initialNodes, initialEdges, tabTitle]) // Removed setNodes, setEdges to avoid dependency issues
   
   const onConnect = useCallback((params: Edge | Connection) => setEdges((eds) => addEdge({ ...params, animated: true }, eds)), [setEdges])
   const [templateModal, setTemplateModal] = useState<{ kind: string; items: TemplateItem[] } | null>(null)
@@ -474,7 +474,7 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
           </div>
         </Panel>
       )}
-      <MiniMap pannable zoomable position="bottom-right" style={{ background: 'rgba(0,0,0,0.6)', marginRight: '80px', marginBottom: '80px' }} />
+      <MiniMap pannable zoomable position="bottom-center" style={{ background: 'rgba(0,0,0,0.6)', marginBottom: '8px' }} />
       <Controls position="bottom-right" showInteractive={false} style={{ marginRight: '8px', marginBottom: '8px' }} />
       <Panel position="top-right" className="m-2">
         <NodePaletteSimple

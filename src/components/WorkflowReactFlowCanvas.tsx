@@ -218,7 +218,8 @@ export default function WorkflowReactFlowCanvas({
   onNodeCanvasSelect,
   tabTitle,
   nodeCanvasData,
-  onAddNode
+  onAddNode,
+  connectionStyle
 }: { 
   workflow: any; 
   templates?: any; 

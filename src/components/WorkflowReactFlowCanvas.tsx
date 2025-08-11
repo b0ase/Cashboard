@@ -423,6 +423,7 @@ export default function WorkflowReactFlowCanvas({
           onNodeClick={handleNodeClick}
           onNodeDoubleClick={handleNodeDoubleClick}
           tabTitle={tabTitle}
+          connectionStyle={connectionStyle}
         />
         
         {/* Node Editor Modal */}
@@ -444,8 +445,8 @@ export default function WorkflowReactFlowCanvas({
   )
 }
 
-function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick, palette, templateModal, setTemplateModal, setNodes, setEdges, onTemplateSelect, onNodeClick, onNodeDoubleClick, tabTitle }:
-  { nodes: Node<RFNodeData>[]; edges: Edge[]; onNodesChange: any; onEdgesChange: any; onConnect: any; onPick: (type: string, rf: any) => void; palette: any[]; templateModal: { kind: string; items: TemplateItem[] } | null; setTemplateModal: (v: any) => void; setNodes: any; setEdges: any; onTemplateSelect?: (template: TemplateItem) => void; onNodeClick?: (event: React.MouseEvent, node: Node<RFNodeData>) => void; onNodeDoubleClick?: (event: React.MouseEvent, node: Node<RFNodeData>) => void; tabTitle?: string }) {
+function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick, palette, templateModal, setTemplateModal, setNodes, setEdges, onTemplateSelect, onNodeClick, onNodeDoubleClick, tabTitle, connectionStyle }:
+  { nodes: Node<RFNodeData>[]; edges: Edge[]; onNodesChange: any; onEdgesChange: any; onConnect: any; onPick: (type: string, rf: any) => void; palette: any[]; templateModal: { kind: string; items: TemplateItem[] } | null; setTemplateModal: (v: any) => void; setNodes: any; setEdges: any; onTemplateSelect?: (template: TemplateItem) => void; onNodeClick?: (event: React.MouseEvent, node: Node<RFNodeData>) => void; onNodeDoubleClick?: (event: React.MouseEvent, node: Node<RFNodeData>) => void; tabTitle?: string; connectionStyle?: 'bezier' | 'smoothstep' | 'straight' }) {
   const rf = useReactFlow()
   return (
     <ReactFlow

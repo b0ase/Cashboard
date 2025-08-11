@@ -4770,7 +4770,7 @@ function WorkflowsView({
           {filteredWorkflows.map((workflow) => (
             <div
               key={workflow.id}
-              className={`bg-black/40 backdrop-blur-xl border rounded-xl p-6 hover:bg-black/60 transition-all duration-200 cursor-pointer group ${
+              className={`bg-black/40 backdrop-blur-xl border rounded-xl p-6 hover:bg-black/60 transition-all duration-200 cursor-pointer group overflow-hidden ${
                 workflow.name === 'Example Organisation Workflow: AUDEX' 
                   ? 'border-gradient-demo animate-pulse-glow shadow-2xl shadow-blue-500/20' 
                   : 'border-white/20'
@@ -4781,25 +4781,25 @@ function WorkflowsView({
             >
               {/* Header */}
               <div className="flex items-start justify-between mb-4">
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                   <h3 className="text-lg font-semibold text-white mb-1 truncate">
                     {workflow.name}
                   </h3>
                   {workflow.folder && (
                     <div className="flex items-center gap-1 mb-2">
                       <Folder className="w-3 h-3 text-blue-400" />
-                      <span className="text-xs text-blue-400">{workflow.folder}</span>
+                      <span className="text-xs text-blue-400 truncate">{workflow.folder}</span>
                     </div>
                   )}
-                  <p className="text-gray-400 text-sm line-clamp-2">
+                  <p className="text-gray-400 text-sm line-clamp-2 break-words overflow-hidden">
                     {workflow.description}
                   </p>
                 </div>
                 
                 {/* Status Badge */}
-                <div className={`flex items-center space-x-2 ml-4`}>
+                <div className={`flex items-center space-x-2 ml-4 flex-shrink-0`}>
                   <div className={`w-2 h-2 rounded-full ${getStatusColor(workflow.workflowStatus)}`}></div>
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-gray-400 whitespace-nowrap">
                     {getStatusText(workflow.workflowStatus)}
                   </span>
                 </div>

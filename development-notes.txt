@@ -1,11 +1,5 @@
-"Add Node" pallette should be draggable 
-New Nodes should have large coloured icons 
-The wallet page needs HandCash and Yours wallet connections, that's all. (You could possibly add a solana wallet) 
-(Templates vs Created items. All things start as templates to be edited)
-Wallet Connections 
-Click into wallet to see assets 
-Demo video needs hella work  
-AI Assistant needs relentless work 
-I dont' liek that Roles have speficfi share allocations defined. That's dumb. 
+make th cashboard branding slightly smaller and fit inside a black buttonwith white border shte same size as Wathc Demo, an Signin with HandCash 
 
-The 'People' Dashbaord needs work. Uliuamtely this is abotu 'People Canvases' 
+ Nodes should have larger coloured icons so we can distinguish tehm more easily. 
+
+We also want a sepreate token address (always a type 1 bitcoin ordinals address) underneath every handcash handle field in every node. The address field must be editable but you can put a grey example address in each field. 

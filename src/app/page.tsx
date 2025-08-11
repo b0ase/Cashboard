@@ -8,7 +8,8 @@ import {
   getAgentTemplates, 
   getInstrumentTemplates, 
   getContractTemplates, 
-  getIntegrationTemplates 
+  getIntegrationTemplates,
+  getWalletTemplates 
 } from '@/data/templates'
 import { 
   Menu, 
@@ -3008,20 +3009,38 @@ export default function Dashboard() {
               )}
               {/* Centered brand for desktop, right-aligned for mobile */}
               <div className={`${isMobile ? 'flex-1 text-right' : 'w-full flex justify-center'}`}>
-                <div className="inline-flex items-center justify-center px-4 py-2 transition-colors">
-                  <h2 className="text-3xl font-bold text-white">$CASHBOARD</h2>
+                <div className="inline-flex items-center justify-center px-4 py-2 bg-black border border-white rounded-xl transition-colors">
+                  <h2 className="text-lg font-bold text-white">$CASHBOARD</h2>
                 </div>
               </div>
             </div>
             
             {/* Navigation */}
             <nav className="space-y-2">
-              {/* Demo Button */}
+              {/* Watch Demo Button */}
+              <button
+                onClick={() => setShowDemoModal(true)}
+                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-3 py-2 rounded-lg transition-all duration-200 hover:scale-[1.02] flex items-center justify-center space-x-2 shadow-lg"
+              >
+                <PlayCircle className="w-4 h-4" />
+                <span className="font-medium text-sm">Watch Demo</span>
+              </button>
+
               {/* Sign in with HandCash Button */}
               <button
                 onClick={() => {
-                  // Handle HandCash authentication
-                  window.open('https://app.handcash.io/oauth/authorize', '_blank')
+                  // Handle HandCash authentication with proper OAuth parameters
+                  const clientId = process.env.NEXT_PUBLIC_HANDCASH_CLIENT_ID || 'your_client_id'
+                  const redirectUri = encodeURIComponent(`${window.location.origin}/auth/handcash/callback`)
+                  const scope = encodeURIComponent('user_public_profile user_private_profile payments')
+                  const state = Math.random().toString(36).substring(7) // Random state for security
+                  
+                  const authUrl = `https://cloud.handcash.io/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&state=${state}`
+                  
+                  // Store state in sessionStorage for verification
+                  sessionStorage.setItem('handcash_oauth_state', state)
+                  
+                  window.open(authUrl, '_blank')
                 }}
                 className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-3 py-2 rounded-lg transition-all duration-200 hover:scale-[1.02] flex items-center justify-center space-x-2 shadow-lg mb-3"
               >
@@ -3029,14 +3048,6 @@ export default function Dashboard() {
                   <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                 </svg>
                 <span className="font-medium text-sm">Sign in with HandCash</span>
-              </button>
-
-              <button
-                onClick={() => setShowDemoModal(true)}
-                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-3 py-2 rounded-lg transition-all duration-200 hover:scale-[1.02] flex items-center justify-center space-x-2 shadow-lg"
-              >
-                <PlayCircle className="w-4 h-4" />
-                <span className="font-medium text-sm">Watch Demo</span>
               </button>
 
               {/* Divider */}
@@ -11301,8 +11312,10 @@ function BillingView() {
 // Wallets View Component
 function WalletsView({ organizations, selectedOrganization }: WalletsViewProps) {
   const [showCreateWallet, setShowCreateWallet] = useState(false)
+  const [showWalletTemplates, setShowWalletTemplates] = useState(false)
   const [selectedWallet, setSelectedWallet] = useState<Wallet | null>(null)
   const [showWalletDetail, setShowWalletDetail] = useState(false)
+  const [selectedCategory, setSelectedCategory] = useState<string>('All')
   const [walletFormData, setWalletFormData] = useState({
     name: '',
     type: 'bitcoin' as Wallet['type'],
@@ -11310,6 +11323,9 @@ function WalletsView({ organizations, selectedOrganization }: WalletsViewProps) 
     description: '',
     network: 'mainnet' as Wallet['network']
   })
+
+  // Import wallet templates from templates.ts
+  const walletTemplates = getWalletTemplates()
 
   // Sample wallets data - in a real app this would come from props
   const wallets: Wallet[] = [
@@ -11423,13 +11439,22 @@ function WalletsView({ organizations, selectedOrganization }: WalletsViewProps) 
             <h1 className="text-3xl font-bold text-white mb-2">Wallets</h1>
             <p className="text-gray-300">Manage cryptocurrency wallets and track balances</p>
           </div>
-          <button
-            onClick={() => setShowCreateWallet(true)}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl flex items-center space-x-3 transition-colors shadow-lg"
-          >
-            <Plus className="w-5 h-5" />
-            <span className="font-medium">Add Wallet</span>
-          </button>
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={() => setShowWalletTemplates(true)}
+              className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-xl flex items-center space-x-3 transition-colors shadow-lg"
+            >
+              <Grid className="w-5 h-5" />
+              <span className="font-medium">Browse Templates</span>
+            </button>
+            <button
+              onClick={() => setShowCreateWallet(true)}
+              className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl flex items-center space-x-3 transition-colors shadow-lg"
+            >
+              <Plus className="w-5 h-5" />
+              <span className="font-medium">Add Wallet</span>
+            </button>
+          </div>
         </div>
 
         {/* Organization Filter Info */}
@@ -11472,6 +11497,51 @@ function WalletsView({ organizations, selectedOrganization }: WalletsViewProps) 
             <div className="text-gray-400 text-sm">Total Value (USD)</div>
           </div>
         </div>
+
+        {/* Popular Wallet Templates Section */}
+        {filteredWallets.length > 0 && (
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-white">Popular Wallet Templates</h2>
+              <button
+                onClick={() => setShowWalletTemplates(true)}
+                className="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors"
+              >
+                View All Templates →
+              </button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {walletTemplates.slice(0, 4).map((template) => (
+                <div
+                  key={template.id}
+                  onClick={() => {
+                    setWalletFormData({
+                      name: template.name,
+                      type: template.type?.toLowerCase() as Wallet['type'] || 'bitcoin',
+                      address: '',
+                      description: template.description || '',
+                      network: 'mainnet'
+                    })
+                    setShowCreateWallet(true)
+                  }}
+                  className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-4 cursor-pointer hover:border-white/30 hover:bg-black/60 transition-all duration-300 group"
+                >
+                  <div className="flex items-center space-x-3 mb-2">
+                    <div className="text-lg">{template.icon}</div>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-white font-medium text-sm truncate">{template.name}</h3>
+                      <p className="text-gray-400 text-xs">{template.category}</p>
+                    </div>
+                  </div>
+                  <p className="text-gray-300 text-xs line-clamp-2 mb-2">{template.description}</p>
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                    <p className="text-blue-400 text-xs">Click to use →</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Wallets Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -11564,12 +11634,163 @@ function WalletsView({ organizations, selectedOrganization }: WalletsViewProps) 
                 ? 'No wallets found for the selected organization' 
                 : 'No wallets added yet'}
             </p>
-            <button
-              onClick={() => setShowCreateWallet(true)}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors"
-            >
-              Add Your First Wallet
-            </button>
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={() => setShowWalletTemplates(true)}
+                className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-2 rounded-lg transition-colors flex items-center space-x-2"
+              >
+                <Grid className="w-4 h-4" />
+                <span>Browse Templates</span>
+              </button>
+              <button
+                onClick={() => setShowCreateWallet(true)}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors"
+              >
+                Add Your First Wallet
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Wallet Templates Modal */}
+        {showWalletTemplates && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-xl flex items-center justify-center z-50 p-4">
+            <div className="bg-black/90 backdrop-blur-xl border border-white/20 rounded-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
+              <div className="flex items-center justify-between p-6 border-b border-white/20">
+                <div>
+                  <h2 className="text-2xl font-bold text-white mb-1">Wallet Templates</h2>
+                  <p className="text-gray-400">Choose from popular wallet configurations</p>
+                </div>
+                <button
+                  onClick={() => setShowWalletTemplates(false)}
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="flex flex-col h-[calc(90vh-8rem)]">
+                {/* Category Filter */}
+                <div className="p-6 border-b border-white/10">
+                  <div className="flex items-center space-x-2 overflow-x-auto pb-2">
+                    {['All', ...Array.from(new Set(walletTemplates.map(t => t.category).filter(Boolean)))].map((category) => (
+                      <button
+                        key={category}
+                        onClick={() => setSelectedCategory(category || 'All')}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+                          selectedCategory === category
+                            ? 'bg-blue-500 text-white'
+                            : 'bg-white/10 text-gray-300 hover:bg-white/20'
+                        }`}
+                      >
+                        {category}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Templates Grid */}
+                <div className="flex-1 overflow-y-auto p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {walletTemplates
+                      .filter(template => selectedCategory === 'All' || template.category === selectedCategory)
+                      .map((template) => (
+                      <div
+                        key={template.id}
+                        onClick={() => {
+                          // Pre-fill form with template data
+                          setWalletFormData({
+                            name: template.name,
+                            type: template.type?.toLowerCase() as Wallet['type'] || 'bitcoin',
+                            address: '',
+                            description: template.description || '',
+                            network: 'mainnet'
+                          })
+                          setShowWalletTemplates(false)
+                          setShowCreateWallet(true)
+                        }}
+                        className="bg-black/60 backdrop-blur-xl border border-white/20 rounded-xl p-6 cursor-pointer hover:border-white/40 hover:bg-black/70 transition-all duration-300 group"
+                      >
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex items-center space-x-3">
+                            <div className="text-2xl">{template.icon}</div>
+                            <div className="min-w-0 flex-1">
+                              <h3 className="text-lg font-semibold text-white truncate">{template.name}</h3>
+                              <p className="text-blue-400 text-sm">{template.category}</p>
+                            </div>
+                          </div>
+                          {template.status && (
+                            <div className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              template.status === 'Available' 
+                                ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
+                                : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
+                            }`}>
+                              {template.status}
+                            </div>
+                          )}
+                        </div>
+
+                        <p className="text-gray-300 text-sm mb-4 line-clamp-2">{template.description}</p>
+
+                        {template.features && (
+                          <div className="mb-4">
+                            <p className="text-gray-400 text-xs font-medium mb-2">Features:</p>
+                            <div className="flex flex-wrap gap-1">
+                              {template.features.slice(0, 3).map((feature, index) => (
+                                <span
+                                  key={index}
+                                  className="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded-full"
+                                >
+                                  {feature}
+                                </span>
+                              ))}
+                              {template.features.length > 3 && (
+                                <span className="px-2 py-1 bg-gray-500/20 text-gray-400 text-xs rounded-full">
+                                  +{template.features.length - 3} more
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        {template.supportedChains && (
+                          <div className="mb-4">
+                            <p className="text-gray-400 text-xs font-medium mb-2">Supported Chains:</p>
+                            <div className="flex flex-wrap gap-1">
+                              {template.supportedChains?.slice(0, 3).map((chain: string, index: number) => (
+                                <span
+                                  key={index}
+                                  className="px-2 py-1 bg-purple-500/20 text-purple-400 text-xs rounded-full"
+                                >
+                                  {chain}
+                                </span>
+                              ))}
+                              {template.supportedChains && template.supportedChains.length > 3 && (
+                                <span className="px-2 py-1 bg-gray-500/20 text-gray-400 text-xs rounded-full">
+                                  +{template.supportedChains.length - 3} more
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity pt-3 border-t border-white/10">
+                          <p className="text-blue-400 text-xs text-center">Click to use template →</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {walletTemplates.filter(template => selectedCategory === 'All' || template.category === selectedCategory).length === 0 && (
+                    <div className="text-center py-12">
+                      <Wallet className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-xl font-semibold text-white mb-2">No Templates Found</h3>
+                      <p className="text-gray-400">No wallet templates found for the selected category</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         )}
 

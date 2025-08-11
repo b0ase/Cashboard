@@ -16,6 +16,7 @@ export type TemplateItem = {
   features?: string[];
   lastSync?: string;
   defaultDuration?: number;
+  supportedChains?: string[];
 }
 
 type TemplateBag = {

@@ -118,23 +118,23 @@ const DEFAULT_NODE_CONFIG = {
 
 type NodeKind = string
 
-export type RFNodeData = { label: string; kind: NodeKind; subtitle?: string; template?: TemplateItem; handcashHandle?: string }
+export type RFNodeData = { label: string; kind: NodeKind; subtitle?: string; template?: TemplateItem; handcashHandle?: string; tokenAddress?: string }
 
 function IconFor({ kind }: { kind: NodeKind }) {
-  const cls = 'w-4 h-4'
+  const cls = 'w-6 h-6'
   switch (kind) {
-    case 'payment': return <DollarSign className={`${cls} text-yellow-400`} />
-    case 'contract': return <FileText className={`${cls} text-blue-400`} />
-    case 'splitter': return <Split className={`${cls} text-amber-400`} />
-    case 'decision': return <AlertTriangle className={`${cls} text-purple-400`} />
-    case 'organization': return <Building className={`${cls} text-orange-400`} />
-    case 'role': return <Crown className={`${cls} text-amber-400`} />
-    case 'member': return <UserCheck className={`${cls} text-cyan-400`} />
-    case 'instrument': return <Banknote className={`${cls} text-emerald-400`} />
-    case 'wallets': return <Wallet className={`${cls} text-teal-300`} />
-    case 'workflow': return <Target className={`${cls} text-indigo-400`} />
-    case 'trigger': return <Zap className={`${cls} text-yellow-500`} />
-    case 'youtube': return <Play className={`${cls} text-red-500`} />
+    case 'payment': return <DollarSign className={`${cls} text-yellow-500`} />
+    case 'contract': return <FileText className={`${cls} text-blue-500`} />
+    case 'splitter': return <Split className={`${cls} text-amber-500`} />
+    case 'decision': return <AlertTriangle className={`${cls} text-purple-500`} />
+    case 'organization': return <Building className={`${cls} text-orange-500`} />
+    case 'role': return <Crown className={`${cls} text-amber-500`} />
+    case 'member': return <UserCheck className={`${cls} text-cyan-500`} />
+    case 'instrument': return <Banknote className={`${cls} text-emerald-500`} />
+    case 'wallets': return <Wallet className={`${cls} text-teal-500`} />
+    case 'workflow': return <Target className={`${cls} text-indigo-500`} />
+    case 'trigger': return <Zap className={`${cls} text-yellow-600`} />
+    case 'youtube': return <Play className={`${cls} text-red-600`} />
     default: return <Target className={`${cls} text-white`} />
   }
 }
@@ -142,6 +142,8 @@ function IconFor({ kind }: { kind: NodeKind }) {
 function ColoredNode({ data }: { data: RFNodeData }) {
   const [isEditingHandle, setIsEditingHandle] = React.useState(false)
   const [handcashHandle, setHandcashHandle] = React.useState(data.handcashHandle || '')
+  const [isEditingTokenAddress, setIsEditingTokenAddress] = React.useState(false)
+  const [tokenAddress, setTokenAddress] = React.useState(data.tokenAddress || '')
   
   // Check if this is an AI assistant node that should be wide and short
   const isAIAssistant = data.label?.toLowerCase().includes('openai') || 
@@ -159,6 +161,11 @@ function ColoredNode({ data }: { data: RFNodeData }) {
     setIsEditingHandle(false)
   }
 
+  const handleSaveTokenAddress = () => {
+    data.tokenAddress = tokenAddress
+    setIsEditingTokenAddress(false)
+  }
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       handleSaveHandle()
@@ -166,6 +173,16 @@ function ColoredNode({ data }: { data: RFNodeData }) {
     if (e.key === 'Escape') {
       setHandcashHandle(data.handcashHandle || '')
       setIsEditingHandle(false)
+    }
+  }
+
+  const handleTokenAddressKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSaveTokenAddress()
+    }
+    if (e.key === 'Escape') {
+      setTokenAddress(data.tokenAddress || '')
+      setIsEditingTokenAddress(false)
     }
   }
 
@@ -205,6 +222,31 @@ function ColoredNode({ data }: { data: RFNodeData }) {
             </div>
           )}
         </div>
+
+        {/* Token Address (Type 1 Bitcoin Ordinals) */}
+        <div className="flex items-center gap-1">
+          <span className="text-[10px] text-orange-400 font-mono">₿</span>
+          {isEditingTokenAddress ? (
+            <input
+              type="text"
+              value={tokenAddress}
+              onChange={(e) => setTokenAddress(e.target.value)}
+              onBlur={handleSaveTokenAddress}
+              onKeyDown={handleTokenAddressKeyDown}
+              className="bg-white/20 text-white text-[10px] font-mono px-1 py-0.5 rounded min-w-0 flex-1"
+              placeholder="bc1p...example_ordinals_address"
+              autoFocus
+            />
+          ) : (
+            <div 
+              onClick={() => setIsEditingTokenAddress(true)}
+              className="text-[10px] text-gray-400 font-mono cursor-pointer hover:text-gray-300 transition-colors flex-1 truncate"
+              title={`Token Address: ${tokenAddress || 'Click to edit Bitcoin Ordinals address'}`}
+            >
+              {tokenAddress || 'bc1p...click_to_edit'}
+            </div>
+          )}
+        </div>
       </div>
       <Handle type="target" position={Position.Top} className="!bg-white/60" />
       <Handle type="source" position={Position.Bottom} className="!bg-white/60" />
@@ -217,36 +259,36 @@ export { nodeTypes }
 
 const PALETTE = [
   // Basic
-  { type: 'task', name: 'Task', category: 'Basic', icon: <CheckSquare className="w-4 h-4 text-emerald-400" /> },
-  { type: 'decision', name: 'Decision', category: 'Basic', icon: <GitBranch className="w-4 h-4 text-amber-400" /> },
-  { type: 'payment', name: 'Payment', category: 'Basic', icon: <DollarSign className="w-4 h-4 text-green-400" /> },
-  { type: 'milestone', name: 'Milestone', category: 'Basic', icon: <Flag className="w-4 h-4 text-red-400" /> },
-  { type: 'team', name: 'Team', category: 'Basic', icon: <Users className="w-4 h-4 text-green-400" /> },
+  { type: 'task', name: 'Task', category: 'Basic', icon: <CheckSquare className="w-6 h-6 text-emerald-500" /> },
+  { type: 'decision', name: 'Decision', category: 'Basic', icon: <GitBranch className="w-6 h-6 text-amber-500" /> },
+  { type: 'payment', name: 'Payment', category: 'Basic', icon: <DollarSign className="w-6 h-6 text-green-500" /> },
+  { type: 'milestone', name: 'Milestone', category: 'Basic', icon: <Flag className="w-6 h-6 text-red-500" /> },
+  { type: 'team', name: 'Team', category: 'Basic', icon: <Users className="w-6 h-6 text-green-500" /> },
   
   // Business
-  { type: 'workflow', name: 'Workflows', category: 'Business', icon: <Workflow className="w-4 h-4 text-blue-400" /> },
-  { type: 'organization', name: 'Organizations', category: 'Business', icon: <Building className="w-4 h-4 text-blue-400" /> },
-  { type: 'role', name: 'Roles', category: 'Business', icon: <Crown className="w-4 h-4 text-amber-400" /> },
-  { type: 'ai-agent', name: 'Agents', category: 'Business', icon: <Bot className="w-4 h-4 text-purple-400" /> },
-  { type: 'member', name: 'People', category: 'Business', icon: <UserCheck className="w-4 h-4 text-purple-400" /> },
-  { type: 'instrument', name: 'Instruments', category: 'Business', icon: <TrendingUp className="w-4 h-4 text-orange-400" /> },
-  { type: 'wallets', name: 'Wallets', category: 'Business', icon: <Wallet className="w-4 h-4 text-amber-400" /> },
-  { type: 'contract', name: 'Contract', category: 'Business', icon: <FileText className="w-4 h-4 text-gray-400" /> },
-  { type: 'integration', name: 'Integrations', category: 'Business', icon: <Plug className="w-4 h-4 text-violet-400" /> },
+  { type: 'workflow', name: 'Workflows', category: 'Business', icon: <Workflow className="w-6 h-6 text-blue-500" /> },
+  { type: 'organization', name: 'Organizations', category: 'Business', icon: <Building className="w-6 h-6 text-blue-500" /> },
+  { type: 'role', name: 'Roles', category: 'Business', icon: <Crown className="w-6 h-6 text-amber-500" /> },
+  { type: 'ai-agent', name: 'Agents', category: 'Business', icon: <Bot className="w-6 h-6 text-purple-500" /> },
+  { type: 'member', name: 'People', category: 'Business', icon: <UserCheck className="w-6 h-6 text-purple-500" /> },
+  { type: 'instrument', name: 'Instruments', category: 'Business', icon: <TrendingUp className="w-6 h-6 text-orange-500" /> },
+  { type: 'wallets', name: 'Wallets', category: 'Business', icon: <Wallet className="w-6 h-6 text-amber-500" /> },
+  { type: 'contract', name: 'Contract', category: 'Business', icon: <FileText className="w-6 h-6 text-gray-500" /> },
+  { type: 'integration', name: 'Integrations', category: 'Business', icon: <Plug className="w-6 h-6 text-violet-500" /> },
   
   // Integration
-  { type: 'youtube', name: 'YouTube', category: 'Integration', icon: <Play className="w-4 h-4 text-red-500" /> },
-  { type: 'api', name: 'API Call', category: 'Integration', icon: <Code className="w-4 h-4 text-purple-400" /> },
-  { type: 'database', name: 'Database', category: 'Integration', icon: <Database className="w-4 h-4 text-blue-400" /> },
-  { type: 'webhook', name: 'Webhook', category: 'Integration', icon: <Zap className="w-4 h-4 text-violet-400" /> },
+  { type: 'youtube', name: 'YouTube', category: 'Integration', icon: <Play className="w-6 h-6 text-red-600" /> },
+  { type: 'api', name: 'API Call', category: 'Integration', icon: <Code className="w-6 h-6 text-purple-500" /> },
+  { type: 'database', name: 'Database', category: 'Integration', icon: <Database className="w-6 h-6 text-blue-500" /> },
+  { type: 'webhook', name: 'Webhook', category: 'Integration', icon: <Zap className="w-6 h-6 text-violet-500" /> },
   
   // Communication
-  { type: 'email', name: 'Email', category: 'Communication', icon: <Mail className="w-4 h-4 text-red-400" /> },
-  { type: 'sms', name: 'SMS', category: 'Communication', icon: <MessageSquare className="w-4 h-4 text-green-400" /> },
-  { type: 'notification', name: 'Notification', category: 'Communication', icon: <Bell className="w-4 h-4 text-yellow-400" /> },
+  { type: 'email', name: 'Email', category: 'Communication', icon: <Mail className="w-6 h-6 text-red-500" /> },
+  { type: 'sms', name: 'SMS', category: 'Communication', icon: <MessageSquare className="w-6 h-6 text-green-500" /> },
+  { type: 'notification', name: 'Notification', category: 'Communication', icon: <Bell className="w-6 h-6 text-yellow-500" /> },
   
   // Logic
-  { type: 'trigger', name: 'Trigger', category: 'Logic', icon: <Zap className="w-4 h-4 text-yellow-400" /> },
+  { type: 'trigger', name: 'Trigger', category: 'Logic', icon: <Zap className="w-6 h-6 text-yellow-500" /> },
 ]
 
 const BUSINESS_KINDS = new Set(['workflow','organization','role','ai-agent','member','instrument','wallets','contract','integration'])

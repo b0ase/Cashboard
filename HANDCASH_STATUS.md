@@ -1,6 +1,6 @@
 # HandCash Authentication Status
 
-## ✅ **FIXED - HandCash Sign-in is Now Working!**
+## ✅ **HandCash Sign-in is Working**
 
 The HandCash authentication system has been successfully repaired and is now fully functional.
 
@@ -19,7 +19,7 @@ The HandCash authentication system has been successfully repaired and is now ful
    - **Working**: `/api/auth/handcash/redirect` endpoint generates correct URLs
 
 4. **Token Exchange Flow** 🔄
-   - **Created**: Mock token exchange endpoint for testing (`/api/auth/handcash/token-mock`)
+   - **Real Endpoint**: `/api/auth/handcash/token` is used for token exchange
    - **Functional**: Complete OAuth flow from authorization to user session
 
 ### **Current Implementation:**
@@ -34,7 +34,7 @@ The HandCash authentication system has been successfully repaired and is now ful
 
 #### **API Endpoints:**
 - ✅ `/api/auth/handcash/redirect` - Generates authorization URLs
-- ✅ `/api/auth/handcash/token-mock` - Mock token exchange (for testing)
+- ✅ `/api/auth/handcash/token` - Token exchange (server-side HandCash Connect)
 - ✅ `/auth/handcash/callback` - Handles OAuth callback
 
 ### **How to Test:**
@@ -53,27 +53,12 @@ NEXT_PUBLIC_HANDCASH_APP_ID=689945737f3b983658228006
 HANDCASH_APP_SECRET=dba5093c0600942b51da74669431b8acbd18d154723bfffab03558a930a53faa
 ```
 
-### **Switching to Real HandCash Connect:**
+### **Real HandCash Connect**
 
-When ready to use real HandCash authentication (not mock):
-
-1. **Update the token exchange endpoint**:
-   ```typescript
-   // In src/lib/handcash.ts, change:
-   const response = await fetch('/api/auth/handcash/token-mock', {
-   // To:
-   const response = await fetch('/api/auth/handcash/token', {
-   ```
-
-2. **Update the callback page**:
-   ```typescript
-   // In src/app/auth/handcash/callback/page.tsx, change:
-   const tokenResponse = await fetch('/api/auth/handcash/token-mock', {
-   // To:
-   const tokenResponse = await fetch('/api/auth/handcash/token', {
-   ```
-
-3. **The real `/api/auth/handcash/token` endpoint** will use HandCash Connect SDK server-side only (avoiding WASM issues)
+1. **Token exchange endpoint**:
+   - Uses `/api/auth/handcash/token`
+   - Server-side only, with HandCash Connect SDK
+   - Avoids WASM issues by dynamic import on server
 
 ### **Features Working:**
 
@@ -98,7 +83,7 @@ User authorizes in HandCash
     ↓
 Redirect to callback with authToken
     ↓
-Exchange authToken for user data (mock/real API)
+Exchange authToken for user data (real API)
     ↓
 Store user session
     ↓
@@ -113,7 +98,7 @@ Update UI with user info
 ### **Next Steps:**
 
 1. **Test the authentication flow** thoroughly
-2. **When ready for production**: Switch from mock to real token exchange
+2. **Production**: Ensure environment variables and redirect URIs are configured
 3. **Configure production redirect URLs** in HandCash Developer Dashboard
 4. **Add additional error handling** for production edge cases
 

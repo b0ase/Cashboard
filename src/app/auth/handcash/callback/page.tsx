@@ -46,12 +46,10 @@ function HandCashCallbackContent() {
 
         console.log('Using authToken for authentication:', authToken.substring(0, 10) + '...')
         
-        // Use the real HandCash API endpoint (not mock)
+        // Real endpoint only
         const tokenResponse = await fetch('/api/auth/handcash/token', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ authToken }),
         })
         
@@ -80,10 +78,10 @@ function HandCashCallbackContent() {
                   setMessage('Successfully authenticated with HandCash!')
 
                   // Check if we're in a popup
-                  if (window.opener && window.opener !== window) {
-                    // We're in a popup - send message to parent and close
+                    if (window.opener && window.opener !== window) {
+                    // We're in a popup - send message to parent with full auth data and close
                     window.opener.postMessage(
-                      { type: 'HANDCASH_AUTH_SUCCESS' },
+                      { type: 'HANDCASH_AUTH_SUCCESS', data: tokenData },
                       window.location.origin
                     )
                     setTimeout(() => {

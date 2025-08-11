@@ -39,12 +39,10 @@ export const HandCashAuth = {
    * Exchange authorization code for access token
    */
   async exchangeCodeForToken(authToken: string): Promise<HandCashAuthResult> {
-    // Use real HandCash API endpoint
+    // Real endpoint only
     const response = await fetch('/api/auth/handcash/token', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ authToken }),
     })
 

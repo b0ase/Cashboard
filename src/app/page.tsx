@@ -501,7 +501,7 @@ interface ChatMessage {
 }
 
 interface AppState {
-  currentView: 'workflow' | 'organizations' | 'roles' | 'people' | 'instruments' | 'contracts' | 'wallets' | 'security' | 'integrations' | 'agents' | 'settings' | 'profile' | 'billing' | 'market' | 'launchpad'
+  currentView: 'dashboard' | 'workflow' | 'organizations' | 'roles' | 'people' | 'instruments' | 'contracts' | 'wallets' | 'security' | 'integrations' | 'agents' | 'settings' | 'profile' | 'billing' | 'market' | 'launchpad'
   selectedOrganization: string | null
   selectedPerson: HandCashHandle | null
   sidebarOpen: boolean
@@ -888,6 +888,7 @@ function DashboardContentInner() {
       }
     ],
     roles: [
+      // === C-SUITE EXECUTIVES ===
       { 
         id: '1', 
         name: 'CEO', 
@@ -895,115 +896,6 @@ function DashboardContentInner() {
         icon: 'crown', 
         permissions: ['admin', 'finance', 'operations'], 
         defaultShareAllocation: 25,
-        automationType: 'hybrid',
-        isAutomated: false,
-        workflowId: null,
-        organizationId: '1'
-      },
-      { 
-        id: '2', 
-        name: 'Marketing Manager', 
-        description: 'Marketing campaigns, social media management, and customer engagement', 
-        icon: 'trending-up', 
-        permissions: ['marketing', 'data-analysis'], 
-        defaultShareAllocation: 15,
-        automationType: 'workflow',
-        isAutomated: false,
-        workflowId: null,
-        organizationId: '1'
-      },
-      { 
-        id: '3', 
-        name: 'Finance Manager', 
-        description: 'Financial analysis, budget tracking, and reporting', 
-        icon: 'bar-chart-3', 
-        permissions: ['finance', 'admin', 'data-analysis'], 
-        defaultShareAllocation: 20,
-        automationType: 'workflow',
-        isAutomated: false,
-        workflowId: null,
-        organizationId: '1'
-      },
-      { 
-        id: '4', 
-        name: 'Tech Lead', 
-        description: 'Code review, technical documentation, and development workflows', 
-        icon: 'code', 
-        permissions: ['tech', 'workflow-creation'], 
-        defaultShareAllocation: 25,
-        automationType: 'hybrid',
-        isAutomated: false,
-        workflowId: null,
-        organizationId: '1'
-      },
-      { 
-        id: '5', 
-        name: 'Operations Manager', 
-        description: 'Process management, workflow optimization, and operational efficiency', 
-        icon: 'settings', 
-        permissions: ['operations', 'workflow-creation'], 
-        defaultShareAllocation: 12,
-        automationType: 'workflow',
-        isAutomated: false,
-        workflowId: null,
-        organizationId: '1'
-      },
-      { 
-        id: '6', 
-        name: 'Creative Director', 
-        description: 'Content creation, brand management, and creative strategy', 
-        icon: 'palette', 
-        permissions: ['marketing', 'workflow-creation'], 
-        defaultShareAllocation: 15,
-        automationType: 'hybrid',
-        isAutomated: false,
-        workflowId: null,
-        organizationId: '1'
-      },
-      { 
-        id: '7', 
-        name: 'Legal Counsel', 
-        description: 'Contract analysis, compliance monitoring, and legal documentation', 
-        icon: 'shield', 
-        permissions: ['legal', 'admin', 'data-analysis'], 
-        defaultShareAllocation: 18,
-        automationType: 'workflow',
-        isAutomated: false,
-        workflowId: null,
-        organizationId: '1'
-      },
-      { 
-        id: '8', 
-        name: 'Customer Success Manager', 
-        description: 'Customer support, relationship management, and satisfaction monitoring', 
-        icon: 'users', 
-        permissions: ['marketing', 'data-analysis'], 
-        defaultShareAllocation: 10,
-        automationType: 'workflow',
-        isAutomated: false,
-        workflowId: null,
-        organizationId: '1'
-      },
-      // Executive and Management Roles
-      { 
-        id: '9', 
-        name: 'CTO', 
-        description: 'Chief Technology Officer - Technology strategy, architecture, and innovation leadership', 
-        icon: 'code', 
-        permissions: ['admin', 'tech', 'workflow-creation'], 
-        defaultShareAllocation: 20,
-        automationType: 'hybrid',
-        isAutomated: false,
-        workflowId: null,
-        organizationId: '1'
-      },
-      { 
-        id: '10', 
-        name: 'CMO', 
-        description: 'Chief Marketing Officer - Marketing strategy, brand management, and growth initiatives', 
-        icon: 'trending-up', 
-        permissions: ['admin', 'marketing', 'data-analysis'], 
-        defaultShareAllocation: 18,
         automationType: 'hybrid',
         isAutomated: false,
         workflowId: null,
@@ -1034,35 +926,23 @@ function DashboardContentInner() {
         organizationId: '1'
       },
       { 
-        id: '13', 
-        name: 'CHRO', 
-        description: 'Chief Human Resources Officer - People strategy, culture, and organizational development', 
-        icon: 'users', 
-        permissions: ['admin', 'operations'], 
-        defaultShareAllocation: 12,
-        automationType: 'workflow',
-        isAutomated: false,
-        workflowId: null,
-        organizationId: '1'
-      },
-      { 
-        id: '14', 
-        name: 'VP of Sales', 
-        description: 'Vice President of Sales - Sales strategy, team leadership, and revenue generation', 
-        icon: 'trending-up', 
-        permissions: ['marketing', 'data-analysis'], 
-        defaultShareAllocation: 16,
-        automationType: 'workflow',
-        isAutomated: false,
-        workflowId: null,
-        organizationId: '1'
-      },
-      { 
-        id: '15', 
-        name: 'VP of Engineering', 
-        description: 'Vice President of Engineering - Engineering leadership, technical delivery, and team management', 
+        id: '9', 
+        name: 'CTO', 
+        description: 'Chief Technology Officer - Technology strategy, architecture, and innovation leadership', 
         icon: 'code', 
-        permissions: ['tech', 'workflow-creation', 'operations'], 
+        permissions: ['admin', 'tech', 'workflow-creation'], 
+        defaultShareAllocation: 20,
+        automationType: 'hybrid',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '10', 
+        name: 'CMO', 
+        description: 'Chief Marketing Officer - Marketing strategy, brand management, and growth initiatives', 
+        icon: 'trending-up', 
+        permissions: ['admin', 'marketing', 'data-analysis'], 
         defaultShareAllocation: 18,
         automationType: 'hybrid',
         isAutomated: false,
@@ -1070,13 +950,13 @@ function DashboardContentInner() {
         organizationId: '1'
       },
       { 
-        id: '16', 
-        name: 'VP of Product', 
-        description: 'Vice President of Product - Product strategy, roadmap, and user experience leadership', 
-        icon: 'zap', 
-        permissions: ['workflow-creation', 'data-analysis', 'marketing'], 
-        defaultShareAllocation: 15,
-        automationType: 'hybrid',
+        id: '13', 
+        name: 'CHRO', 
+        description: 'Chief Human Resources Officer - People strategy, culture, and organizational development', 
+        icon: 'users', 
+        permissions: ['admin', 'operations'], 
+        defaultShareAllocation: 12,
+        automationType: 'workflow',
         isAutomated: false,
         workflowId: null,
         organizationId: '1'
@@ -1118,12 +998,756 @@ function DashboardContentInner() {
         organizationId: '1'
       },
       { 
+        id: '50', 
+        name: 'Chief Innovation Officer', 
+        description: 'Chief Innovation Officer - Innovation strategy, emerging technologies, and digital transformation', 
+        icon: 'lightbulb', 
+        permissions: ['admin', 'tech', 'workflow-creation'], 
+        defaultShareAllocation: 15,
+        automationType: 'hybrid',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '51', 
+        name: 'Chief Revenue Officer', 
+        description: 'Chief Revenue Officer - Revenue strategy, growth optimization, and market expansion', 
+        icon: 'trending-up', 
+        permissions: ['admin', 'marketing', 'data-analysis'], 
+        defaultShareAllocation: 17,
+        automationType: 'hybrid',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '52', 
+        name: 'Chief Strategy Officer', 
+        description: 'Chief Strategy Officer - Corporate strategy, business development, and strategic planning', 
+        icon: 'target', 
+        permissions: ['admin', 'data-analysis', 'workflow-creation'], 
+        defaultShareAllocation: 14,
+        automationType: 'hybrid',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+
+      // === VICE PRESIDENTS ===
+      { 
+        id: '14', 
+        name: 'VP of Sales', 
+        description: 'Vice President of Sales - Sales strategy, team leadership, and revenue generation', 
+        icon: 'trending-up', 
+        permissions: ['marketing', 'data-analysis'], 
+        defaultShareAllocation: 16,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '15', 
+        name: 'VP of Engineering', 
+        description: 'Vice President of Engineering - Engineering leadership, technical delivery, and team management', 
+        icon: 'code', 
+        permissions: ['tech', 'workflow-creation', 'operations'], 
+        defaultShareAllocation: 18,
+        automationType: 'hybrid',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '16', 
+        name: 'VP of Product', 
+        description: 'Vice President of Product - Product strategy, roadmap, and user experience leadership', 
+        icon: 'zap', 
+        permissions: ['workflow-creation', 'data-analysis', 'marketing'], 
+        defaultShareAllocation: 15,
+        automationType: 'hybrid',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '53', 
+        name: 'VP of Operations', 
+        description: 'Vice President of Operations - Operational excellence, process improvement, and efficiency optimization', 
+        icon: 'settings', 
+        permissions: ['operations', 'workflow-creation', 'data-analysis'], 
+        defaultShareAllocation: 14,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '54', 
+        name: 'VP of Finance', 
+        description: 'Vice President of Finance - Financial operations, planning, and analysis', 
+        icon: 'bar-chart-3', 
+        permissions: ['finance', 'data-analysis', 'admin'], 
+        defaultShareAllocation: 13,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '55', 
+        name: 'VP of Marketing', 
+        description: 'Vice President of Marketing - Marketing operations, campaigns, and brand management', 
+        icon: 'trending-up', 
+        permissions: ['marketing', 'data-analysis', 'workflow-creation'], 
+        defaultShareAllocation: 13,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '56', 
+        name: 'VP of Human Resources', 
+        description: 'Vice President of Human Resources - Talent management, culture, and employee experience', 
+        icon: 'users', 
+        permissions: ['operations', 'admin'], 
+        defaultShareAllocation: 11,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '57', 
+        name: 'VP of Business Development', 
+        description: 'Vice President of Business Development - Partnerships, strategic alliances, and growth initiatives', 
+        icon: 'handshake', 
+        permissions: ['marketing', 'data-analysis', 'admin'], 
+        defaultShareAllocation: 12,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+
+      // === DIRECTORS ===
+      { 
+        id: '6', 
+        name: 'Creative Director', 
+        description: 'Content creation, brand management, and creative strategy', 
+        icon: 'palette', 
+        permissions: ['marketing', 'workflow-creation'], 
+        defaultShareAllocation: 15,
+        automationType: 'hybrid',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '58', 
+        name: 'Director of Engineering', 
+        description: 'Engineering team leadership, technical architecture, and development processes', 
+        icon: 'code', 
+        permissions: ['tech', 'workflow-creation'], 
+        defaultShareAllocation: 12,
+        automationType: 'hybrid',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '59', 
+        name: 'Director of Product Management', 
+        description: 'Product strategy, roadmap planning, and cross-functional coordination', 
+        icon: 'zap', 
+        permissions: ['workflow-creation', 'data-analysis'], 
+        defaultShareAllocation: 11,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '60', 
+        name: 'Director of Sales', 
+        description: 'Sales team management, revenue optimization, and customer acquisition', 
+        icon: 'trending-up', 
+        permissions: ['marketing', 'data-analysis'], 
+        defaultShareAllocation: 10,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '61', 
+        name: 'Director of Marketing', 
+        description: 'Marketing campaigns, digital strategy, and brand positioning', 
+        icon: 'megaphone', 
+        permissions: ['marketing', 'data-analysis'], 
+        defaultShareAllocation: 9,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '62', 
+        name: 'Director of Operations', 
+        description: 'Operational processes, efficiency optimization, and resource management', 
+        icon: 'settings', 
+        permissions: ['operations', 'workflow-creation'], 
+        defaultShareAllocation: 9,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '63', 
+        name: 'Director of Finance', 
+        description: 'Financial planning, budgeting, and financial operations management', 
+        icon: 'bar-chart-3', 
+        permissions: ['finance', 'data-analysis'], 
+        defaultShareAllocation: 8,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '64', 
+        name: 'Director of IT', 
+        description: 'Information technology infrastructure, systems management, and technical support', 
+        icon: 'server', 
+        permissions: ['tech', 'operations'], 
+        defaultShareAllocation: 8,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '65', 
+        name: 'Director of Quality Assurance', 
+        description: 'Quality control, testing processes, and product reliability', 
+        icon: 'check-circle', 
+        permissions: ['tech', 'operations'], 
+        defaultShareAllocation: 7,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '66', 
+        name: 'Director of Customer Experience', 
+        description: 'Customer journey optimization, satisfaction improvement, and experience design', 
+        icon: 'smile', 
+        permissions: ['marketing', 'data-analysis'], 
+        defaultShareAllocation: 8,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+
+      // === MANAGERS ===
+      { 
+        id: '2', 
+        name: 'Marketing Manager', 
+        description: 'Marketing campaigns, social media management, and customer engagement', 
+        icon: 'trending-up', 
+        permissions: ['marketing', 'data-analysis'], 
+        defaultShareAllocation: 15,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '3', 
+        name: 'Finance Manager', 
+        description: 'Financial analysis, budget tracking, and reporting', 
+        icon: 'bar-chart-3', 
+        permissions: ['finance', 'admin', 'data-analysis'], 
+        defaultShareAllocation: 20,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '5', 
+        name: 'Operations Manager', 
+        description: 'Process management, workflow optimization, and operational efficiency', 
+        icon: 'settings', 
+        permissions: ['operations', 'workflow-creation'], 
+        defaultShareAllocation: 12,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '8', 
+        name: 'Customer Success Manager', 
+        description: 'Customer support, relationship management, and satisfaction monitoring', 
+        icon: 'users', 
+        permissions: ['marketing', 'data-analysis'], 
+        defaultShareAllocation: 10,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
         id: '20', 
         name: 'Head of Customer Success', 
         description: 'Customer Success Leadership - Customer retention, satisfaction, and growth strategies', 
         icon: 'users', 
         permissions: ['marketing', 'data-analysis', 'operations'], 
         defaultShareAllocation: 10,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '67', 
+        name: 'Project Manager', 
+        description: 'Project coordination, timeline management, and cross-team collaboration', 
+        icon: 'calendar', 
+        permissions: ['operations', 'workflow-creation'], 
+        defaultShareAllocation: 6,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '68', 
+        name: 'Product Manager', 
+        description: 'Product development, feature planning, and market research', 
+        icon: 'box', 
+        permissions: ['workflow-creation', 'data-analysis'], 
+        defaultShareAllocation: 7,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '69', 
+        name: 'Sales Manager', 
+        description: 'Sales team coordination, pipeline management, and revenue tracking', 
+        icon: 'target', 
+        permissions: ['marketing', 'data-analysis'], 
+        defaultShareAllocation: 7,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '70', 
+        name: 'HR Manager', 
+        description: 'Human resources operations, recruitment, and employee relations', 
+        icon: 'users', 
+        permissions: ['operations', 'admin'], 
+        defaultShareAllocation: 6,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '71', 
+        name: 'IT Manager', 
+        description: 'IT infrastructure management, system administration, and technical support', 
+        icon: 'server', 
+        permissions: ['tech', 'operations'], 
+        defaultShareAllocation: 6,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '72', 
+        name: 'Content Manager', 
+        description: 'Content creation, editorial oversight, and digital asset management', 
+        icon: 'file-text', 
+        permissions: ['marketing', 'workflow-creation'], 
+        defaultShareAllocation: 5,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '73', 
+        name: 'Community Manager', 
+        description: 'Community engagement, social media management, and brand advocacy', 
+        icon: 'message-circle', 
+        permissions: ['marketing'], 
+        defaultShareAllocation: 4,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '74', 
+        name: 'Account Manager', 
+        description: 'Client relationship management, account growth, and customer retention', 
+        icon: 'briefcase', 
+        permissions: ['marketing', 'data-analysis'], 
+        defaultShareAllocation: 5,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+
+      // === TECHNICAL LEADS ===
+      { 
+        id: '4', 
+        name: 'Tech Lead', 
+        description: 'Code review, technical documentation, and development workflows', 
+        icon: 'code', 
+        permissions: ['tech', 'workflow-creation'], 
+        defaultShareAllocation: 25,
+        automationType: 'hybrid',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '75', 
+        name: 'Senior Software Engineer', 
+        description: 'Software development, code architecture, and technical mentorship', 
+        icon: 'code', 
+        permissions: ['tech', 'workflow-creation'], 
+        defaultShareAllocation: 8,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '76', 
+        name: 'DevOps Lead', 
+        description: 'Infrastructure automation, deployment pipelines, and system reliability', 
+        icon: 'server', 
+        permissions: ['tech', 'operations'], 
+        defaultShareAllocation: 7,
+        automationType: 'hybrid',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '77', 
+        name: 'Data Engineer', 
+        description: 'Data pipeline development, ETL processes, and data infrastructure', 
+        icon: 'database', 
+        permissions: ['tech', 'data-analysis'], 
+        defaultShareAllocation: 6,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '78', 
+        name: 'Security Engineer', 
+        description: 'Cybersecurity implementation, vulnerability assessment, and security protocols', 
+        icon: 'shield', 
+        permissions: ['tech', 'admin'], 
+        defaultShareAllocation: 6,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '79', 
+        name: 'Frontend Lead', 
+        description: 'Frontend development, UI/UX implementation, and user interface optimization', 
+        icon: 'monitor', 
+        permissions: ['tech', 'workflow-creation'], 
+        defaultShareAllocation: 6,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '80', 
+        name: 'Backend Lead', 
+        description: 'Backend development, API design, and server-side architecture', 
+        icon: 'server', 
+        permissions: ['tech', 'workflow-creation'], 
+        defaultShareAllocation: 6,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '81', 
+        name: 'Mobile Lead', 
+        description: 'Mobile application development, cross-platform solutions, and mobile UX', 
+        icon: 'smartphone', 
+        permissions: ['tech', 'workflow-creation'], 
+        defaultShareAllocation: 6,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+
+      // === SPECIALISTS ===
+      { 
+        id: '7', 
+        name: 'Legal Counsel', 
+        description: 'Contract analysis, compliance monitoring, and legal documentation', 
+        icon: 'shield', 
+        permissions: ['legal', 'admin', 'data-analysis'], 
+        defaultShareAllocation: 18,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '82', 
+        name: 'Data Scientist', 
+        description: 'Data analysis, machine learning, and predictive modeling', 
+        icon: 'bar-chart-3', 
+        permissions: ['data-analysis', 'tech'], 
+        defaultShareAllocation: 7,
+        automationType: 'hybrid',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '83', 
+        name: 'Business Analyst', 
+        description: 'Business process analysis, requirements gathering, and process optimization', 
+        icon: 'trending-up', 
+        permissions: ['data-analysis', 'operations'], 
+        defaultShareAllocation: 5,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '84', 
+        name: 'UX Designer', 
+        description: 'User experience design, usability testing, and interaction design', 
+        icon: 'paintbrush', 
+        permissions: ['workflow-creation', 'marketing'], 
+        defaultShareAllocation: 5,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '85', 
+        name: 'UI Designer', 
+        description: 'User interface design, visual design, and design system development', 
+        icon: 'palette', 
+        permissions: ['workflow-creation', 'marketing'], 
+        defaultShareAllocation: 5,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '86', 
+        name: 'Digital Marketing Specialist', 
+        description: 'SEO, SEM, social media marketing, and digital advertising', 
+        icon: 'megaphone', 
+        permissions: ['marketing', 'data-analysis'], 
+        defaultShareAllocation: 4,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '87', 
+        name: 'Content Strategist', 
+        description: 'Content planning, editorial strategy, and content marketing', 
+        icon: 'file-text', 
+        permissions: ['marketing', 'workflow-creation'], 
+        defaultShareAllocation: 4,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '88', 
+        name: 'Compliance Officer', 
+        description: 'Regulatory compliance, risk assessment, and policy enforcement', 
+        icon: 'check-circle', 
+        permissions: ['legal', 'admin'], 
+        defaultShareAllocation: 5,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '89', 
+        name: 'Financial Analyst', 
+        description: 'Financial modeling, investment analysis, and financial reporting', 
+        icon: 'calculator', 
+        permissions: ['finance', 'data-analysis'], 
+        defaultShareAllocation: 5,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '90', 
+        name: 'Market Research Analyst', 
+        description: 'Market analysis, competitive research, and consumer insights', 
+        icon: 'search', 
+        permissions: ['marketing', 'data-analysis'], 
+        defaultShareAllocation: 4,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '91', 
+        name: 'Training Specialist', 
+        description: 'Employee training, skill development, and learning program management', 
+        icon: 'book', 
+        permissions: ['operations'], 
+        defaultShareAllocation: 3,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '92', 
+        name: 'Procurement Specialist', 
+        description: 'Vendor management, contract negotiation, and supply chain optimization', 
+        icon: 'shopping-cart', 
+        permissions: ['operations', 'finance'], 
+        defaultShareAllocation: 3,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '93', 
+        name: 'Quality Assurance Engineer', 
+        description: 'Software testing, quality control, and bug tracking', 
+        icon: 'check-circle', 
+        permissions: ['tech', 'operations'], 
+        defaultShareAllocation: 4,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '94', 
+        name: 'Technical Writer', 
+        description: 'Technical documentation, user manuals, and API documentation', 
+        icon: 'file-text', 
+        permissions: ['tech', 'workflow-creation'], 
+        defaultShareAllocation: 3,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '95', 
+        name: 'Customer Support Specialist', 
+        description: 'Customer service, technical support, and issue resolution', 
+        icon: 'headphones', 
+        permissions: ['marketing'], 
+        defaultShareAllocation: 3,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+
+      // === COORDINATORS & ASSISTANTS ===
+      { 
+        id: '96', 
+        name: 'Executive Assistant', 
+        description: 'Executive support, calendar management, and administrative coordination', 
+        icon: 'calendar', 
+        permissions: ['admin'], 
+        defaultShareAllocation: 2,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '97', 
+        name: 'Administrative Coordinator', 
+        description: 'Administrative tasks, office management, and operational support', 
+        icon: 'folder', 
+        permissions: ['operations'], 
+        defaultShareAllocation: 2,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '98', 
+        name: 'Marketing Coordinator', 
+        description: 'Marketing campaign support, event coordination, and promotional activities', 
+        icon: 'calendar', 
+        permissions: ['marketing'], 
+        defaultShareAllocation: 2,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '99', 
+        name: 'Sales Coordinator', 
+        description: 'Sales support, lead management, and customer onboarding', 
+        icon: 'users', 
+        permissions: ['marketing'], 
+        defaultShareAllocation: 2,
+        automationType: 'workflow',
+        isAutomated: false,
+        workflowId: null,
+        organizationId: '1'
+      },
+      { 
+        id: '100', 
+        name: 'Research Assistant', 
+        description: 'Research support, data collection, and analysis assistance', 
+        icon: 'search', 
+        permissions: ['data-analysis'], 
+        defaultShareAllocation: 2,
         automationType: 'workflow',
         isAutomated: false,
         workflowId: null,
@@ -1791,6 +2415,7 @@ function DashboardContentInner() {
 })
 
   const { workflows, folders, selectedWorkflow, organizations, roles, currentView, selectedOrganization, sidebarOpen, chatMessages, isChatOpen, instruments, apiKeys, sshKeys, mcpServers, userProfile, contracts, wallets } = appState
+  const { user: handCashUser } = useAuth()
 
   const boardRef = useRef<HTMLDivElement>(null)
   const headerRef = useRef<HTMLDivElement>(null)
@@ -3130,7 +3755,7 @@ function DashboardContentInner() {
               )}
               {/* Centered brand for desktop, right-aligned for mobile */}
               <div className="w-full">
-                <button className="w-full flex items-center justify-center px-3 py-2 bg-black border border-white rounded-lg hover:bg-white/10 transition-colors">
+                <button onClick={() => setCurrentView('dashboard')} className="w-full flex items-center justify-center px-3 py-2 bg-black border border-white rounded-lg hover:bg-white/10 transition-colors">
                   <h2 className="text-sm font-bold text-white">$CASHBOARD</h2>
                 </button>
               </div>
@@ -3457,6 +4082,40 @@ function DashboardContentInner() {
         </div>
 
         {/* Content Views */}
+        {currentView === 'dashboard' && (
+          <div className="absolute inset-0 top-20 p-6 overflow-auto space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              <div className="glass-card p-4">
+                <div className="text-sm text-gray-400">Balance</div>
+                <div className="text-2xl font-bold">{handCashUser?.spendableBalance !== undefined ? `$${handCashUser.spendableBalance.toFixed(2)}` : '—'}</div>
+                <div className="text-xs text-gray-500 mt-1">{handCashUser?.localCurrencyCode || 'USD'}</div>
+              </div>
+              <a href="/PRODUCT_DOCUMENTATION.md" target="_blank" rel="noreferrer" className="glass-card p-4 block">
+                <div className="text-sm text-gray-400">Docs</div>
+                <div className="text-lg font-semibold">Product Documentation</div>
+              </a>
+              <a href="https://github.com/b0ase/cashboard/discussions" target="_blank" rel="noreferrer" className="glass-card p-4 block">
+                <div className="text-sm text-gray-400">Community</div>
+                <div className="text-lg font-semibold">Forums & Discussions</div>
+              </a>
+            </div>
+
+            <div className="glass-card p-4 h-[600px] relative">
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-sm text-gray-400">Networked Businesses</div>
+                <div className="text-xs text-gray-500">Interactive canvas</div>
+              </div>
+              <div className="absolute inset-4 rounded-lg overflow-hidden">
+                <WorkflowReactFlowCanvas
+                  workflow={getAUDEXWorkflow()}
+                  tabTitle="Dashboard Network"
+                  connectionStyle="smoothstep"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
         {currentView === 'workflow' && !currentWorkflow && (
           <WorkflowsView 
             workflows={workflows}
@@ -4299,6 +4958,8 @@ function IntegrationsView() {
                          integration.description.toLowerCase().includes(searchTerm.toLowerCase())
     return matchesCategory && matchesSearch
   })
+
+  const { user: handCashUser } = useAuth()
 
   const getStatusColor = (status: string) => {
     switch (status) {

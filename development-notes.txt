@@ -1,5 +1,0 @@
-make th cashboard branding slightly smaller and fit inside a black buttonwith white border shte same size as Wathc Demo, an Signin with HandCash 
-
- Nodes should have larger coloured icons so we can distinguish tehm more easily. 
-
-We also want a sepreate token address (always a type 1 bitcoin ordinals address) underneath every handcash handle field in every node. The address field must be editable but you can put a grey example address in each field. 

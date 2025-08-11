@@ -3,7 +3,7 @@
 import React, { useState, useCallback, useRef } from 'react'
 import { X, Edit2, Check, Plus, Play, Pause, Zap, ZoomOut, ZoomIn, ArrowRight } from 'lucide-react'
 import WorkflowReactFlowCanvas from './WorkflowReactFlowCanvas'
-import { getOrganizationTemplates, getRoleTemplates, getAgentTemplates, getInstrumentTemplates } from '../data/templates'
+import { getOrganizationTemplates, getRoleTemplates, getAgentTemplates, getInstrumentTemplates, getContractTemplates, getIntegrationTemplates, getCryptoTemplates, getWalletTemplates } from '../data/templates'
 
 export interface CanvasTab {
   id: string
@@ -23,13 +23,17 @@ interface CanvasTabsProps {
 }
 
 export default function CanvasTabs({ initialTabs }: CanvasTabsProps) {
-  // Get all templates
-  const allTemplates = [
-    ...getOrganizationTemplates(),
-    ...getRoleTemplates(),
-    ...getAgentTemplates(),
-    ...getInstrumentTemplates()
-  ]
+  // Get all templates - ensure we have comprehensive template data
+  const allTemplates = {
+    organizations: getOrganizationTemplates(),
+    roles: getRoleTemplates(),
+    agents: getAgentTemplates(),
+    instruments: getInstrumentTemplates(),
+    contracts: getContractTemplates(),
+    integrations: getIntegrationTemplates(),
+    crypto: getCryptoTemplates(),
+    wallets: getWalletTemplates()
+  }
 
   // Initialize with default main tab - AUDEX Comprehensive Asset & Monetary Flow Mapping
   const defaultTabs: CanvasTab[] = initialTabs || [{

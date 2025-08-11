@@ -3339,7 +3339,7 @@ export default function Dashboard() {
                   id: workflow.id,
                   name: workflow.name,
                   description: workflow.metadata.company.description || '',
-                  status: 'active',
+                  status: 'active' as const,
                   nodes: workflow.nodes,
                   connections: workflow.connections,
                   createdAt: workflow.metadata.created,
@@ -3347,7 +3347,10 @@ export default function Dashboard() {
                 }
                 // Add to workflows if not already exists
                 if (!workflows.find(w => w.id === workflow.id)) {
-                  setWorkflows(prev => [...prev, workflowState])
+                  setAppState(prev => ({
+                    ...prev,
+                    workflows: [...prev.workflows, workflowState]
+                  }))
                 }
                 openWorkflow(workflow.id)
               }}

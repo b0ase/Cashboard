@@ -25,7 +25,7 @@ import NodeCanvasModal from '@/components/NodeCanvasModal'
 import { 
   DollarSign, FileText, Target, AlertTriangle, Building, Crown, UserCheck, Banknote, Plug, Split, Play, Zap, User, Workflow, Wallet,
   CheckSquare, GitBranch, Flag, Users, Mail, MessageSquare, Bell, Database, Code, Laptop, TrendingUp, Bot,
-  Shield, Lock, Coins, Gavel, Eye, Vote, Clock, Image, Heart, UserPlus, Camera
+  Shield, Lock, Coins, Gavel, Eye, Vote, Clock, Image, Heart, UserPlus, Camera, ArrowLeft, ChevronRight
 } from 'lucide-react'
 
 // Node canvas configurations (copied from NodeCanvasModal)
@@ -432,6 +432,14 @@ const BUSINESS_KINDS = new Set(['workflow','organization','role','ai-agent','mem
 
 
 
+// Navigation stack for canvas hierarchy
+interface CanvasNavItem {
+  id: string
+  title: string
+  workflow: any
+  nodeData?: any
+}
+
 export default function WorkflowReactFlowCanvas({ 
   workflow, 
   templates, 
@@ -451,20 +459,59 @@ export default function WorkflowReactFlowCanvas({
   onAddNode?: (type: string) => void;
   connectionStyle?: 'bezier' | 'smoothstep' | 'straight';
 }) {
+  // Navigation stack state
+  const [navigationStack, setNavigationStack] = React.useState<CanvasNavItem[]>([
+    { id: 'main', title: tabTitle || 'Main Canvas', workflow }
+  ])
+  const [currentCanvasIndex, setCurrentCanvasIndex] = React.useState(0)
+  const currentCanvas = navigationStack[currentCanvasIndex]
+
+  // Navigation functions
+  const navigateToNodeCanvas = (node: Node<RFNodeData>) => {
+    const config = NODE_CANVAS_CONFIGS[node.data.kind as keyof typeof NODE_CANVAS_CONFIGS]
+    if (!config) return
+
+    const newCanvasItem: CanvasNavItem = {
+      id: `node-${node.id}-${Date.now()}`,
+      title: `${node.data.label} Details`,
+      workflow: { nodes: config.initialNodes, connections: config.initialEdges },
+      nodeData: node
+    }
+
+    setNavigationStack(prev => [...prev.slice(0, currentCanvasIndex + 1), newCanvasItem])
+    setCurrentCanvasIndex(currentCanvasIndex + 1)
+  }
+
+  const navigateBack = () => {
+    if (currentCanvasIndex > 0) {
+      setCurrentCanvasIndex(currentCanvasIndex - 1)
+    }
+  }
+
+  const navigateToCanvas = (index: number) => {
+    if (index >= 0 && index < navigationStack.length) {
+      setCurrentCanvasIndex(index)
+    }
+  }
+
   const initialNodes = useMemo<Node<RFNodeData>[]>(() => {
+    // Use the current canvas workflow from navigation stack
+    const workflowToUse = currentCanvas?.workflow || workflow
+    
     // If this is a node canvas tab, use the node canvas data
-    if (nodeCanvasData) {
-      const config = NODE_CANVAS_CONFIGS[nodeCanvasData.data.kind as keyof typeof NODE_CANVAS_CONFIGS] || DEFAULT_NODE_CONFIG
+    if (currentCanvas?.nodeData || nodeCanvasData) {
+      const nodeData = currentCanvas?.nodeData || nodeCanvasData
+      const config = NODE_CANVAS_CONFIGS[nodeData.data.kind as keyof typeof NODE_CANVAS_CONFIGS] || DEFAULT_NODE_CONFIG
       return config.initialNodes.map(n => ({
         ...n,
-        id: `${nodeCanvasData.id}-${n.id}`,
+        id: `${nodeData.id}-${n.id}`,
         type: 'colored' as const,
         data: { ...n.data, label: n.data.label }
       }))
     }
     
     // Otherwise use the regular workflow nodes
-    return (workflow?.nodes || []).map((n: any) => ({
+    return (workflowToUse?.nodes || []).map((n: any) => ({
       id: String(n.id),
       type: 'colored',
       position: { x: Number(n.x) || 0, y: Number(n.y) || 0 },
@@ -474,7 +521,7 @@ export default function WorkflowReactFlowCanvas({
         handcashHandle: n.handcashHandle || `${String(n.name || n.type).replace(/\s+/g, '_')}_Handle`
       },
     }))
-  }, [workflow, nodeCanvasData])
+  }, [workflow, nodeCanvasData, currentCanvas])
 
   const initialEdges = useMemo<Edge[]>(() => {
     // If this is a node canvas tab, use the node canvas edges
@@ -602,14 +649,9 @@ export default function WorkflowReactFlowCanvas({
 
   const handleNodeClick = useCallback((event: React.MouseEvent, node: Node<RFNodeData>) => {
     event.stopPropagation()
-    // Single click opens the node canvas as a new tab if callback is provided
-    if (onNodeCanvasSelect) {
-      onNodeCanvasSelect(node)
-    } else {
-      // Fallback to modal if no tab callback is provided
-      setNodeCanvasModal(node)
-    }
-  }, [onNodeCanvasSelect])
+    // Single click navigates to node canvas using the navigation stack
+    navigateToNodeCanvas(node)
+  }, [currentCanvasIndex, navigationStack])
 
   const handleNodeDoubleClick = useCallback((event: React.MouseEvent, node: Node<RFNodeData>) => {
     event.stopPropagation()
@@ -654,6 +696,10 @@ export default function WorkflowReactFlowCanvas({
           onNodeDoubleClick={handleNodeDoubleClick}
           tabTitle={tabTitle}
           connectionStyle={connectionStyle}
+          navigationStack={navigationStack}
+          currentCanvasIndex={currentCanvasIndex}
+          navigateBack={navigateBack}
+          navigateToCanvas={navigateToCanvas}
         />
         
         {/* Node Editor Modal */}
@@ -675,8 +721,8 @@ export default function WorkflowReactFlowCanvas({
   )
 }
 
-function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick, palette, templateModal, setTemplateModal, setNodes, setEdges, onTemplateSelect, onNodeClick, onNodeDoubleClick, tabTitle, connectionStyle }:
-  { nodes: Node<RFNodeData>[]; edges: Edge[]; onNodesChange: any; onEdgesChange: any; onConnect: any; onPick: (type: string, rf: any) => void; palette: any[]; templateModal: { kind: string; items: TemplateItem[] } | null; setTemplateModal: (v: any) => void; setNodes: any; setEdges: any; onTemplateSelect?: (template: TemplateItem) => void; onNodeClick?: (event: React.MouseEvent, node: Node<RFNodeData>) => void; onNodeDoubleClick?: (event: React.MouseEvent, node: Node<RFNodeData>) => void; tabTitle?: string; connectionStyle?: 'bezier' | 'smoothstep' | 'straight' }) {
+function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick, palette, templateModal, setTemplateModal, setNodes, setEdges, onTemplateSelect, onNodeClick, onNodeDoubleClick, tabTitle, connectionStyle, navigationStack, currentCanvasIndex, navigateBack, navigateToCanvas }:
+  { nodes: Node<RFNodeData>[]; edges: Edge[]; onNodesChange: any; onEdgesChange: any; onConnect: any; onPick: (type: string, rf: any) => void; palette: any[]; templateModal: { kind: string; items: TemplateItem[] } | null; setTemplateModal: (v: any) => void; setNodes: any; setEdges: any; onTemplateSelect?: (template: TemplateItem) => void; onNodeClick?: (event: React.MouseEvent, node: Node<RFNodeData>) => void; onNodeDoubleClick?: (event: React.MouseEvent, node: Node<RFNodeData>) => void; tabTitle?: string; connectionStyle?: 'bezier' | 'smoothstep' | 'straight'; navigationStack: CanvasNavItem[]; currentCanvasIndex: number; navigateBack: () => void; navigateToCanvas: (index: number) => void }) {
   const rf = useReactFlow()
   
   // Expose React Flow instance globally for controls
@@ -703,13 +749,46 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
       connectionLineStyle={{ stroke: 'rgba(255,255,255,0.6)', strokeWidth: 2 }}
     >
       <Background color="rgba(255,255,255,0.1)" />
-      {tabTitle && (
-        <Panel position="top-left" className="m-2">
-          <div className="bg-black/80 backdrop-blur-xl border border-white/20 rounded-lg px-3 py-2">
-            <div className="text-sm text-white font-medium">{tabTitle}</div>
+      {/* Navigation Breadcrumb Panel */}
+      <Panel position="top-left" className="m-2">
+        <div className="bg-black/80 backdrop-blur-xl border border-white/20 rounded-lg px-3 py-2">
+          <div className="flex items-center space-x-2">
+            {/* Back Button */}
+            {currentCanvasIndex > 0 && (
+              <button
+                onClick={navigateBack}
+                className="flex items-center space-x-1 px-2 py-1 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 hover:text-blue-300 rounded transition-colors"
+                title="Go back to previous canvas"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span className="text-xs">Back</span>
+              </button>
+            )}
+            
+            {/* Breadcrumb Trail */}
+            <div className="flex items-center space-x-1">
+              {navigationStack.map((canvas, index) => (
+                <div key={canvas.id} className="flex items-center space-x-1">
+                  <button
+                    onClick={() => navigateToCanvas(index)}
+                    className={`text-sm font-medium px-2 py-1 rounded transition-colors ${
+                      index === currentCanvasIndex
+                        ? 'text-white bg-white/10'
+                        : 'text-gray-400 hover:text-white hover:bg-white/5'
+                    }`}
+                    title={canvas.title}
+                  >
+                    {canvas.title.length > 20 ? canvas.title.slice(0, 20) + '...' : canvas.title}
+                  </button>
+                  {index < navigationStack.length - 1 && (
+                    <ChevronRight className="w-3 h-3 text-gray-500" />
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
-        </Panel>
-      )}
+        </div>
+      </Panel>
 
       <Panel position="top-right" className="m-2">
         <NodePaletteSimple

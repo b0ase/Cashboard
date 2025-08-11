@@ -31,25 +31,89 @@ export default function CanvasTabs({ initialTabs }: CanvasTabsProps) {
     ...getInstrumentTemplates()
   ]
 
-  // Initialize with default main tab
+  // Initialize with default main tab - AUDEX Comprehensive Asset & Monetary Flow Mapping
   const defaultTabs: CanvasTab[] = initialTabs || [{
     id: 'main',
-    title: 'Organisation : AUDEX',
+    title: 'AUDEX Corporation - Asset & Monetary Flows',
     workflow: {
       nodes: [
-        { id: 1, name: 'YouTube Ad Revenue', type: 'revenue', x: 100, y: 100 },
-        { id: 2, name: 'Split 70/20/10', type: 'decision', x: 300, y: 100 },
-        { id: 3, name: 'Royalty Pool (70%)', type: 'pool', x: 500, y: 50 },
-        { id: 4, name: 'Dividend Distributor', type: 'distributor', x: 700, y: 50 },
-        { id: 5, name: 'Ops (20%)', type: 'ops', x: 500, y: 150 },
-        { id: 6, name: 'Reserve (10%)', type: 'reserve', x: 500, y: 250 }
+        // === REVENUE SOURCES ===
+        { id: 1, name: 'Music Track Streaming', type: 'youtube', x: 50, y: 50 },
+        { id: 2, name: 'YouTube Ad Revenue', type: 'youtube', x: 50, y: 120 },
+        { id: 3, name: 'Spotify Royalties', type: 'payment', x: 50, y: 190 },
+        { id: 4, name: 'Platform Subscription Fees', type: 'payment', x: 50, y: 260 },
+        { id: 5, name: 'NFT Music Sales', type: 'instrument', x: 50, y: 330 },
+        
+        // === PRIMARY REVENUE AGGREGATOR ===
+        { id: 10, name: 'AUDEX Revenue Pool', type: 'splitter', x: 300, y: 190 },
+        
+        // === CORPORATE TREASURY & DISTRIBUTION ===
+        { id: 15, name: 'AUDEX Treasury (51%)', type: 'organization', x: 550, y: 100 },
+        { id: 16, name: 'Artist Royalty Pool (35%)', type: 'member', x: 550, y: 190 },
+        { id: 17, name: 'Operations Reserve (10%)', type: 'workflow', x: 550, y: 280 },
+        { id: 18, name: 'Platform Development (4%)', type: 'trigger', x: 550, y: 370 },
+        
+        // === AUDEX TOKEN DISTRIBUTION ===
+        { id: 20, name: 'AUDEX Token Contract', type: 'contract', x: 800, y: 190 },
+        { id: 21, name: 'Treasury Tokens (51%)', type: 'wallets', x: 1050, y: 50 },
+        { id: 22, name: 'Public Shareholders (35%)', type: 'member', x: 1050, y: 120 },
+        { id: 23, name: 'Artist Token Holders (10%)', type: 'member', x: 1050, y: 190 },
+        { id: 24, name: 'Team & Advisors (4%)', type: 'role', x: 1050, y: 260 },
+        
+        // === DIVIDEND DISTRIBUTION MECHANISM ===
+        { id: 30, name: 'Quarterly Dividend Calculator', type: 'decision', x: 800, y: 350 },
+        { id: 31, name: 'Dividend Distribution Contract', type: 'contract', x: 1050, y: 350 },
+        
+        // === INDIVIDUAL TRACK ASSETS ===
+        { id: 40, name: 'Track NFT #001', type: 'instrument', x: 300, y: 450 },
+        { id: 41, name: 'Track Royalty Split', type: 'splitter', x: 550, y: 450 },
+        { id: 42, name: 'Track Shareholders', type: 'member', x: 800, y: 450 },
+        
+        // === PLATFORM ASSETS ===
+        { id: 50, name: 'AUDEX Platform IP', type: 'contract', x: 300, y: 550 },
+        { id: 51, name: 'User Database', type: 'workflow', x: 550, y: 550 },
+        { id: 52, name: 'Music Catalog Rights', type: 'instrument', x: 800, y: 550 }
       ],
       connections: [
-        { from: 1, to: 2, type: 'payment' },
-        { from: 2, to: 3, type: 'payment' },
-        { from: 2, to: 5, type: 'payment' },
-        { from: 2, to: 6, type: 'payment' },
-        { from: 3, to: 4, type: 'payment' }
+        // Revenue sources to main pool
+        { from: 1, to: 10, type: 'payment' },
+        { from: 2, to: 10, type: 'payment' },
+        { from: 3, to: 10, type: 'payment' },
+        { from: 4, to: 10, type: 'payment' },
+        { from: 5, to: 10, type: 'payment' },
+        
+        // Main pool to corporate distribution
+        { from: 10, to: 15, type: 'payment' },
+        { from: 10, to: 16, type: 'payment' },
+        { from: 10, to: 17, type: 'payment' },
+        { from: 10, to: 18, type: 'payment' },
+        
+        // Corporate treasury to token contract
+        { from: 15, to: 20, type: 'payment' },
+        { from: 16, to: 20, type: 'payment' },
+        
+        // Token contract to token holders
+        { from: 20, to: 21, type: 'payment' },
+        { from: 20, to: 22, type: 'payment' },
+        { from: 20, to: 23, type: 'payment' },
+        { from: 20, to: 24, type: 'payment' },
+        
+        // Dividend calculation and distribution
+        { from: 15, to: 30, type: 'payment' },
+        { from: 30, to: 31, type: 'payment' },
+        { from: 31, to: 22, type: 'payment' },
+        { from: 31, to: 23, type: 'payment' },
+        { from: 31, to: 24, type: 'payment' },
+        
+        // Individual track flows
+        { from: 1, to: 40, type: 'payment' },
+        { from: 40, to: 41, type: 'payment' },
+        { from: 41, to: 42, type: 'payment' },
+        
+        // Platform asset connections
+        { from: 4, to: 50, type: 'payment' },
+        { from: 50, to: 51, type: 'payment' },
+        { from: 51, to: 52, type: 'payment' }
       ]
     },
     templates: allTemplates

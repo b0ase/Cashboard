@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react'
 import CanvasTabs from '@/components/CanvasTabs'
+import WorkflowDashboard from '@/components/WorkflowDashboard'
 import { 
   getOrganizationTemplates, 
   getRoleTemplates, 
@@ -3330,23 +3331,37 @@ export default function Dashboard() {
 
         {/* Content Views */}
         {currentView === 'workflow' && !currentWorkflow && (
-          <WorkflowsView 
-            workflows={workflows}
-            selectedWorkflow={selectedWorkflow}
-            onCreateWorkflow={createWorkflow}
-            onOpenWorkflow={openWorkflow}
-            onDeleteWorkflow={deleteWorkflow}
-            onUpdateWorkflow={updateWorkflow}
-            isMobile={isMobile}
-          />
+          <div className="absolute inset-0 top-20 p-6 overflow-y-auto">
+            <WorkflowDashboard 
+              onSelectWorkflow={(workflow) => {
+                // Convert our workflow metadata to the expected format and open it
+                const workflowState = {
+                  id: workflow.id,
+                  name: workflow.name,
+                  description: workflow.metadata.company.description || '',
+                  status: 'active',
+                  nodes: workflow.nodes,
+                  connections: workflow.connections,
+                  createdAt: workflow.metadata.created,
+                  updatedAt: workflow.metadata.updated
+                }
+                // Add to workflows if not already exists
+                if (!workflows.find(w => w.id === workflow.id)) {
+                  setWorkflows(prev => [...prev, workflowState])
+                }
+                openWorkflow(workflow.id)
+              }}
+              onCreateWorkflow={() => {
+                // Use existing create workflow function
+                createWorkflow("New Workflow", "Created from workflow library")
+              }}
+            />
+          </div>
         )}
 
         {currentView === 'workflow' && currentWorkflow && (
           <div className="relative h-[calc(100vh-140px)]">
-            <CanvasTabs 
-              initialWorkflow={currentWorkflow} 
-              initialTitle={currentWorkflow?.name || "Main Canvas"}
-            />
+            <CanvasTabs />
           </div>
         )}
 

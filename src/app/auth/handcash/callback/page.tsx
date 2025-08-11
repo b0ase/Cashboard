@@ -17,11 +17,26 @@ function HandCashCallbackContent() {
         const errorDescription = searchParams.get('error_description')
 
         // Check for HandCash errors
-        if (error) {
-          setStatus('error')
-          setMessage(errorDescription || `HandCash Error: ${error}`)
-          return
-        }
+                  if (error) {
+            setStatus('error')
+            const errorMsg = errorDescription || `HandCash Error: ${error}`
+            setMessage(errorMsg)
+            
+            // If in popup, send error message to parent
+            if (window.opener && window.opener !== window) {
+              window.opener.postMessage(
+                { 
+                  type: 'HANDCASH_AUTH_ERROR',
+                  error: errorMsg
+                },
+                window.location.origin
+              )
+              setTimeout(() => {
+                window.close()
+              }, 2000)
+            }
+            return
+          }
 
         if (!authToken) {
           setStatus('error')
@@ -61,22 +76,46 @@ function HandCashCallbackContent() {
         console.log('Storing session:', sessionData)
         localStorage.setItem('handcash_session', JSON.stringify(sessionData))
 
-        setStatus('success')
-        setMessage('Successfully authenticated with HandCash!')
+                          setStatus('success')
+                  setMessage('Successfully authenticated with HandCash!')
 
-        // Trigger a custom event to notify the main window
-        window.dispatchEvent(new CustomEvent('handcash-auth-success'))
+                  // Check if we're in a popup
+                  if (window.opener && window.opener !== window) {
+                    // We're in a popup - send message to parent and close
+                    window.opener.postMessage(
+                      { type: 'HANDCASH_AUTH_SUCCESS' },
+                      window.location.origin
+                    )
+                    setTimeout(() => {
+                      window.close()
+                    }, 1000)
+                  } else {
+                    // Not in popup - trigger event and redirect
+                    window.dispatchEvent(new CustomEvent('handcash-auth-success'))
+                    setTimeout(() => {
+                      router.push('/')
+                    }, 1000)
+                  }
 
-        // Redirect to main app after 1 second
-        setTimeout(() => {
-          router.push('/')
-        }, 1000)
-
-      } catch (error) {
-        console.error('HandCash callback error:', error)
-        setStatus('error')
-        setMessage('An unexpected error occurred during authentication')
-      }
+              } catch (error) {
+          console.error('HandCash callback error:', error)
+          setStatus('error')
+          setMessage('An unexpected error occurred during authentication')
+          
+          // If in popup, send error message to parent
+          if (window.opener && window.opener !== window) {
+            window.opener.postMessage(
+              { 
+                type: 'HANDCASH_AUTH_ERROR',
+                error: 'An unexpected error occurred during authentication'
+              },
+              window.location.origin
+            )
+            setTimeout(() => {
+              window.close()
+            }, 2000)
+          }
+        }
     }
 
     handleCallback()

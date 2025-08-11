@@ -17,7 +17,7 @@ export const HandCashAuthButton = () => {
       // Clear any old session data first
       localStorage.removeItem('handcash_session')
       
-      // Get the authorization URL and redirect directly
+      // Get the authorization URL
       const response = await fetch('/api/auth/handcash/redirect')
       const data = await response.json()
       
@@ -25,8 +25,62 @@ export const HandCashAuthButton = () => {
         throw new Error(data.error || 'Failed to get authorization URL')
       }
       
-      // Just redirect to HandCash - no popup bullshit
-      window.location.href = data.authorization_url
+      // Open HandCash auth in popup
+      const popup = window.open(
+        data.authorization_url,
+        'handcash-auth',
+        'width=500,height=700,scrollbars=yes,resizable=yes,status=yes,location=yes,toolbar=no,menubar=no'
+      )
+      
+      if (!popup) {
+        throw new Error('Popup blocked. Please allow popups for this site and try again.')
+      }
+      
+      // Listen for the popup to close or send a message
+      const checkClosed = setInterval(() => {
+        if (popup.closed) {
+          clearInterval(checkClosed)
+          setSigningIn(false)
+          
+          // Check if authentication was successful
+          const session = localStorage.getItem('handcash_session')
+          if (session) {
+            // Trigger auth context update
+            window.dispatchEvent(new CustomEvent('handcash-auth-success'))
+          }
+        }
+      }, 1000)
+      
+      // Listen for messages from the popup
+      const handleMessage = (event: MessageEvent) => {
+        if (event.origin !== window.location.origin) return
+        
+        if (event.data.type === 'HANDCASH_AUTH_SUCCESS') {
+          clearInterval(checkClosed)
+          popup.close()
+          setSigningIn(false)
+          
+          // Trigger auth context update
+          window.dispatchEvent(new CustomEvent('handcash-auth-success'))
+        } else if (event.data.type === 'HANDCASH_AUTH_ERROR') {
+          clearInterval(checkClosed)
+          popup.close()
+          setSigningIn(false)
+          setError(event.data.error || 'Authentication failed')
+        }
+      }
+      
+      window.addEventListener('message', handleMessage)
+      
+      // Cleanup on component unmount or timeout
+      setTimeout(() => {
+        clearInterval(checkClosed)
+        window.removeEventListener('message', handleMessage)
+        if (!popup.closed) {
+          popup.close()
+          setSigningIn(false)
+        }
+      }, 300000) // 5 minute timeout
       
     } catch (error: any) {
       console.error('Sign in failed:', error)
@@ -38,6 +92,8 @@ export const HandCashAuthButton = () => {
         errorMessage = 'HandCash authentication temporarily unavailable. Please try again later.'
       } else if (error.message?.includes('network') || error.message?.includes('fetch')) {
         errorMessage = 'Network error. Please check your connection and try again.'
+      } else if (error.message?.includes('Popup blocked')) {
+        errorMessage = error.message
       } else if (error.message) {
         errorMessage = error.message
       }

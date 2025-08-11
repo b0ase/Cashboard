@@ -72,3 +72,8 @@
     }
   }
 }
+
+/* Hide React Flow attribution */
+.react-flow__attribution {
+  display: none !important;
+}

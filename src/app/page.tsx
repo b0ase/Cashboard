@@ -96,7 +96,10 @@ import {
   Banknote,
   Plug,
   Headphones,
-  Folder
+  Folder,
+  MoreVertical,
+  FolderPlus,
+  FolderMinus
 } from 'lucide-react'
 import DemoModal from '../components/DemoModal'
 
@@ -424,6 +427,7 @@ interface AppState {
   organizations: Organization[]
   roles: Role[]
   workflows: WorkflowState[]
+  folders: string[]
   selectedWorkflow: string | null
   chatMessages: ChatMessage[]
   isChatOpen: boolean
@@ -1032,6 +1036,7 @@ export default function Dashboard() {
         organizationId: '1'
       }
     ],
+    folders: [],
     workflows: [
       {
         id: '1',
@@ -1691,7 +1696,7 @@ export default function Dashboard() {
   }
 })
 
-  const { workflows, selectedWorkflow, organizations, roles, currentView, selectedOrganization, sidebarOpen, chatMessages, isChatOpen, instruments, apiKeys, sshKeys, mcpServers, userProfile, contracts, wallets } = appState
+  const { workflows, folders, selectedWorkflow, organizations, roles, currentView, selectedOrganization, sidebarOpen, chatMessages, isChatOpen, instruments, apiKeys, sshKeys, mcpServers, userProfile, contracts, wallets } = appState
 
   const boardRef = useRef<HTMLDivElement>(null)
   const headerRef = useRef<HTMLDivElement>(null)
@@ -2498,6 +2503,24 @@ export default function Dashboard() {
         w.id === workflowId 
           ? { ...w, ...updates, updatedAt: new Date().toISOString() }
           : w
+      )
+    }))
+  }
+
+  const createFolder = (folderName: string) => {
+    setAppState(prev => ({
+      ...prev,
+      folders: [...prev.folders, folderName.trim()]
+    }))
+  }
+
+  const deleteFolder = (folderName: string) => {
+    setAppState(prev => ({
+      ...prev,
+      folders: prev.folders.filter(f => f !== folderName),
+      // Remove folder from workflows that use it
+      workflows: prev.workflows.map(w => 
+        w.folder === folderName ? { ...w, folder: undefined } : w
       )
     }))
   }
@@ -3336,8 +3359,10 @@ export default function Dashboard() {
         {currentView === 'workflow' && !currentWorkflow && (
           <WorkflowsView 
             workflows={workflows}
+            folders={folders}
             selectedWorkflow={selectedWorkflow}
             onCreateWorkflow={createWorkflow}
+            onCreateFolder={createFolder}
             onOpenWorkflow={openWorkflow}
             onDeleteWorkflow={deleteWorkflow}
             onUpdateWorkflow={updateWorkflow}
@@ -4421,16 +4446,20 @@ function WorkflowPreview({ workflow }: { workflow: WorkflowState }) {
 // Workflows List View Component
 function WorkflowsView({ 
   workflows, 
+  folders,
   selectedWorkflow, 
-  onCreateWorkflow, 
+  onCreateWorkflow,
+  onCreateFolder, 
   onOpenWorkflow, 
   onDeleteWorkflow,
   onUpdateWorkflow,
   isMobile 
 }: {
   workflows: WorkflowState[]
+  folders: string[]
   selectedWorkflow: string | null
   onCreateWorkflow: (name: string, description: string, folder?: string) => void
+  onCreateFolder: (folderName: string) => void
   onOpenWorkflow: (workflowId: string) => void
   onDeleteWorkflow: (workflowId: string) => void
   onUpdateWorkflow: (workflowId: string, updates: Partial<WorkflowState>) => void
@@ -4444,6 +4473,19 @@ function WorkflowsView({
   const [newFolderName, setNewFolderName] = useState('')
   const [selectedFolder, setSelectedFolder] = useState<string | null>(null)
   const [newWorkflowFolder, setNewWorkflowFolder] = useState('')
+  const [showFolderMenu, setShowFolderMenu] = useState<string | null>(null)
+
+  // Close folder menu when clicking outside
+  React.useEffect(() => {
+    const handleClickOutside = () => {
+      setShowFolderMenu(null)
+    }
+    
+    if (showFolderMenu) {
+      document.addEventListener('click', handleClickOutside)
+      return () => document.removeEventListener('click', handleClickOutside)
+    }
+  }, [showFolderMenu])
 
   const workflowTemplates = [
     {
@@ -4489,9 +4531,6 @@ function WorkflowsView({
     setNewWorkflowDescription(template.description)
     setShowWorkflowTemplates(false)
   }
-  // Get unique folders from workflows
-  const folders = [...new Set(workflows.filter(w => w.folder).map(w => w.folder!))]
-  
   // Filter workflows by selected folder
   const filteredWorkflows = selectedFolder 
     ? workflows.filter(w => w.folder === selectedFolder)
@@ -4513,10 +4552,15 @@ function WorkflowsView({
 
   const handleCreateFolder = () => {
     if (newFolderName.trim()) {
-      // Just close the modal - folders are created implicitly when workflows are assigned to them
+      onCreateFolder(newFolderName.trim())
       setNewFolderName('')
       setShowCreateFolderModal(false)
     }
+  }
+
+  const moveWorkflowToFolder = (workflowId: string, folderName: string | null) => {
+    onUpdateWorkflow(workflowId, { folder: folderName || undefined })
+    setShowFolderMenu(null)
   }
 
   const getStatusColor = (status: string) => {
@@ -4659,6 +4703,12 @@ function WorkflowsView({
                   <h3 className="text-lg font-semibold text-white mb-1 truncate">
                     {workflow.name}
                   </h3>
+                  {workflow.folder && (
+                    <div className="flex items-center gap-1 mb-2">
+                      <Folder className="w-3 h-3 text-blue-400" />
+                      <span className="text-xs text-blue-400">{workflow.folder}</span>
+                    </div>
+                  )}
                   <p className="text-gray-400 text-sm line-clamp-2">
                     {workflow.description}
                   </p>
@@ -4711,6 +4761,50 @@ function WorkflowsView({
                   >
                     <Maximize2 className="w-4 h-4" />
                   </button>
+                  <div className="relative">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setShowFolderMenu(showFolderMenu === workflow.id ? null : workflow.id)
+                      }}
+                      className="p-1 text-gray-400 hover:text-blue-400 transition-colors"
+                      title="Move to Folder"
+                    >
+                      <MoreVertical className="w-4 h-4" />
+                    </button>
+                    {showFolderMenu === workflow.id && (
+                      <div className="absolute right-0 top-8 bg-black/90 backdrop-blur-xl border border-white/20 rounded-lg py-2 min-w-[160px] z-50">
+                        <div className="px-3 py-1 text-xs text-gray-400 border-b border-white/10">Move to folder</div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            moveWorkflowToFolder(workflow.id, null)
+                          }}
+                          className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors flex items-center gap-2"
+                        >
+                          <FolderMinus className="w-3 h-3" />
+                          No Folder
+                        </button>
+                        {folders.map(folder => (
+                          <button
+                            key={folder}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              moveWorkflowToFolder(workflow.id, folder)
+                            }}
+                            className={`w-full text-left px-3 py-2 text-sm transition-colors flex items-center gap-2 ${
+                              workflow.folder === folder 
+                                ? 'text-blue-400 bg-blue-500/20' 
+                                : 'text-gray-300 hover:bg-white/10'
+                            }`}
+                          >
+                            <Folder className="w-3 h-3" />
+                            {folder}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                   <button
                     onClick={(e) => {
                       e.stopPropagation()

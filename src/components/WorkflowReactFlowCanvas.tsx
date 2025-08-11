@@ -24,7 +24,8 @@ import NodeEditor from '@/components/NodeEditor'
 import NodeCanvasModal from '@/components/NodeCanvasModal'
 import { 
   DollarSign, FileText, Target, AlertTriangle, Building, Crown, UserCheck, Banknote, Plug, Split, Play, Zap, User, Workflow, Wallet,
-  CheckSquare, GitBranch, Flag, Users, Mail, MessageSquare, Bell, Database, Code, Laptop, TrendingUp, Bot
+  CheckSquare, GitBranch, Flag, Users, Mail, MessageSquare, Bell, Database, Code, Laptop, TrendingUp, Bot,
+  Shield, Lock, Coins, Gavel, Eye, Vote, Clock, Image, Heart, UserPlus, Camera
 } from 'lucide-react'
 
 // Node canvas configurations (copied from NodeCanvasModal)
@@ -118,7 +119,25 @@ const DEFAULT_NODE_CONFIG = {
 
 type NodeKind = string
 
-export type RFNodeData = { label: string; kind: NodeKind; subtitle?: string; template?: TemplateItem; handcashHandle?: string; tokenAddress?: string }
+export type RFNodeData = { 
+  label: string; 
+  kind: NodeKind; 
+  subtitle?: string; 
+  template?: TemplateItem; 
+  handcashHandle?: string; 
+  tokenAddress?: string;
+  // Wallet-specific properties
+  multisigThreshold?: number;
+  multisigSigners?: string[];
+  walletType?: 'single' | 'multisig' | 'script' | 'smart_contract';
+  // Bitcoin Schema properties
+  schemaType?: string;
+  schemaVersion?: string;
+  // sCrypt smart contract properties
+  contractCode?: string;
+  contractParams?: Record<string, any>;
+  isComposable?: boolean;
+}
 
 function IconFor({ kind }: { kind: NodeKind }) {
   const cls = 'w-6 h-6'
@@ -135,6 +154,21 @@ function IconFor({ kind }: { kind: NodeKind }) {
     case 'workflow': return <Target className={`${cls} text-indigo-500`} />
     case 'trigger': return <Zap className={`${cls} text-yellow-600`} />
     case 'youtube': return <Play className={`${cls} text-red-600`} />
+    // sCrypt Smart Contracts
+    case 'scrypt-multisig': return <Shield className={`${cls} text-cyan-500`} />
+    case 'scrypt-escrow': return <Lock className={`${cls} text-blue-600`} />
+    case 'scrypt-token': return <Coins className={`${cls} text-green-600`} />
+    case 'scrypt-auction': return <Gavel className={`${cls} text-purple-600`} />
+    case 'scrypt-oracle': return <Eye className={`${cls} text-amber-600`} />
+    case 'scrypt-voting': return <Vote className={`${cls} text-indigo-600`} />
+    case 'scrypt-timelock': return <Clock className={`${cls} text-orange-600`} />
+    case 'scrypt-nft': return <Image className={`${cls} text-pink-600`} />
+    // Bitcoin Schema Standards
+    case 'schema-post': return <FileText className={`${cls} text-emerald-600`} />
+    case 'schema-profile': return <User className={`${cls} text-blue-600`} />
+    case 'schema-like': return <Heart className={`${cls} text-red-600`} />
+    case 'schema-follow': return <UserPlus className={`${cls} text-green-600`} />
+    case 'schema-media': return <Camera className={`${cls} text-purple-600`} />
     default: return <Target className={`${cls} text-white`} />
   }
 }
@@ -144,6 +178,9 @@ function ColoredNode({ data }: { data: RFNodeData }) {
   const [handcashHandle, setHandcashHandle] = React.useState(data.handcashHandle || '')
   const [isEditingTokenAddress, setIsEditingTokenAddress] = React.useState(false)
   const [tokenAddress, setTokenAddress] = React.useState(data.tokenAddress || '')
+  const [isEditingMultisig, setIsEditingMultisig] = React.useState(false)
+  const [multisigThreshold, setMultisigThreshold] = React.useState(data.multisigThreshold || 2)
+  const [multisigSigners, setMultisigSigners] = React.useState(data.multisigSigners || [])
   
   // Check if this is an AI assistant node that should be wide and short
   const isAIAssistant = data.label?.toLowerCase().includes('openai') || 
@@ -153,8 +190,8 @@ function ColoredNode({ data }: { data: RFNodeData }) {
                        (data.template && data.template.category === 'AI & Machine Learning')
   
   const containerClass = isAIAssistant 
-    ? "bg-black/70 backdrop-blur-xl border border-white/30 rounded-xl px-4 py-1.5 text-white min-w-[416px] max-w-[416px] shadow-xl"
-    : "bg-black/70 backdrop-blur-xl border border-white/30 rounded-xl px-3 py-2 text-white min-w-[160px] shadow-xl"
+    ? "bg-black/70 backdrop-blur-xl border border-white/30 rounded-xl px-6 py-3 text-white min-w-[480px] max-w-[480px] shadow-xl"
+    : "bg-black/70 backdrop-blur-xl border border-white/30 rounded-xl px-4 py-3 text-white min-w-[220px] shadow-xl"
 
   const handleSaveHandle = () => {
     data.handcashHandle = handcashHandle
@@ -164,6 +201,12 @@ function ColoredNode({ data }: { data: RFNodeData }) {
   const handleSaveTokenAddress = () => {
     data.tokenAddress = tokenAddress
     setIsEditingTokenAddress(false)
+  }
+
+  const handleSaveMultisig = () => {
+    data.multisigThreshold = multisigThreshold
+    data.multisigSigners = multisigSigners
+    setIsEditingMultisig(false)
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -247,6 +290,83 @@ function ColoredNode({ data }: { data: RFNodeData }) {
             </div>
           )}
         </div>
+
+        {/* Wallet-specific properties */}
+        {data.kind === 'wallets' && (
+          <div className="mt-2 space-y-1">
+            {/* Wallet Type */}
+            <div className="flex items-center gap-1">
+              <span className="text-[9px] text-blue-400">Type:</span>
+              <select
+                value={data.walletType || 'single'}
+                onChange={(e) => {
+                  data.walletType = e.target.value as any
+                  if (e.target.value === 'multisig') {
+                    data.multisigThreshold = multisigThreshold
+                    data.multisigSigners = multisigSigners
+                  }
+                }}
+                className="bg-white/10 text-white text-[9px] px-1 py-0.5 rounded border-none outline-none"
+              >
+                <option value="single">Single</option>
+                <option value="multisig">Multisig</option>
+                <option value="script">Script</option>
+                <option value="smart_contract">Smart Contract</option>
+              </select>
+            </div>
+
+            {/* Multisig Configuration */}
+            {data.walletType === 'multisig' && (
+              <div className="space-y-1">
+                <div className="flex items-center gap-1">
+                  <span className="text-[9px] text-purple-400">Threshold:</span>
+                  <input
+                    type="number"
+                    min="1"
+                    max="15"
+                    value={multisigThreshold}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value) || 2
+                      setMultisigThreshold(val)
+                      data.multisigThreshold = val
+                    }}
+                    className="bg-white/10 text-white text-[9px] px-1 py-0.5 rounded w-8 text-center"
+                  />
+                  <span className="text-[9px] text-gray-400">of {multisigSigners.length || 3}</span>
+                </div>
+                <div className="text-[9px] text-gray-400">
+                  Signers: {multisigSigners.length > 0 ? multisigSigners.join(', ').slice(0, 20) + '...' : 'Click to add'}
+                </div>
+              </div>
+            )}
+
+            {/* Bitcoin Schema Integration */}
+            {data.schemaType && (
+              <div className="flex items-center gap-1">
+                <span className="text-[9px] text-green-400">Schema:</span>
+                <span className="text-[9px] text-white">{data.schemaType}</span>
+                {data.schemaVersion && (
+                  <span className="text-[9px] text-gray-400">v{data.schemaVersion}</span>
+                )}
+              </div>
+            )}
+
+            {/* sCrypt Smart Contract */}
+            {data.walletType === 'smart_contract' && (
+              <div className="space-y-1">
+                <div className="flex items-center gap-1">
+                  <span className="text-[9px] text-cyan-400">sCrypt:</span>
+                  <span className="text-[9px] text-white">{data.isComposable ? 'Composable' : 'Standard'}</span>
+                </div>
+                {data.contractCode && (
+                  <div className="text-[9px] text-gray-400 font-mono truncate">
+                    {data.contractCode.slice(0, 15)}...
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </div>
       <Handle type="target" position={Position.Top} className="!bg-white/60" />
       <Handle type="source" position={Position.Bottom} className="!bg-white/60" />
@@ -289,9 +409,26 @@ const PALETTE = [
   
   // Logic
   { type: 'trigger', name: 'Trigger', category: 'Logic', icon: <Zap className="w-6 h-6 text-yellow-500" /> },
+  
+  // sCrypt Smart Contracts (Composable)
+  { type: 'scrypt-multisig', name: 'MultiSig Contract', category: 'sCrypt', icon: <Shield className="w-6 h-6 text-cyan-500" /> },
+  { type: 'scrypt-escrow', name: 'Escrow Contract', category: 'sCrypt', icon: <Lock className="w-6 h-6 text-blue-600" /> },
+  { type: 'scrypt-token', name: 'Token Contract', category: 'sCrypt', icon: <Coins className="w-6 h-6 text-green-600" /> },
+  { type: 'scrypt-auction', name: 'Auction Contract', category: 'sCrypt', icon: <Gavel className="w-6 h-6 text-purple-600" /> },
+  { type: 'scrypt-oracle', name: 'Oracle Contract', category: 'sCrypt', icon: <Eye className="w-6 h-6 text-amber-600" /> },
+  { type: 'scrypt-voting', name: 'Voting Contract', category: 'sCrypt', icon: <Vote className="w-6 h-6 text-indigo-600" /> },
+  { type: 'scrypt-timelock', name: 'TimeLock Contract', category: 'sCrypt', icon: <Clock className="w-6 h-6 text-orange-600" /> },
+  { type: 'scrypt-nft', name: 'NFT Contract', category: 'sCrypt', icon: <Image className="w-6 h-6 text-pink-600" /> },
+  
+  // Bitcoin Schema Standards
+  { type: 'schema-post', name: 'Post Schema', category: 'Bitcoin Schema', icon: <FileText className="w-6 h-6 text-emerald-600" /> },
+  { type: 'schema-profile', name: 'Profile Schema', category: 'Bitcoin Schema', icon: <User className="w-6 h-6 text-blue-600" /> },
+  { type: 'schema-like', name: 'Like Schema', category: 'Bitcoin Schema', icon: <Heart className="w-6 h-6 text-red-600" /> },
+  { type: 'schema-follow', name: 'Follow Schema', category: 'Bitcoin Schema', icon: <UserPlus className="w-6 h-6 text-green-600" /> },
+  { type: 'schema-media', name: 'Media Schema', category: 'Bitcoin Schema', icon: <Camera className="w-6 h-6 text-purple-600" /> },
 ]
 
-const BUSINESS_KINDS = new Set(['workflow','organization','role','ai-agent','member','instrument','wallets','contract','integration'])
+const BUSINESS_KINDS = new Set(['workflow','organization','role','ai-agent','member','instrument','wallets','contract','integration','scrypt-multisig','scrypt-escrow','scrypt-token','scrypt-auction','scrypt-oracle','scrypt-voting','scrypt-timelock','scrypt-nft','schema-post','schema-profile','schema-like','schema-follow','schema-media'])
 
 
 

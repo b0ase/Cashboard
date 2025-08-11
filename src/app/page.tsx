@@ -2997,6 +2997,20 @@ export default function Dashboard() {
             {/* Navigation */}
             <nav className="space-y-2">
               {/* Demo Button */}
+              {/* Sign in with HandCash Button */}
+              <button
+                onClick={() => {
+                  // Handle HandCash authentication
+                  window.open('https://app.handcash.io/oauth/authorize', '_blank')
+                }}
+                className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-3 py-2 rounded-lg transition-all duration-200 hover:scale-[1.02] flex items-center justify-center space-x-2 shadow-lg mb-3"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+                <span className="font-medium text-sm">Sign in with HandCash</span>
+              </button>
+
               <button
                 onClick={() => setShowDemoModal(true)}
                 className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-3 py-2 rounded-lg transition-all duration-200 hover:scale-[1.02] flex items-center justify-center space-x-2 shadow-lg"

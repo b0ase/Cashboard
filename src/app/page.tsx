@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useRef, useEffect } from 'react'
-import CanvasTabs from '@/components/CanvasTabs'
+import WorkflowReactFlowCanvas from '@/components/WorkflowReactFlowCanvas'
 import WorkflowDashboard from '@/components/WorkflowDashboard'
 import { 
   getOrganizationTemplates, 
@@ -3372,7 +3372,11 @@ export default function Dashboard() {
 
         {currentView === 'workflow' && currentWorkflow && (
           <div className="relative h-[calc(100vh-140px)]">
-            <CanvasTabs />
+            <WorkflowReactFlowCanvas 
+              workflow={currentWorkflow} 
+              tabTitle={currentWorkflow?.name || "Main Canvas"}
+              onAddNode={() => {}}
+            />
           </div>
         )}
 

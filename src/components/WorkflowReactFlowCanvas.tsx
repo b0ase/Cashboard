@@ -25,7 +25,8 @@ import NodeCanvasModal from '@/components/NodeCanvasModal'
 import { 
   DollarSign, FileText, Target, AlertTriangle, Building, Crown, UserCheck, Banknote, Plug, Split, Play, Zap, User, Workflow, Wallet,
   CheckSquare, GitBranch, Flag, Users, Mail, MessageSquare, Bell, Database, Code, Laptop, TrendingUp, Bot,
-  Shield, Lock, Coins, Gavel, Eye, Vote, Clock, Image, Heart, UserPlus, Camera, ArrowLeft, ChevronRight
+  Shield, Lock, Coins, Gavel, Eye, Vote, Clock, Image, Heart, UserPlus, Camera, ArrowLeft, ChevronRight,
+  Pause, ZoomIn, ZoomOut, RotateCcw
 } from 'lucide-react'
 
 // Node canvas configurations (copied from NodeCanvasModal)
@@ -723,6 +724,44 @@ export default function WorkflowReactFlowCanvas({
 
 function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick, palette, templateModal, setTemplateModal, setNodes, setEdges, onTemplateSelect, onNodeClick, onNodeDoubleClick, tabTitle, connectionStyle, navigationStack, currentCanvasIndex, navigateBack, navigateToCanvas }:
   { nodes: Node<RFNodeData>[]; edges: Edge[]; onNodesChange: any; onEdgesChange: any; onConnect: any; onPick: (type: string, rf: any) => void; palette: any[]; templateModal: { kind: string; items: TemplateItem[] } | null; setTemplateModal: (v: any) => void; setNodes: any; setEdges: any; onTemplateSelect?: (template: TemplateItem) => void; onNodeClick?: (event: React.MouseEvent, node: Node<RFNodeData>) => void; onNodeDoubleClick?: (event: React.MouseEvent, node: Node<RFNodeData>) => void; tabTitle?: string; connectionStyle?: 'bezier' | 'smoothstep' | 'straight'; navigationStack: CanvasNavItem[]; currentCanvasIndex: number; navigateBack: () => void; navigateToCanvas: (index: number) => void }) {
+  
+  // Canvas control states
+  const [isRunning, setIsRunning] = React.useState(false)
+  const [autoMode, setAutoMode] = React.useState(false)
+  const [canvasScale, setCanvasScale] = React.useState(100)
+  const [currentConnectionStyle, setCurrentConnectionStyle] = React.useState<'bezier' | 'smoothstep' | 'straight'>(connectionStyle || 'bezier')
+  
+  // Control functions
+  const toggleWorkflowStatus = () => setIsRunning(!isRunning)
+  const toggleAutoMode = () => setAutoMode(!autoMode)
+  
+  const zoomIn = () => {
+    if ((window as any).reactFlowInstance) {
+      (window as any).reactFlowInstance.zoomIn()
+      setCanvasScale(Math.round((window as any).reactFlowInstance.getZoom() * 100))
+    }
+  }
+  
+  const zoomOut = () => {
+    if ((window as any).reactFlowInstance) {
+      (window as any).reactFlowInstance.zoomOut()
+      setCanvasScale(Math.round((window as any).reactFlowInstance.getZoom() * 100))
+    }
+  }
+  
+  const resetView = () => {
+    if ((window as any).reactFlowInstance) {
+      (window as any).reactFlowInstance.fitView()
+      setCanvasScale(Math.round((window as any).reactFlowInstance.getZoom() * 100))
+    }
+  }
+  
+  const cycleConnectionStyle = () => {
+    const styles: ('bezier' | 'smoothstep' | 'straight')[] = ['bezier', 'smoothstep', 'straight']
+    const currentIndex = styles.indexOf(currentConnectionStyle)
+    const nextStyle = styles[(currentIndex + 1) % styles.length]
+    setCurrentConnectionStyle(nextStyle)
+  }
   const rf = useReactFlow()
   
   // Expose React Flow instance globally for controls
@@ -786,6 +825,67 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      </Panel>
+
+      {/* Canvas Controls Panel */}
+      <Panel position="top-left" className="m-2 ml-4">
+        <div className="bg-black/80 backdrop-blur-xl border border-white/20 rounded-lg px-3 py-2">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={toggleWorkflowStatus}
+              className={`flex items-center gap-1 px-2 py-1 rounded text-xs transition-all ${
+                isRunning 
+                  ? 'bg-red-500/20 text-red-300 hover:bg-red-500/30' 
+                  : 'bg-green-500/20 text-green-300 hover:bg-green-500/30'
+              }`}
+              title={isRunning ? 'Pause workflow' : 'Start workflow'}
+            >
+              {isRunning ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3" />}
+              {isRunning ? 'Running' : 'Paused'}
+            </button>
+            
+            <button
+              onClick={toggleAutoMode}
+              className={`flex items-center gap-1 px-2 py-1 rounded text-xs transition-all ${
+                autoMode 
+                  ? 'bg-blue-500/20 text-blue-300 hover:bg-blue-500/30' 
+                  : 'bg-gray-500/20 text-gray-300 hover:bg-gray-500/30'
+              }`}
+              title={autoMode ? 'Switch to manual mode' : 'Switch to auto mode'}
+            >
+              <Zap className="w-3 h-3" />
+              {autoMode ? 'Auto' : 'Manual'}
+            </button>
+            
+            <div className="flex items-center gap-1 text-xs text-gray-400 border-l border-white/20 pl-2 ml-2">
+              <button onClick={zoomOut} className="hover:text-white transition-colors" title="Zoom Out">
+                <ZoomOut className="w-3 h-3" />
+              </button>
+              <span className="min-w-[35px] text-center" title="Current zoom level">
+                {canvasScale}%
+              </span>
+              <button onClick={zoomIn} className="hover:text-white transition-colors" title="Zoom In">
+                <ZoomIn className="w-3 h-3" />
+              </button>
+            </div>
+            
+            <button
+              onClick={resetView}
+              className="px-2 py-1 rounded text-xs text-gray-400 hover:text-white hover:bg-white/10 transition-all"
+              title="Reset canvas view to fit all nodes"
+            >
+              Reset
+            </button>
+            
+            <button
+              onClick={cycleConnectionStyle}
+              className="px-2 py-1 rounded text-xs text-gray-400 hover:text-white hover:bg-white/10 transition-all capitalize"
+              title={`Current: ${currentConnectionStyle}. Click to cycle through connection styles.`}
+            >
+              {currentConnectionStyle}
+            </button>
           </div>
         </div>
       </Panel>

@@ -59,13 +59,13 @@ function HandCashCallbackContent() {
 
         const tokenData = await tokenResponse.json()
         
-        // Store access token securely (in httpOnly cookie via API)
-        localStorage.setItem('handcash_user', JSON.stringify({
+        // Store user session
+        const sessionData = {
           accessToken: tokenData.access_token,
-          refreshToken: tokenData.refresh_token,
+          user: tokenData.user,
           expiresAt: Date.now() + (tokenData.expires_in * 1000),
-          user: tokenData.user
-        }))
+        }
+        localStorage.setItem('handcash_session', JSON.stringify(sessionData))
 
         setStatus('success')
         setMessage('Successfully authenticated with HandCash!')

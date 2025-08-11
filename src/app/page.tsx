@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import WorkflowReactFlowCanvas from '@/components/WorkflowReactFlowCanvas'
 import WorkflowDashboard from '@/components/WorkflowDashboard'
+import { HandCashAuthButton, UserProfileCard } from '@/components/HandCashAuth'
 import { 
   getOrganizationTemplates, 
   getRoleTemplates, 
@@ -3131,29 +3132,8 @@ export default function Dashboard() {
                 <span className="font-medium text-sm">Watch Demo</span>
               </button>
 
-              {/* Sign in with HandCash Button */}
-              <button
-                onClick={() => {
-                  // Handle HandCash authentication with proper OAuth parameters
-                  const clientId = process.env.NEXT_PUBLIC_HANDCASH_CLIENT_ID || 'your_client_id'
-                  const redirectUri = encodeURIComponent(`${window.location.origin}/auth/handcash/callback`)
-                  const scope = encodeURIComponent('user_public_profile user_private_profile payments')
-                  const state = Math.random().toString(36).substring(7) // Random state for security
-                  
-                  const authUrl = `https://cloud.handcash.io/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&state=${state}`
-                  
-                  // Store state in sessionStorage for verification
-                  sessionStorage.setItem('handcash_oauth_state', state)
-                  
-                  window.open(authUrl, '_blank')
-                }}
-                className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-3 py-2 rounded-lg transition-all duration-200 hover:scale-[1.02] flex items-center justify-center space-x-2 shadow-lg mb-3"
-              >
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                </svg>
-                <span className="font-medium text-sm">Sign in with HandCash</span>
-              </button>
+              {/* HandCash Authentication */}
+              <HandCashAuthButton />
 
               {/* Divider */}
               <div className="border-t border-white/10 my-4"></div>

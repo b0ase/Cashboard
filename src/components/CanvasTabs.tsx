@@ -202,9 +202,29 @@ export default function CanvasTabs({ initialTabs }: CanvasTabsProps) {
   // Canvas control handlers
   const toggleWorkflowStatus = () => setIsRunning(!isRunning)
   const toggleAutoMode = () => setAutoMode(!autoMode)
-  const zoomOut = () => setCanvasScale(Math.max(10, canvasScale - 10))
-  const zoomIn = () => setCanvasScale(Math.min(200, canvasScale + 10))
-  const resetView = () => setCanvasScale(35)
+  const zoomOut = () => {
+    setCanvasScale(Math.max(10, canvasScale - 10))
+    // Trigger zoom out on React Flow instance
+    if (window.reactFlowInstance) {
+      const currentZoom = window.reactFlowInstance.getZoom()
+      window.reactFlowInstance.zoomTo(Math.max(0.1, currentZoom - 0.1))
+    }
+  }
+  const zoomIn = () => {
+    setCanvasScale(Math.min(200, canvasScale + 10))
+    // Trigger zoom in on React Flow instance
+    if (window.reactFlowInstance) {
+      const currentZoom = window.reactFlowInstance.getZoom()
+      window.reactFlowInstance.zoomTo(Math.min(2, currentZoom + 0.1))
+    }
+  }
+  const resetView = () => {
+    setCanvasScale(35)
+    // Reset React Flow view
+    if (window.reactFlowInstance) {
+      window.reactFlowInstance.fitView({ duration: 300 })
+    }
+  }
   const cycleConnectionStyle = () => {
     setConnectionStyle(prev => {
       switch (prev) {
@@ -310,6 +330,7 @@ export default function CanvasTabs({ initialTabs }: CanvasTabsProps) {
           <button
             onClick={() => createNewTab()}
             className="flex items-center gap-1 px-2 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/8 transition-all text-sm"
+            title="Add new canvas tab"
           >
             <Plus className="w-4 h-4" />
           </button>
@@ -342,11 +363,13 @@ export default function CanvasTabs({ initialTabs }: CanvasTabsProps) {
           </button>
           
           <div className="flex items-center gap-1 text-xs text-gray-400">
-            <button onClick={zoomOut} className="hover:text-white transition-colors">
+            <button onClick={zoomOut} className="hover:text-white transition-colors" title="Zoom Out">
               <ZoomOut className="w-3 h-3" />
             </button>
-            <span className="min-w-[30px] text-center">{canvasScale}%</span>
-            <button onClick={zoomIn} className="hover:text-white transition-colors">
+            <span className="min-w-[35px] text-center" title="Current zoom level">
+              {window.reactFlowInstance ? Math.round(window.reactFlowInstance.getZoom() * 100) : canvasScale}%
+            </span>
+            <button onClick={zoomIn} className="hover:text-white transition-colors" title="Zoom In">
               <ZoomIn className="w-3 h-3" />
             </button>
           </div>
@@ -354,6 +377,7 @@ export default function CanvasTabs({ initialTabs }: CanvasTabsProps) {
           <button
             onClick={resetView}
             className="px-2 py-1 rounded text-xs text-gray-400 hover:text-white hover:bg-white/10 transition-all"
+            title="Reset canvas view to fit all nodes"
           >
             Reset
           </button>

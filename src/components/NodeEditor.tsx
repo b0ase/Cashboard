@@ -231,7 +231,7 @@ export default function NodeEditor({ node, isOpen, onClose, onSave }: NodeEditor
       setWorkflowData(node.data.workflow || schema.workflowTemplate)
       setHasChanges(false)
     }
-  }, [node, schema])
+  }, [node?.id, node?.data?.kind]) // Use stable node.id and node.data.kind instead of schema
 
   const handleParameterChange = (key: string, value: any) => {
     setParameters(prev => 

@@ -727,95 +727,93 @@ export default function WorkflowReactFlowCanvas({
 
         {/* Dual Modal System - Properties (Left) and Canvas (Right) */}
         {selectedNodeForDualModal && (showPropertiesModal || showCanvasModal) && (
-          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm">
-            <div className="flex h-full">
-              {/* Left Modal - Node Properties */}
-              {showPropertiesModal && (
-                <div className="w-1/2 h-full flex items-center justify-center p-4">
-                  <div className="bg-black/90 border border-white/20 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-                    <div className="p-6">
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-white text-xl font-semibold">
-                          {selectedNodeForDualModal.data.label} Properties
-                        </h3>
-                        <button
-                          onClick={() => {
-                            setShowPropertiesModal(false)
-                            if (!showCanvasModal) {
-                              setSelectedNodeForDualModal(null)
-                            }
-                          }}
-                          className="text-gray-400 hover:text-white transition-colors"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                      <NodeEditor
-                        node={selectedNodeForDualModal}
-                        isOpen={true}
-                        onClose={() => {
-                          setShowPropertiesModal(false)
-                          if (!showCanvasModal) {
-                            setSelectedNodeForDualModal(null)
-                          }
-                        }}
-                        onSave={handleNodeSave}
-                      />
-                    </div>
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex">
+            {/* Left Modal - Node Properties */}
+            {showPropertiesModal && (
+              <div className="w-1/2 h-full p-4 flex flex-col">
+                <div className="bg-black/90 border border-white/20 rounded-lg flex-1 flex flex-col overflow-hidden">
+                  <div className="p-4 border-b border-white/20 flex items-center justify-between flex-shrink-0">
+                    <h3 className="text-white text-lg font-semibold">
+                      {selectedNodeForDualModal.data.label} Properties
+                    </h3>
+                    <button
+                      onClick={() => {
+                        setShowPropertiesModal(false)
+                        if (!showCanvasModal) {
+                          setSelectedNodeForDualModal(null)
+                        }
+                      }}
+                      className="text-gray-400 hover:text-white transition-colors"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <div className="flex-1 overflow-y-auto p-4">
+                    <NodeEditor
+                      node={selectedNodeForDualModal}
+                      isOpen={true}
+                      onClose={() => {
+                        setShowPropertiesModal(false)
+                        if (!showCanvasModal) {
+                          setSelectedNodeForDualModal(null)
+                        }
+                      }}
+                      onSave={handleNodeSave}
+                    />
                   </div>
                 </div>
-              )}
+              </div>
+            )}
 
-              {/* Right Modal - Node Canvas */}
-              {showCanvasModal && (
-                <div className="w-1/2 h-full flex items-center justify-center p-4">
-                  <div className="bg-black/90 border border-white/20 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-hidden">
-                    <div className="p-4 border-b border-white/20 flex items-center justify-between">
-                      <h3 className="text-white text-lg font-semibold">
-                        {selectedNodeForDualModal.data.label} Canvas
-                      </h3>
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => {
-                            // Open in full canvas tab
-                            navigateToNodeCanvas(selectedNodeForDualModal)
-                            setShowCanvasModal(false)
-                            setShowPropertiesModal(false)
-                            setSelectedNodeForDualModal(null)
-                          }}
-                          className="px-3 py-1 bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 hover:text-blue-300 rounded text-sm transition-colors"
-                        >
-                          Open in Tab
-                        </button>
-                        <button
-                          onClick={() => {
-                            setShowCanvasModal(false)
-                            if (!showPropertiesModal) {
-                              setSelectedNodeForDualModal(null)
-                            }
-                          }}
-                          className="text-gray-400 hover:text-white transition-colors"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    </div>
-                    <div className="h-96">
-                      <NodeCanvasModal
-                        node={selectedNodeForDualModal}
-                        isOpen={true}
-                        onClose={() => {
+            {/* Right Modal - Node Canvas */}
+            {showCanvasModal && (
+              <div className={`${showPropertiesModal ? 'w-1/2' : 'w-full'} h-full p-4 flex flex-col`}>
+                <div className="bg-black/90 border border-white/20 rounded-lg flex-1 flex flex-col overflow-hidden">
+                  <div className="p-4 border-b border-white/20 flex items-center justify-between flex-shrink-0">
+                    <h3 className="text-white text-lg font-semibold">
+                      {selectedNodeForDualModal.data.label} Canvas
+                    </h3>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => {
+                          // Open in full canvas tab
+                          navigateToNodeCanvas(selectedNodeForDualModal)
+                          setShowCanvasModal(false)
+                          setShowPropertiesModal(false)
+                          setSelectedNodeForDualModal(null)
+                        }}
+                        className="px-3 py-1 bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 hover:text-blue-300 rounded text-sm transition-colors"
+                      >
+                        Open in Tab
+                      </button>
+                      <button
+                        onClick={() => {
                           setShowCanvasModal(false)
                           if (!showPropertiesModal) {
                             setSelectedNodeForDualModal(null)
                           }
                         }}
-                      />
+                        className="text-gray-400 hover:text-white transition-colors"
+                      >
+                        ✕
+                      </button>
                     </div>
                   </div>
+                  <div className="flex-1 overflow-hidden">
+                    <NodeCanvasModal
+                      node={selectedNodeForDualModal}
+                      isOpen={true}
+                      onClose={() => {
+                        setShowCanvasModal(false)
+                        if (!showPropertiesModal) {
+                          setSelectedNodeForDualModal(null)
+                        }
+                      }}
+                    />
+                  </div>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         )}
       </ReactFlowProvider>

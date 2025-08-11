@@ -39,8 +39,8 @@ export const HandCashAuth = {
    * Exchange authorization code for access token
    */
   async exchangeCodeForToken(authToken: string): Promise<HandCashAuthResult> {
-    // Use mock endpoint for testing to avoid WASM issues
-    const response = await fetch('/api/auth/handcash/token-mock', {
+    // Use real HandCash API endpoint
+    const response = await fetch('/api/auth/handcash/token', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

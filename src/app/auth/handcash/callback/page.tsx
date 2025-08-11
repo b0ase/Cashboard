@@ -29,14 +29,18 @@ function HandCashCallbackContent() {
           return
         }
 
-        // Use the authToken directly (HandCash flow is different from standard OAuth)
-        const tokenResponse = await fetch('/api/auth/handcash/token-mock', {
+        console.log('Using authToken for authentication:', authToken.substring(0, 10) + '...')
+        
+        // Use the real HandCash API endpoint (not mock)
+        const tokenResponse = await fetch('/api/auth/handcash/token', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ authToken }),
         })
+        
+        console.log('Token response status:', tokenResponse.status)
 
         if (!tokenResponse.ok) {
           const errorData = await tokenResponse.json()
@@ -46,6 +50,7 @@ function HandCashCallbackContent() {
         }
 
         const tokenData = await tokenResponse.json()
+        console.log('Token data received:', tokenData)
         
         // Store user session
         const sessionData = {
@@ -53,6 +58,7 @@ function HandCashCallbackContent() {
           user: tokenData.user,
           expiresAt: Date.now() + (tokenData.expires_in * 1000),
         }
+        console.log('Storing session:', sessionData)
         localStorage.setItem('handcash_session', JSON.stringify(sessionData))
 
         setStatus('success')
@@ -111,7 +117,23 @@ function HandCashCallbackContent() {
               <h2 className="text-xl font-semibold text-white mb-2">Authentication Failed</h2>
               <p className="text-gray-400 mb-4">{message}</p>
               <button
-                onClick={() => window.close()}
+                onClick={() => {
+                  // Try multiple ways to close/redirect
+                  try {
+                    // First try to close the window (works if opened by JavaScript)
+                    window.close()
+                    
+                    // If window.close() doesn't work, redirect to main page after a short delay
+                    setTimeout(() => {
+                      if (!window.closed) {
+                        window.location.href = '/'
+                      }
+                    }, 100)
+                  } catch (error) {
+                    // Fallback: redirect to main page
+                    window.location.href = '/'
+                  }
+                }}
                 className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
               >
                 Close Window

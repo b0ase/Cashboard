@@ -21,6 +21,31 @@ const nextConfig: NextConfig = {
         util: false,
       };
     }
+
+    // Handle WASM files for HandCash Connect SDK
+    config.experiments = {
+      ...config.experiments,
+      asyncWebAssembly: true,
+      syncWebAssembly: true,
+    };
+
+    // Handle .wasm files
+    config.module.rules.push({
+      test: /\.wasm$/,
+      type: 'webassembly/async',
+    });
+
+    // Copy WASM files to the output directory
+    if (isServer) {
+      config.module.rules.push({
+        test: /bsv_wasm_bg\.wasm$/,
+        type: 'asset/resource',
+        generator: {
+          filename: 'static/wasm/[name].[hash][ext]',
+        },
+      });
+    }
+
     return config;
   },
 };

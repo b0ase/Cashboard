@@ -1,9 +1,11 @@
 'use client'
 
 import React, { useState, useRef, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import WorkflowReactFlowCanvas from '@/components/WorkflowReactFlowCanvas'
 import WorkflowDashboard from '@/components/WorkflowDashboard'
 import { HandCashAuthButton, UserProfileCard } from '@/components/HandCashAuth'
+import { useAuth } from '@/contexts/AuthContext'
 import { 
   getOrganizationTemplates, 
   getRoleTemplates, 
@@ -498,7 +500,7 @@ interface ChatMessage {
 }
 
 interface AppState {
-  currentView: 'workflow' | 'organizations' | 'roles' | 'people' | 'instruments' | 'contracts' | 'wallets' | 'security' | 'integrations' | 'agents' | 'settings' | 'profile' | 'billing'
+  currentView: 'workflow' | 'organizations' | 'roles' | 'people' | 'instruments' | 'contracts' | 'wallets' | 'security' | 'integrations' | 'agents' | 'settings' | 'profile' | 'billing' | 'market' | 'launchpad'
   selectedOrganization: string | null
   selectedPerson: HandCashHandle | null
   sidebarOpen: boolean
@@ -709,7 +711,19 @@ interface SecurityProduct {
 
 
 
-export default function Dashboard() {
+function DashboardContent() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  
+  // Handle HandCash redirect - if authToken is present, redirect to callback
+  useEffect(() => {
+    const authToken = searchParams.get('authToken')
+    if (authToken) {
+      // Redirect to callback page with the authToken
+      router.push(`/auth/handcash/callback?authToken=${authToken}`)
+    }
+  }, [searchParams, router])
+
   const [appState, setAppState] = useState<AppState>({
     currentView: 'workflow',
     selectedOrganization: null,
@@ -3123,13 +3137,13 @@ export default function Dashboard() {
             
             {/* Navigation */}
             <nav className="space-y-2">
-              {/* Watch Demo Button */}
+              {/* Demo Button */}
               <button
                 onClick={() => setShowDemoModal(true)}
-                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-3 py-2 rounded-lg transition-all duration-200 hover:scale-[1.02] flex items-center justify-center space-x-2 shadow-lg"
+                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-4 py-3 rounded-lg transition-all duration-200 hover:scale-[1.02] flex items-center justify-center space-x-2 shadow-lg"
               >
-                <PlayCircle className="w-4 h-4" />
-                <span className="font-medium text-sm">Watch Demo</span>
+                <PlayCircle className="w-5 h-5" />
+                <span className="font-medium text-sm">Demo</span>
               </button>
 
               {/* HandCash Authentication */}
@@ -3137,6 +3151,20 @@ export default function Dashboard() {
 
               {/* Divider */}
               <div className="border-t border-white/10 my-4"></div>
+
+              <button
+                onClick={() => setCurrentView('profile')}
+                className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
+                  currentView === 'profile' 
+                    ? 'bg-white/20 text-white' 
+                    : 'text-gray-400 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <User className="w-4 h-4" />
+                  <span className="text-sm">Profile</span>
+                </div>
+              </button>
 
               <button
                 onClick={() => {
@@ -3269,6 +3297,34 @@ export default function Dashboard() {
                   <span className="text-sm">Integrations</span>
                 </div>
               </button>
+              
+              <button
+                onClick={() => setCurrentView('launchpad')}
+                className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
+                  currentView === 'launchpad' 
+                    ? 'bg-white/20 text-white' 
+                    : 'text-gray-400 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <Coins className="w-4 h-4" />
+                  <span className="text-sm">Launchpad</span>
+                </div>
+              </button>
+              
+              <button
+                onClick={() => setCurrentView('market')}
+                className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
+                  currentView === 'market' 
+                    ? 'bg-white/20 text-white' 
+                    : 'text-gray-400 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <TrendingUp className="w-4 h-4" />
+                  <span className="text-sm">Market</span>
+                </div>
+              </button>
             </nav>
 
             {/* Account & Billing Section */}
@@ -3301,20 +3357,6 @@ export default function Dashboard() {
                   <div className="flex items-center space-x-2">
                     <Settings className="w-4 h-4" />
                     <span className="text-sm">Settings</span>
-                  </div>
-                </button>
-                
-                <button
-                  onClick={() => setCurrentView('profile')}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
-                    currentView === 'profile' 
-                      ? 'bg-white/20 text-white' 
-                      : 'text-gray-400 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  <div className="flex items-center space-x-2">
-                    <User className="w-4 h-4" />
-                    <span className="text-sm">Profile</span>
                   </div>
                 </button>
               </nav>
@@ -3375,6 +3417,7 @@ export default function Dashboard() {
               {isMobile && mobileMenuOpen && (
                 <div className="absolute left-3 top-14 z-30 w-56 bg-black/90 border border-white/15 rounded-lg shadow-xl">
                   <div className="p-2 space-y-1">
+                    <button onClick={() => { setCurrentView('profile'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Profile</button>
                     <button
                       onClick={() => {
                         setAppState(prev => ({
@@ -3399,7 +3442,6 @@ export default function Dashboard() {
                     <div className="border-t border-white/10 my-1"></div>
                     <button onClick={() => { setCurrentView('billing'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Billing & Plans</button>
                     <button onClick={() => { setCurrentView('settings'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Settings</button>
-                    <button onClick={() => { setCurrentView('profile'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Profile</button>
                   </div>
                 </div>
               )}
@@ -3515,6 +3557,14 @@ export default function Dashboard() {
           <IntegrationsView />
         )}
 
+        {currentView === 'market' && (
+          <MarketView />
+        )}
+
+        {currentView === 'launchpad' && (
+          <LaunchpadView />
+        )}
+
         {currentView === 'agents' && (
           <AgentsView 
             roles={roles}
@@ -3543,6 +3593,12 @@ export default function Dashboard() {
           <ProfileView 
             userProfile={userProfile}
             onUpdateProfile={updateUserProfile}
+            organizations={organizations}
+            roles={roles}
+            instruments={instruments}
+            contracts={contracts}
+            wallets={wallets}
+            workflows={workflows}
           />
         )}
 
@@ -4367,6 +4423,912 @@ function IntegrationsView() {
             <p className="text-gray-400">Try adjusting your search or filter criteria</p>
           </div>
         )}
+      </div>
+    </div>
+  )
+}
+
+// Market View Component
+function MarketView() {
+  const [sortBy, setSortBy] = useState<'rank' | 'price' | 'volume' | 'marketCap' | 'change24h'>('rank')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
+  const [searchTerm, setSearchTerm] = useState('')
+
+  // Mock market data - in production this would come from a real API
+  const marketData = [
+    {
+      rank: 1,
+      symbol: 'EXT1',
+      name: 'Example Token 1',
+      price: 45.23,
+      change24h: 2.5,
+      volume24h: 125000000,
+      marketCap: 890000000,
+      circulatingSupply: 19678432,
+      website: 'https://example1.com',
+      socials: {
+        twitter: 'https://twitter.com/example1',
+        telegram: 'https://t.me/example1',
+        discord: 'https://discord.gg/example1'
+      }
+    },
+    {
+      rank: 2,
+      symbol: 'EXT2',
+      name: 'Example Token 2',
+      price: 0.0012,
+      change24h: -1.2,
+      volume24h: 2500000,
+      marketCap: 12000000,
+      circulatingSupply: 10000000000,
+      website: 'https://example2.com',
+      socials: {
+        twitter: 'https://twitter.com/example2',
+        telegram: 'https://t.me/example2'
+      }
+    },
+    {
+      rank: 3,
+      symbol: 'EXT3',
+      name: 'Example Token 3',
+      price: 0.000001,
+      change24h: 15.8,
+      volume24h: 850000,
+      marketCap: 1000000,
+      circulatingSupply: 1000000000000,
+      website: 'https://example3.com',
+      socials: {
+        twitter: 'https://twitter.com/example3',
+        discord: 'https://discord.gg/example3'
+      }
+    },
+    {
+      rank: 4,
+      symbol: 'EXT4',
+      name: 'Example Token 4',
+      price: 0.25,
+      change24h: 8.3,
+      volume24h: 450000,
+      marketCap: 2500000,
+      circulatingSupply: 10000000,
+      website: 'https://example4.com',
+      socials: {
+        twitter: 'https://twitter.com/example4',
+        linkedin: 'https://linkedin.com/company/example4'
+      }
+    },
+    {
+      rank: 5,
+      symbol: 'EXT5',
+      name: 'Example Token 5',
+      price: 1.85,
+      change24h: -3.1,
+      volume24h: 1200000,
+      marketCap: 18500000,
+      circulatingSupply: 10000000,
+      website: 'https://example5.com',
+      socials: {
+        twitter: 'https://twitter.com/example5',
+        telegram: 'https://t.me/example5'
+      }
+    }
+  ]
+
+  const filteredAndSortedData = marketData
+    .filter(token => 
+      token.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      token.symbol.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => {
+      const direction = sortOrder === 'asc' ? 1 : -1
+      switch (sortBy) {
+        case 'rank': return (a.rank - b.rank) * direction
+        case 'price': return (a.price - b.price) * direction
+        case 'volume': return (a.volume24h - b.volume24h) * direction
+        case 'marketCap': return (a.marketCap - b.marketCap) * direction
+        case 'change24h': return (a.change24h - b.change24h) * direction
+        default: return 0
+      }
+    })
+
+  const formatPrice = (price: number) => {
+    if (price < 0.01) return `$${price.toFixed(6)}`
+    return `$${price.toFixed(2)}`
+  }
+
+  const formatVolume = (volume: number) => {
+    if (volume >= 1000000) return `$${(volume / 1000000).toFixed(1)}M`
+    if (volume >= 1000) return `$${(volume / 1000).toFixed(1)}K`
+    return `$${volume.toFixed(0)}`
+  }
+
+  const formatSupply = (supply: number) => {
+    if (supply >= 1000000000) return `${(supply / 1000000000).toFixed(1)}B`
+    if (supply >= 1000000) return `${(supply / 1000000).toFixed(1)}M`
+    if (supply >= 1000) return `${(supply / 1000).toFixed(1)}K`
+    return supply.toLocaleString()
+  }
+
+  return (
+    <div className="p-8 max-w-7xl mx-auto">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-white mb-2">Token Market</h1>
+        <p className="text-gray-400">Real-time token prices, market caps, and trading data</p>
+      </div>
+
+      {/* Search and Controls */}
+      <div className="mb-6 flex gap-4 items-center">
+        <div className="flex-1">
+          <input
+            type="text"
+            placeholder="Search tokens..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full bg-black/40 border border-white/20 rounded-lg px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+          />
+        </div>
+        <div className="flex gap-2">
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as any)}
+            className="bg-black/40 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500"
+          >
+            <option value="rank">Rank</option>
+            <option value="price">Price</option>
+            <option value="volume">Volume</option>
+            <option value="marketCap">Market Cap</option>
+            <option value="change24h">24h Change</option>
+          </select>
+          <button
+            onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+            className="bg-black/40 border border-white/20 rounded-lg px-3 py-2 text-white hover:bg-white/10 transition-colors"
+          >
+            {sortOrder === 'asc' ? '↑' : '↓'}
+          </button>
+        </div>
+      </div>
+
+      {/* Market Table */}
+      <div className="bg-black/40 backdrop-blur-xl border border-white/20 rounded-xl overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-white/10">
+                <th className="text-left p-4 text-gray-400 font-medium">Rank</th>
+                <th className="text-left p-4 text-gray-400 font-medium">Token</th>
+                <th className="text-right p-4 text-gray-400 font-medium">Price</th>
+                <th className="text-right p-4 text-gray-400 font-medium">24h Change</th>
+                <th className="text-right p-4 text-gray-400 font-medium">Volume (24h)</th>
+                <th className="text-right p-4 text-gray-400 font-medium">Market Cap</th>
+                <th className="text-right p-4 text-gray-400 font-medium">Circulating Supply</th>
+                <th className="text-center p-4 text-gray-400 font-medium">Links</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredAndSortedData.map((token, index) => (
+                <tr key={token.symbol} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                  <td className="p-4">
+                    <span className="text-white font-medium">#{token.rank}</span>
+                  </td>
+                  <td className="p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                        <span className="text-white text-xs font-bold">{token.symbol[0]}</span>
+                      </div>
+                      <div>
+                        <div className="text-white font-medium">{token.name}</div>
+                        <div className="text-gray-400 text-sm">{token.symbol}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="p-4 text-right">
+                    <span className="text-white font-medium">{formatPrice(token.price)}</span>
+                  </td>
+                  <td className="p-4 text-right">
+                    <span className={`font-medium ${
+                      token.change24h >= 0 ? 'text-green-400' : 'text-red-400'
+                    }`}>
+                      {token.change24h >= 0 ? '+' : ''}{token.change24h.toFixed(2)}%
+                    </span>
+                  </td>
+                  <td className="p-4 text-right">
+                    <span className="text-white">{formatVolume(token.volume24h)}</span>
+                  </td>
+                  <td className="p-4 text-right">
+                    <span className="text-white">{formatVolume(token.marketCap)}</span>
+                  </td>
+                  <td className="p-4 text-right">
+                    <span className="text-gray-400">{formatSupply(token.circulatingSupply)} {token.symbol}</span>
+                  </td>
+                  <td className="p-4">
+                    <div className="flex justify-center gap-2">
+                      <a
+                        href={token.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-gray-400 hover:text-blue-400 transition-colors"
+                        title="Website"
+                      >
+                        <Globe className="w-4 h-4" />
+                      </a>
+                      {token.socials.twitter && (
+                        <a
+                          href={token.socials.twitter}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-gray-400 hover:text-blue-400 transition-colors"
+                          title="Twitter"
+                        >
+                          <MessageSquare className="w-4 h-4" />
+                        </a>
+                      )}
+                      {token.socials.telegram && (
+                        <a
+                          href={token.socials.telegram}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-gray-400 hover:text-blue-400 transition-colors"
+                          title="Telegram"
+                        >
+                          <Send className="w-4 h-4" />
+                        </a>
+                      )}
+                      {token.socials.discord && (
+                        <a
+                          href={token.socials.discord}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-gray-400 hover:text-blue-400 transition-colors"
+                          title="Discord"
+                        >
+                          <Hash className="w-4 h-4" />
+                        </a>
+                      )}
+                      {token.socials.linkedin && (
+                        <a
+                          href={token.socials.linkedin}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-gray-400 hover:text-blue-400 transition-colors"
+                          title="LinkedIn"
+                        >
+                          <Building className="w-4 h-4" />
+                        </a>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {filteredAndSortedData.length === 0 && (
+        <div className="text-center py-12">
+          <div className="text-6xl mb-4">📊</div>
+          <h3 className="text-xl font-semibold text-white mb-2">No tokens found</h3>
+          <p className="text-gray-400">Try adjusting your search criteria</p>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// Launchpad View Component
+function LaunchpadView() {
+  const [step, setStep] = useState(1)
+  const [formData, setFormData] = useState({
+    // Organization Details
+    organizationName: '',
+    tokenSymbol: '',
+    tokenName: '',
+    totalSupply: '',
+    initialPrice: '',
+    description: '',
+    
+    // Business Registration
+    businessType: 'corporation',
+    registrationNumber: '',
+    taxId: '',
+    incorporationDate: '',
+    jurisdiction: '',
+    registeredAddress: '',
+    
+    // Contact Information
+    website: '',
+    email: '',
+    phone: '',
+    
+    // Social Media
+    twitter: '',
+    linkedin: '',
+    telegram: '',
+    discord: '',
+    
+    // Token Distribution
+    publicSale: '',
+    teamAllocation: '',
+    advisorAllocation: '',
+    treasuryReserve: '',
+    
+    // Legal & Compliance
+    whitepaper: null as File | null,
+    businessPlan: null as File | null,
+    complianceDocuments: null as File | null,
+    kycCompleted: false,
+    amlCompleted: false,
+    termsAccepted: false
+  })
+
+  const handleInputChange = (field: string, value: string | boolean | File | null) => {
+    setFormData(prev => ({ ...prev, [field]: value }))
+  }
+
+  const handleFileUpload = (field: string, file: File | null) => {
+    setFormData(prev => ({ ...prev, [field]: file }))
+  }
+
+  const handleMintToken = async () => {
+    // In production, this would interact with 1Sat Ordinals API
+    alert(`Token ${formData.tokenSymbol} minting initiated! This would integrate with 1Sat Ordinals schema.`)
+  }
+
+  const steps = [
+    { id: 1, title: 'Organization Details', icon: Building2 },
+    { id: 2, title: 'Business Registration', icon: FileText },
+    { id: 3, title: 'Contact & Social', icon: Globe },
+    { id: 4, title: 'Token Distribution', icon: PieChart },
+    { id: 5, title: 'Legal & Compliance', icon: Shield },
+    { id: 6, title: 'Review & Mint', icon: Coins }
+  ]
+
+  return (
+    <div className="p-8 max-w-4xl mx-auto">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-white mb-2">Token Launchpad</h1>
+        <p className="text-gray-400">Mint your organization's shares as tokens on 1Sat Ordinals schema</p>
+      </div>
+
+      {/* Progress Steps */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between">
+          {steps.map((stepItem, index) => {
+            const Icon = stepItem.icon
+            const isActive = step === stepItem.id
+            const isCompleted = step > stepItem.id
+            
+            return (
+              <div key={stepItem.id} className="flex items-center">
+                <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
+                  isActive 
+                    ? 'border-blue-500 bg-blue-500 text-white' 
+                    : isCompleted 
+                      ? 'border-green-500 bg-green-500 text-white'
+                      : 'border-white/20 text-gray-400'
+                }`}>
+                  {isCompleted ? (
+                    <CheckCircle className="w-5 h-5" />
+                  ) : (
+                    <Icon className="w-5 h-5" />
+                  )}
+                </div>
+                <div className="ml-3 hidden md:block">
+                  <div className={`text-sm font-medium ${
+                    isActive ? 'text-blue-400' : isCompleted ? 'text-green-400' : 'text-gray-400'
+                  }`}>
+                    {stepItem.title}
+                  </div>
+                </div>
+                {index < steps.length - 1 && (
+                  <div className={`mx-4 h-px w-12 ${
+                    isCompleted ? 'bg-green-500' : 'bg-white/20'
+                  }`} />
+                )}
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Form Content */}
+      <div className="bg-black/40 backdrop-blur-xl border border-white/20 rounded-xl p-8">
+        {/* Step 1: Organization Details */}
+        {step === 1 && (
+          <div className="space-y-6">
+            <h2 className="text-xl font-semibold text-white mb-4">Organization Details</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">Organization Name</label>
+                <input
+                  type="text"
+                  value={formData.organizationName}
+                  onChange={(e) => handleInputChange('organizationName', e.target.value)}
+                  className="w-full bg-black/40 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                                     placeholder="Example Corporation"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">Token Symbol</label>
+                <input
+                  type="text"
+                  value={formData.tokenSymbol}
+                  onChange={(e) => handleInputChange('tokenSymbol', e.target.value.toUpperCase())}
+                  className="w-full bg-black/40 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                                     placeholder="EXMPL"
+                  maxLength={6}
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">Token Name</label>
+                <input
+                  type="text"
+                  value={formData.tokenName}
+                  onChange={(e) => handleInputChange('tokenName', e.target.value)}
+                  className="w-full bg-black/40 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                                     placeholder="Example Token"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">Total Supply</label>
+                <input
+                  type="number"
+                  value={formData.totalSupply}
+                  onChange={(e) => handleInputChange('totalSupply', e.target.value)}
+                  className="w-full bg-black/40 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                  placeholder="10000000"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">Initial Price (USD)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={formData.initialPrice}
+                  onChange={(e) => handleInputChange('initialPrice', e.target.value)}
+                  className="w-full bg-black/40 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                  placeholder="0.25"
+                />
+              </div>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-2">Description</label>
+              <textarea
+                value={formData.description}
+                onChange={(e) => handleInputChange('description', e.target.value)}
+                rows={4}
+                className="w-full bg-black/40 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                placeholder="Describe your organization and token utility..."
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Step 2: Business Registration */}
+        {step === 2 && (
+          <div className="space-y-6">
+            <h2 className="text-xl font-semibold text-white mb-4">Business Registration</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">Business Type</label>
+                <select
+                  value={formData.businessType}
+                  onChange={(e) => handleInputChange('businessType', e.target.value)}
+                  className="w-full bg-black/40 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                >
+                  <option value="corporation">Corporation</option>
+                  <option value="llc">LLC</option>
+                  <option value="partnership">Partnership</option>
+                  <option value="sole_proprietorship">Sole Proprietorship</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">Registration Number</label>
+                <input
+                  type="text"
+                  value={formData.registrationNumber}
+                  onChange={(e) => handleInputChange('registrationNumber', e.target.value)}
+                  className="w-full bg-black/40 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                  placeholder="123456789"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">Tax ID / EIN</label>
+                <input
+                  type="text"
+                  value={formData.taxId}
+                  onChange={(e) => handleInputChange('taxId', e.target.value)}
+                  className="w-full bg-black/40 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                  placeholder="12-3456789"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">Incorporation Date</label>
+                <input
+                  type="date"
+                  value={formData.incorporationDate}
+                  onChange={(e) => handleInputChange('incorporationDate', e.target.value)}
+                  className="w-full bg-black/40 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">Jurisdiction</label>
+                <input
+                  type="text"
+                  value={formData.jurisdiction}
+                  onChange={(e) => handleInputChange('jurisdiction', e.target.value)}
+                  className="w-full bg-black/40 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                  placeholder="Delaware, USA"
+                />
+              </div>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-2">Registered Address</label>
+              <textarea
+                value={formData.registeredAddress}
+                onChange={(e) => handleInputChange('registeredAddress', e.target.value)}
+                rows={3}
+                className="w-full bg-black/40 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                placeholder="123 Business St, Suite 100, City, State, ZIP"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Contact & Social */}
+        {step === 3 && (
+          <div className="space-y-6">
+            <h2 className="text-xl font-semibold text-white mb-4">Contact & Social Media</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">Website</label>
+                <input
+                  type="url"
+                  value={formData.website}
+                  onChange={(e) => handleInputChange('website', e.target.value)}
+                  className="w-full bg-black/40 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                                     placeholder="https://example.com"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">Email</label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  className="w-full bg-black/40 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                                     placeholder="contact@example.com"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">Phone</label>
+                <input
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => handleInputChange('phone', e.target.value)}
+                  className="w-full bg-black/40 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                  placeholder="+1 (555) 123-4567"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">Twitter</label>
+                <input
+                  type="url"
+                  value={formData.twitter}
+                  onChange={(e) => handleInputChange('twitter', e.target.value)}
+                  className="w-full bg-black/40 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                                     placeholder="https://twitter.com/example"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">LinkedIn</label>
+                <input
+                  type="url"
+                  value={formData.linkedin}
+                  onChange={(e) => handleInputChange('linkedin', e.target.value)}
+                  className="w-full bg-black/40 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                                     placeholder="https://linkedin.com/company/example"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">Telegram</label>
+                <input
+                  type="url"
+                  value={formData.telegram}
+                  onChange={(e) => handleInputChange('telegram', e.target.value)}
+                  className="w-full bg-black/40 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                                     placeholder="https://t.me/example"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">Discord</label>
+                <input
+                  type="url"
+                  value={formData.discord}
+                  onChange={(e) => handleInputChange('discord', e.target.value)}
+                  className="w-full bg-black/40 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                                     placeholder="https://discord.gg/example"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Step 4: Token Distribution */}
+        {step === 4 && (
+          <div className="space-y-6">
+            <h2 className="text-xl font-semibold text-white mb-4">Token Distribution</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">Public Sale (%)</label>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={formData.publicSale}
+                  onChange={(e) => handleInputChange('publicSale', e.target.value)}
+                  className="w-full bg-black/40 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                  placeholder="60"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">Team Allocation (%)</label>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={formData.teamAllocation}
+                  onChange={(e) => handleInputChange('teamAllocation', e.target.value)}
+                  className="w-full bg-black/40 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                  placeholder="20"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">Advisor Allocation (%)</label>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={formData.advisorAllocation}
+                  onChange={(e) => handleInputChange('advisorAllocation', e.target.value)}
+                  className="w-full bg-black/40 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                  placeholder="5"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">Treasury Reserve (%)</label>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={formData.treasuryReserve}
+                  onChange={(e) => handleInputChange('treasuryReserve', e.target.value)}
+                  className="w-full bg-black/40 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                  placeholder="15"
+                />
+              </div>
+            </div>
+            
+            {/* Distribution Chart Preview */}
+            <div className="mt-6 p-4 bg-black/20 rounded-lg">
+              <h3 className="text-lg font-medium text-white mb-3">Distribution Preview</h3>
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Public Sale:</span>
+                  <span className="text-white">{formData.publicSale || 0}%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Team:</span>
+                  <span className="text-white">{formData.teamAllocation || 0}%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Advisors:</span>
+                  <span className="text-white">{formData.advisorAllocation || 0}%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Treasury:</span>
+                  <span className="text-white">{formData.treasuryReserve || 0}%</span>
+                </div>
+                <div className="flex justify-between border-t border-white/10 pt-2">
+                  <span className="text-white font-medium">Total:</span>
+                  <span className="text-white font-medium">
+                    {(parseFloat(formData.publicSale || '0') + 
+                      parseFloat(formData.teamAllocation || '0') + 
+                      parseFloat(formData.advisorAllocation || '0') + 
+                      parseFloat(formData.treasuryReserve || '0')).toFixed(1)}%
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Step 5: Legal & Compliance */}
+        {step === 5 && (
+          <div className="space-y-6">
+            <h2 className="text-xl font-semibold text-white mb-4">Legal & Compliance</h2>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">Whitepaper</label>
+                <input
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  onChange={(e) => handleFileUpload('whitepaper', e.target.files?.[0] || null)}
+                  className="w-full bg-black/40 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">Business Plan</label>
+                <input
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  onChange={(e) => handleFileUpload('businessPlan', e.target.files?.[0] || null)}
+                  className="w-full bg-black/40 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">Compliance Documents</label>
+                <input
+                  type="file"
+                  accept=".pdf,.doc,.docx,.zip"
+                  onChange={(e) => handleFileUpload('complianceDocuments', e.target.files?.[0] || null)}
+                  className="w-full bg-black/40 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                />
+              </div>
+            </div>
+            
+            <div className="space-y-4">
+              <label className="flex items-center space-x-3">
+                <input
+                  type="checkbox"
+                  checked={formData.kycCompleted}
+                  onChange={(e) => handleInputChange('kycCompleted', e.target.checked)}
+                  className="w-4 h-4 text-blue-600 bg-black/40 border-white/20 rounded focus:ring-blue-500"
+                />
+                <span className="text-gray-400">KYC (Know Your Customer) completed</span>
+              </label>
+              
+              <label className="flex items-center space-x-3">
+                <input
+                  type="checkbox"
+                  checked={formData.amlCompleted}
+                  onChange={(e) => handleInputChange('amlCompleted', e.target.checked)}
+                  className="w-4 h-4 text-blue-600 bg-black/40 border-white/20 rounded focus:ring-blue-500"
+                />
+                <span className="text-gray-400">AML (Anti-Money Laundering) compliance verified</span>
+              </label>
+              
+              <label className="flex items-center space-x-3">
+                <input
+                  type="checkbox"
+                  checked={formData.termsAccepted}
+                  onChange={(e) => handleInputChange('termsAccepted', e.target.checked)}
+                  className="w-4 h-4 text-blue-600 bg-black/40 border-white/20 rounded focus:ring-blue-500"
+                />
+                <span className="text-gray-400">I accept the Terms of Service and Privacy Policy</span>
+              </label>
+            </div>
+          </div>
+        )}
+
+        {/* Step 6: Review & Mint */}
+        {step === 6 && (
+          <div className="space-y-6">
+            <h2 className="text-xl font-semibold text-white mb-4">Review & Mint Token</h2>
+            
+            <div className="bg-black/20 rounded-lg p-6">
+              <h3 className="text-lg font-medium text-white mb-4">Token Summary</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-gray-400">Organization:</span>
+                  <span className="text-white ml-2">{formData.organizationName || 'Not specified'}</span>
+                </div>
+                <div>
+                  <span className="text-gray-400">Token:</span>
+                  <span className="text-white ml-2">{formData.tokenName || 'Not specified'} ({formData.tokenSymbol || 'N/A'})</span>
+                </div>
+                <div>
+                  <span className="text-gray-400">Supply:</span>
+                  <span className="text-white ml-2">{formData.totalSupply || 'Not specified'}</span>
+                </div>
+                <div>
+                  <span className="text-gray-400">Initial Price:</span>
+                  <span className="text-white ml-2">${formData.initialPrice || 'Not specified'}</span>
+                </div>
+                <div>
+                  <span className="text-gray-400">Website:</span>
+                  <span className="text-white ml-2">{formData.website || 'Not specified'}</span>
+                </div>
+                <div>
+                  <span className="text-gray-400">Email:</span>
+                  <span className="text-white ml-2">{formData.email || 'Not specified'}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+              <div className="flex items-start space-x-3">
+                <Coins className="w-5 h-5 text-blue-400 mt-0.5" />
+                <div>
+                  <h4 className="text-blue-400 font-medium">1Sat Ordinals Integration</h4>
+                  <p className="text-gray-400 text-sm mt-1">
+                    Your token will be minted on the Bitcoin SV blockchain using the 1Sat Ordinals schema. 
+                    This ensures immutable ownership records and enables seamless trading.
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <button
+              onClick={handleMintToken}
+              disabled={!formData.termsAccepted}
+              className={`w-full py-3 px-6 rounded-lg font-medium transition-colors ${
+                formData.termsAccepted
+                  ? 'bg-blue-500 hover:bg-blue-600 text-white'
+                  : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+              }`}
+            >
+              Mint Token on 1Sat Ordinals
+            </button>
+          </div>
+        )}
+
+        {/* Navigation Buttons */}
+        <div className="flex justify-between mt-8 pt-6 border-t border-white/10">
+          <button
+            onClick={() => setStep(Math.max(1, step - 1))}
+            disabled={step === 1}
+            className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+              step === 1
+                ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                : 'bg-white/10 text-white hover:bg-white/20'
+            }`}
+          >
+            Previous
+          </button>
+          
+          <div className="text-gray-400 text-sm">
+            Step {step} of {steps.length}
+          </div>
+          
+          <button
+            onClick={() => setStep(Math.min(steps.length, step + 1))}
+            disabled={step === steps.length}
+            className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+              step === steps.length
+                ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                : 'bg-blue-500 text-white hover:bg-blue-600'
+            }`}
+          >
+            Next
+          </button>
+        </div>
       </div>
     </div>
   )
@@ -11195,176 +12157,223 @@ function SettingsView({
 // Profile View Component
 function ProfileView({ 
   userProfile, 
-  onUpdateProfile 
+  onUpdateProfile,
+  organizations,
+  roles,
+  instruments,
+  contracts,
+  wallets,
+  workflows
 }: {
   userProfile: UserProfile
   onUpdateProfile: (updates: Partial<UserProfile>) => void
+  organizations: Organization[]
+  roles: Role[]
+  instruments: FinancialInstrument[]
+  contracts: Contract[]
+  wallets: Wallet[]
+  workflows: WorkflowState[]
 }) {
-  const [isEditing, setIsEditing] = useState(false)
-  const [formData, setFormData] = useState({
-    name: userProfile.name,
-    email: userProfile.email,
-    theme: userProfile.preferences.theme,
-    notifications: userProfile.preferences.notifications,
-    autoSave: userProfile.preferences.autoSave
-  })
+  const { user: handCashUser, isAuthenticated } = useAuth()
 
-  const handleSave = () => {
-    onUpdateProfile({
-      name: formData.name,
-      email: formData.email,
-      preferences: {
-        theme: formData.theme as 'light' | 'dark' | 'auto',
-        notifications: formData.notifications,
-        autoSave: formData.autoSave
-      }
-    })
-    setIsEditing(false)
+  // Calculate user's objects
+  const userObjects = {
+    organizations: organizations.length,
+    roles: roles.length,
+    agents: 0, // TODO: Add agents data
+    instruments: instruments.length,
+    contracts: contracts.length,
+    workflows: workflows.length,
+    wallets: wallets.length
   }
 
-  const handleCancel = () => {
-    setFormData({
-      name: userProfile.name,
-      email: userProfile.email,
-      theme: userProfile.preferences.theme,
-      notifications: userProfile.preferences.notifications,
-      autoSave: userProfile.preferences.autoSave
-    })
-    setIsEditing(false)
-  }
+  const totalObjects = Object.values(userObjects).reduce((sum, count) => sum + count, 0)
 
   return (
     <div className="absolute inset-0 top-20 p-6">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">Profile</h1>
-          <p className="text-gray-300">Manage your account settings and preferences</p>
+          <p className="text-gray-300">Your account overview and created objects</p>
         </div>
 
-        <div className="bg-black/60 backdrop-blur-xl border border-white/20 rounded-xl p-8">
-          {/* Profile Header */}
-          <div className="flex items-center space-x-6 mb-8">
-            <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-2xl">
-                {userProfile.name.split(' ').map((n) => n[0]).join('')}
-              </span>
-            </div>
-            <div className="flex-1">
-              <h2 className="text-2xl font-semibold text-white">{userProfile.name}</h2>
-              <p className="text-gray-400">{userProfile.email}</p>
-              <p className="text-gray-500 text-sm">Member since {new Date(userProfile.createdAt).toLocaleDateString()}</p>
-            </div>
-            <button
-              onClick={() => setIsEditing(!isEditing)}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
-            >
-              {isEditing ? 'Cancel' : 'Edit Profile'}
-            </button>
-          </div>
-
-          {/* Profile Form */}
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-gray-400 text-sm font-medium mb-2">Name</label>
-                {isEditing ? (
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                ) : (
-                  <p className="text-white">{userProfile.name}</p>
-                )}
-              </div>
-              <div>
-                <label className="block text-gray-400 text-sm font-medium mb-2">Email</label>
-                {isEditing ? (
-                  <input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                ) : (
-                  <p className="text-white">{userProfile.email}</p>
-                )}
-              </div>
-            </div>
-
-            {/* Preferences */}
-            <div className="border-t border-white/20 pt-6">
-              <h3 className="text-lg font-semibold text-white mb-4">Preferences</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-gray-400 text-sm font-medium mb-2">Theme</label>
-                  {isEditing ? (
-                    <select
-                      value={formData.theme}
-                      onChange={(e) => setFormData({ ...formData, theme: e.target.value as 'light' | 'dark' | 'auto' })}
-                      className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="light">Light</option>
-                      <option value="dark">Dark</option>
-                      <option value="auto">Auto</option>
-                    </select>
-                  ) : (
-                    <p className="text-white capitalize">{userProfile.preferences.theme}</p>
-                  )}
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <label className="text-gray-400 text-sm font-medium">Notifications</label>
-                    <p className="text-gray-500 text-sm">Receive email notifications</p>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Profile Card */}
+          <div className="lg:col-span-1">
+            <div className="bg-black/60 backdrop-blur-xl border border-white/20 rounded-xl p-6">
+              {/* HandCash Profile or Default Profile */}
+              {isAuthenticated && handCashUser ? (
+                <>
+                  <div className="text-center mb-6">
+                    <div className="w-20 h-20 mx-auto mb-4 rounded-full overflow-hidden">
+                      <img 
+                        src={handCashUser.avatarUrl || '/avatar.png'} 
+                        alt={handCashUser.displayName}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <h2 className="text-xl font-semibold text-white">{handCashUser.displayName}</h2>
+                    <p className="text-gray-400">@{handCashUser.handle}</p>
+                    <p className="text-gray-500 text-sm">{handCashUser.paymail}</p>
                   </div>
-                  {isEditing ? (
-                    <input
-                      type="checkbox"
-                      checked={formData.notifications}
-                      onChange={(e) => setFormData({ ...formData, notifications: e.target.checked })}
-                      className="w-4 h-4 text-blue-500 bg-white/10 border-white/20 rounded focus:ring-blue-500"
-                    />
-                  ) : (
-                    <div className={`w-4 h-4 rounded ${userProfile.preferences.notifications ? 'bg-green-500' : 'bg-gray-500'}`} />
-                  )}
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <label className="text-gray-400 text-sm font-medium">Auto Save</label>
-                    <p className="text-gray-500 text-sm">Automatically save changes</p>
+
+                  {/* HandCash Wallet Info */}
+                  <div className="bg-white/10 rounded-lg p-4 mb-6">
+                    <h3 className="text-sm font-medium text-gray-400 mb-2">HandCash Wallet</h3>
+                    <div className="flex items-center justify-between">
+                      <span className="text-white font-semibold">
+                        {handCashUser.spendableBalance} {handCashUser.localCurrencyCode}
+                      </span>
+                      <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center">
+                        <Bitcoin className="w-3 h-3 text-white" />
+                      </div>
+                    </div>
                   </div>
-                  {isEditing ? (
-                    <input
-                      type="checkbox"
-                      checked={formData.autoSave}
-                      onChange={(e) => setFormData({ ...formData, autoSave: e.target.checked })}
-                      className="w-4 h-4 text-blue-500 bg-white/10 border-white/20 rounded focus:ring-blue-500"
-                    />
-                  ) : (
-                    <div className={`w-4 h-4 rounded ${userProfile.preferences.autoSave ? 'bg-green-500' : 'bg-gray-500'}`} />
-                  )}
-                </div>
+                </>
+              ) : (
+                <>
+                  <div className="text-center mb-6">
+                    <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <span className="text-white font-bold text-2xl">
+                        {userProfile.name.split(' ').map((n) => n[0]).join('')}
+                      </span>
+                    </div>
+                    <h2 className="text-xl font-semibold text-white">{userProfile.name}</h2>
+                    <p className="text-gray-400">{userProfile.email}</p>
+                    <p className="text-gray-500 text-sm">Member since {new Date(userProfile.createdAt).toLocaleDateString()}</p>
+                  </div>
+                </>
+              )}
+
+              {/* Total Objects Summary */}
+              <div className="bg-white/10 rounded-lg p-4">
+                <h3 className="text-sm font-medium text-gray-400 mb-2">Total Objects</h3>
+                <div className="text-2xl font-bold text-white">{totalObjects}</div>
+                <p className="text-gray-500 text-sm">Created by you</p>
               </div>
             </div>
 
-            {/* Save/Cancel Buttons */}
-            {isEditing && (
-              <div className="flex space-x-4 pt-6 border-t border-white/20">
-                <button
-                  onClick={handleSave}
-                  className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg transition-colors"
-                >
-                  Save Changes
-                </button>
-                <button
-                  onClick={handleCancel}
-                  className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg transition-colors"
-                >
-                  Cancel
-                </button>
+            {/* HandCash Authentication */}
+            {!isAuthenticated && (
+              <div className="mt-6">
+                <UserProfileCard />
               </div>
             )}
+          </div>
+
+          {/* Objects Grid */}
+          <div className="lg:col-span-2">
+            <div className="bg-black/60 backdrop-blur-xl border border-white/20 rounded-xl p-6">
+              <h3 className="text-xl font-semibold text-white mb-6">Your Objects</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Organizations */}
+                <div className="bg-white/10 rounded-lg p-4 hover:bg-white/20 transition-colors cursor-pointer">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-3">
+                      <Building2 className="w-5 h-5 text-blue-400" />
+                      <span className="text-white font-medium">Organizations</span>
+                    </div>
+                    <span className="text-2xl font-bold text-white">{userObjects.organizations}</span>
+                  </div>
+                  <p className="text-gray-400 text-sm">Business entities and structures</p>
+                </div>
+
+                {/* Workflows */}
+                <div className="bg-white/10 rounded-lg p-4 hover:bg-white/20 transition-colors cursor-pointer">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-3">
+                      <Target className="w-5 h-5 text-green-400" />
+                      <span className="text-white font-medium">Workflows</span>
+                    </div>
+                    <span className="text-2xl font-bold text-white">{userObjects.workflows}</span>
+                  </div>
+                  <p className="text-gray-400 text-sm">Automated business processes</p>
+                </div>
+
+                {/* Roles */}
+                <div className="bg-white/10 rounded-lg p-4 hover:bg-white/20 transition-colors cursor-pointer">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-3">
+                      <Crown className="w-5 h-5 text-purple-400" />
+                      <span className="text-white font-medium">Roles</span>
+                    </div>
+                    <span className="text-2xl font-bold text-white">{userObjects.roles}</span>
+                  </div>
+                  <p className="text-gray-400 text-sm">Organizational positions and permissions</p>
+                </div>
+
+                {/* Agents */}
+                <div className="bg-white/10 rounded-lg p-4 hover:bg-white/20 transition-colors cursor-pointer">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-3">
+                      <Bot className="w-5 h-5 text-cyan-400" />
+                      <span className="text-white font-medium">Agents</span>
+                    </div>
+                    <span className="text-2xl font-bold text-white">{userObjects.agents}</span>
+                  </div>
+                  <p className="text-gray-400 text-sm">AI assistants and automation</p>
+                </div>
+
+                {/* Instruments */}
+                <div className="bg-white/10 rounded-lg p-4 hover:bg-white/20 transition-colors cursor-pointer">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-3">
+                      <Coins className="w-5 h-5 text-yellow-400" />
+                      <span className="text-white font-medium">Instruments</span>
+                    </div>
+                    <span className="text-2xl font-bold text-white">{userObjects.instruments}</span>
+                  </div>
+                  <p className="text-gray-400 text-sm">Financial instruments and assets</p>
+                </div>
+
+                {/* Contracts */}
+                <div className="bg-white/10 rounded-lg p-4 hover:bg-white/20 transition-colors cursor-pointer">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-3">
+                      <FileText className="w-5 h-5 text-orange-400" />
+                      <span className="text-white font-medium">Contracts</span>
+                    </div>
+                    <span className="text-2xl font-bold text-white">{userObjects.contracts}</span>
+                  </div>
+                  <p className="text-gray-400 text-sm">Legal agreements and templates</p>
+                </div>
+
+                {/* Wallets */}
+                <div className="bg-white/10 rounded-lg p-4 hover:bg-white/20 transition-colors cursor-pointer">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-3">
+                      <Wallet className="w-5 h-5 text-pink-400" />
+                      <span className="text-white font-medium">Wallets</span>
+                    </div>
+                    <span className="text-2xl font-bold text-white">{userObjects.wallets}</span>
+                  </div>
+                  <p className="text-gray-400 text-sm">Digital wallets and accounts</p>
+                </div>
+              </div>
+
+              {/* Recent Activity */}
+              <div className="mt-8 border-t border-white/20 pt-6">
+                <h4 className="text-lg font-semibold text-white mb-4">Recent Activity</h4>
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-3 text-sm">
+                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    <span className="text-gray-400">Created workflow: AUDEX Corporation</span>
+                    <span className="text-gray-500 ml-auto">2 hours ago</span>
+                  </div>
+                  <div className="flex items-center space-x-3 text-sm">
+                    <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                    <span className="text-gray-400">Updated organization settings</span>
+                    <span className="text-gray-500 ml-auto">1 day ago</span>
+                  </div>
+                  <div className="flex items-center space-x-3 text-sm">
+                    <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                    <span className="text-gray-400">Created new role: Marketing Manager</span>
+                    <span className="text-gray-500 ml-auto">3 days ago</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -12988,4 +13997,8 @@ function ContractsView({ organizations, selectedOrganization, roles = [], instru
       </div>
     </div>
   )
+}
+
+export default function Page() {
+  return <DashboardContent />
 }

@@ -11,13 +11,23 @@ This guide will help you set up HandCash authentication for your Cashboard appli
 
 1. Go to the [HandCash Developer Dashboard](https://dashboard.handcash.io/)
 2. Create a new application or select an existing one
-3. Configure your application settings:
-   - **App Name**: Your application name
-   - **Redirect URI**: `http://localhost:3000/auth/handcash/callback` (for development)
-   - **Permissions**: Select the permissions your app needs:
-     - `user_public_profile`: Access to public profile information
-     - `user_private_profile`: Access to private profile information (email, phone)
-     - `payments`: Access to payment functionality
+3. **CRITICAL**: Configure your redirect URIs properly:
+
+**For Development:**
+   - **Success URL**: `http://localhost:3000/auth/handcash/callback`
+   - **Failure URL**: `http://localhost:3000/auth/handcash/callback`
+
+**For Production:**
+   - **Success URL**: `https://cashboard.website/auth/handcash/callback`
+   - **Failure URL**: `https://cashboard.website/auth/handcash/callback`
+
+⚠️ **Important URL Requirements:**
+   - Must be HTTPS in production
+   - No trailing slashes
+   - No extra spaces or special characters
+   - Must return a valid HTML page (not 404)
+
+⚠️ **Important**: Without proper redirect URI configuration, HandCash will redirect to your main page instead of the callback page, breaking the popup authentication flow.
 
 ## Step 2: Environment Variables
 
@@ -76,16 +86,23 @@ After successful authentication, you'll have access to:
 - Email address (if permission granted)
 - Spendable balance
 
-### Authentication Flow
+### Authentication Flow (Popup Method)
 
-1. **User clicks sign-in button**
-2. **Application generates authorization URL** with proper parameters
-3. **User is redirected to HandCash** for authentication
-4. **User grants permissions** to your application
-5. **HandCash redirects back** to your callback URL with authorization code
-6. **Your API exchanges the code** for an access token
-7. **User profile is fetched** and stored in the application state
-8. **User is now authenticated** and can use the application
+1. **User clicks "Sign in with HandCash" button**
+2. **Popup window opens** with HandCash authorization URL: `https://app.handcash.io/#/authorizeApp?appId=YOUR_APP_ID`
+3. **User authorizes in HandCash** within the popup window
+4. **HandCash redirects to callback** with `authToken` parameter
+5. **Callback page processes authToken** and exchanges it for user data
+6. **Callback sends message to parent window** with authentication result
+7. **Popup window closes automatically**
+8. **Main window updates** with user profile information
+9. **User is now authenticated** and can use the application
+
+### Key Differences from Standard OAuth:
+- **Authorization URL**: Uses `app.handcash.io` (not `cloud.handcash.io`)
+- **Callback Parameter**: Returns `authToken` (not `code`)
+- **Window Behavior**: Uses popup that auto-closes after authentication
+- **No Scope Parameter**: HandCash handles permissions internally
 
 ## Security Features
 

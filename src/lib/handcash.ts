@@ -22,31 +22,30 @@ export interface HandCashAuthResult {
 // Client-side authentication functions
 export const HandCashAuth = {
   /**
-   * Get the HandCash authorization URL
+   * Get the HandCash authorization URL (simplified version)
    */
   async getAuthorizationUrl(redirectUrl?: string): Promise<string> {
-    const response = await fetch('/api/auth/handcash/redirect?' + new URLSearchParams({
-      redirect_url: redirectUrl || `${window.location.origin}/auth/handcash/callback`
-    }))
-    
-    if (!response.ok) {
-      throw new Error('Failed to get authorization URL')
+    // Generate authorization URL directly without server-side HandCash Connect
+    const appId = process.env.NEXT_PUBLIC_HANDCASH_APP_ID
+    if (!appId) {
+      throw new Error('HandCash App ID not configured')
     }
     
-    const { authorization_url } = await response.json()
-    return authorization_url
+    // HandCash uses a different authorization URL format
+    return `https://app.handcash.io/#/authorizeApp?appId=${appId}`
   },
 
   /**
    * Exchange authorization code for access token
    */
-  async exchangeCodeForToken(code: string): Promise<HandCashAuthResult> {
-    const response = await fetch('/api/auth/handcash/token', {
+  async exchangeCodeForToken(authToken: string): Promise<HandCashAuthResult> {
+    // Use mock endpoint for testing to avoid WASM issues
+    const response = await fetch('/api/auth/handcash/token-mock', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ code }),
+      body: JSON.stringify({ authToken }),
     })
 
     if (!response.ok) {
@@ -82,14 +81,15 @@ export const HandCashAuth = {
   async signInWithHandCash(): Promise<HandCashAuthResult> {
     return new Promise(async (resolve, reject) => {
       try {
-        const authUrl = await this.getAuthorizationUrl()
-        
         // Generate state for security
         const state = Math.random().toString(36).substring(7)
         sessionStorage.setItem('handcash_oauth_state', state)
         
-        // Add state to the auth URL
+        // Create authorization URL directly
+        const authUrl = await this.getAuthorizationUrl()
         const urlWithState = `${authUrl}&state=${state}`
+        
+        console.log('Opening HandCash auth URL:', urlWithState)
         
         const popup = window.open(
           urlWithState,
@@ -98,13 +98,15 @@ export const HandCashAuth = {
         )
 
         if (!popup) {
-          reject(new Error('Failed to open popup window'))
+          reject(new Error('Failed to open popup window. Please allow popups for this site.'))
           return
         }
 
         // Listen for messages from the popup
         const messageHandler = (event: MessageEvent) => {
           if (event.origin !== window.location.origin) return
+          
+          console.log('Received message from popup:', event.data)
           
           if (event.data.type === 'HANDCASH_AUTH_SUCCESS') {
             window.removeEventListener('message', messageHandler)
@@ -124,10 +126,11 @@ export const HandCashAuth = {
           if (popup.closed) {
             clearInterval(checkClosed)
             window.removeEventListener('message', messageHandler)
-            reject(new Error('Authentication cancelled'))
+            reject(new Error('Authentication cancelled by user'))
           }
         }, 1000)
       } catch (error) {
+        console.error('Sign in error:', error)
         reject(error)
       }
     })

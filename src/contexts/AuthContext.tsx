@@ -10,6 +10,7 @@ interface AuthContextType {
   signIn: () => Promise<void>
   signOut: () => void
   refreshProfile: () => Promise<void>
+  refreshAuth: () => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -28,7 +29,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const isAuthenticated = !!user
 
-  // Check for existing session on mount
+  // Check for existing session on mount and listen for storage changes
   useEffect(() => {
     const checkExistingSession = () => {
       const session = HandCashAuth.getStoredSession()
@@ -38,7 +39,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsLoading(false)
     }
 
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'handcash_session') {
+        if (e.newValue) {
+          const session = JSON.parse(e.newValue)
+          setUser(session.user)
+        } else {
+          setUser(null)
+        }
+      }
+    }
+
+    const handleAuthSuccess = () => {
+      // Refresh auth state when authentication succeeds
+      const session = HandCashAuth.getStoredSession()
+      if (session) {
+        setUser(session.user)
+      }
+    }
+
     checkExistingSession()
+    
+    // Listen for localStorage changes (for cross-tab sync)
+    window.addEventListener('storage', handleStorageChange)
+    
+    // Listen for auth success events
+    window.addEventListener('handcash-auth-success', handleAuthSuccess)
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      window.removeEventListener('handcash-auth-success', handleAuthSuccess)
+    }
   }, [])
 
   const signIn = async () => {
@@ -79,6 +110,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }
 
+  const refreshAuth = () => {
+    const session = HandCashAuth.getStoredSession()
+    if (session) {
+      setUser(session.user)
+    } else {
+      setUser(null)
+    }
+  }
+
   const value: AuthContextType = {
     user,
     isAuthenticated,
@@ -86,6 +126,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signIn,
     signOut,
     refreshProfile,
+    refreshAuth,
   }
 
   return (

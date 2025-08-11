@@ -5,10 +5,10 @@ export async function GET(request: NextRequest) {
     // Dynamic import to avoid loading BSV WASM during build
     const { HandCashConnect } = await import('@handcash/handcash-connect')
     
-    const handCashConnect = new HandCashConnect({
-      appId: process.env.HANDCASH_APP_ID!,
-      appSecret: process.env.HANDCASH_APP_SECRET!,
-    })
+         const handCashConnect = new HandCashConnect({
+       appId: process.env.NEXT_PUBLIC_HANDCASH_APP_ID!,
+       appSecret: process.env.HANDCASH_APP_SECRET!,
+     })
 
     const authHeader = request.headers.get('authorization')
     

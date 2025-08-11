@@ -2,21 +2,22 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(request: NextRequest) {
   try {
-    // Dynamic import to avoid loading BSV WASM during build
-    const { HandCashConnect } = await import('@handcash/handcash-connect')
-    
-    const handCashConnect = new HandCashConnect({
-      appId: process.env.HANDCASH_APP_ID!,
-      appSecret: process.env.HANDCASH_APP_SECRET!,
-    })
-
     const { searchParams } = new URL(request.url)
     const redirectUrl = searchParams.get('redirect_url') || `${request.nextUrl.origin}/auth/handcash/callback`
     
-    // Generate the HandCash authorization URL
-    const authorizationUrl = handCashConnect.getRedirectionUrl({
-      redirectUrl,
-    })
+    const appId = process.env.NEXT_PUBLIC_HANDCASH_APP_ID
+    if (!appId) {
+      console.error('HandCash App ID not configured. NEXT_PUBLIC_HANDCASH_APP_ID:', process.env.NEXT_PUBLIC_HANDCASH_APP_ID)
+      return NextResponse.json(
+        { error: 'HandCash App ID not configured' },
+        { status: 500 }
+      )
+    }
+    
+    // Generate the HandCash authorization URL (HandCash uses a different format)
+    const authorizationUrl = `https://app.handcash.io/#/authorizeApp?appId=${appId}`
+
+    console.log('Generated HandCash auth URL:', authorizationUrl)
 
     return NextResponse.json({ 
       authorization_url: authorizationUrl 

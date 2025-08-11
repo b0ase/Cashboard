@@ -12,48 +12,36 @@ function HandCashCallbackContent() {
   useEffect(() => {
     const handleCallback = async () => {
       try {
-        const code = searchParams.get('code')
-        const state = searchParams.get('state')
+        const authToken = searchParams.get('authToken')
         const error = searchParams.get('error')
         const errorDescription = searchParams.get('error_description')
 
-        // Check for OAuth errors
+        // Check for HandCash errors
         if (error) {
           setStatus('error')
-          setMessage(errorDescription || `OAuth Error: ${error}`)
+          setMessage(errorDescription || `HandCash Error: ${error}`)
           return
         }
 
-        // Verify state parameter for security
-        const storedState = sessionStorage.getItem('handcash_oauth_state')
-        if (!state || state !== storedState) {
+        if (!authToken) {
           setStatus('error')
-          setMessage('Invalid state parameter. Possible CSRF attack.')
+          setMessage('No authToken received from HandCash')
           return
         }
 
-        // Clear stored state
-        sessionStorage.removeItem('handcash_oauth_state')
-
-        if (!code) {
-          setStatus('error')
-          setMessage('No authorization code received')
-          return
-        }
-
-        // Exchange authorization code for access token
-        const tokenResponse = await fetch('/api/auth/handcash/token', {
+        // Use the authToken directly (HandCash flow is different from standard OAuth)
+        const tokenResponse = await fetch('/api/auth/handcash/token-mock', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ code }),
+          body: JSON.stringify({ authToken }),
         })
 
         if (!tokenResponse.ok) {
           const errorData = await tokenResponse.json()
           setStatus('error')
-          setMessage(errorData.error || 'Failed to exchange code for token')
+          setMessage(errorData.error || 'Failed to exchange authToken')
           return
         }
 
@@ -70,16 +58,13 @@ function HandCashCallbackContent() {
         setStatus('success')
         setMessage('Successfully authenticated with HandCash!')
 
-        // Redirect to main app after 2 seconds
+        // Trigger a custom event to notify the main window
+        window.dispatchEvent(new CustomEvent('handcash-auth-success'))
+
+        // Redirect to main app after 1 second
         setTimeout(() => {
-          window.close() // Close popup window
-          // If not popup, redirect to main app
-          if (window.opener) {
-            window.opener.postMessage({ type: 'HANDCASH_AUTH_SUCCESS', data: tokenData }, window.location.origin)
-          } else {
-            router.push('/')
-          }
-        }, 2000)
+          router.push('/')
+        }, 1000)
 
       } catch (error) {
         console.error('HandCash callback error:', error)

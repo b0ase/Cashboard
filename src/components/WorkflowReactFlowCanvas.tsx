@@ -260,7 +260,7 @@ function ColoredNode({ data }: { data: RFNodeData }) {
     >
       {/* Node Action Buttons - Show on Hover */}
       {showButtons && (
-        <div className="absolute top-1 right-1 flex gap-1 z-10">
+        <div className="absolute bottom-1 right-1 flex gap-1 z-10">
           <button
             onClick={handlePropertiesClick}
             className="p-1 bg-blue-500/80 hover:bg-blue-500 text-white rounded transition-colors"

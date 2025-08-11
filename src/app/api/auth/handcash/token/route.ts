@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
     
     // Initialize HandCash Connect
     const handCashConnect = new HandCashConnect({
-      appId: process.env.HANDCASH_APP_ID!,
+      appId: process.env.NEXT_PUBLIC_HANDCASH_APP_ID!,
       appSecret: process.env.HANDCASH_APP_SECRET!,
     })
 

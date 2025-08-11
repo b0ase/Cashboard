@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import WorkflowReactFlowCanvas from '@/components/WorkflowReactFlowCanvas'
 import WorkflowDashboard from '@/components/WorkflowDashboard'
@@ -711,7 +711,7 @@ interface SecurityProduct {
 
 
 
-function DashboardContent() {
+function DashboardContentInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
   
@@ -4705,7 +4705,7 @@ function MarketView() {
            </div>
          </div>
 
-         {filteredAndSortedData.length === 0 && (
+                  {filteredAndSortedData.length === 0 && (
            <div className="flex-1 flex items-center justify-center">
              <div className="text-center">
                <div className="text-6xl mb-4">📊</div>
@@ -4716,7 +4716,7 @@ function MarketView() {
          )}
        </div>
      </div>
-  )
+   )
 }
 
 // Launchpad View Component
@@ -14002,6 +14002,16 @@ function ContractsView({ organizations, selectedOrganization, roles = [], instru
         )}
       </div>
     </div>
+  )
+}
+
+function DashboardContent() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex items-center justify-center">
+      <div className="text-white">Loading...</div>
+    </div>}>
+      <DashboardContentInner />
+    </Suspense>
   )
 }
 

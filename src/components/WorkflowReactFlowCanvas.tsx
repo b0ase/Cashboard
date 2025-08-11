@@ -27,7 +27,7 @@ import {
   DollarSign, FileText, Target, AlertTriangle, Building, Crown, UserCheck, Banknote, Plug, Split, Play, Zap, User, Workflow, Wallet,
   CheckSquare, GitBranch, Flag, Users, Mail, MessageSquare, Bell, Database, Code, Laptop, TrendingUp, Bot,
   Shield, Lock, Coins, Gavel, Eye, Vote, Clock, Image, Heart, UserPlus, Camera, ArrowLeft, ChevronRight,
-  Pause, ZoomIn, ZoomOut, RotateCcw
+  Pause, ZoomIn, ZoomOut, RotateCcw, X
 } from 'lucide-react'
 
 // Node canvas configurations (copied from NodeCanvasModal)
@@ -726,13 +726,14 @@ export default function WorkflowReactFlowCanvas({
           onClose={() => setNodeCanvasModal(null)}
         />
 
-        {/* Dual Modal System - Properties (Left) and Canvas (Right) */}
+        {/* Dual Modal System - Single Modal Split in Two */}
         {selectedNodeForDualModal && (showPropertiesModal || showCanvasModal) && (
-          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex">
-            {/* Left Modal - Node Properties */}
-            {showPropertiesModal && (
-              <div className="w-1/2 h-full p-4 flex flex-col">
-                <div className="bg-black/90 border border-white/20 rounded-lg flex-1 flex flex-col overflow-hidden">
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center">
+            <div className="w-[95vw] h-[90vh] max-w-7xl bg-black/90 border border-white/20 rounded-xl overflow-hidden flex">
+              
+              {/* Left Half - Node Properties */}
+              {showPropertiesModal && (
+                <div className="w-1/2 flex flex-col border-r border-white/20">
                   <div className="p-4 border-b border-white/20 flex items-center justify-between flex-shrink-0">
                     <h3 className="text-white text-lg font-semibold">
                       {selectedNodeForDualModal.data.label} Properties
@@ -763,13 +764,11 @@ export default function WorkflowReactFlowCanvas({
                     />
                   </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Right Modal - Node Canvas */}
-            {showCanvasModal && (
-              <div className={`${showPropertiesModal ? 'w-1/2' : 'w-full'} h-full p-4 flex flex-col`}>
-                <div className="bg-black/90 border border-white/20 rounded-lg flex-1 flex flex-col overflow-hidden">
+              {/* Right Half - Node Canvas */}
+              {showCanvasModal && (
+                <div className={`${showPropertiesModal ? 'w-1/2' : 'w-full'} flex flex-col`}>
                   <div className="p-4 border-b border-white/20 flex items-center justify-between flex-shrink-0">
                     <h3 className="text-white text-lg font-semibold">
                       {selectedNodeForDualModal.data.label} Canvas
@@ -802,7 +801,7 @@ export default function WorkflowReactFlowCanvas({
                   </div>
                   <div className="flex-1 overflow-hidden">
                     {/* Embedded Node Canvas Content */}
-                    <div className="h-full bg-gray-900 rounded-lg overflow-hidden">
+                    <div className="h-full bg-gray-800 rounded-lg overflow-hidden m-2">
                       <ReactFlowProvider>
                         <div className="h-full flex flex-col">
                           {/* Canvas */}
@@ -833,8 +832,20 @@ export default function WorkflowReactFlowCanvas({
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
+
+              {/* Main Close Button */}
+              <button
+                onClick={() => {
+                  setShowPropertiesModal(false)
+                  setShowCanvasModal(false)
+                  setSelectedNodeForDualModal(null)
+                }}
+                className="absolute top-4 right-4 z-10 p-2 rounded-lg hover:bg-white/10 transition-colors bg-black/20"
+              >
+                <X className="w-5 h-5 text-white" />
+              </button>
+            </div>
           </div>
         )}
       </ReactFlowProvider>

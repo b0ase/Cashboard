@@ -34,20 +34,20 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
   const animationRef = useRef<NodeJS.Timeout | null>(null)
 
   // Canvas node positions (px) within right panel SVG coordinate space
-  // Key canvas nodes (approx grid)
-  const SRC = useMemo(() => ({ x: 140, y: 120 }), []) // YouTube Ad Revenue
-  const SPLIT = useMemo(() => ({ x: 360, y: 140 }), []) // Split 70/20/10
-  const POOL = useMemo(() => ({ x: 580, y: 140 }), []) // Royalty Pool (70%)
-  const OPS = useMemo(() => ({ x: 580, y: 260 }), []) // Ops (20%)
-  const RESERVE = useMemo(() => ({ x: 580, y: 360 }), []) // Reserve (10%)
-  const GUARD = useMemo(() => ({ x: 820, y: 140 }), []) // Runway Guardrail
-  const DIV = useMemo(() => ({ x: 1040, y: 140 }), []) // Dividend Distributor
+  // Key canvas nodes (improved spacing and layout)
+  const SRC = useMemo(() => ({ x: 120, y: 80 }), []) // YouTube Ad Revenue
+  const SPLIT = useMemo(() => ({ x: 320, y: 100 }), []) // Split 70/20/10
+  const POOL = useMemo(() => ({ x: 520, y: 100 }), []) // Royalty Pool (70%)
+  const OPS = useMemo(() => ({ x: 520, y: 220 }), []) // Ops (20%)
+  const RESERVE = useMemo(() => ({ x: 520, y: 320 }), []) // Reserve (10%)
+  const GUARD = useMemo(() => ({ x: 720, y: 100 }), []) // Runway Guardrail
+  const DIV = useMemo(() => ({ x: 920, y: 100 }), []) // Dividend Distributor
   const SHAREHOLDER_POS = useMemo(
     () => ({
-      'Alice (15%)': { x: 220, y: 420 },
-      'Bob (25%)': { x: 460, y: 460 },
-      'Charlie (20%)': { x: 700, y: 430 },
-      'Diana (40%)': { x: 940, y: 460 },
+      'Alice (15%)': { x: 150, y: 380 },
+      'Bob (25%)': { x: 380, y: 420 },
+      'Charlie (20%)': { x: 610, y: 380 },
+      'Diana (40%)': { x: 840, y: 420 },
     }),
     []
   )
@@ -117,7 +117,7 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
       // Generate new payment flows every 2-4 seconds
       if (Math.random() < 0.3) {
         const { flows, totalAmount } = generatePaymentFlow()
-        setPaymentFlows(prev => [...prev.slice(-20), ...flows]) // Keep last 20 flows
+        setPaymentFlows(prev => [...prev.slice(-5), ...flows]) // Keep last 5 flows to reduce overlap
         setActiveFlows(prev => [...prev, ...flows.map(f => f.id)])
         
         // Update totals
@@ -144,10 +144,10 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
         const totalDividendAmount = flows.reduce((sum, flow) => sum + flow.amount, 0)
         setTotalDividends(prev => prev + totalDividendAmount)
         
-        // Mark flows as completed after animation
+        // Mark flows as completed after animation (faster cleanup)
         setTimeout(() => {
           setActiveFlows(prev => prev.filter(id => !flows.map(f => f.id).includes(id)))
-        }, 3000)
+        }, 1500)
       }
       
       // Auto-advance steps
@@ -239,8 +239,11 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
           </div>
 
           {/* Right Panel - Live Animation */}
-          <div className="flex-1 p-6 pb-28 relative overflow-hidden">
+          <div className="flex-1 p-6 pb-8 relative overflow-auto" style={{ minHeight: '500px' }}>
             <h3 className="text-lg font-semibold text-white mb-4">Live Workflow Canvas</h3>
+            
+            {/* Canvas container with proper dimensions */}
+            <div className="relative" style={{ width: '1200px', height: '500px' }}>
             
             {/* n1: YouTube Ad Revenue */}
             <div className="absolute" style={{ left: SRC.x - 80, top: SRC.y - 24 }}>
@@ -337,19 +340,24 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
               </div>
             ))}
 
-            {/* Animated Payment Flows (labels near center during flight) */}
-            {paymentFlows.map((flow) => (
-              <div
-                key={flow.id}
-                className={`absolute transition-all duration-3000 ease-out ${
-                  activeFlows.includes(flow.id) ? 'opacity-100' : 'opacity-0'
-                }`}
-                style={{
-                  left: activeFlows.includes(flow.id) ? '50%' : `${DIV.x}px`,
-                  top: activeFlows.includes(flow.id) ? '50%' : `${DIV.y}px`,
-                  transform: activeFlows.includes(flow.id) ? 'translate(-50%, -50%)' : 'translate(0, 0)'
-                }}
-              >
+            {/* Animated Payment Flows (labels spread out to avoid overlap) */}
+            {paymentFlows.map((flow, index) => {
+              // Spread out the positions to avoid overlap
+              const offsetX = (index % 3 - 1) * 120 // -120, 0, 120
+              const offsetY = Math.floor(index / 3) * 40 - 20 // Vertical spacing
+              return (
+                <div
+                  key={flow.id}
+                  className={`absolute transition-all duration-2000 ease-out ${
+                    activeFlows.includes(flow.id) ? 'opacity-100' : 'opacity-0'
+                  }`}
+                  style={{
+                    left: activeFlows.includes(flow.id) ? `${500 + offsetX}px` : `${DIV.x}px`,
+                    top: activeFlows.includes(flow.id) ? `${200 + offsetY}px` : `${DIV.y}px`,
+                    transform: 'translate(-50%, -50%)',
+                    zIndex: 10
+                  }}
+                >
                 <div className={`px-3 py-2 rounded-lg text-sm font-medium ${
                   flow.currency === 'USD' 
                     ? 'bg-green-500/20 text-green-400 border border-green-400/30' 
@@ -364,7 +372,8 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
                   </div>
                 </div>
               </div>
-            ))}
+              )
+            })}
 
             {/* Flow Lines & Particles */}
             <svg className="absolute inset-0 w-full h-full pointer-events-none">
@@ -420,6 +429,7 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
                 </g>
               ))}
             </svg>
+            </div>
           </div>
         </div>
 

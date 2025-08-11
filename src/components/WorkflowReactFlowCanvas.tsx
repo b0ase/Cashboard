@@ -223,7 +223,7 @@ function ColoredNode({ data }: { data: RFNodeData }) {
           )}
         </div>
 
-        {/* Token Address (Type 1 Bitcoin Ordinals) */}
+        {/* BSV Type 1 Address (Bitcoin SV Ordinals) */}
         <div className="flex items-center gap-1">
           <span className="text-[10px] text-orange-400 font-mono">₿</span>
           {isEditingTokenAddress ? (
@@ -234,16 +234,16 @@ function ColoredNode({ data }: { data: RFNodeData }) {
               onBlur={handleSaveTokenAddress}
               onKeyDown={handleTokenAddressKeyDown}
               className="bg-white/20 text-white text-[10px] font-mono px-1 py-0.5 rounded min-w-0 flex-1"
-              placeholder="bc1p...example_ordinals_address"
+              placeholder="1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"
               autoFocus
             />
           ) : (
             <div 
               onClick={() => setIsEditingTokenAddress(true)}
               className="text-[10px] text-gray-400 font-mono cursor-pointer hover:text-gray-300 transition-colors flex-1 truncate"
-              title={`Token Address: ${tokenAddress || 'Click to edit Bitcoin Ordinals address'}`}
+              title={`BSV Type 1 Address: ${tokenAddress || 'Click to edit BSV Type 1 address'}`}
             >
-              {tokenAddress || 'bc1p...click_to_edit'}
+              {tokenAddress || '1A1z...click_to_edit'}
             </div>
           )}
         </div>

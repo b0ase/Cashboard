@@ -227,6 +227,7 @@ export default function WorkflowReactFlowCanvas({
   tabTitle?: string;
   nodeCanvasData?: any;
   onAddNode?: (type: string) => void;
+  connectionStyle?: 'bezier' | 'smoothstep' | 'straight';
 }) {
   const initialNodes = useMemo<Node<RFNodeData>[]>(() => {
     // If this is a node canvas tab, use the node canvas data
@@ -457,10 +458,11 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
       onNodeDoubleClick={onNodeDoubleClick}
       nodeTypes={nodeTypes}
       fitView
+      defaultViewport={{ x: 0, y: 0, zoom: 0.6 }}
       defaultEdgeOptions={{ 
         style: { stroke: 'rgba(255,255,255,0.7)', strokeWidth: 2 }, 
         markerEnd: { type: MarkerType.ArrowClosed, color: 'rgba(255,255,255,0.8)' },
-        type: 'smoothstep'
+        type: connectionStyle || 'bezier'
       }}
       connectionLineStyle={{ stroke: 'rgba(255,255,255,0.6)', strokeWidth: 2 }}
     >

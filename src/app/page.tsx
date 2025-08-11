@@ -3128,10 +3128,10 @@ function DashboardContent() {
                 </button>
               )}
               {/* Centered brand for desktop, right-aligned for mobile */}
-              <div className={`${isMobile ? 'flex-1 text-right' : 'w-full flex justify-center'}`}>
-                <div className="inline-flex items-center justify-center px-4 py-2 bg-black border border-white rounded-xl transition-colors">
-                  <h2 className="text-lg font-bold text-white">$CASHBOARD</h2>
-                </div>
+              <div className="w-full">
+                <button className="w-full flex items-center justify-center px-3 py-2 bg-black border border-white rounded-lg hover:bg-white/10 transition-colors">
+                  <h2 className="text-sm font-bold text-white">$CASHBOARD</h2>
+                </button>
               </div>
             </div>
             
@@ -3140,9 +3140,9 @@ function DashboardContent() {
               {/* Demo Button */}
               <button
                 onClick={() => setShowDemoModal(true)}
-                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-4 py-3 rounded-lg transition-all duration-200 hover:scale-[1.02] flex items-center justify-center space-x-2 shadow-lg"
+                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-3 py-2 rounded-lg transition-all duration-200 hover:scale-[1.02] flex items-center justify-center space-x-2 shadow-lg"
               >
-                <PlayCircle className="w-5 h-5" />
+                <PlayCircle className="w-4 h-4" />
                 <span className="font-medium text-sm">Demo</span>
               </button>
 
@@ -4549,12 +4549,13 @@ function MarketView() {
     return supply.toLocaleString()
   }
 
-  return (
-    <div className="p-8 max-w-7xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2">Token Market</h1>
-        <p className="text-gray-400">Real-time token prices, market caps, and trading data</p>
-      </div>
+     return (
+     <div className="absolute inset-0 top-20 p-6">
+       <div className="max-w-full mx-auto h-full flex flex-col">
+         <div className="mb-6">
+           <h1 className="text-3xl font-bold text-white mb-2">Token Market</h1>
+           <p className="text-gray-400">Real-time token prices, market caps, and trading data</p>
+         </div>
 
       {/* Search and Controls */}
       <div className="mb-6 flex gap-4 items-center">
@@ -4588,10 +4589,10 @@ function MarketView() {
         </div>
       </div>
 
-      {/* Market Table */}
-      <div className="bg-black/40 backdrop-blur-xl border border-white/20 rounded-xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
+               {/* Market Table */}
+         <div className="flex-1 bg-black/40 backdrop-blur-xl border border-white/20 rounded-xl overflow-hidden">
+           <div className="overflow-auto h-full">
+             <table className="w-full">
             <thead>
               <tr className="border-b border-white/10">
                 <th className="text-left p-4 text-gray-400 font-medium">Rank</th>
@@ -4699,19 +4700,22 @@ function MarketView() {
                   </td>
                 </tr>
               ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                           </tbody>
+             </table>
+           </div>
+         </div>
 
-      {filteredAndSortedData.length === 0 && (
-        <div className="text-center py-12">
-          <div className="text-6xl mb-4">📊</div>
-          <h3 className="text-xl font-semibold text-white mb-2">No tokens found</h3>
-          <p className="text-gray-400">Try adjusting your search criteria</p>
-        </div>
-      )}
-    </div>
+         {filteredAndSortedData.length === 0 && (
+           <div className="flex-1 flex items-center justify-center">
+             <div className="text-center">
+               <div className="text-6xl mb-4">📊</div>
+               <h3 className="text-xl font-semibold text-white mb-2">No tokens found</h3>
+               <p className="text-gray-400">Try adjusting your search criteria</p>
+             </div>
+           </div>
+         )}
+       </div>
+     </div>
   )
 }
 
@@ -4783,12 +4787,13 @@ function LaunchpadView() {
     { id: 6, title: 'Review & Mint', icon: Coins }
   ]
 
-  return (
-    <div className="p-8 max-w-4xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2">Token Launchpad</h1>
-        <p className="text-gray-400">Mint your organization's shares as tokens on 1Sat Ordinals schema</p>
-      </div>
+     return (
+     <div className="absolute inset-0 top-20 p-6">
+       <div className="max-w-full mx-auto h-full flex flex-col">
+         <div className="mb-6">
+           <h1 className="text-3xl font-bold text-white mb-2">Token Launchpad</h1>
+           <p className="text-gray-400">Mint your organization's shares as tokens on 1Sat Ordinals schema</p>
+         </div>
 
       {/* Progress Steps */}
       <div className="mb-8">
@@ -4831,8 +4836,8 @@ function LaunchpadView() {
         </div>
       </div>
 
-      {/* Form Content */}
-      <div className="bg-black/40 backdrop-blur-xl border border-white/20 rounded-xl p-8">
+               {/* Form Content */}
+         <div className="flex-1 bg-black/40 backdrop-blur-xl border border-white/20 rounded-xl p-8 overflow-auto">
         {/* Step 1: Organization Details */}
         {step === 1 && (
           <div className="space-y-6">
@@ -5327,12 +5332,13 @@ function LaunchpadView() {
             }`}
           >
             Next
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
+                     </button>
+         </div>
+         </div>
+       </div>
+     </div>
+   )
+ }
 
 // Workflow Preview Component for Cards
 function WorkflowPreview({ workflow }: { workflow: WorkflowState }) {

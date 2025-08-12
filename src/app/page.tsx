@@ -4201,13 +4201,6 @@ function DashboardContentInner() {
         {/* Content Views */}
         {currentView === 'dashboard' && (
           <div className="absolute inset-0">
-            {/* Dashboard Title Overlay */}
-            <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
-              <h1 className="text-4xl font-bold text-white bg-black/40 backdrop-blur-xl px-6 py-3 rounded-xl border border-white/20">
-                $CASHBOARD
-              </h1>
-            </div>
-            
             {/* Main React Flow Canvas */}
             <div className="w-full h-full">
               <WorkflowReactFlowCanvas

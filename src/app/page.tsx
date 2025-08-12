@@ -4200,7 +4200,7 @@ function DashboardContentInner() {
 
         {/* Content Views */}
         {currentView === 'dashboard' && (
-          <div className="absolute inset-0 top-12">
+          <div className="absolute inset-0">
             {/* Dashboard Title Overlay */}
             <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
               <h1 className="text-4xl font-bold text-white bg-black/40 backdrop-blur-xl px-6 py-3 rounded-xl border border-white/20">
@@ -4655,7 +4655,7 @@ function FloatingAIAssistant({
           } ${
             isMobile 
               ? isExpanded ? 'h-96 w-full max-w-md' : 'h-72 w-80'
-              : isExpanded ? 'h-96 w-[1600px]' : 'h-64 w-[1400px]'
+              : isExpanded ? 'h-96 w-[1200px]' : 'h-64 w-[1000px]'
           }`}
           style={{
             left: position.x === 0 && position.y === 0 

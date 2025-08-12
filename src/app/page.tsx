@@ -4236,7 +4236,7 @@ function DashboardContentInner() {
                     tabTitle=""
                     connectionStyle="smoothstep"
                     className="scale-50 origin-top-left"
-                    showControls={false}
+                    templates={{}}
                   />
                 </div>
                 
@@ -4268,7 +4268,7 @@ function DashboardContentInner() {
                     tabTitle=""
                     connectionStyle="smoothstep"
                     className="scale-50 origin-top-left"
-                    showControls={false}
+                    templates={{}}
                   />
                 </div>
                 
@@ -4300,7 +4300,7 @@ function DashboardContentInner() {
                     tabTitle=""
                     connectionStyle="smoothstep"
                     className="scale-50 origin-top-left"
-                    showControls={false}
+                    templates={{}}
                   />
                 </div>
                 

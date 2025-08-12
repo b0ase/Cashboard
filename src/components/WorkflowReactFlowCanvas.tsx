@@ -263,14 +263,14 @@ function ColoredNode({ data, id }: { data: RFNodeData; id: string }) {
         <div className="absolute bottom-1 right-1 flex gap-1 z-10">
           <button
             onClick={handlePropertiesClick}
-            className="p-1 bg-blue-500/80 hover:bg-blue-500 text-white rounded transition-colors"
+            className="w-6 h-6 bg-blue-500/80 hover:bg-blue-500 text-white rounded transition-colors flex items-center justify-center"
             title="Edit Properties"
           >
             <Settings className="w-3 h-3" />
           </button>
           <button
             onClick={handleCanvasClick}
-            className="p-1 bg-green-500/80 hover:bg-green-500 text-white rounded transition-colors"
+            className="w-6 h-6 bg-green-500/80 hover:bg-green-500 text-white rounded transition-colors flex items-center justify-center"
             title="Open Canvas"
           >
             <Layout className="w-3 h-3" />
@@ -285,7 +285,7 @@ function ColoredNode({ data, id }: { data: RFNodeData; id: string }) {
                 }
               }
             }}
-            className="p-1 bg-red-500/80 hover:bg-red-600 text-white rounded transition-colors"
+            className="w-6 h-6 bg-red-500/80 hover:bg-red-600 text-white rounded transition-colors flex items-center justify-center"
             title="Delete Node"
           >
             🗑️

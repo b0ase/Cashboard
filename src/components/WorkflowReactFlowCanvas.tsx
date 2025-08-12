@@ -610,12 +610,70 @@ export default function WorkflowReactFlowCanvas({
   const [nodes, setNodes, onNodesChange] = useNodesState<RFNodeData>(initialNodes)
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
   
-  // Reset nodes and edges when tab changes (initialNodes/initialEdges change)
+  // Load saved state from localStorage on initialization
   React.useEffect(() => {
-    console.log('🔄 Resetting canvas for tab change:', tabTitle, 'Nodes:', initialNodes.length, 'Edges:', initialEdges.length)
+    if (tabTitle) {
+      const savedData = localStorage.getItem(`cashboard-canvas-${tabTitle.replace(/[^a-zA-Z0-9]/g, '-')}`)
+      if (savedData) {
+        try {
+          const parsed = JSON.parse(savedData)
+          if (parsed.nodes && parsed.nodes.length > 0) {
+            console.log('📂 Loading saved canvas state:', parsed.nodes.length, 'nodes')
+            const savedNodes = parsed.nodes.map((n: any) => ({
+              id: n.id,
+              type: 'colored',
+              position: { x: n.x, y: n.y },
+              data: n.data
+            }))
+            setNodes(savedNodes)
+            if (parsed.edges && parsed.edges.length > 0) {
+              const savedEdges = parsed.edges.map((e: any) => ({
+                id: e.id,
+                source: e.source,
+                target: e.target,
+                type: e.type || 'default',
+                animated: e.type === 'payment'
+              }))
+              setEdges(savedEdges)
+            }
+            return // Don't load initial state if we have saved state
+          }
+        } catch (error) {
+          console.warn('Failed to parse saved canvas state:', error)
+        }
+      }
+    }
+    
+    // Fallback to initial state if no saved state
+    console.log('🔄 Loading initial canvas state:', initialNodes.length, 'nodes')
     setNodes(initialNodes)
     setEdges(initialEdges)
-  }, [initialNodes, initialEdges, tabTitle]) // Removed setNodes, setEdges to avoid dependency issues
+  }, [tabTitle, initialNodes, initialEdges])
+
+  // Auto-save whenever nodes or edges change
+  React.useEffect(() => {
+    if (tabTitle && (nodes.length > 0 || edges.length > 0)) {
+      const saveData = {
+        timestamp: new Date().toISOString(),
+        canvasName: tabTitle,
+        nodes: nodes.map(node => ({
+          id: node.id,
+          x: node.position.x,
+          y: node.position.y,
+          data: node.data
+        })),
+        edges: edges.map(edge => ({
+          id: edge.id,
+          source: edge.source,
+          target: edge.target,
+          type: edge.type
+        }))
+      }
+      
+      localStorage.setItem(`cashboard-canvas-${tabTitle.replace(/[^a-zA-Z0-9]/g, '-')}`, JSON.stringify(saveData))
+      console.log('💾 Auto-saved canvas state:', saveData.nodes.length, 'nodes,', saveData.edges.length, 'edges')
+    }
+  }, [nodes, edges, tabTitle])
   
   const onConnect = useCallback((params: Edge | Connection) => setEdges((eds) => addEdge({ ...params, animated: true }, eds)), [setEdges])
   const [templateModal, setTemplateModal] = useState<{ kind: string; items: TemplateItem[] } | null>(null)
@@ -958,10 +1016,10 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
             </button>
             
             <button
-              onClick={() => {
-                // Save current canvas state to localStorage
+              onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+                // Manual save - trigger the auto-save effect
                 const canvasName = tabTitle || 'canvas';
-                const savedData = {
+                const saveData = {
                   timestamp: new Date().toISOString(),
                   canvasName: canvasName,
                   nodes: nodes.map(node => ({
@@ -975,18 +1033,24 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
                     source: edge.source,
                     target: edge.target,
                     type: edge.type
-                  })),
-                  message: `Canvas layout saved: ${canvasName}`
+                  }))
                 };
                 
-                localStorage.setItem(`cashboard-canvas-${canvasName.replace(/[^a-zA-Z0-9]/g, '-')}`, JSON.stringify(savedData));
+                localStorage.setItem(`cashboard-canvas-${canvasName.replace(/[^a-zA-Z0-9]/g, '-')}`, JSON.stringify(saveData));
                 
-                // Show feedback
-                console.log(`Saved ${canvasName} layout:`, savedData);
-                alert(`${canvasName} layout saved to localStorage! Check console for details.`);
+                // Show feedback without alert
+                console.log(`💾 Manual save: ${canvasName} layout saved to localStorage`)
+                
+                // Visual feedback - briefly change button color
+                const button = event.currentTarget as HTMLButtonElement;
+                const originalClass = button.className;
+                button.className = 'px-2 py-1 rounded text-xs bg-green-500/60 text-white transition-all';
+                setTimeout(() => {
+                  button.className = originalClass;
+                }, 500);
               }}
               className="px-2 py-1 rounded text-xs bg-green-500/20 text-green-300 hover:bg-green-500/30 transition-all"
-              title="Save current canvas layout to localStorage"
+              title="Save current canvas layout to localStorage (auto-save is already enabled)"
             >
               💾 Save
             </button>

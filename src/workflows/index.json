@@ -1,0 +1,45 @@
+{
+  "workflows": [
+    {
+      "id": "audex-music",
+      "name": "AUDEX Music Corporation Workflow",
+      "description": "Complete music streaming and royalty distribution workflow",
+      "category": "music",
+      "version": "1.0",
+      "file": "audex-music-workflow.json",
+      "tags": ["music", "royalties", "streaming", "nft", "distribution"]
+    },
+    {
+      "id": "defi-lending",
+      "name": "DeFi Lending Protocol Workflow",
+      "description": "Decentralized lending and borrowing workflow with collateral management",
+      "category": "defi",
+      "version": "1.0",
+      "file": "defi-lending-workflow.json",
+      "tags": ["defi", "lending", "borrowing", "collateral", "governance"]
+    },
+    {
+      "id": "supply-chain",
+      "name": "Supply Chain Management Workflow",
+      "description": "End-to-end supply chain tracking and management workflow",
+      "category": "logistics",
+      "version": "1.0",
+      "file": "supply-chain-workflow.json",
+      "tags": ["supply-chain", "logistics", "manufacturing", "tracking", "blockchain"]
+    }
+  ],
+  "categories": [
+    "music",
+    "defi",
+    "logistics",
+    "finance",
+    "governance",
+    "nft",
+    "streaming"
+  ],
+  "metadata": {
+    "totalWorkflows": 3,
+    "lastUpdated": "2024-01-20T00:00:00Z",
+    "version": "1.0"
+  }
+}

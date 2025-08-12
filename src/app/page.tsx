@@ -4208,7 +4208,7 @@ function DashboardContentInner() {
             
 
 
-            <div className="glass-card p-4 h-[600px] relative">
+            <div className="glass-card p-4 w-[500px] h-[500px] relative mx-auto">
               <div className="flex items-center justify-between mb-2">
                 <div className="text-sm text-gray-400">Networked Businesses</div>
                 <div className="text-xs text-gray-500">Interactive canvas</div>

@@ -4085,21 +4085,7 @@ function DashboardContentInner() {
               <p className="text-gray-400 text-lg">Your Financial Command Center</p>
             </div>
             
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-              <div className="glass-card p-4">
-                <div className="text-sm text-gray-400">Balance</div>
-                <div className="text-2xl font-bold">{handCashUser?.spendableBalance !== undefined ? `$${handCashUser.spendableBalance.toFixed(2)}` : '—'}</div>
-                <div className="text-xs text-gray-500 mt-1">{handCashUser?.localCurrencyCode || 'USD'}</div>
-              </div>
-              <a href="/PRODUCT_DOCUMENTATION.md" target="_blank" rel="noreferrer" className="glass-card p-4 block">
-                <div className="text-sm text-gray-400">Docs</div>
-                <div className="text-lg font-semibold">Product Documentation</div>
-              </a>
-              <a href="https://github.com/b0ase/cashboard/discussions" target="_blank" rel="noreferrer" className="glass-card p-4 block">
-                <div className="text-sm text-gray-400">Community</div>
-                <div className="text-lg font-semibold">Forums & Discussions</div>
-              </a>
-            </div>
+
 
             <div className="glass-card p-4 h-[600px] relative">
               <div className="flex items-center justify-between mb-2">

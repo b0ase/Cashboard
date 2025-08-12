@@ -4208,6 +4208,48 @@ function DashboardContentInner() {
               </h1>
             </div>
             
+            {/* Save Layout Button */}
+            <div className="absolute top-4 right-4 z-10">
+              <button
+                onClick={() => {
+                  // Get the current canvas state from the WorkflowReactFlowCanvas
+                  const canvasElement = document.querySelector('[data-testid="react-flow"]') || 
+                                       document.querySelector('.react-flow') ||
+                                       document.querySelector('[data-id="cashboard-core"]')?.closest('.react-flow');
+                  
+                  if (canvasElement) {
+                    // Try to get the current node positions from the canvas
+                    const nodes = Array.from(canvasElement.querySelectorAll('[data-id]')).map(el => {
+                      const id = el.getAttribute('data-id');
+                      const rect = el.getBoundingClientRect();
+                      const canvasRect = canvasElement.getBoundingClientRect();
+                      return {
+                        id,
+                        x: rect.left - canvasRect.left,
+                        y: rect.top - canvasRect.top
+                      };
+                    });
+                    
+                    // Save to localStorage
+                    localStorage.setItem('cashboard-dashboard-layout', JSON.stringify({
+                      timestamp: new Date().toISOString(),
+                      nodes: nodes,
+                      message: 'Current dashboard node positions saved'
+                    }));
+                    
+                    // Show feedback
+                    alert('Dashboard layout saved to localStorage! Check console for details.');
+                    console.log('Saved dashboard layout:', nodes);
+                  } else {
+                    alert('Could not detect canvas. Please try again.');
+                  }
+                }}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors shadow-lg border border-blue-500/30"
+              >
+                💾 Save Layout
+              </button>
+            </div>
+            
             {/* Main React Flow Canvas */}
             <div className="w-full h-full">
               <WorkflowReactFlowCanvas

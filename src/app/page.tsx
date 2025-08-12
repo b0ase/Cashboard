@@ -4706,7 +4706,7 @@ function FloatingAIAssistant({
           </button>
 
           {/* Messages */}
-          <div className={`flex-1 overflow-y-auto space-y-2 pl-6 ${
+          <div className={`flex-1 overflow-y-auto space-y-2 pl-8 ${
             isExpanded ? 'max-h-80' : 'max-h-48'
           }`}>
             {messages.length === 0 ? (
@@ -4742,7 +4742,7 @@ function FloatingAIAssistant({
 
           {/* Input */}
           <form onSubmit={handleSendMessage} className="border-t border-white/20 flex-shrink-0">
-            <div className="flex space-x-2 w-full">
+            <div className="flex space-x-2 w-full pl-8">
               <input
                 type="text"
                 value={inputMessage}

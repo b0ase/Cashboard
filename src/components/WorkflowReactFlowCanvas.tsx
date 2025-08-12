@@ -936,6 +936,40 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
             >
               {currentConnectionStyle}
             </button>
+            
+            <button
+              onClick={() => {
+                // Save current canvas state to localStorage
+                const canvasName = tabTitle || 'canvas';
+                const savedData = {
+                  timestamp: new Date().toISOString(),
+                  canvasName: canvasName,
+                  nodes: nodes.map(node => ({
+                    id: node.id,
+                    x: node.position.x,
+                    y: node.position.y,
+                    data: node.data
+                  })),
+                  edges: edges.map(edge => ({
+                    id: edge.id,
+                    source: edge.source,
+                    target: edge.target,
+                    type: edge.type
+                  })),
+                  message: `Canvas layout saved: ${canvasName}`
+                };
+                
+                localStorage.setItem(`cashboard-canvas-${canvasName.replace(/[^a-zA-Z0-9]/g, '-')}`, JSON.stringify(savedData));
+                
+                // Show feedback
+                console.log(`Saved ${canvasName} layout:`, savedData);
+                alert(`${canvasName} layout saved to localStorage! Check console for details.`);
+              }}
+              className="px-2 py-1 rounded text-xs bg-green-500/20 text-green-300 hover:bg-green-500/30 transition-all"
+              title="Save current canvas layout to localStorage"
+            >
+              💾 Save
+            </button>
           </div>
         </div>
       </Panel>

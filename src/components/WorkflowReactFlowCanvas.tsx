@@ -897,37 +897,25 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
   // Set initial zoom when component mounts
   React.useEffect(() => {
     if (rf) {
-      // First, center on the Artist Royalty Pool node (assuming it's in the middle)
-      const artistRoyaltyNode = nodes.find(node => 
-        node.data?.label?.includes('Artist Royalty Pool')
-      );
+      // Use fitView to create perfectly spaced, visually appealing layout
+      rf.fitView({ 
+        padding: 0.3, 
+        includeHiddenNodes: false,
+        minZoom: 0.65,
+        maxZoom: 0.65
+      });
       
-      if (artistRoyaltyNode) {
-        // Center on the Artist Royalty Pool node
-        rf.setCenter(artistRoyaltyNode.position.x, artistRoyaltyNode.position.y, { zoom: 0.75 });
-        setCanvasScale(75);
-        console.log('🔍 Centered on Artist Royalty Pool node at 75% zoom');
-      } else {
-        // Fallback to fitView if node not found
-        rf.fitView({ 
-          padding: 0.2, 
-          includeHiddenNodes: false,
-          minZoom: 0.75,
-          maxZoom: 0.75
+      // Ensure zoom is exactly 65% for optimal visual appeal
+      setTimeout(() => {
+        const viewport = rf.getViewport();
+        rf.setViewport({ 
+          x: viewport.x, 
+          y: viewport.y, 
+          zoom: 0.65 
         });
-        
-        // Ensure zoom is exactly 75%
-        setTimeout(() => {
-          const viewport = rf.getViewport();
-          rf.setViewport({ 
-            x: viewport.x, 
-            y: viewport.y, 
-            zoom: 0.75 
-          });
-          setCanvasScale(75);
-          console.log('🔍 Centered canvas with fitView at 75% zoom');
-        }, 200);
-      }
+        setCanvasScale(65);
+        console.log('🎨 Created visually appealing layout with 65% zoom and perfect node spacing');
+      }, 200);
     }
   }, [rf])
   
@@ -960,10 +948,10 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
       nodeTypes={nodeTypes}
       fitView
       fitViewOptions={{ 
-        padding: 0.2, 
+        padding: 0.3, 
         includeHiddenNodes: false,
-        minZoom: 0.75,
-        maxZoom: 0.75
+        minZoom: 0.65,
+        maxZoom: 0.65
       }}
       minZoom={0.1}
       maxZoom={2}

@@ -4428,6 +4428,7 @@ function FloatingAIAssistant({
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
   const [position, setPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 })
   const [dragStartTime, setDragStartTime] = useState(0)
+  const [isExpanded, setIsExpanded] = useState(false)
   const assistantRef = React.useRef<HTMLDivElement>(null)
 
   // Load saved position after mount to avoid SSR/CSR mismatch
@@ -4569,7 +4570,9 @@ function FloatingAIAssistant({
           className={`ai-assistant fixed z-50 bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl shadow-2xl overflow-hidden flex flex-col transition-all duration-200 ${
             isDragging ? 'cursor-grabbing shadow-3xl scale-[1.02] border-blue-400/50' : 'cursor-grab hover:shadow-3xl'
           } ${
-            isMobile ? 'h-72' : 'h-64 w-[1400px]'
+            isMobile 
+              ? isExpanded ? 'h-96 w-full max-w-md' : 'h-72 w-80'
+              : isExpanded ? 'h-96 w-[1600px]' : 'h-64 w-[1400px]'
           }`}
           style={{
             left: position.x === 0 && position.y === 0 
@@ -4601,8 +4604,23 @@ function FloatingAIAssistant({
             title="Drag to move"
           ></div>
 
+          {/* Expand/Collapse Toggle */}
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="absolute right-2 top-2 p-1 bg-white/10 hover:bg-white/20 rounded-lg transition-colors text-white"
+            title={isExpanded ? "Collapse" : "Expand"}
+          >
+            {isExpanded ? (
+              <ChevronDown className="w-4 h-4" />
+            ) : (
+              <ChevronUp className="w-4 h-4" />
+            )}
+          </button>
+
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-2 space-y-2 max-h-48 pl-6">
+          <div className={`flex-1 overflow-y-auto p-2 space-y-2 pl-6 ${
+            isExpanded ? 'max-h-80' : 'max-h-48'
+          }`}>
             {messages.length === 0 ? (
               <div className="text-gray-400 text-center py-4">
                 <Bot className="w-8 h-8 mx-auto mb-2 text-blue-400" />

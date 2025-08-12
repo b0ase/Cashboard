@@ -904,9 +904,22 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
   }
   const rf = useReactFlow()
   
-  // Expose React Flow instance globally for controls
+  // Expose React Flow instance globally for controls and set up zoom listener
   React.useEffect(() => {
     (window as any).reactFlowInstance = rf
+    
+    // Set up interval to check for zoom changes from mouse wheel and other interactions
+    const handleZoomChange = () => {
+      if (rf) {
+        const currentZoom = rf.getZoom();
+        setCanvasScale(Math.round(currentZoom * 100));
+      }
+    };
+    
+    // Check for zoom changes every 100ms
+    const zoomInterval = setInterval(handleZoomChange, 100);
+    
+    return () => clearInterval(zoomInterval);
   }, [rf])
   return (
     <ReactFlow

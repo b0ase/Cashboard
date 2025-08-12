@@ -726,7 +726,7 @@ function DashboardContentInner() {
   }, [searchParams, router])
 
   const [appState, setAppState] = useState<AppState>({
-    currentView: 'workflow',
+    currentView: 'dashboard',
     selectedOrganization: null,
     selectedPerson: null,
     sidebarOpen: true,
@@ -4079,6 +4079,12 @@ function DashboardContentInner() {
         {/* Content Views */}
         {currentView === 'dashboard' && (
           <div className="absolute inset-0 top-20 p-6 overflow-auto space-y-6">
+            {/* Dashboard Title */}
+            <div className="text-center mb-6">
+              <h1 className="text-4xl font-bold text-white mb-2">$CASHBOARD</h1>
+              <p className="text-gray-400 text-lg">Your Financial Command Center</p>
+            </div>
+            
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               <div className="glass-card p-4">
                 <div className="text-sm text-gray-400">Balance</div>

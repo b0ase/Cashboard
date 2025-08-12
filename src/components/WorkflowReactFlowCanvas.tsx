@@ -674,6 +674,8 @@ export default function WorkflowReactFlowCanvas({
       console.log('💾 Auto-saved canvas state:', saveData.nodes.length, 'nodes,', saveData.edges.length, 'edges')
     }
   }, [nodes, edges, tabTitle])
+
+
   
   const onConnect = useCallback((params: Edge | Connection) => setEdges((eds) => addEdge({ ...params, animated: true }, eds)), [setEdges])
   const [templateModal, setTemplateModal] = useState<{ kind: string; items: TemplateItem[] } | null>(null)
@@ -856,8 +858,18 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
   // Canvas control states
   const [isRunning, setIsRunning] = React.useState(false)
   const [autoMode, setAutoMode] = React.useState(false)
-  const [canvasScale, setCanvasScale] = React.useState(100)
+  const [canvasScale, setCanvasScale] = React.useState(35) // Start zoomed out by default
   const [currentConnectionStyle, setCurrentConnectionStyle] = React.useState<'bezier' | 'smoothstep' | 'straight'>(connectionStyle || 'bezier')
+
+  // Set initial zoom when component mounts
+  React.useEffect(() => {
+    if ((window as any).reactFlowInstance) {
+      // Set initial zoom to be zoomed out
+      (window as any).reactFlowInstance.setZoom(0.35);
+      setCanvasScale(35);
+      console.log('🔍 Set initial zoom to 35% (zoomed out)');
+    }
+  }, [])
   
   // Control functions
   const toggleWorkflowStatus = () => setIsRunning(!isRunning)
@@ -1097,7 +1109,7 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
         </div>
       </Panel>
 
-      <Panel position="bottom-right" className="m-2">
+      <div className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10">
         <NodePaletteSimple
           title="Add Nodes"
           nodeTypes={palette as any}
@@ -1105,7 +1117,7 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
           onPick={(t) => onPick(t, rf)}
           visible={true}
         />
-      </Panel>
+      </div>
       {templateModal && (
         <div 
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"

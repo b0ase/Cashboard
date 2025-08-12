@@ -858,16 +858,16 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
   // Canvas control states
   const [isRunning, setIsRunning] = React.useState(false)
   const [autoMode, setAutoMode] = React.useState(false)
-  const [canvasScale, setCanvasScale] = React.useState(25) // Start zoomed out by default
+  const [canvasScale, setCanvasScale] = React.useState(50) // Start at 50% zoom by default
   const [currentConnectionStyle, setCurrentConnectionStyle] = React.useState<'bezier' | 'smoothstep' | 'straight'>(connectionStyle || 'bezier')
 
   // Set initial zoom when component mounts
   React.useEffect(() => {
     if ((window as any).reactFlowInstance) {
-      // Set initial zoom to be more zoomed out
-      (window as any).reactFlowInstance.setZoom(0.25);
-      setCanvasScale(25);
-      console.log('🔍 Set initial zoom to 25% (more zoomed out)');
+      // Set initial zoom to 50%
+      (window as any).reactFlowInstance.setZoom(0.5);
+      setCanvasScale(50);
+      console.log('🔍 Set initial zoom to 50%');
     }
   }, [])
   
@@ -932,7 +932,7 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
       onNodeDoubleClick={onNodeDoubleClick}
       nodeTypes={nodeTypes}
       fitView
-      defaultViewport={{ x: 0, y: 0, zoom: 0.25 }}
+      defaultViewport={{ x: 0, y: 0, zoom: 0.5 }}
       minZoom={0.1}
       maxZoom={2}
       defaultEdgeOptions={{ 

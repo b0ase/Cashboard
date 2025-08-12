@@ -192,6 +192,20 @@ export const HandCashAuthButton = () => {
         <span className="font-medium text-sm">Sign in with Google</span>
       </button>
       
+      {/* Phantom Wallet Connect Button */}
+      <button
+        onClick={() => {
+          // TODO: Implement Phantom wallet connection
+          console.log('Phantom wallet connect clicked')
+        }}
+        className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white px-3 py-2 rounded-lg transition-all duration-200 hover:scale-[1.02] flex items-center justify-center space-x-2 shadow-lg"
+      >
+        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+        </svg>
+        <span className="font-medium text-sm">Connect with Phantom Wallet</span>
+      </button>
+      
       {error && (
         <div className="mt-2 p-2 bg-red-500/20 border border-red-500/30 rounded text-red-400 text-xs">
           {error}

@@ -4218,21 +4218,6 @@ function DashboardContentInner() {
                   workflow={getAUDEXWorkflow()}
                   tabTitle="Dashboard Network"
                   connectionStyle="smoothstep"
-                  templates={{
-                    organizationTemplates: getOrganizationTemplates(),
-                    roleTemplates: getRoleTemplates(),
-                    agentTemplates: getAgentTemplates(),
-                    instrumentTemplates: getInstrumentTemplates(),
-                    contractTemplates: getContractTemplates(),
-                    integrationTemplates: getIntegrationTemplates()
-                  }}
-                  onTemplateSelect={(template) => {
-                    console.log('Template selected in dashboard:', template)
-                  }}
-                  onAddNode={(type: string) => {
-                    // Handle adding nodes to dashboard canvas
-                    console.log('Adding node to dashboard:', type)
-                  }}
                 />
               </div>
             </div>

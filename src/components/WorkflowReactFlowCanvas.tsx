@@ -897,19 +897,25 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
   // Set initial zoom when component mounts
   React.useEffect(() => {
     if (rf) {
-      // Use fitView to center all nodes, then force 50% zoom
-      rf.fitView({ padding: 0.1, includeHiddenNodes: false });
+      // Use fitView to center all nodes with proper padding and zoom constraints
+      rf.fitView({ 
+        padding: 0.2, 
+        includeHiddenNodes: false,
+        minZoom: 0.5,
+        maxZoom: 0.5
+      });
       
-      // Force zoom to 50% after a short delay to ensure fitView completes
+      // Ensure zoom is exactly 50%
       setTimeout(() => {
+        const viewport = rf.getViewport();
         rf.setViewport({ 
-          x: rf.getViewport().x, 
-          y: rf.getViewport().y, 
+          x: viewport.x, 
+          y: viewport.y, 
           zoom: 0.5 
         });
         setCanvasScale(50);
-        console.log('🔍 Centered canvas with fitView and forced 50% zoom');
-      }, 150);
+        console.log('🔍 Centered canvas in middle of page with 50% zoom');
+      }, 200);
     }
   }, [rf])
   
@@ -941,7 +947,12 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
       onNodeDoubleClick={onNodeDoubleClick}
       nodeTypes={nodeTypes}
       fitView
-      fitViewOptions={{ padding: 0.1, includeHiddenNodes: false }}
+      fitViewOptions={{ 
+        padding: 0.2, 
+        includeHiddenNodes: false,
+        minZoom: 0.5,
+        maxZoom: 0.5
+      }}
       minZoom={0.1}
       maxZoom={2}
       defaultEdgeOptions={{ 

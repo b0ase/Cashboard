@@ -4204,104 +4204,15 @@ function DashboardContentInner() {
             {/* Dashboard Title Overlay */}
             <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
               <h1 className="text-4xl font-bold text-white bg-black/40 backdrop-blur-xl px-6 py-3 rounded-xl border border-white/20">
-                $CASHBOARD
+                AUDEX Music Corporation
               </h1>
             </div>
             
             {/* Main React Flow Canvas */}
             <div className="w-full h-full">
               <WorkflowReactFlowCanvas
-                workflow={{
-                  nodes: [
-                    {
-                      id: 'cashboard-core',
-                      name: 'Cashboard Core',
-                      type: 'organization',
-                      x: 400,
-                      y: 300
-                    },
-                    {
-                      id: 'financial-tools',
-                      name: 'Financial Tools',
-                      type: 'workflow',
-                      x: 200,
-                      y: 150
-                    },
-                    {
-                      id: 'workflow-engine',
-                      name: 'Workflow Engine',
-                      type: 'workflow',
-                      x: 600,
-                      y: 150
-                    },
-                    {
-                      id: 'ai-assistant',
-                      name: 'AI Assistant',
-                      type: 'ai-agent',
-                      x: 400,
-                      y: 50
-                    },
-                    {
-                      id: 'organizations',
-                      name: 'Organizations',
-                      type: 'organization',
-                      x: 100,
-                      y: 400
-                    },
-                    {
-                      id: 'contracts',
-                      name: 'Smart Contracts',
-                      type: 'contract',
-                      x: 300,
-                      y: 500
-                    },
-                    {
-                      id: 'instruments',
-                      name: 'Financial Instruments',
-                      type: 'instrument',
-                      x: 500,
-                      y: 500
-                    },
-                    {
-                      id: 'wallets',
-                      name: 'Digital Wallets',
-                      type: 'wallets',
-                      x: 700,
-                      y: 400
-                    },
-                    {
-                      id: 'integrations',
-                      name: 'Integrations',
-                      type: 'integration',
-                      x: 600,
-                      y: 300
-                    },
-                    {
-                      id: 'marketplace',
-                      name: 'Marketplace',
-                      type: 'workflow',
-                      x: 800,
-                      y: 200
-                    }
-                  ],
-                  connections: [
-                    { source: 'cashboard-core', target: 'financial-tools' },
-                    { source: 'cashboard-core', target: 'workflow-engine' },
-                    { source: 'cashboard-core', target: 'ai-assistant' },
-                    { source: 'cashboard-core', target: 'organizations' },
-                    { source: 'cashboard-core', target: 'contracts' },
-                    { source: 'cashboard-core', target: 'instruments' },
-                    { source: 'cashboard-core', target: 'wallets' },
-                    { source: 'cashboard-core', target: 'integrations' },
-                    { source: 'cashboard-core', target: 'marketplace' },
-                    { source: 'ai-assistant', target: 'workflow-engine' },
-                    { source: 'workflow-engine', target: 'financial-tools' },
-                    { source: 'organizations', target: 'contracts' },
-                    { source: 'contracts', target: 'instruments' },
-                    { source: 'wallets', target: 'integrations' }
-                  ]
-                }}
-                tabTitle="Cashboard - Financial Command Center"
+                workflow={getAUDEXWorkflow()}
+                tabTitle="AUDEX Corporation - Asset & Monetary Flows"
                 connectionStyle="smoothstep"
                 templates={{
                   organizationTemplates: getOrganizationTemplates(),

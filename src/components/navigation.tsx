@@ -11,7 +11,7 @@ const navigation = [
   { name: 'Organizations', href: '/organizations', icon: Building2 },
   { name: 'Dividends', href: '/dividends', icon: DollarSign },
   { name: 'Labels', href: '/labels', icon: Tag },
-  { name: 'CSS Test', href: '/css-test', icon: TestTube },
+
 ]
 
 export function Navigation() {

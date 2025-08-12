@@ -897,11 +897,19 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
   // Set initial zoom when component mounts
   React.useEffect(() => {
     if (rf) {
-      // Use fitView to center all nodes, then adjust zoom if needed
+      // Use fitView to center all nodes, then force 50% zoom
       rf.fitView({ padding: 0.1, includeHiddenNodes: false });
-      const currentZoom = rf.getZoom();
-      setCanvasScale(Math.round(currentZoom * 100));
-      console.log('🔍 Centered canvas with fitView');
+      
+      // Force zoom to 50% after a short delay to ensure fitView completes
+      setTimeout(() => {
+        rf.setViewport({ 
+          x: rf.getViewport().x, 
+          y: rf.getViewport().y, 
+          zoom: 0.5 
+        });
+        setCanvasScale(50);
+        console.log('🔍 Centered canvas with fitView and forced 50% zoom');
+      }, 150);
     }
   }, [rf])
   

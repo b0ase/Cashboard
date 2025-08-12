@@ -1790,6 +1790,128 @@ function DashboardContentInner() {
         clipboard: [],
         gridSnap: true,
         showGrid: true
+      },
+      {
+        id: '2',
+        name: 'AUDEX Music Corporation Workflow',
+        description: 'Complete music streaming and royalty distribution workflow with YouTube revenue, Spotify royalties, NFT sales, and artist distribution',
+        nodes: [
+          { id: 'n1', type: 'youtube', name: 'Music Track Streaming', description: 'Streaming revenue from music platforms', x: 100, y: 100, status: 'active', connections: [], metadata: { mediaType: 'music', platform: 'streaming' } },
+          { id: 'n2', type: 'youtube', name: 'YouTube Ad Revenue', description: 'AdSense receipts for music videos', x: 300, y: 100, status: 'active', connections: [], metadata: { mediaType: 'video', platform: 'youtube' } },
+          { id: 'n3', type: 'payment', name: 'Spotify Royalties', description: 'Royalty payments from Spotify', x: 500, y: 100, status: 'active', connections: [], metadata: { platform: 'spotify', royaltyType: 'streaming' } },
+          { id: 'n4', type: 'payment', name: 'Platform Subscriptions', description: 'Premium subscription revenue', x: 700, y: 100, status: 'active', connections: [], metadata: { platform: 'subscription', tier: 'premium' } },
+          { id: 'n5', type: 'instrument', name: 'NFT Music Sales', description: 'NFT sales of music tracks', x: 900, y: 100, status: 'active', connections: [], metadata: { type: 'nft', asset: 'music' } },
+          { id: 'n6', type: 'splitter', name: 'AUDEX Revenue Pool', description: 'Central revenue distribution hub', x: 500, y: 250, status: 'active', connections: [], metadata: { distribution: 'centralized' } },
+          { id: 'n7', type: 'organization', name: 'AUDEX Treasury (51%)', description: 'Corporate treasury allocation', x: 300, y: 400, status: 'active', connections: [], metadata: { allocation: '51%', purpose: 'treasury' } },
+          { id: 'n8', type: 'member', name: 'Artist Royalty Pool (35%)', description: 'Artist royalty distribution', x: 500, y: 400, status: 'active', connections: [], metadata: { allocation: '35%', purpose: 'artists' } },
+          { id: 'n9', type: 'workflow', name: 'Operations Reserve (10%)', description: 'Operational expenses fund', x: 700, y: 400, status: 'active', connections: [], metadata: { allocation: '10%', purpose: 'operations' } },
+          { id: 'n10', type: 'trigger', name: 'Platform Development (4%)', description: 'Platform development fund', x: 900, y: 400, status: 'active', connections: [], metadata: { allocation: '4%', purpose: 'development' } }
+        ],
+        connections: [
+          { id: 'c1', from: 'n1', to: 'n6', type: 'payment' },
+          { id: 'c2', from: 'n2', to: 'n6', type: 'payment' },
+          { id: 'c3', from: 'n3', to: 'n6', type: 'payment' },
+          { id: 'c4', from: 'n4', to: 'n6', type: 'payment' },
+          { id: 'c5', from: 'n5', to: 'n6', type: 'payment' },
+          { id: 'c6', from: 'n6', to: 'n7', type: 'payment', amount: 51 },
+          { id: 'c7', from: 'n6', to: 'n8', type: 'payment', amount: 35 },
+          { id: 'c8', from: 'n6', to: 'n9', type: 'payment', amount: 10 },
+          { id: 'c9', from: 'n6', to: 'n10', type: 'payment', amount: 4 }
+        ],
+        selectedNode: null,
+        selectedNodes: [],
+        isConnecting: null,
+        dragging: null,
+        workflowStatus: 'paused',
+        autoMode: true,
+        createdAt: '2024-01-20',
+        updatedAt: '2024-01-20',
+        organizationId: '1',
+        currentTool: 'select',
+        clipboard: [],
+        gridSnap: true,
+        showGrid: true
+      },
+      {
+        id: '3',
+        name: 'DeFi Lending Protocol Workflow',
+        description: 'Decentralized lending and borrowing workflow with collateral management, liquidation engine, and governance',
+        nodes: [
+          { id: 'n1', type: 'wallet', name: 'User Collateral', description: 'User deposited collateral assets', x: 100, y: 100, status: 'active', connections: [], metadata: { type: 'collateral', asset: 'crypto' } },
+          { id: 'n2', type: 'integration', name: 'Collateral Oracle', description: 'Price feed for collateral valuation', x: 300, y: 100, status: 'active', connections: [], metadata: { type: 'oracle', provider: 'chainlink' } },
+          { id: 'n3', type: 'workflow', name: 'Liquidation Engine', description: 'Automated liquidation system', x: 500, y: 100, status: 'active', connections: [], metadata: { type: 'automation', purpose: 'liquidation' } },
+          { id: 'n4', type: 'contract', name: 'Interest Rate Model', description: 'Dynamic interest rate calculation', x: 700, y: 100, status: 'active', connections: [], metadata: { type: 'smart-contract', model: 'dynamic' } },
+          { id: 'n5', type: 'organization', name: 'Lending Pool', description: 'Central lending pool contract', x: 500, y: 250, status: 'active', connections: [], metadata: { type: 'pool', purpose: 'lending' } },
+          { id: 'n6', type: 'member', name: 'Borrower', description: 'User borrowing assets', x: 300, y: 400, status: 'active', connections: [], metadata: { type: 'user', role: 'borrower' } },
+          { id: 'n7', type: 'member', name: 'Lender', description: 'User providing liquidity', x: 700, y: 400, status: 'active', connections: [], metadata: { type: 'user', role: 'lender' } },
+          { id: 'n8', type: 'instrument', name: 'Governance Token', description: 'Protocol governance token', x: 500, y: 550, status: 'active', connections: [], metadata: { type: 'token', purpose: 'governance' } }
+        ],
+        connections: [
+          { id: 'c1', from: 'n1', to: 'n2', type: 'data' },
+          { id: 'c2', from: 'n2', to: 'n3', type: 'data' },
+          { id: 'c3', from: 'n2', to: 'n4', type: 'data' },
+          { id: 'c4', from: 'n3', to: 'n5', type: 'control' },
+          { id: 'c5', from: 'n4', to: 'n5', type: 'control' },
+          { id: 'c6', from: 'n5', to: 'n6', type: 'payment' },
+          { id: 'c7', from: 'n5', to: 'n7', type: 'payment' },
+          { id: 'c8', from: 'n5', to: 'n8', type: 'control' }
+        ],
+        selectedNode: null,
+        selectedNodes: [],
+        isConnecting: null,
+        dragging: null,
+        workflowStatus: 'paused',
+        autoMode: true,
+        createdAt: '2024-01-20',
+        updatedAt: '2024-01-20',
+        organizationId: '1',
+        currentTool: 'select',
+        clipboard: [],
+        gridSnap: true,
+        showGrid: true
+      },
+      {
+        id: '4',
+        name: 'Supply Chain Management Workflow',
+        description: 'End-to-end supply chain tracking and management workflow with blockchain verification',
+        nodes: [
+          { id: 'n1', type: 'organization', name: 'Raw Materials Supplier', description: 'Initial raw materials provider', x: 100, y: 100, status: 'active', connections: [], metadata: { type: 'supplier', tier: '1' } },
+          { id: 'n2', type: 'workflow', name: 'Manufacturing Plant', description: 'Production and assembly facility', x: 300, y: 100, status: 'active', connections: [], metadata: { type: 'facility', purpose: 'manufacturing' } },
+          { id: 'n3', type: 'assessment', name: 'Quality Control', description: 'Quality assurance and testing', x: 500, y: 100, status: 'active', connections: [], metadata: { type: 'qa', standard: 'iso9001' } },
+          { id: 'n4', type: 'organization', name: 'Warehouse', description: 'Storage and inventory management', x: 700, y: 100, status: 'active', connections: [], metadata: { type: 'facility', purpose: 'storage' } },
+          { id: 'n5', type: 'workflow', name: 'Distribution Center', description: 'Logistics and shipping hub', x: 900, y: 100, status: 'active', connections: [], metadata: { type: 'facility', purpose: 'distribution' } },
+          { id: 'n6', type: 'organization', name: 'Retail Store', description: 'Final point of sale', x: 500, y: 250, status: 'active', connections: [], metadata: { type: 'facility', purpose: 'retail' } },
+          { id: 'n7', type: 'member', name: 'Customer', description: 'End consumer', x: 500, y: 400, status: 'active', connections: [], metadata: { type: 'user', role: 'consumer' } },
+          { id: 'n8', type: 'integration', name: 'Blockchain Tracker', description: 'Supply chain verification system', x: 500, y: 550, status: 'active', connections: [], metadata: { type: 'blockchain', purpose: 'tracking' } }
+        ],
+        connections: [
+          { id: 'c1', from: 'n1', to: 'n2', type: 'material' },
+          { id: 'c2', from: 'n2', to: 'n3', type: 'product' },
+          { id: 'c3', from: 'n3', to: 'n4', type: 'product' },
+          { id: 'c4', from: 'n4', to: 'n5', type: 'product' },
+          { id: 'c5', from: 'n5', to: 'n6', type: 'product' },
+          { id: 'c6', from: 'n6', to: 'n7', type: 'product' },
+          { id: 'c7', from: 'n1', to: 'n8', type: 'data' },
+          { id: 'c8', from: 'n2', to: 'n8', type: 'data' },
+          { id: 'c9', from: 'n3', to: 'n8', type: 'data' },
+          { id: 'c10', from: 'n4', to: 'n8', type: 'data' },
+          { id: 'c11', from: 'n5', to: 'n8', type: 'data' },
+          { id: 'c12', from: 'n6', to: 'n8', type: 'data' },
+          { id: 'c13', from: 'n7', to: 'n8', type: 'data' }
+        ],
+        selectedNode: null,
+        selectedNodes: [],
+        isConnecting: null,
+        dragging: null,
+        workflowStatus: 'paused',
+        autoMode: true,
+        createdAt: '2024-01-20',
+        updatedAt: '2024-01-20',
+        organizationId: '1',
+        currentTool: 'select',
+        clipboard: [],
+        gridSnap: true,
+        showGrid: true
       }
     ],
     selectedWorkflow: null,
@@ -4480,10 +4602,10 @@ function FloatingAIAssistant({
           ></div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-3 max-h-48 pl-6">
+          <div className="flex-1 overflow-y-auto p-2 space-y-2 max-h-48 pl-6">
             {messages.length === 0 ? (
-              <div className="text-gray-400 text-center py-8">
-                <Bot className="w-12 h-12 mx-auto mb-3 text-blue-400" />
+              <div className="text-gray-400 text-center py-4">
+                <Bot className="w-8 h-8 mx-auto mb-2 text-blue-400" />
                 <p>Hello! I&apos;m your AI assistant.</p>
                 <p className="text-sm mt-1">How can I help you today?</p>
               </div>
@@ -4494,7 +4616,7 @@ function FloatingAIAssistant({
                   className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
-                    className={`max-w-[80%] p-3 rounded-lg ${
+                    className={`max-w-[80%] p-2 rounded-lg ${
                       message.type === 'user'
                         ? 'bg-blue-500 text-white'
                         : 'bg-white/10 text-white border border-white/20'
@@ -4513,7 +4635,7 @@ function FloatingAIAssistant({
           </div>
 
           {/* Input */}
-          <form onSubmit={handleSendMessage} className="p-3 border-t border-white/20 flex-shrink-0">
+          <form onSubmit={handleSendMessage} className="p-2 border-t border-white/20 flex-shrink-0">
             <div className="flex space-x-2 w-full">
               <input
                 type="text"

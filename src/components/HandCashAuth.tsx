@@ -158,7 +158,7 @@ export const HandCashAuthButton = () => {
       <button
         onClick={handleSignIn}
         disabled={signingIn}
-        className="w-full bg-gradient-to-r from-green-700 to-green-800 hover:from-green-800 hover:to-green-900 disabled:from-gray-500 disabled:to-gray-600 text-white px-3 py-2 rounded-lg transition-all duration-200 hover:scale-[1.02] flex items-center justify-center space-x-2 shadow-lg"
+        className="w-full bg-black hover:bg-gray-900 disabled:from-gray-500 disabled:to-gray-600 text-white px-3 py-2 rounded-lg transition-all duration-200 hover:scale-[1.02] flex items-center justify-center space-x-2 shadow-lg"
       >
         {signingIn ? (
           <>
@@ -198,7 +198,7 @@ export const HandCashAuthButton = () => {
           // TODO: Implement Phantom wallet connection
           console.log('Phantom wallet connect clicked')
         }}
-        className="w-full bg-gradient-to-r from-purple-700 to-purple-800 hover:from-purple-800 hover:to-purple-900 text-white px-3 py-2 rounded-lg transition-all duration-200 hover:scale-[1.02] flex items-center justify-center space-x-2 shadow-lg"
+        className="w-full bg-black hover:bg-gray-900 text-white px-3 py-2 rounded-lg transition-all duration-200 hover:scale-[1.02] flex items-center justify-center space-x-2 shadow-lg"
       >
         <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>

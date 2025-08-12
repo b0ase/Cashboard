@@ -4208,17 +4208,131 @@ function DashboardContentInner() {
             
 
 
-            <div className="glass-card p-4 w-[500px] h-[500px] relative mx-auto">
-              <div className="flex items-center justify-between mb-2">
-                <div className="text-sm text-gray-400">Networked Businesses</div>
-                <div className="text-xs text-gray-500">Interactive canvas</div>
+            {/* Workflow Preview Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+              
+              {/* AUDEX Workflow Preview */}
+              <div 
+                className="glass-card p-4 h-[300px] relative cursor-pointer group hover:scale-[1.02] transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/20"
+                onClick={() => {
+                  setAppState(prev => ({
+                    ...prev,
+                    currentView: 'workflow',
+                    selectedWorkflow: 'audex-example'
+                  }))
+                  setCurrentWorkflow(getAUDEXWorkflow())
+                }}
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-lg font-semibold text-white">AUDEX Music</h3>
+                  <div className="text-xs text-gray-400 bg-blue-500/20 px-2 py-1 rounded-full">Music Streaming</div>
+                </div>
+                <div className="text-sm text-gray-400 mb-3">Royalty distribution & streaming platform</div>
+                
+                {/* Mini Workflow Preview */}
+                <div className="relative h-[180px] bg-black/20 rounded-lg border border-white/10 overflow-hidden">
+                  <div className="absolute inset-2">
+                    {/* Simplified workflow nodes representation */}
+                    <div className="grid grid-cols-3 gap-2 h-full">
+                      <div className="bg-blue-500/30 rounded p-2 text-center">
+                        <div className="w-3 h-3 bg-blue-400 rounded-full mx-auto mb-1"></div>
+                        <div className="text-xs text-blue-300">Artists</div>
+                      </div>
+                      <div className="bg-green-500/30 rounded p-2 text-center">
+                        <div className="w-3 h-3 bg-green-400 rounded-full mx-auto mb-1"></div>
+                        <div className="text-xs text-green-300">Platform</div>
+                      </div>
+                      <div className="bg-purple-500/30 rounded p-2 text-center">
+                        <div className="w-3 h-3 bg-purple-400 rounded-full mx-auto mb-1"></div>
+                        <div className="text-xs text-purple-300">Royalties</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="absolute bottom-3 right-3 text-xs text-gray-500">Click to open</div>
               </div>
-              <div className="absolute inset-4 rounded-lg overflow-hidden">
-                <WorkflowReactFlowCanvas
-                  workflow={getAUDEXWorkflow()}
-                  tabTitle="Dashboard Network"
-                  connectionStyle="smoothstep"
-                />
+
+              {/* DeFi Lending Workflow Preview */}
+              <div 
+                className="glass-card p-4 h-[300px] relative cursor-pointer group hover:scale-[1.02] transition-all duration-300 hover:shadow-2xl hover:shadow-green-500/20"
+                onClick={() => {
+                  setAppState(prev => ({
+                    ...prev,
+                    currentView: 'workflow',
+                    selectedWorkflow: 'defi-example'
+                  }))
+                  setCurrentWorkflow(getAUDEXWorkflow()) // TODO: Replace with actual DeFi workflow
+                }}
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-lg font-semibold text-white">DeFi Lending</h3>
+                  <div className="text-xs text-gray-400 bg-green-500/20 px-2 py-1 rounded-full">DeFi</div>
+                </div>
+                <div className="text-sm text-gray-400 mb-3">Decentralized lending & borrowing</div>
+                
+                {/* Mini Workflow Preview */}
+                <div className="relative h-[180px] bg-black/20 rounded-lg border border-white/10 overflow-hidden">
+                  <div className="absolute inset-2">
+                    <div className="grid grid-cols-3 gap-2 h-full">
+                      <div className="bg-green-500/30 rounded p-2 text-center">
+                        <div className="w-3 h-3 bg-green-400 rounded-full mx-auto mb-1"></div>
+                        <div className="text-xs text-green-300">Lenders</div>
+                      </div>
+                      <div className="bg-yellow-500/30 rounded p-2 text-center">
+                        <div className="w-3 h-3 bg-yellow-400 rounded-full mx-auto mb-1"></div>
+                        <div className="text-xs text-yellow-300">Protocol</div>
+                      </div>
+                      <div className="bg-red-500/30 rounded p-2 text-center">
+                        <div className="w-3 h-3 bg-red-400 rounded-full mx-auto mb-1"></div>
+                        <div className="text-xs text-red-300">Borrowers</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="absolute bottom-3 right-3 text-xs text-gray-500">Click to open</div>
+              </div>
+
+              {/* Supply Chain Workflow Preview */}
+              <div 
+                className="glass-card p-4 h-[300px] relative cursor-pointer group hover:scale-[1.02] transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/20"
+                onClick={() => {
+                  setAppState(prev => ({
+                    ...prev,
+                    currentView: 'workflow',
+                    selectedWorkflow: 'supply-chain-example'
+                  }))
+                  setCurrentWorkflow(getAUDEXWorkflow()) // TODO: Replace with actual Supply Chain workflow
+                }}
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-lg font-semibold text-white">Supply Chain</h3>
+                  <div className="text-xs text-gray-400 bg-orange-500/20 px-2 py-1 rounded-full">Logistics</div>
+                </div>
+                <div className="text-sm text-gray-400 mb-3">End-to-end tracking & management</div>
+                
+                {/* Mini Workflow Preview */}
+                <div className="relative h-[180px] bg-black/20 rounded-lg border border-white/10 overflow-hidden">
+                  <div className="absolute inset-2">
+                    <div className="grid grid-cols-3 gap-2 h-full">
+                      <div className="bg-orange-500/30 rounded p-2 text-center">
+                        <div className="w-3 h-3 bg-orange-400 rounded-full mx-auto mb-1"></div>
+                        <div className="text-xs text-orange-300">Suppliers</div>
+                      </div>
+                      <div className="bg-blue-500/30 rounded p-2 text-center">
+                        <div className="w-3 h-3 bg-blue-400 rounded-full mx-auto mb-1"></div>
+                        <div className="text-xs text-blue-300">Distribution</div>
+                      </div>
+                      <div className="bg-green-500/30 rounded p-2 text-center">
+                        <div className="w-3 h-3 bg-green-400 rounded-full mx-auto mb-1"></div>
+                        <div className="text-xs text-green-300">Retailers</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="absolute bottom-3 right-3 text-xs text-gray-500">Click to open</div>
               </div>
             </div>
           </div>

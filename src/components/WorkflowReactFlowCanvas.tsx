@@ -931,7 +931,6 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
       onNodeClick={onNodeClick}
       onNodeDoubleClick={onNodeDoubleClick}
       nodeTypes={nodeTypes}
-      fitView
       defaultViewport={{ x: 0, y: 0, zoom: 0.5 }}
       minZoom={0.1}
       maxZoom={2}

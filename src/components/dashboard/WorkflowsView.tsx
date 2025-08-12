@@ -229,6 +229,9 @@ export default function WorkflowsView({
   }
   
   const filteredWorkflows = getFilteredWorkflows()
+  
+  // Debug logging
+  console.log('WorkflowsView render:', { activeView, workflowsCount: workflows.length, filteredCount: filteredWorkflows.length })
 
   const handleCreate = () => {
     if (newWorkflowName.trim()) {
@@ -313,7 +316,7 @@ export default function WorkflowsView({
       </div>
 
       {/* View Tabs */}
-      <div className="flex items-center space-x-1 mb-6 p-1 bg-white/5 rounded-lg border border-white/10">
+      <div className="flex items-center space-x-1 mb-6 p-2 bg-black/60 backdrop-blur-xl rounded-xl border border-white/20 relative z-10 shadow-lg">
         <button
           onClick={() => setActiveView('examples')}
           className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${

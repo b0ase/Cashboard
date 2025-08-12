@@ -897,25 +897,37 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
   // Set initial zoom when component mounts
   React.useEffect(() => {
     if (rf) {
-      // Use fitView to center all nodes with proper padding and zoom constraints
-      rf.fitView({ 
-        padding: 0.2, 
-        includeHiddenNodes: false,
-        minZoom: 0.5,
-        maxZoom: 0.5
-      });
+      // First, center on the Artist Royalty Pool node (assuming it's in the middle)
+      const artistRoyaltyNode = nodes.find(node => 
+        node.data?.label?.includes('Artist Royalty Pool')
+      );
       
-      // Ensure zoom is exactly 50%
-      setTimeout(() => {
-        const viewport = rf.getViewport();
-        rf.setViewport({ 
-          x: viewport.x, 
-          y: viewport.y, 
-          zoom: 0.5 
+      if (artistRoyaltyNode) {
+        // Center on the Artist Royalty Pool node
+        rf.setCenter(artistRoyaltyNode.position.x, artistRoyaltyNode.position.y, { zoom: 0.75 });
+        setCanvasScale(75);
+        console.log('🔍 Centered on Artist Royalty Pool node at 75% zoom');
+      } else {
+        // Fallback to fitView if node not found
+        rf.fitView({ 
+          padding: 0.2, 
+          includeHiddenNodes: false,
+          minZoom: 0.75,
+          maxZoom: 0.75
         });
-        setCanvasScale(50);
-        console.log('🔍 Centered canvas in middle of page with 50% zoom');
-      }, 200);
+        
+        // Ensure zoom is exactly 75%
+        setTimeout(() => {
+          const viewport = rf.getViewport();
+          rf.setViewport({ 
+            x: viewport.x, 
+            y: viewport.y, 
+            zoom: 0.75 
+          });
+          setCanvasScale(75);
+          console.log('🔍 Centered canvas with fitView at 75% zoom');
+        }, 200);
+      }
     }
   }, [rf])
   
@@ -950,8 +962,8 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
       fitViewOptions={{ 
         padding: 0.2, 
         includeHiddenNodes: false,
-        minZoom: 0.5,
-        maxZoom: 0.5
+        minZoom: 0.75,
+        maxZoom: 0.75
       }}
       minZoom={0.1}
       maxZoom={2}

@@ -4078,11 +4078,10 @@ function DashboardContentInner() {
 
         {/* Content Views */}
         {currentView === 'dashboard' && (
-          <div className="absolute inset-0 top-20 p-6 overflow-auto space-y-6">
+          <div className="absolute inset-0 top-12 p-6 overflow-auto space-y-4">
             {/* Dashboard Title */}
-            <div className="text-center mb-6">
-              <h1 className="text-4xl font-bold text-white mb-2">$CASHBOARD</h1>
-              <p className="text-gray-400 text-lg">Your Financial Command Center</p>
+            <div className="text-center mb-4">
+              <h1 className="text-4xl font-bold text-white">$CASHBOARD</h1>
             </div>
             
 
@@ -4097,6 +4096,17 @@ function DashboardContentInner() {
                   workflow={getAUDEXWorkflow()}
                   tabTitle="Dashboard Network"
                   connectionStyle="smoothstep"
+                  templates={{
+                    organizationTemplates: getOrganizationTemplates(),
+                    roleTemplates: getRoleTemplates(),
+                    agentTemplates: getAgentTemplates(),
+                    instrumentTemplates: getInstrumentTemplates(),
+                    contractTemplates: getContractTemplates(),
+                    integrationTemplates: getIntegrationTemplates()
+                  }}
+                  onTemplateSelect={(template) => {
+                    console.log('Template selected in dashboard:', template)
+                  }}
                   onAddNode={(type: string) => {
                     // Handle adding nodes to dashboard canvas
                     console.log('Adding node to dashboard:', type)

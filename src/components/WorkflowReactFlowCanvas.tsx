@@ -1017,8 +1017,21 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
             
             <button
               onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+                // Test localStorage first
+                try {
+                  localStorage.setItem('test-save', 'test-value');
+                  const testValue = localStorage.getItem('test-save');
+                  console.log('🧪 localStorage test:', testValue === 'test-value' ? 'PASSED' : 'FAILED');
+                  localStorage.removeItem('test-save');
+                } catch (error) {
+                  console.error('❌ localStorage test failed:', error);
+                  return;
+                }
+                
                 // Manual save - trigger the auto-save effect
                 const canvasName = tabTitle || 'canvas';
+                console.log('🔍 Save button clicked:', { tabTitle, canvasName, nodesCount: nodes.length, edgesCount: edges.length });
+                
                 const saveData = {
                   timestamp: new Date().toISOString(),
                   canvasName: canvasName,
@@ -1036,18 +1049,44 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
                   }))
                 };
                 
-                localStorage.setItem(`cashboard-canvas-${canvasName.replace(/[^a-zA-Z0-9]/g, '-')}`, JSON.stringify(saveData));
+                const storageKey = `cashboard-canvas-${canvasName.replace(/[^a-zA-Z0-9]/g, '-')}`;
+                console.log('💾 Saving to localStorage with key:', storageKey);
+                console.log('💾 Save data:', saveData);
                 
-                // Show feedback without alert
-                console.log(`💾 Manual save: ${canvasName} layout saved to localStorage`)
-                
-                // Visual feedback - briefly change button color
-                const button = event.currentTarget as HTMLButtonElement;
-                const originalClass = button.className;
-                button.className = 'px-2 py-1 rounded text-xs bg-green-500/60 text-white transition-all';
-                setTimeout(() => {
-                  button.className = originalClass;
-                }, 500);
+                try {
+                  localStorage.setItem(storageKey, JSON.stringify(saveData));
+                  console.log('✅ Successfully saved to localStorage');
+                  
+                  // Verify the save worked
+                  const savedData = localStorage.getItem(storageKey);
+                  if (savedData) {
+                    console.log('✅ Verification: Data found in localStorage');
+                    const parsed = JSON.parse(savedData);
+                    console.log('✅ Verification: Parsed data has', parsed.nodes?.length || 0, 'nodes');
+                  } else {
+                    console.log('❌ Verification: Data not found in localStorage');
+                  }
+                  
+                  // Show feedback without alert
+                  console.log(`💾 Manual save: ${canvasName} layout saved to localStorage`)
+                  
+                  // Visual feedback - briefly change button color
+                  const button = event.currentTarget as HTMLButtonElement;
+                  const originalClass = button.className;
+                  button.className = 'px-2 py-1 rounded text-xs bg-green-500/60 text-white transition-all';
+                  setTimeout(() => {
+                    button.className = originalClass;
+                  }, 500);
+                } catch (error) {
+                  console.error('❌ Failed to save to localStorage:', error);
+                  // Visual feedback for error
+                  const button = event.currentTarget as HTMLButtonElement;
+                  const originalClass = button.className;
+                  button.className = 'px-2 py-1 rounded text-xs bg-red-500/60 text-white transition-all';
+                  setTimeout(() => {
+                    button.className = originalClass;
+                  }, 1000);
+                }
               }}
               className="px-2 py-1 rounded text-xs bg-green-500/20 text-green-300 hover:bg-green-500/30 transition-all"
               title="Save current canvas layout to localStorage (auto-save is already enabled)"

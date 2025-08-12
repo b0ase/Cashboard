@@ -4685,12 +4685,7 @@ function FloatingAIAssistant({
             onMouseDown={handleDragStart}
             onTouchStart={handleDragStart}
             title="Drag to move"
-          >
-            {/* Bumps on the handle */}
-            <div className="absolute left-1 top-1/4 w-2 h-1 bg-blue-400/60 rounded-full"></div>
-            <div className="absolute left-1 top-1/2 w-2 h-1 bg-blue-400/60 rounded-full"></div>
-            <div className="absolute left-1 top-3/4 w-2 h-1 bg-blue-400/60 rounded-full"></div>
-          </div>
+          ></div>
 
           {/* Expand/Collapse Toggle */}
           <button

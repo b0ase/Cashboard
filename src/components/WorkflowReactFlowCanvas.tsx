@@ -899,7 +899,7 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
     if (rf) {
       // Use fitView to create perfectly spaced, visually appealing layout
       rf.fitView({ 
-        padding: 0.3, 
+        padding: 0.8, 
         includeHiddenNodes: false,
         minZoom: 0.65,
         maxZoom: 0.65
@@ -948,7 +948,7 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
       nodeTypes={nodeTypes}
       fitView
       fitViewOptions={{ 
-        padding: 0.3, 
+        padding: 0.8, 
         includeHiddenNodes: false,
         minZoom: 0.65,
         maxZoom: 0.65

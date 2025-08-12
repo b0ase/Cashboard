@@ -4655,7 +4655,7 @@ function FloatingAIAssistant({
           } ${
             isMobile 
               ? isExpanded ? 'h-96 w-full max-w-md' : 'h-72 w-80'
-              : isExpanded ? 'h-96 w-[1200px]' : 'h-64 w-[1000px]'
+              : isExpanded ? 'h-80 w-[1400px]' : 'h-48 w-[1200px]'
           }`}
           style={{
             left: position.x === 0 && position.y === 0 
@@ -4681,11 +4681,16 @@ function FloatingAIAssistant({
 
           {/* Draggable Handle */}
           <div 
-            className="absolute left-0 top-0 bottom-0 w-2 bg-blue-400/30 hover:bg-blue-400/50 cursor-grab active:cursor-grabbing transition-colors"
+            className="absolute left-0 top-0 bottom-0 w-4 bg-blue-400/30 hover:bg-blue-400/50 cursor-grab active:cursor-grabbing transition-colors"
             onMouseDown={handleDragStart}
             onTouchStart={handleDragStart}
             title="Drag to move"
-          ></div>
+          >
+            {/* Bumps on the handle */}
+            <div className="absolute left-1 top-1/4 w-2 h-1 bg-blue-400/60 rounded-full"></div>
+            <div className="absolute left-1 top-1/2 w-2 h-1 bg-blue-400/60 rounded-full"></div>
+            <div className="absolute left-1 top-3/4 w-2 h-1 bg-blue-400/60 rounded-full"></div>
+          </div>
 
           {/* Expand/Collapse Toggle */}
           <button
@@ -4701,7 +4706,7 @@ function FloatingAIAssistant({
           </button>
 
           {/* Messages */}
-          <div className={`flex-1 overflow-y-auto p-2 space-y-2 pl-6 ${
+          <div className={`flex-1 overflow-y-auto space-y-2 pl-6 ${
             isExpanded ? 'max-h-80' : 'max-h-48'
           }`}>
             {messages.length === 0 ? (
@@ -4736,7 +4741,7 @@ function FloatingAIAssistant({
           </div>
 
           {/* Input */}
-          <form onSubmit={handleSendMessage} className="p-2 border-t border-white/20 flex-shrink-0">
+          <form onSubmit={handleSendMessage} className="border-t border-white/20 flex-shrink-0">
             <div className="flex space-x-2 w-full">
               <input
                 type="text"

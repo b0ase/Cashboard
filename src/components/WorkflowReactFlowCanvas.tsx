@@ -175,7 +175,7 @@ function IconFor({ kind }: { kind: NodeKind }) {
   }
 }
 
-function ColoredNode({ data }: { data: RFNodeData }) {
+function ColoredNode({ data, id }: { data: RFNodeData; id: string }) {
   const [isEditingHandle, setIsEditingHandle] = React.useState(false)
   const [handcashHandle, setHandcashHandle] = React.useState(data.handcashHandle || '')
   const [isEditingTokenAddress, setIsEditingTokenAddress] = React.useState(false)
@@ -274,6 +274,21 @@ function ColoredNode({ data }: { data: RFNodeData }) {
             title="Open Canvas"
           >
             <Layout className="w-3 h-3" />
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              if (confirm(`Are you sure you want to delete the "${data.label}" node? This action cannot be undone.`)) {
+                // Remove the node from the canvas
+                if ((window as any).deleteNodeFromCanvas) {
+                  (window as any).deleteNodeFromCanvas(id)
+                }
+              }
+            }}
+            className="p-1 bg-red-500/80 hover:bg-red-600 text-white rounded transition-colors"
+            title="Delete Node"
+          >
+            🗑️
           </button>
         </div>
       )}
@@ -640,11 +655,18 @@ export default function WorkflowReactFlowCanvas({
     // Always expose the function when this canvas is active
     (window as any).addNodeToActiveCanvas = addNodeToCanvas
     
+    // Expose the deleteNode function to parent
+    ;(window as any).deleteNodeFromCanvas = (nodeId: string) => {
+      setNodes(nds => nds.filter(node => node.id !== nodeId))
+      setEdges(eds => eds.filter(edge => edge.source !== nodeId && edge.target !== nodeId))
+    }
+    
     // Cleanup when component unmounts
     return () => {
       (window as any).addNodeToActiveCanvas = null
+      ;(window as any).deleteNodeFromCanvas = null
     }
-  }, [addNodeToCanvas])
+  }, [addNodeToCanvas, setNodes, setEdges])
 
   const handlePick = useCallback((type: string, rf: ReturnType<typeof useReactFlow>) => {
     if (BUSINESS_KINDS.has(type)) {

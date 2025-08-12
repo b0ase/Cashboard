@@ -464,12 +464,29 @@ export default function NodeEditor({ node, isOpen, onClose, onSave }: NodeEditor
                       </h3>
                       <p className="text-sm text-gray-400">Configure the internal processes for this {schema.kind}</p>
                     </div>
-                    <button
-                      onClick={() => setShowWorkflow(true)}
-                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white text-sm font-medium transition-colors"
-                    >
-                      Edit Workflow
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setShowWorkflow(true)}
+                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white text-sm font-medium transition-colors"
+                      >
+                        Edit Workflow
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (confirm(`Are you sure you want to delete the "${node.data.label}" node? This action cannot be undone.`)) {
+                            // Remove the node from the canvas
+                            if (window.deleteNodeFromCanvas) {
+                              window.deleteNodeFromCanvas(node.id);
+                            }
+                            onClose();
+                          }
+                        }}
+                        className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-white text-sm font-medium transition-colors"
+                        title="Delete this node"
+                      >
+                        🗑️ Delete
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}

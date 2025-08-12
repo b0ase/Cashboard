@@ -3763,17 +3763,6 @@ function DashboardContentInner() {
             
             {/* Navigation */}
             <nav className="space-y-2">
-              {/* Demo Button */}
-              <button
-                onClick={() => setShowDemoModal(true)}
-                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-3 py-2 rounded-lg transition-all duration-200 hover:scale-[1.02] flex items-center justify-center space-x-2 shadow-lg"
-              >
-                <PlayCircle className="w-4 h-4" />
-                <span className="font-medium text-sm">Demo</span>
-              </button>
-
-              {/* HandCash Authentication */}
-              <HandCashAuthButton />
 
               {/* Divider */}
               <div className="border-t border-white/10 my-4"></div>
@@ -3985,6 +3974,9 @@ function DashboardContentInner() {
                     <span className="text-sm">Settings</span>
                   </div>
                 </button>
+
+                {/* HandCash Authentication */}
+                <HandCashAuthButton />
               </nav>
               </div>
             </div>
@@ -4068,6 +4060,9 @@ function DashboardContentInner() {
                     <div className="border-t border-white/10 my-1"></div>
                     <button onClick={() => { setCurrentView('billing'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Billing & Plans</button>
                     <button onClick={() => { setCurrentView('settings'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Settings</button>
+                    <button onClick={() => setMobileMenuOpen(false)} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">
+                      <HandCashAuthButton />
+                    </button>
                   </div>
                 </div>
               )}

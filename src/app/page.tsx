@@ -4204,7 +4204,7 @@ function DashboardContentInner() {
             {/* Dashboard Title Overlay */}
             <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
               <h1 className="text-4xl font-bold text-white bg-black/40 backdrop-blur-xl px-6 py-3 rounded-xl border border-white/20">
-                AUDEX Music Corporation
+                $CASHBOARD
               </h1>
             </div>
             

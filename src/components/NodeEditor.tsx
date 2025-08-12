@@ -473,13 +473,11 @@ export default function NodeEditor({ node, isOpen, onClose, onSave }: NodeEditor
                       </button>
                       <button
                         onClick={() => {
-                          if (confirm(`Are you sure you want to delete the "${node.data.label}" node? This action cannot be undone.`)) {
-                            // Remove the node from the canvas
-                            if (window.deleteNodeFromCanvas) {
-                              window.deleteNodeFromCanvas(node.id);
-                            }
-                            onClose();
+                          // Remove the node from the canvas immediately
+                          if ((window as any).deleteNodeFromCanvas) {
+                            (window as any).deleteNodeFromCanvas(node.id);
                           }
+                          onClose();
                         }}
                         className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-white text-sm font-medium transition-colors"
                         title="Delete this node"

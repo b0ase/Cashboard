@@ -278,11 +278,9 @@ function ColoredNode({ data, id }: { data: RFNodeData; id: string }) {
           <button
             onClick={(e) => {
               e.stopPropagation()
-              if (confirm(`Are you sure you want to delete the "${data.label}" node? This action cannot be undone.`)) {
-                // Remove the node from the canvas
-                if ((window as any).deleteNodeFromCanvas) {
-                  (window as any).deleteNodeFromCanvas(id)
-                }
+              // Remove the node from the canvas immediately
+              if ((window as any).deleteNodeFromCanvas) {
+                (window as any).deleteNodeFromCanvas(id)
               }
             }}
             className="w-6 h-6 bg-red-500/80 hover:bg-red-600 text-white rounded transition-colors flex items-center justify-center"

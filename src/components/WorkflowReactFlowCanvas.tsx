@@ -894,13 +894,13 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
   }
   const rf = useReactFlow()
   
-  // Set initial zoom when component mounts
+  // Set initial zoom and center when component mounts
   React.useEffect(() => {
     if (rf) {
-      // Set initial zoom to 50%
-      rf.setViewport({ x: 0, y: 0, zoom: 0.5 });
+      // Set initial zoom to 50% and center the canvas
+      rf.setViewport({ x: -200, y: -100, zoom: 0.5 });
       setCanvasScale(50);
-      console.log('🔍 Set initial zoom to 50%');
+      console.log('🔍 Set initial zoom to 50% and centered canvas');
     }
   }, [rf])
   
@@ -931,7 +931,7 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
       onNodeClick={onNodeClick}
       onNodeDoubleClick={onNodeDoubleClick}
       nodeTypes={nodeTypes}
-      defaultViewport={{ x: 0, y: 0, zoom: 0.5 }}
+      defaultViewport={{ x: -200, y: -100, zoom: 0.5 }}
       minZoom={0.1}
       maxZoom={2}
       defaultEdgeOptions={{ 

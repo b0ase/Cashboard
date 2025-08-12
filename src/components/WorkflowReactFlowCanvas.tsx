@@ -861,16 +861,6 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
   const [canvasScale, setCanvasScale] = React.useState(50) // Start at 50% zoom by default
   const [currentConnectionStyle, setCurrentConnectionStyle] = React.useState<'bezier' | 'smoothstep' | 'straight'>(connectionStyle || 'bezier')
 
-  // Set initial zoom when component mounts
-  React.useEffect(() => {
-    if ((window as any).reactFlowInstance) {
-      // Set initial zoom to 50%
-      (window as any).reactFlowInstance.setZoom(0.5);
-      setCanvasScale(50);
-      console.log('🔍 Set initial zoom to 50%');
-    }
-  }, [])
-  
   // Control functions
   const toggleWorkflowStatus = () => setIsRunning(!isRunning)
   const toggleAutoMode = () => setAutoMode(!autoMode)
@@ -903,6 +893,16 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
     setCurrentConnectionStyle(nextStyle)
   }
   const rf = useReactFlow()
+  
+  // Set initial zoom when component mounts
+  React.useEffect(() => {
+    if (rf) {
+      // Set initial zoom to 50%
+      rf.setViewport({ x: 0, y: 0, zoom: 0.5 });
+      setCanvasScale(50);
+      console.log('🔍 Set initial zoom to 50%');
+    }
+  }, [rf])
   
   // Expose React Flow instance globally for controls and set up zoom listener
   React.useEffect(() => {

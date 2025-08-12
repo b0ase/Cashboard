@@ -4200,112 +4200,124 @@ function DashboardContentInner() {
 
         {/* Content Views */}
         {currentView === 'dashboard' && (
-          <div className="absolute inset-0 top-12 p-6 overflow-auto space-y-4">
-            {/* Dashboard Title */}
-            <div className="text-center mb-4">
-              <h1 className="text-4xl font-bold text-white">$CASHBOARD</h1>
+          <div className="absolute inset-0 top-12">
+            {/* Dashboard Title Overlay */}
+            <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
+              <h1 className="text-4xl font-bold text-white bg-black/40 backdrop-blur-xl px-6 py-3 rounded-xl border border-white/20">
+                $CASHBOARD
+              </h1>
             </div>
             
-
-
-            {/* Workflow Preview Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
-              
-              {/* AUDEX Workflow Preview */}
-              <div 
-                className="glass-card p-4 h-[300px] relative cursor-pointer group hover:scale-[1.02] transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/20"
-                onClick={() => {
-                  setAppState(prev => ({
-                    ...prev,
-                    currentView: 'workflow',
-                    selectedWorkflow: 'audex-example'
-                  }))
-                  setCurrentWorkflow(getAUDEXWorkflow())
+            {/* Main React Flow Canvas */}
+            <div className="w-full h-full">
+              <WorkflowReactFlowCanvas
+                workflow={{
+                  nodes: [
+                    {
+                      id: 'cashboard-core',
+                      name: 'Cashboard Core',
+                      type: 'organization',
+                      x: 400,
+                      y: 300
+                    },
+                    {
+                      id: 'financial-tools',
+                      name: 'Financial Tools',
+                      type: 'workflow',
+                      x: 200,
+                      y: 150
+                    },
+                    {
+                      id: 'workflow-engine',
+                      name: 'Workflow Engine',
+                      type: 'workflow',
+                      x: 600,
+                      y: 150
+                    },
+                    {
+                      id: 'ai-assistant',
+                      name: 'AI Assistant',
+                      type: 'ai-agent',
+                      x: 400,
+                      y: 50
+                    },
+                    {
+                      id: 'organizations',
+                      name: 'Organizations',
+                      type: 'organization',
+                      x: 100,
+                      y: 400
+                    },
+                    {
+                      id: 'contracts',
+                      name: 'Smart Contracts',
+                      type: 'contract',
+                      x: 300,
+                      y: 500
+                    },
+                    {
+                      id: 'instruments',
+                      name: 'Financial Instruments',
+                      type: 'instrument',
+                      x: 500,
+                      y: 500
+                    },
+                    {
+                      id: 'wallets',
+                      name: 'Digital Wallets',
+                      type: 'wallets',
+                      x: 700,
+                      y: 400
+                    },
+                    {
+                      id: 'integrations',
+                      name: 'Integrations',
+                      type: 'integration',
+                      x: 600,
+                      y: 300
+                    },
+                    {
+                      id: 'marketplace',
+                      name: 'Marketplace',
+                      type: 'workflow',
+                      x: 800,
+                      y: 200
+                    }
+                  ],
+                  connections: [
+                    { source: 'cashboard-core', target: 'financial-tools' },
+                    { source: 'cashboard-core', target: 'workflow-engine' },
+                    { source: 'cashboard-core', target: 'ai-assistant' },
+                    { source: 'cashboard-core', target: 'organizations' },
+                    { source: 'cashboard-core', target: 'contracts' },
+                    { source: 'cashboard-core', target: 'instruments' },
+                    { source: 'cashboard-core', target: 'wallets' },
+                    { source: 'cashboard-core', target: 'integrations' },
+                    { source: 'cashboard-core', target: 'marketplace' },
+                    { source: 'ai-assistant', target: 'workflow-engine' },
+                    { source: 'workflow-engine', target: 'financial-tools' },
+                    { source: 'organizations', target: 'contracts' },
+                    { source: 'contracts', target: 'instruments' },
+                    { source: 'wallets', target: 'integrations' }
+                  ]
                 }}
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-lg font-semibold text-white">AUDEX Music</h3>
-                  <div className="text-xs text-gray-400 bg-blue-500/20 px-2 py-1 rounded-full">Music Streaming</div>
-                </div>
-                <div className="text-sm text-gray-400 mb-3">Royalty distribution & streaming platform</div>
-                
-                {/* Mini Workflow Canvas */}
-                <div className="relative h-[180px] bg-black/20 rounded-lg border border-white/10 overflow-hidden">
-                  <WorkflowReactFlowCanvas
-                    workflow={getAUDEXWorkflow()}
-                    tabTitle=""
-                    connectionStyle="smoothstep"
-                    className="scale-50 origin-top-left"
-                    templates={{}}
-                  />
-                </div>
-                
-                <div className="absolute bottom-3 right-3 text-xs text-gray-500">Click to open</div>
-              </div>
-
-              {/* DeFi Lending Workflow Preview */}
-              <div 
-                className="glass-card p-4 h-[300px] relative cursor-pointer group hover:scale-[1.02] transition-all duration-300 hover:shadow-2xl hover:shadow-green-500/20"
-                onClick={() => {
-                  setAppState(prev => ({
-                    ...prev,
-                    currentView: 'workflow',
-                    selectedWorkflow: 'defi-example'
-                  }))
-                  setCurrentWorkflow(getAUDEXWorkflow()) // TODO: Replace with actual DeFi workflow
+                tabTitle="Cashboard - Financial Command Center"
+                connectionStyle="smoothstep"
+                templates={{
+                  organizationTemplates: getOrganizationTemplates(),
+                  roleTemplates: getRoleTemplates(),
+                  agentTemplates: getAgentTemplates(),
+                  instrumentTemplates: getInstrumentTemplates(),
+                  contractTemplates: getContractTemplates(),
+                  integrationTemplates: getIntegrationTemplates()
                 }}
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-lg font-semibold text-white">DeFi Lending</h3>
-                  <div className="text-xs text-gray-400 bg-green-500/20 px-2 py-1 rounded-full">DeFi</div>
-                </div>
-                <div className="text-sm text-gray-400 mb-3">Decentralized lending & borrowing</div>
-                
-                {/* Mini Workflow Canvas */}
-                <div className="relative h-[180px] bg-black/20 rounded-lg border border-white/10 overflow-hidden">
-                  <WorkflowReactFlowCanvas
-                    workflow={getAUDEXWorkflow()}
-                    tabTitle=""
-                    connectionStyle="smoothstep"
-                    className="scale-50 origin-top-left"
-                    templates={{}}
-                  />
-                </div>
-                
-                <div className="absolute bottom-3 right-3 text-xs text-gray-500">Click to open</div>
-              </div>
-
-              {/* Supply Chain Workflow Preview */}
-              <div 
-                className="glass-card p-4 h-[300px] relative cursor-pointer group hover:scale-[1.02] transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/20"
-                onClick={() => {
-                  setAppState(prev => ({
-                    ...prev,
-                    currentView: 'workflow',
-                    selectedWorkflow: 'supply-chain-example'
-                  }))
-                  setCurrentWorkflow(getAUDEXWorkflow()) // TODO: Replace with actual Supply Chain workflow
+                onTemplateSelect={(template) => {
+                  console.log('Template selected in dashboard:', template)
                 }}
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-lg font-semibold text-white">Supply Chain</h3>
-                  <div className="text-xs text-gray-400 bg-orange-500/20 px-2 py-1 rounded-full">Logistics</div>
-                </div>
-                <div className="text-sm text-gray-400 mb-3">End-to-end tracking & management</div>
-                
-                {/* Mini Workflow Canvas */}
-                <div className="relative h-[180px] bg-black/20 rounded-lg border border-white/10 overflow-hidden">
-                  <WorkflowReactFlowCanvas
-                    workflow={getAUDEXWorkflow()}
-                    tabTitle=""
-                    connectionStyle="smoothstep"
-                    className="scale-50 origin-top-left"
-                    templates={{}}
-                  />
-                </div>
-                
-                <div className="absolute bottom-3 right-3 text-xs text-gray-500">Click to open</div>
-              </div>
+                onAddNode={(type: string) => {
+                  console.log('Adding node to dashboard:', type)
+                }}
+              />
             </div>
           </div>
         )}

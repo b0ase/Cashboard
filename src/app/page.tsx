@@ -4437,7 +4437,7 @@ function FloatingAIAssistant({
           className={`ai-assistant fixed z-50 bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl shadow-2xl overflow-hidden flex flex-col transition-all duration-200 ${
             isDragging ? 'cursor-grabbing shadow-3xl scale-[1.02] border-blue-400/50' : 'cursor-grab hover:shadow-3xl'
           } ${
-            isMobile ? 'h-72' : 'h-64 w-[700px]'
+            isMobile ? 'h-72' : 'h-64 w-[1400px]'
           }`}
           style={{
             left: position.x === 0 && position.y === 0 
@@ -4459,32 +4459,18 @@ function FloatingAIAssistant({
             willChange: isDragging ? 'transform' : 'auto'
           }}
         >
-          {/* Header */}
+
+
+          {/* Draggable Handle */}
           <div 
-            className="flex items-center justify-between p-4 border-b border-white/20 cursor-grab active:cursor-grabbing flex-shrink-0"
+            className="absolute left-0 top-0 bottom-0 w-2 bg-blue-400/30 hover:bg-blue-400/50 cursor-grab active:cursor-grabbing transition-colors"
             onMouseDown={handleDragStart}
             onTouchStart={handleDragStart}
-          >
-            <div className="flex items-center space-x-3">
-              <Bot className="w-5 h-5 text-blue-400" />
-              <span className="text-white font-medium">AI Assistant</span>
-              <div className="flex space-x-1 ml-2">
-                <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
-                <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
-                <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
-                <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
-              </div>
-            </div>
-            <button
-              onClick={onToggle}
-              className="text-gray-400 hover:text-white transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
+            title="Drag to move"
+          ></div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-3 max-h-48">
+          <div className="flex-1 overflow-y-auto p-4 space-y-3 max-h-48 pl-6">
             {messages.length === 0 ? (
               <div className="text-gray-400 text-center py-8">
                 <Bot className="w-12 h-12 mx-auto mb-3 text-blue-400" />

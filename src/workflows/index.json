@@ -1,13 +1,13 @@
 {
   "workflows": [
     {
-      "id": "audex-music",
-      "name": "AUDEX Music Corporation Workflow",
-      "description": "Complete music streaming and royalty distribution workflow",
-      "category": "music",
+      "id": "example-business",
+      "name": "EXAMPLE Business Workflow",
+      "description": "Complete business workflow example with revenue streams and distribution",
+      "category": "business",
       "version": "1.0",
       "file": "audex-music-workflow.json",
-      "tags": ["music", "royalties", "streaming", "nft", "distribution"]
+      "tags": ["business", "revenue", "distribution", "example", "workflow"]
     },
     {
       "id": "defi-lending",
@@ -29,7 +29,7 @@
     }
   ],
   "categories": [
-    "music",
+    "business",
     "defi",
     "logistics",
     "finance",

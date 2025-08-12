@@ -107,8 +107,8 @@ import {
 } from 'lucide-react'
 import DemoModal from '../components/DemoModal'
 
-// AUDEX Comprehensive Workflow Definition
-const getAUDEXWorkflow = () => ({
+// EXAMPLE Business Workflow Definition
+const getExampleBusinessWorkflow = () => ({
   nodes: [
     // === TOP TIER: REVENUE SOURCES (PYRAMID BASE) ===
     { id: 1, name: 'Music Track Streaming', type: 'youtube', x: 100, y: 100, handcashHandle: 'AUDEX_Streaming' },
@@ -4211,8 +4211,8 @@ function DashboardContentInner() {
             {/* Main React Flow Canvas */}
             <div className="w-full h-full">
               <WorkflowReactFlowCanvas
-                workflow={getAUDEXWorkflow()}
-                tabTitle="AUDEX Corporation - Asset & Monetary Flows"
+                workflow={getExampleBusinessWorkflow()}
+                tabTitle="EXAMPLE Business Workflow - Asset & Monetary Flows"
                 connectionStyle="smoothstep"
                 templates={{
                   organizationTemplates: getOrganizationTemplates(),
@@ -4250,8 +4250,8 @@ function DashboardContentInner() {
         {currentView === 'workflow' && currentWorkflow && (
           <div className="relative h-[calc(100vh-140px)]">
             <WorkflowReactFlowCanvas 
-              workflow={getAUDEXWorkflow()} 
-              tabTitle="AUDEX Corporation - Asset & Monetary Flows"
+              workflow={getExampleBusinessWorkflow()} 
+              tabTitle="EXAMPLE Business Workflow - Asset & Monetary Flows"
               onAddNode={() => {}}
             />
           </div>

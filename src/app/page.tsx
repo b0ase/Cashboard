@@ -4229,25 +4229,14 @@ function DashboardContentInner() {
                 </div>
                 <div className="text-sm text-gray-400 mb-3">Royalty distribution & streaming platform</div>
                 
-                {/* Mini Workflow Preview */}
+                {/* Mini Workflow Canvas */}
                 <div className="relative h-[180px] bg-black/20 rounded-lg border border-white/10 overflow-hidden">
-                  <div className="absolute inset-2">
-                    {/* Simplified workflow nodes representation */}
-                    <div className="grid grid-cols-3 gap-2 h-full">
-                      <div className="bg-blue-500/30 rounded p-2 text-center">
-                        <div className="w-3 h-3 bg-blue-400 rounded-full mx-auto mb-1"></div>
-                        <div className="text-xs text-blue-300">Artists</div>
-                      </div>
-                      <div className="bg-green-500/30 rounded p-2 text-center">
-                        <div className="w-3 h-3 bg-green-400 rounded-full mx-auto mb-1"></div>
-                        <div className="text-xs text-green-300">Platform</div>
-                      </div>
-                      <div className="bg-purple-500/30 rounded p-2 text-center">
-                        <div className="w-3 h-3 bg-purple-400 rounded-full mx-auto mb-1"></div>
-                        <div className="text-xs text-purple-300">Royalties</div>
-                      </div>
-                    </div>
-                  </div>
+                  <WorkflowReactFlowCanvas
+                    workflow={getAUDEXWorkflow()}
+                    tabTitle=""
+                    connectionStyle="smoothstep"
+                    className="scale-50 origin-top-left"
+                  />
                 </div>
                 
                 <div className="absolute bottom-3 right-3 text-xs text-gray-500">Click to open</div>
@@ -4271,24 +4260,14 @@ function DashboardContentInner() {
                 </div>
                 <div className="text-sm text-gray-400 mb-3">Decentralized lending & borrowing</div>
                 
-                {/* Mini Workflow Preview */}
+                {/* Mini Workflow Canvas */}
                 <div className="relative h-[180px] bg-black/20 rounded-lg border border-white/10 overflow-hidden">
-                  <div className="absolute inset-2">
-                    <div className="grid grid-cols-3 gap-2 h-full">
-                      <div className="bg-green-500/30 rounded p-2 text-center">
-                        <div className="w-3 h-3 bg-green-400 rounded-full mx-auto mb-1"></div>
-                        <div className="text-xs text-green-300">Lenders</div>
-                      </div>
-                      <div className="bg-yellow-500/30 rounded p-2 text-center">
-                        <div className="w-3 h-3 bg-yellow-400 rounded-full mx-auto mb-1"></div>
-                        <div className="text-xs text-yellow-300">Protocol</div>
-                      </div>
-                      <div className="bg-red-500/30 rounded p-2 text-center">
-                        <div className="w-3 h-3 bg-red-400 rounded-full mx-auto mb-1"></div>
-                        <div className="text-xs text-red-300">Borrowers</div>
-                      </div>
-                    </div>
-                  </div>
+                  <WorkflowReactFlowCanvas
+                    workflow={getAUDEXWorkflow()}
+                    tabTitle=""
+                    connectionStyle="smoothstep"
+                    className="scale-50 origin-top-left"
+                  />
                 </div>
                 
                 <div className="absolute bottom-3 right-3 text-xs text-gray-500">Click to open</div>
@@ -4312,24 +4291,14 @@ function DashboardContentInner() {
                 </div>
                 <div className="text-sm text-gray-400 mb-3">End-to-end tracking & management</div>
                 
-                {/* Mini Workflow Preview */}
+                {/* Mini Workflow Canvas */}
                 <div className="relative h-[180px] bg-black/20 rounded-lg border border-white/10 overflow-hidden">
-                  <div className="absolute inset-2">
-                    <div className="grid grid-cols-3 gap-2 h-full">
-                      <div className="bg-orange-500/30 rounded p-2 text-center">
-                        <div className="w-3 h-3 bg-orange-400 rounded-full mx-auto mb-1"></div>
-                        <div className="text-xs text-orange-300">Suppliers</div>
-                      </div>
-                      <div className="bg-blue-500/30 rounded p-2 text-center">
-                        <div className="w-3 h-3 bg-blue-400 rounded-full mx-auto mb-1"></div>
-                        <div className="text-xs text-blue-300">Distribution</div>
-                      </div>
-                      <div className="bg-green-500/30 rounded p-2 text-center">
-                        <div className="w-3 h-3 bg-green-400 rounded-full mx-auto mb-1"></div>
-                        <div className="text-xs text-green-300">Retailers</div>
-                      </div>
-                    </div>
-                  </div>
+                  <WorkflowReactFlowCanvas
+                    workflow={getAUDEXWorkflow()}
+                    tabTitle=""
+                    connectionStyle="smoothstep"
+                    className="scale-50 origin-top-left"
+                  />
                 </div>
                 
                 <div className="absolute bottom-3 right-3 text-xs text-gray-500">Click to open</div>

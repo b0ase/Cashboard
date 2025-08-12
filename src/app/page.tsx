@@ -4111,6 +4111,10 @@ function DashboardContentInner() {
                   workflow={getAUDEXWorkflow()}
                   tabTitle="Dashboard Network"
                   connectionStyle="smoothstep"
+                  onAddNode={(type: string) => {
+                    // Handle adding nodes to dashboard canvas
+                    console.log('Adding node to dashboard:', type)
+                  }}
                 />
               </div>
             </div>

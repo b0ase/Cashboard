@@ -4784,7 +4784,6 @@ function FloatingAIAssistant({
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
   const [position, setPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 })
   const [dragStartTime, setDragStartTime] = useState(0)
-  const [isExpanded, setIsExpanded] = useState(false)
   const [isResizing, setIsResizing] = useState(false)
   const [resizeDirection, setResizeDirection] = useState<'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw' | null>(null)
   const [size, setSize] = useState({ width: 1200, height: 48 })
@@ -5067,8 +5066,8 @@ function FloatingAIAssistant({
             transform: position.x === 0 && position.y === 0 && !isMobile 
               ? 'translateX(-50%)' 
               : 'none',
-            width: isMobile ? (isExpanded ? 'calc(100vw - 32px)' : '320px') : `${size.width}px`,
-            height: isMobile ? (isExpanded ? '384px' : '288px') : `${size.height}px`,
+            width: isMobile ? '320px' : `${size.width}px`,
+            height: isMobile ? '288px' : `${size.height}px`,
             opacity: isDragging ? 0.95 : 1,
             userSelect: 'none',
             pointerEvents: 'auto',
@@ -5139,40 +5138,17 @@ function FloatingAIAssistant({
             title="Resize diagonally"
           ></div>
 
-          {/* Expand/Collapse Toggle */}
-          <button
-            onClick={() => {
-              setIsExpanded(!isExpanded)
-              // Update size when expanding/collapsing
-              if (!isExpanded) {
-                setSize({ width: 1400, height: 80 })
-              } else {
-                setSize({ width: 1200, height: 48 })
-              }
-            }}
-            className="absolute right-2 top-2 p-1 bg-white/10 hover:bg-white/20 rounded-lg transition-colors text-white z-10"
-            title={isExpanded ? "Collapse" : "Expand"}
-          >
-            {isExpanded ? (
-              <ChevronDown className="w-4 h-4" />
-            ) : (
-              <ChevronUp className="w-4 h-4" />
-            )}
-          </button>
-
           {/* Close Button */}
           <button
             onClick={onToggle}
-            className="absolute right-12 top-2 p-1 bg-red-500/20 hover:bg-red-500/40 text-red-400 hover:text-red-300 rounded-lg transition-colors z-10"
+            className="absolute right-2 top-2 p-1 bg-red-500/20 hover:bg-red-500/40 text-red-400 hover:text-red-300 rounded-lg transition-colors z-10"
             title="Close AI Assistant"
           >
             <X className="w-4 h-4" />
           </button>
 
           {/* Messages */}
-          <div className={`flex-1 overflow-y-auto space-y-2 pl-8 pr-4 pt-4 pb-2 ${
-            isExpanded ? 'max-h-80' : 'max-h-48'
-          }`}>
+          <div className="flex-1 overflow-y-auto space-y-2 pl-8 pr-4 pt-4 pb-2 max-h-48">
             {messages.length === 0 ? (
               <div className="text-gray-400 text-center py-4">
                 <Bot className="w-8 h-8 mx-auto mb-2 text-blue-400" />

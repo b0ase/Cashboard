@@ -35,7 +35,7 @@ export default function NodePaletteSimple({
   // Resizing state
   const [isResizing, setIsResizing] = useState(false)
   const [resizeDirection, setResizeDirection] = useState<'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw' | null>(null)
-  const [size, setSize] = useState({ width: 260, height: 400 })
+  const [size, setSize] = useState({ width: 260, height: 800 })
   
   const paletteRef = useRef<HTMLDivElement>(null)
   

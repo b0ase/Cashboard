@@ -1914,7 +1914,7 @@ function DashboardContentInner() {
         showGrid: true
       },
       {
-        id: '4',
+        id: 'workflow-aigf',
         name: '$AIGF - AI Girlfriend Platform',
         description: 'AI-powered relationship platform with personality engine and emotional intelligence',
         nodes: [
@@ -1955,7 +1955,7 @@ function DashboardContentInner() {
         showGrid: true
       },
       {
-        id: '5',
+        id: 'workflow-ai-tribes',
         name: 'AI Tribes - Social Platform',
         description: 'AI-powered social platform with tribal communities and creator tools',
         nodes: [
@@ -1996,7 +1996,7 @@ function DashboardContentInner() {
         showGrid: true
       },
       {
-        id: '6',
+        id: 'workflow-one-shot-comics',
         name: 'One-Shot Comics - AI Comic Creation Platform',
         description: 'AI-powered comic creation platform with one-button generation and NFT minting',
         nodes: [
@@ -2037,7 +2037,7 @@ function DashboardContentInner() {
         showGrid: true
       },
       {
-        id: '7',
+        id: 'workflow-course-kings',
         name: 'Course Kings - Education Platform',
         description: 'AI-powered education platform with course creation and creator monetization',
         nodes: [
@@ -2078,7 +2078,7 @@ function DashboardContentInner() {
         showGrid: true
       },
       {
-        id: '8',
+        id: 'workflow-ninja-punk-girls',
         name: 'Ninja Punk Girls - NFT Collection Platform',
         description: 'NFT collection platform with 1,530 asset library and rarity algorithm',
         nodes: [
@@ -2119,7 +2119,7 @@ function DashboardContentInner() {
         showGrid: true
       },
       {
-        id: '9',
+        id: 'workflow-miss-void',
         name: 'Miss Void - AI Fashion Platform',
         description: 'AI-powered fashion platform with style generation and virtual try-on',
         nodes: [
@@ -2160,7 +2160,7 @@ function DashboardContentInner() {
         showGrid: true
       },
       {
-        id: '10',
+        id: 'workflow-marina3d',
         name: 'Marina3D - 3D Art Portfolio Platform',
         description: '3D art portfolio platform with interactive viewer and AR/VR integration',
         nodes: [
@@ -2201,7 +2201,7 @@ function DashboardContentInner() {
         showGrid: true
       },
       {
-        id: '11',
+        id: 'workflow-beauty-queen-ai',
         name: 'Beauty Queen AI - AI Beauty Platform',
         description: 'AI-powered beauty platform with virtual try-on and skin analysis',
         nodes: [
@@ -2242,7 +2242,7 @@ function DashboardContentInner() {
         showGrid: true
       },
       {
-        id: '12',
+        id: 'workflow-hyperflix',
         name: 'HYPERFLIX - Next-Gen Streaming Platform',
         description: 'Next-generation streaming platform with AI curation and VR integration',
         nodes: [

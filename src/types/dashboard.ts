@@ -9,6 +9,7 @@ export interface HandCashHandle {
   profileImage?: string
   tokenAddress?: string
   publicAddress?: string
+  walletType?: 'handcash' | 'phantom' | 'metamask' | 'bitcoin' | 'ethereum'
   shareAllocation: number
   role: string
   organizationId: string

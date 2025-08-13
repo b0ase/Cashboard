@@ -754,6 +754,7 @@ function DashboardContentInner() {
             phone: '+1-555-0123',
             profileImage: 'https://images.unsplash.com/photo-1494790108755-2616b612b47c?w=150&h=150&fit=crop&crop=face',
             publicAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa',
+            walletType: 'handcash',
             shareAllocation: 25,
             role: 'CEO',
             organizationId: '1',
@@ -798,6 +799,7 @@ function DashboardContentInner() {
             phone: '+1-555-0124',
             profileImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
             publicAddress: '3FUpjxWpEGqW4gZWBEyKVFiZqvs2g3x4kJ',
+            walletType: 'phantom',
             shareAllocation: 20,
             role: 'Tech Lead AI Agent',
             organizationId: '1',
@@ -835,6 +837,7 @@ function DashboardContentInner() {
             phone: '+1-555-0125',
             profileImage: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
             publicAddress: '1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2',
+            walletType: 'metamask',
             shareAllocation: 15,
             role: 'Marketing AI Agent',
             organizationId: '1',
@@ -877,6 +880,7 @@ function DashboardContentInner() {
             email: 'mike@techcorp.com',
             profileImage: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
             publicAddress: '34xp4vRoCGJym3xR7yCVPFHoCNxv4Twseo',
+            walletType: 'handcash',
             shareAllocation: 18,
             role: 'Finance AI Agent',
             organizationId: '1',
@@ -887,6 +891,66 @@ function DashboardContentInner() {
             joinedAt: '2024-01-10T00:00:00Z',
             lastActive: '2024-01-18T13:20:00Z',
             status: 'pending'
+          },
+          {
+            id: '5',
+            handle: '$emma_design',
+            displayName: 'Emma Davis',
+            firstName: 'Emma',
+            lastName: 'Davis',
+            email: 'emma@techcorp.com',
+            phone: '+1-555-0126',
+            profileImage: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face',
+            publicAddress: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
+            walletType: 'bitcoin',
+            shareAllocation: 12,
+            role: 'Design Lead',
+            organizationId: '1',
+            kycStatus: 'approved',
+            kycDocuments: [
+              {
+                id: '6',
+                type: 'passport',
+                name: 'Passport - Emma Davis',
+                uploadedAt: '2024-01-12T09:00:00Z',
+                status: 'approved'
+              }
+            ],
+            dateOfBirth: '1987-04-18',
+            nationality: 'Australia',
+            joinedAt: '2024-01-12T00:00:00Z',
+            lastActive: '2024-01-20T14:30:00Z',
+            status: 'active'
+          },
+          {
+            id: '6',
+            handle: '$david_ops',
+            displayName: 'David Wilson',
+            firstName: 'David',
+            lastName: 'Wilson',
+            email: 'david@techcorp.com',
+            phone: '+1-555-0127',
+            profileImage: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face',
+            publicAddress: '0x742d35Cc6e1C1b8C1B0b7c5D8E9F0A1B2C3D4E5F6',
+            walletType: 'ethereum',
+            shareAllocation: 10,
+            role: 'Operations Manager',
+            organizationId: '1',
+            kycStatus: 'pending',
+            kycDocuments: [
+              {
+                id: '7',
+                type: 'drivers_license',
+                name: 'Drivers License - David Wilson',
+                uploadedAt: '2024-01-16T11:00:00Z',
+                status: 'pending'
+              }
+            ],
+            dateOfBirth: '1983-09-25',
+            nationality: 'Canada',
+            joinedAt: '2024-01-15T00:00:00Z',
+            lastActive: '2024-01-19T16:45:00Z',
+            status: 'active'
           }
         ],
         createdAt: '2024-01-01',
@@ -12370,6 +12434,32 @@ function PeopleView({ organizations, selectedOrganization, onUpdateShareAllocati
     }
   }
 
+  const getWalletBadge = (walletType?: string) => {
+    if (!walletType) return null
+    
+    const badgeStyles = {
+      handcash: 'bg-green-500/20 text-green-400 border-green-500/30',
+      phantom: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
+      metamask: 'bg-orange-500/20 text-orange-400 border-orange-500/30',
+      bitcoin: 'bg-orange-600/20 text-orange-500 border-orange-600/30',
+      ethereum: 'bg-blue-500/20 text-blue-400 border-blue-500/30'
+    }
+    
+    const badgeLabels = {
+      handcash: 'HandCash',
+      phantom: 'Phantom',
+      metamask: 'MetaMask',
+      bitcoin: 'Bitcoin',
+      ethereum: 'Ethereum'
+    }
+    
+    return (
+      <div className={`px-2 py-1 rounded-full text-xs font-medium border ${badgeStyles[walletType as keyof typeof badgeStyles] || 'bg-gray-500/20 text-gray-400 border-gray-500/30'}`}>
+        {badgeLabels[walletType as keyof typeof badgeLabels] || walletType}
+      </div>
+    )
+  }
+
   const formatLastActive = (dateString?: string) => {
     if (!dateString) return 'Never'
     const date = new Date(dateString)
@@ -12551,6 +12641,7 @@ function PeopleView({ organizations, selectedOrganization, onUpdateShareAllocati
                       <div className="min-w-0 flex-1">
                         <h3 className="text-lg font-semibold text-white truncate">{member.displayName}</h3>
                         <p className="text-blue-400 text-sm font-mono">{member.handle}</p>
+                        {getWalletBadge(member.walletType)}
                   </div>
                     </div>
                   </div>
@@ -12664,6 +12755,7 @@ function PeopleView({ organizations, selectedOrganization, onUpdateShareAllocati
                         <div className="flex-1">
                           <h3 className="text-white font-semibold text-sm">{member.displayName}</h3>
                           <p className="text-blue-400 text-xs font-mono">{member.handle}</p>
+                          {getWalletBadge(member.walletType)}
                           <p className="text-gray-400 text-xs">{organizations.find(o => o.members.some(m => m.id === member.id))?.name}</p>
                         </div>
                       </div>

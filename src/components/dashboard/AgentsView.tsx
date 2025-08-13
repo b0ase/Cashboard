@@ -45,7 +45,27 @@ export default function AgentsView({
     { id: 'fraud-detection-ai', name: 'Fraud Detection AI', description: 'Automated transaction monitoring, anomaly detection, and risk assessment', icon: 'shield', permissions: ['finance', 'data-analysis'], defaultShareAllocation: 8, automationType: 'ai-agent' as const, isAutomated: true, workflowId: null, aiPrompt: 'You are a fraud detection AI that monitors transactions, detects anomalies, and assesses risk to protect against fraudulent activities.' },
   ]
 
-  const agents = agentTemplates
+  // Use the agent templates directly since they have the complete structure
+  const agents = agentTemplates.map(template => ({
+    id: template.id,
+    name: template.name,
+    description: template.description,
+    icon: template.icon,
+    permissions: template.permissions,
+    defaultShareAllocation: template.defaultShareAllocation,
+    automationType: template.automationType,
+    isAutomated: template.isAutomated,
+    workflowId: template.workflowId,
+    aiPrompt: template.aiPrompt
+  }))
+
+  // Debug logging
+  console.log('AgentsView render:', { 
+    agentTemplatesCount: agentTemplates.length, 
+    agentsCount: agents.length, 
+    agents: agents,
+    firstAgent: agents[0]
+  })
 
   const handleCreate = () => {
     if (formData.name && formData.description) {

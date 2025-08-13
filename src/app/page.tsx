@@ -4830,12 +4830,15 @@ function DashboardContentInner() {
         )}
 
         {currentView === 'agents' && (
-          <AgentsView 
-            roles={roles}
-            onCreateAgent={createRole}
-            onUpdateAgent={updateRole}
-            onDeleteAgent={deleteRole}
-          />
+          <>
+            {console.log('Rendering AgentsView, currentView:', currentView, 'roles:', roles)}
+            <AgentsView 
+              roles={roles}
+              onCreateAgent={createRole}
+              onUpdateAgent={updateRole}
+              onDeleteAgent={deleteRole}
+            />
+          </>
         )}
 
         {currentView === 'settings' && (
@@ -8907,6 +8910,15 @@ function AgentsView({
 
   // Use agent templates instead of filtering roles
   const agents = agentTemplates
+
+  // Debug logging
+  console.log('AgentsView inline render:', { 
+    agentTemplatesCount: agentTemplates.length, 
+    agentsCount: agents.length, 
+    agents: agents,
+    firstAgent: agents[0],
+    currentView: 'agents'
+  })
 
   const handleCreate = () => {
     if (formData.name && formData.description) {

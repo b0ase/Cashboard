@@ -4397,17 +4397,18 @@ function DashboardContentInner() {
                 </div>
               </button>
               
+
               <button
-                onClick={() => setCurrentView('exchanges')}
+                onClick={() => setCurrentView('integrations')}
                 className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
-                  currentView === 'exchanges' 
+                  currentView === 'integrations' 
                     ? 'bg-white/20 text-white' 
                     : 'text-gray-400 hover:text-white hover:bg-white/10'
                 }`}
               >
                 <div className="flex items-center space-x-2">
-                  <TrendingUp className="w-4 h-4" />
-                  <span className="text-sm">Exchange APIs</span>
+                  <Settings className="w-4 h-4" />
+                  <span className="text-sm">Integrations</span>
                 </div>
               </button>
               
@@ -4422,34 +4423,6 @@ function DashboardContentInner() {
                 <div className="flex items-center space-x-2">
                   <ShieldIcon className="w-4 h-4" />
                   <span className="text-sm">Registration</span>
-                </div>
-              </button>
-              
-              <button
-                onClick={() => setCurrentView('identity')}
-                className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
-                  currentView === 'identity' 
-                    ? 'bg-white/20 text-white' 
-                    : 'text-gray-400 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                <div className="flex items-center space-x-2">
-                  <UserCheck className="w-4 h-4" />
-                  <span className="text-sm">Identity & KYC</span>
-                </div>
-              </button>
-              
-              <button
-                onClick={() => setCurrentView('integrations')}
-                className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
-                  currentView === 'integrations' 
-                    ? 'bg-white/20 text-white' 
-                    : 'text-gray-400 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                <div className="flex items-center space-x-2">
-                  <Settings className="w-4 h-4" />
-                  <span className="text-sm">Integrations</span>
                 </div>
               </button>
               
@@ -4602,10 +4575,10 @@ function DashboardContentInner() {
                     <button onClick={() => { setCurrentView('instruments'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Instruments</button>
                     <button onClick={() => { setCurrentView('contracts'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Contracts</button>
                     <button onClick={() => { setCurrentView('wallets'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Wallets</button>
-                    <button onClick={() => { setCurrentView('exchanges'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Exchange APIs</button>
-                    <button onClick={() => { setCurrentView('registration'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Registration</button>
-                    <button onClick={() => { setCurrentView('identity'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Identity & KYC</button>
+
                     <button onClick={() => { setCurrentView('integrations'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Integrations</button>
+
+                    <button onClick={() => { setCurrentView('registration'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Registration</button>
                     <div className="border-t border-white/10 my-1"></div>
                     <button onClick={() => { setCurrentView('billing'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Billing & Plans</button>
                     <button onClick={() => { setCurrentView('settings'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Settings</button>
@@ -4749,12 +4722,7 @@ function DashboardContentInner() {
   />
 )}
 
-        {currentView === 'exchanges' && (
-          <ExchangesView
-            organizations={organizations}
-            selectedOrganization={selectedOrganization}
-          />
-        )}
+
 
         {currentView === 'registration' && (
           <RegistrationView
@@ -4763,12 +4731,7 @@ function DashboardContentInner() {
           />
         )}
 
-        {currentView === 'identity' && (
-          <IdentityView
-            organizations={organizations}
-            selectedOrganization={selectedOrganization}
-          />
-        )}
+
 
         {currentView === 'integrations' && (
           <IntegrationsView />
@@ -5291,7 +5254,7 @@ function FloatingAIAssistant({
 
 // Integrations View Component
 function IntegrationsView() {
-  const [selectedCategory, setSelectedCategory] = useState<'crm' | 'spreadsheet' | 'cms' | 'payment' | 'communication' | 'social' | 'ai' | 'all'>('all')
+  const [selectedCategory, setSelectedCategory] = useState<'crm' | 'spreadsheet' | 'cms' | 'payment' | 'communication' | 'social' | 'ai' | 'exchanges' | 'all'>('all')
   const [searchTerm, setSearchTerm] = useState('')
 
   const integrations = [
@@ -5688,7 +5651,8 @@ function IntegrationsView() {
     { id: 'payment', name: 'Payment Systems', icon: '💳' },
     { id: 'communication', name: 'Communication', icon: '💬' },
     { id: 'social', name: 'Social Media', icon: '📱' },
-    { id: 'ai', name: 'AI Services', icon: '🤖' }
+    { id: 'ai', name: 'AI Services', icon: '🤖' },
+    { id: 'exchanges', name: 'Exchange APIs', icon: '📈' }
   ]
 
   const filteredIntegrations = integrations.filter(integration => {
@@ -5743,7 +5707,7 @@ function IntegrationsView() {
             {categories.map((category) => (
               <button
                 key={category.id}
-                onClick={() => setSelectedCategory(category.id as 'crm' | 'spreadsheet' | 'cms' | 'payment' | 'communication' | 'all')}
+                onClick={() => setSelectedCategory(category.id as 'crm' | 'spreadsheet' | 'cms' | 'payment' | 'communication' | 'social' | 'ai' | 'exchanges' | 'all')}
                 className={`px-4 py-2 rounded-lg border transition-all whitespace-nowrap ${
                   selectedCategory === category.id
                     ? 'bg-blue-500/20 border-blue-400/50 text-white'

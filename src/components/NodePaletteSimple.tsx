@@ -94,24 +94,43 @@ export default function NodePaletteSimple({
     e.preventDefault()
     
     const rect = paletteRef.current.getBoundingClientRect()
-    const deltaX = e.clientX - rect.left
-    const deltaY = e.clientY - rect.top
-    
     let newWidth = size.width
     let newHeight = size.height
     
     // Calculate new dimensions based on resize direction
     if (resizeDirection?.includes('e')) {
-      newWidth = Math.max(200, deltaX)
+      // Resizing from right edge - width increases
+      newWidth = Math.max(200, e.clientX - rect.left)
     }
     if (resizeDirection?.includes('w')) {
-      newWidth = Math.max(200, size.width - (e.clientX - rect.right))
+      // Resizing from left edge - width decreases, adjust position
+      const newLeft = e.clientX
+      const maxWidth = size.width + (rect.left - newLeft)
+      newWidth = Math.max(200, maxWidth)
+      if (newWidth > 200) {
+        // Update position to keep right edge in place
+        setPosition(prev => ({
+          x: prev.x + (rect.left - newLeft),
+          y: prev.y
+        }))
+      }
     }
     if (resizeDirection?.includes('s')) {
-      newHeight = Math.max(300, deltaY)
+      // Resizing from bottom edge - height increases
+      newHeight = Math.max(300, e.clientY - rect.top)
     }
     if (resizeDirection?.includes('n')) {
-      newHeight = Math.max(300, size.height - (e.clientY - rect.bottom))
+      // Resizing from top edge - height decreases, adjust position
+      const newTop = e.clientY
+      const maxHeight = size.height + (rect.top - newTop)
+      newHeight = Math.max(300, maxHeight)
+      if (newHeight > 300) {
+        // Update position to keep bottom edge in place
+        setPosition(prev => ({
+          x: prev.x,
+          y: prev.y + (rect.top - newTop)
+        }))
+      }
     }
     
     // Constrain to reasonable limits
@@ -120,6 +139,24 @@ export default function NodePaletteSimple({
     
     newWidth = Math.min(newWidth, maxWidth)
     newHeight = Math.min(newHeight, maxHeight)
+    
+    // Prevent going off-screen
+    const viewportWidth = window.innerWidth
+    const viewportHeight = window.innerHeight
+    
+    // Check if the new size would push the palette off-screen
+    if (position.x + newWidth > viewportWidth - 20) {
+      newWidth = Math.max(200, viewportWidth - position.x - 20)
+    }
+    if (position.y + newHeight > viewportHeight - 20) {
+      newHeight = Math.max(300, viewportHeight - position.y - 20)
+    }
+    if (position.x < 20) {
+      setPosition(prev => ({ ...prev, x: 20 }))
+    }
+    if (position.y < 20) {
+      setPosition(prev => ({ ...prev, y: 20 }))
+    }
     
     setSize({ width: newWidth, height: newHeight })
   }, [isResizing, resizeDirection, size])

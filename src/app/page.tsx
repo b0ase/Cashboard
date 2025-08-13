@@ -4555,7 +4555,7 @@ function DashboardContentInner() {
                 {/* Sign Up Button */}
                 <button
                   onClick={() => setShowSignUpModal(true)}
-                  className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg transition-all duration-200 hover:scale-[1.02] flex items-center justify-center space-x-2 shadow-lg"
+                  className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-all duration-200 hover:scale-[1.02] flex items-center justify-center space-x-2 shadow-lg"
                 >
                   <User className="w-4 h-4" />
                   <span className="font-medium">Sign Up</span>

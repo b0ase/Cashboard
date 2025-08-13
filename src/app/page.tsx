@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import WorkflowReactFlowCanvas from '@/components/WorkflowReactFlowCanvas'
 import WorkflowDashboard from '@/components/WorkflowDashboard'
 import { HandCashAuthButton, UserProfileCard } from '@/components/HandCashAuth'
+import { SignUpModal } from '@/components/SignUpModal'
 import WalletsView from '@/components/dashboard/WalletsView'
 import { useAuth } from '@/contexts/AuthContext'
 import { 
@@ -2928,6 +2929,7 @@ function DashboardContentInner() {
   const [lastTouchDistance, setLastTouchDistance] = useState(0)
   const [lastTouchCenter, setLastTouchCenter] = useState({ x: 0, y: 0 })
   const [showDemoModal, setShowDemoModal] = useState(false)
+  const [showSignUpModal, setShowSignUpModal] = useState(false)
   const [selectedNodeDetails, setSelectedNodeDetails] = useState<string | null>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
@@ -4467,8 +4469,14 @@ function DashboardContentInner() {
                   </div>
                 </button>
 
-                {/* HandCash Authentication */}
-                <HandCashAuthButton />
+                {/* Sign Up Button */}
+                <button
+                  onClick={() => setShowSignUpModal(true)}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg transition-all duration-200 hover:scale-[1.02] flex items-center justify-center space-x-2 shadow-lg"
+                >
+                  <User className="w-4 h-4" />
+                  <span className="font-medium">Sign Up</span>
+                </button>
               </nav>
               </div>
             </div>
@@ -4750,6 +4758,12 @@ function DashboardContentInner() {
       <DemoModal 
         isOpen={showDemoModal} 
         onClose={() => setShowDemoModal(false)} 
+      />
+
+      {/* Sign Up Modal */}
+      <SignUpModal 
+        isOpen={showSignUpModal} 
+        onClose={() => setShowSignUpModal(false)} 
       />
 
       {/* Floating AI Assistant */}

@@ -5,7 +5,7 @@ import { Plus, X, Grid, Bitcoin, Coins, DollarSign, Wallet, Shield, FileText, Us
 import type { Organization, Wallet as WalletType, WalletsViewProps } from '@/types/dashboard'
 
 export default function WalletsView({ organizations, selectedOrganization }: WalletsViewProps) {
-  const [activeTab, setActiveTab] = useState<'overview' | 'wallets' | 'builder' | 'integrations' | 'registration' | 'identity'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'wallets' | 'builder' | 'exchanges' | 'registration' | 'identity'>('overview')
   const [showCreateWallet, setShowCreateWallet] = useState(false)
   const [showWalletBuilder, setShowWalletBuilder] = useState(false)
   const [selectedWallet, setSelectedWallet] = useState<WalletType | null>(null)
@@ -198,7 +198,7 @@ export default function WalletsView({ organizations, selectedOrganization }: Wal
             <div className="text-white font-medium">Send Payment</div>
           </button>
           <button 
-            onClick={() => setActiveTab('integrations')}
+            onClick={() => setActiveTab('exchanges')}
             className="bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/30 rounded-lg p-4 text-center transition-colors"
           >
             <Link className="w-8 h-8 mx-auto mb-2 text-purple-400" />
@@ -243,8 +243,8 @@ export default function WalletsView({ organizations, selectedOrganization }: Wal
       <div className="bg-black/60 backdrop-blur-xl border border-white/20 rounded-xl p-6">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-xl font-semibold text-white">Connected Wallets</h3>
-          <button
-            onClick={() => setActiveTab('integrations')}
+                    <button 
+            onClick={() => setActiveTab('exchanges')}
             className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm transition-colors"
           >
             <Link className="w-4 h-4 mr-2 inline" />
@@ -258,10 +258,10 @@ export default function WalletsView({ organizations, selectedOrganization }: Wal
             <h3 className="text-xl font-medium text-white mb-2">No wallets connected</h3>
             <p className="text-gray-400 mb-6">Connect your first wallet to get started</p>
             <button
-              onClick={() => setActiveTab('integrations')}
+              onClick={() => setActiveTab('exchanges')}
               className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg transition-colors"
             >
-              Go to Integrations
+              Go to Exchange APIs
             </button>
           </div>
         ) : (
@@ -393,11 +393,58 @@ export default function WalletsView({ organizations, selectedOrganization }: Wal
     </div>
   )
 
-  const renderIntegrations = () => (
+  const renderExchanges = () => (
     <div className="space-y-6">
-      {/* Wallet Connection Services */}
+      {/* Exchange API Connections */}
       <div className="bg-black/40 border border-white/20 rounded-xl p-6">
-        <h3 className="text-xl font-semibold text-white mb-4">Connect Your Wallets</h3>
+        <h3 className="text-xl font-semibold text-white mb-4">Exchange API Connections</h3>
+        <p className="text-gray-400 mb-6">Connect to cryptocurrency exchanges for trading and portfolio management</p>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-white/5 border border-white/20 rounded-lg p-4 text-center">
+            <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center mx-auto mb-3">
+              <svg className="w-6 h-6 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4z"/>
+              </svg>
+            </div>
+            <h4 className="text-white font-medium mb-2">Binance</h4>
+            <p className="text-gray-400 text-sm mb-3">Connect to Binance API</p>
+            <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm">
+              Connect
+            </button>
+          </div>
+          
+          <div className="bg-white/5 border border-white/20 rounded-lg p-4 text-center">
+            <div className="w-12 h-12 bg-orange-500/20 rounded-lg flex items-center justify-center mx-auto mb-3">
+              <svg className="w-6 h-6 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+              </svg>
+            </div>
+            <h4 className="text-white font-medium mb-2">Coinbase</h4>
+            <p className="text-gray-400 text-sm mb-3">Connect to Coinbase API</p>
+            <button className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm">
+              Connect
+            </button>
+          </div>
+          
+          <div className="bg-white/5 border border-white/20 rounded-lg p-4 text-center">
+            <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center mx-auto mb-3">
+              <svg className="w-6 h-6 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+              </svg>
+            </div>
+            <h4 className="text-white font-medium mb-2">Kraken</h4>
+            <p className="text-gray-400 text-sm mb-3">Connect to Kraken API</p>
+            <button className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg text-sm">
+              Connect
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Wallet Connections */}
+      <div className="bg-black/40 border border-white/20 rounded-xl p-6">
+        <h3 className="text-xl font-semibold text-white mb-4">Wallet Connections</h3>
         <p className="text-gray-400 mb-6">Connect external wallets to manage them in one place</p>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -430,40 +477,6 @@ export default function WalletsView({ organizations, selectedOrganization }: Wal
             <h4 className="text-white font-medium mb-2">Hardware Wallets</h4>
             <p className="text-gray-400 text-sm mb-3">Connect Ledger, Trezor, etc.</p>
             <button className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg text-sm">
-              Connect
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* External Services */}
-      <div className="bg-black/40 border border-white/20 rounded-xl p-6">
-        <h3 className="text-xl font-semibold text-white mb-4">External Services</h3>
-        <p className="text-gray-400 mb-6">Connect to additional financial and blockchain services</p>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-white/5 border border-white/20 rounded-lg p-4 text-center">
-            <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center mx-auto mb-3">
-              <svg className="w-6 h-6 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4z"/>
-              </svg>
-            </div>
-            <h4 className="text-white font-medium mb-2">Exchange APIs</h4>
-            <p className="text-gray-400 text-sm mb-3">Connect to trading platforms</p>
-            <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm">
-              Connect
-            </button>
-          </div>
-          
-          <div className="bg-white/5 border border-white/20 rounded-lg p-4 text-center">
-            <div className="w-12 h-12 bg-indigo-500/20 rounded-lg flex items-center justify-center mx-auto mb-3">
-              <svg className="w-6 h-6 text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
-              </svg>
-            </div>
-            <h4 className="text-white font-medium mb-2">DeFi Protocols</h4>
-            <p className="text-gray-400 text-sm mb-3">Connect to DeFi services</p>
-            <button className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm">
               Connect
             </button>
           </div>
@@ -1082,7 +1095,7 @@ export default function WalletsView({ organizations, selectedOrganization }: Wal
           { id: 'overview', label: 'Overview', icon: Grid },
           { id: 'wallets', label: 'Wallets', icon: Wallet },
           { id: 'builder', label: 'Builder', icon: Zap },
-          { id: 'integrations', label: 'Integrations', icon: Link },
+          { id: 'exchanges', label: 'Exchange APIs', icon: TrendingUp },
           { id: 'registration', label: 'Registration', icon: ShieldIcon },
           { id: 'identity', label: 'Identity & KYC', icon: UserCheck }
         ].map(tab => {
@@ -1108,7 +1121,7 @@ export default function WalletsView({ organizations, selectedOrganization }: Wal
       {activeTab === 'overview' && renderOverview()}
       {activeTab === 'wallets' && renderWallets()}
       {activeTab === 'builder' && renderBuilder()}
-      {activeTab === 'integrations' && renderIntegrations()}
+      {activeTab === 'exchanges' && renderExchanges()}
       {activeTab === 'registration' && renderRegistration()}
       {activeTab === 'identity' && renderIdentity()}
     </div>

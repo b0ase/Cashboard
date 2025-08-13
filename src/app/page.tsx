@@ -7,6 +7,9 @@ import WorkflowDashboard from '@/components/WorkflowDashboard'
 import { HandCashAuthButton, UserProfileCard } from '@/components/HandCashAuth'
 import { SignUpModal } from '@/components/SignUpModal'
 import WalletsView from '@/components/dashboard/WalletsView'
+import ExchangesView from '@/components/dashboard/ExchangesView'
+import RegistrationView from '@/components/dashboard/RegistrationView'
+import IdentityView from '@/components/dashboard/IdentityView'
 import { useAuth } from '@/contexts/AuthContext'
 import { 
   getOrganizationTemplates, 
@@ -46,6 +49,7 @@ import {
   BarChart3,
   Palette,
   Shield,
+  ShieldIcon,
   CreditCard,
   Settings,
   Scale,
@@ -4394,6 +4398,48 @@ function DashboardContentInner() {
               </button>
               
               <button
+                onClick={() => setCurrentView('exchanges')}
+                className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
+                  currentView === 'exchanges' 
+                    ? 'bg-white/20 text-white' 
+                    : 'text-gray-400 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <TrendingUp className="w-4 h-4" />
+                  <span className="text-sm">Exchange APIs</span>
+                </div>
+              </button>
+              
+              <button
+                onClick={() => setCurrentView('registration')}
+                className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
+                  currentView === 'registration' 
+                    ? 'bg-white/20 text-white' 
+                    : 'text-gray-400 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <ShieldIcon className="w-4 h-4" />
+                  <span className="text-sm">Registration</span>
+                </div>
+              </button>
+              
+              <button
+                onClick={() => setCurrentView('identity')}
+                className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
+                  currentView === 'identity' 
+                    ? 'bg-white/20 text-white' 
+                    : 'text-gray-400 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <UserCheck className="w-4 h-4" />
+                  <span className="text-sm">Identity & KYC</span>
+                </div>
+              </button>
+              
+              <button
                 onClick={() => setCurrentView('integrations')}
                 className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
                   currentView === 'integrations' 
@@ -4472,7 +4518,7 @@ function DashboardContentInner() {
                 {/* Sign Up Button */}
                 <button
                   onClick={() => setShowSignUpModal(true)}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg transition-all duration-200 hover:scale-[1.02] flex items-center justify-center space-x-2 shadow-lg"
+                  className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg transition-all duration-200 hover:scale-[1.02] flex items-center justify-center space-x-2 shadow-lg"
                 >
                   <User className="w-4 h-4" />
                   <span className="font-medium">Sign Up</span>
@@ -4556,6 +4602,9 @@ function DashboardContentInner() {
                     <button onClick={() => { setCurrentView('instruments'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Instruments</button>
                     <button onClick={() => { setCurrentView('contracts'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Contracts</button>
                     <button onClick={() => { setCurrentView('wallets'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Wallets</button>
+                    <button onClick={() => { setCurrentView('exchanges'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Exchange APIs</button>
+                    <button onClick={() => { setCurrentView('registration'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Registration</button>
+                    <button onClick={() => { setCurrentView('identity'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Identity & KYC</button>
                     <button onClick={() => { setCurrentView('integrations'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Integrations</button>
                     <div className="border-t border-white/10 my-1"></div>
                     <button onClick={() => { setCurrentView('billing'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Billing & Plans</button>
@@ -4699,6 +4748,27 @@ function DashboardContentInner() {
     selectedOrganization={selectedOrganization}
   />
 )}
+
+        {currentView === 'exchanges' && (
+          <ExchangesView
+            organizations={organizations}
+            selectedOrganization={selectedOrganization}
+          />
+        )}
+
+        {currentView === 'registration' && (
+          <RegistrationView
+            organizations={organizations}
+            selectedOrganization={selectedOrganization}
+          />
+        )}
+
+        {currentView === 'identity' && (
+          <IdentityView
+            organizations={organizations}
+            selectedOrganization={selectedOrganization}
+          />
+        )}
 
         {currentView === 'integrations' && (
           <IntegrationsView />

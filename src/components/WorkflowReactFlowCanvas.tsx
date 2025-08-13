@@ -636,6 +636,16 @@ export default function WorkflowReactFlowCanvas({
               }))
               setEdges(savedEdges)
             }
+            
+            // Store the saved viewport and settings for the InnerRF component to use
+            if (parsed.viewport || parsed.canvasScale || parsed.workflowSettings) {
+              localStorage.setItem(`cashboard-viewport-${tabTitle.replace(/[^a-zA-Z0-9]/g, '-')}`, JSON.stringify({
+                viewport: parsed.viewport,
+                canvasScale: parsed.canvasScale,
+                workflowSettings: parsed.workflowSettings
+              }))
+            }
+            
             return // Don't load initial state if we have saved state
           }
         } catch (error) {
@@ -896,8 +906,25 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
   
   // Set initial zoom when component mounts
   React.useEffect(() => {
-    if (rf) {
-      // Use fitView to create perfectly spaced, visually appealing layout
+    if (rf && tabTitle) {
+      // Try to restore saved viewport first
+      const savedViewportData = localStorage.getItem(`cashboard-viewport-${tabTitle.replace(/[^a-zA-Z0-9]/g, '-')}`)
+      if (savedViewportData) {
+        try {
+          const parsed = JSON.parse(savedViewportData)
+          if (parsed.viewport) {
+            // Restore saved viewport
+            rf.setViewport(parsed.viewport)
+            setCanvasScale(parsed.canvasScale || 75)
+            console.log('🎯 Restored saved viewport:', parsed.viewport)
+            return
+          }
+        } catch (error) {
+          console.warn('Failed to parse saved viewport:', error)
+        }
+      }
+      
+      // Fallback to default fitView if no saved viewport
       rf.fitView({ 
         padding: 0.8, 
         includeHiddenNodes: false,
@@ -917,7 +944,7 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
         console.log('🎨 Created visually appealing layout with 75% zoom and perfect node spacing');
       }, 200);
     }
-  }, [rf])
+  }, [rf, tabTitle])
   
   // Expose React Flow instance globally for controls and set up zoom listener
   React.useEffect(() => {
@@ -931,11 +958,45 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
       }
     };
     
-    // Check for zoom changes every 100ms
-    const zoomInterval = setInterval(handleZoomChange, 100);
+      // Check for zoom changes every 100ms
+  const zoomInterval = setInterval(handleZoomChange, 100);
+  
+  return () => clearInterval(zoomInterval);
+}, [rf])
+
+// Enhanced auto-save with viewport and workflow settings
+React.useEffect(() => {
+  if (tabTitle && (nodes.length > 0 || edges.length > 0)) {
+    const saveData = {
+      timestamp: new Date().toISOString(),
+      canvasName: tabTitle,
+      nodes: nodes.map(node => ({
+        id: node.id,
+        x: node.position.x,
+        y: node.position.y,
+        data: node.data
+      })),
+      edges: edges.map(edge => ({
+        id: edge.id,
+        source: edge.source,
+        target: edge.target,
+        type: edge.type
+      })),
+      viewport: rf ? rf.getViewport() : null,
+      canvasScale: canvasScale,
+      workflowSettings: {
+        currentTool: 'select', // Default tool
+        gridSnap: true,
+        showGrid: true,
+        autoMode: autoMode,
+        workflowStatus: isRunning ? 'running' : 'stopped'
+      }
+    }
     
-    return () => clearInterval(zoomInterval);
-  }, [rf])
+    localStorage.setItem(`cashboard-canvas-${tabTitle.replace(/[^a-zA-Z0-9]/g, '-')}`, JSON.stringify(saveData))
+    console.log('💾 Enhanced auto-saved canvas state:', saveData.nodes.length, 'nodes,', saveData.edges.length, 'edges, viewport:', saveData.viewport)
+  }
+}, [nodes, edges, tabTitle, rf, canvasScale, autoMode, isRunning])
   return (
     <ReactFlow
       nodes={nodes}

@@ -1,11 +1,11 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Plus, X, Grid, Bitcoin, Coins, DollarSign, Wallet, Shield, FileText, Users, ArrowUpRight, ArrowDownLeft, RefreshCw, Settings, Building2, Zap, Link, Eye, EyeOff, TrendingUp, AlertCircle, CheckCircle, Clock, ExternalLink } from 'lucide-react'
+import { Plus, X, Grid, Bitcoin, Coins, DollarSign, Wallet, Shield, FileText, Users, ArrowUpRight, ArrowDownLeft, RefreshCw, Settings, Building2, Zap, Link, Eye, EyeOff, TrendingUp, AlertCircle, CheckCircle, Clock, ExternalLink, Building, FileText as FileTextIcon, CreditCard, UserCheck, Shield as ShieldIcon, Globe, Gavel, Calculator, Banknote, CheckCircle2, XCircle, Clock as ClockIcon } from 'lucide-react'
 import type { Organization, Wallet as WalletType, WalletsViewProps } from '@/types/dashboard'
 
 export default function WalletsView({ organizations, selectedOrganization }: WalletsViewProps) {
-  const [activeTab, setActiveTab] = useState<'overview' | 'wallets' | 'builder' | 'integrations'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'wallets' | 'builder' | 'integrations' | 'registration'>('overview')
   const [showCreateWallet, setShowCreateWallet] = useState(false)
   const [showWalletBuilder, setShowWalletBuilder] = useState(false)
   const [selectedWallet, setSelectedWallet] = useState<WalletType | null>(null)
@@ -280,7 +280,7 @@ export default function WalletsView({ organizations, selectedOrganization }: Wal
                       <span>•</span>
                       <span className="capitalize">{wallet.network}</span>
                       <span>•</span>
-                      <span>Last sync: {new Date(wallet.lastSyncAt).toLocaleTimeString()}</span>
+                      <span>Last sync: {wallet.lastSyncAt ? new Date(wallet.lastSyncAt).toLocaleTimeString() : 'Never'}</span>
                     </div>
                   </div>
                 </div>
@@ -376,6 +376,398 @@ export default function WalletsView({ organizations, selectedOrganization }: Wal
     </div>
   )
 
+  const renderRegistration = () => (
+    <div className="space-y-6">
+      {/* Compliance Status Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="bg-gradient-to-br from-green-500/20 to-emerald-500/20 border border-green-500/30 rounded-xl p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-white">KYC Status</h3>
+            <CheckCircle2 className="w-6 h-6 text-green-400" />
+          </div>
+          <div className="text-2xl font-bold text-white mb-2">Verified</div>
+          <div className="text-green-400 text-sm">Identity confirmed</div>
+        </div>
+
+        <div className="bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-blue-500/30 rounded-xl p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-white">Companies House</h3>
+            <CheckCircle2 className="w-6 h-6 text-blue-400" />
+          </div>
+          <div className="text-2xl font-bold text-white mb-2">Registered</div>
+          <div className="text-blue-400 text-sm">Business registered</div>
+        </div>
+
+        <div className="bg-gradient-to-br from-orange-500/20 to-red-500/20 border border-orange-500/30 rounded-xl p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-white">Tax Authority</h3>
+            <ClockIcon className="w-6 h-6 text-orange-400" />
+          </div>
+          <div className="text-2xl font-bold text-white mb-2">Pending</div>
+          <div className="text-orange-400 text-sm">HMRC connection</div>
+        </div>
+
+        <div className="bg-gradient-to-br from-red-500/20 to-pink-500/20 border border-red-500/30 rounded-xl p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-white">Banking</h3>
+            <XCircle className="w-6 h-6 text-red-400" />
+          </div>
+          <div className="text-2xl font-bold text-white mb-2">Not Connected</div>
+          <div className="text-red-400 text-sm">Connect bank account</div>
+        </div>
+      </div>
+
+      {/* Companies House Registration */}
+      <div className="bg-black/40 border border-white/20 rounded-xl p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h3 className="text-xl font-semibold text-white flex items-center">
+              <Building className="w-6 h-6 mr-3 text-blue-400" />
+              Companies House Registration
+            </h3>
+            <p className="text-gray-400">UK business registration and compliance</p>
+          </div>
+          <div className="flex items-center space-x-3">
+            <span className="px-3 py-1 bg-green-500/20 text-green-400 text-sm rounded-full">Registered</span>
+            <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
+              View Details
+            </button>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <div className="flex justify-between">
+              <span className="text-gray-400">Company Number:</span>
+              <span className="text-white font-mono">12345678</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-400">Company Name:</span>
+              <span className="text-white">CASHBOARD LTD</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-400">Status:</span>
+              <span className="text-green-400">Active</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-400">Incorporated:</span>
+              <span className="text-white">15 Jan 2024</span>
+            </div>
+          </div>
+          
+          <div className="space-y-4">
+            <div className="flex justify-between">
+              <span className="text-gray-400">Next Filing:</span>
+              <span className="text-white">Confirmation Statement</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-400">Due Date:</span>
+              <span className="text-yellow-400">15 Jan 2025</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-400">Registered Office:</span>
+              <span className="text-white">London, UK</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-400">SIC Code:</span>
+              <span className="text-white">62012 - Business software</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Tax Authority Integration */}
+      <div className="bg-black/40 border border-white/20 rounded-xl p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h3 className="text-xl font-semibold text-white flex items-center">
+              <Calculator className="w-6 h-6 mr-3 text-orange-400" />
+              Tax Authority Integration
+            </h3>
+            <p className="text-gray-400">Connect to HMRC, IRS, and other tax authorities</p>
+          </div>
+          <div className="flex items-center space-x-3">
+            <span className="px-3 py-1 bg-orange-500/20 text-orange-400 text-sm rounded-full">In Progress</span>
+            <button className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg">
+              Complete Setup
+            </button>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white/5 border border-white/20 rounded-lg p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-white font-medium">HMRC (UK)</h4>
+              <ClockIcon className="w-5 h-5 text-orange-400" />
+            </div>
+            <p className="text-gray-400 text-sm mb-3">Connect to UK tax authority</p>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-400">VAT Number:</span>
+                <span className="text-white">Pending</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">UTR:</span>
+                <span className="text-white">Pending</span>
+              </div>
+            </div>
+            <button className="w-full mt-3 bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg text-sm">
+              Connect HMRC
+            </button>
+          </div>
+          
+          <div className="bg-white/5 border border-white/20 rounded-lg p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-white font-medium">IRS (US)</h4>
+              <XCircle className="w-5 h-5 text-red-400" />
+            </div>
+            <p className="text-gray-400 text-sm mb-3">Connect to US tax authority</p>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-400">EIN:</span>
+                <span className="text-white">Not Set</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Tax Year:</span>
+                <span className="text-white">2024</span>
+              </div>
+            </div>
+            <button className="w-full mt-3 bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg text-sm">
+              Connect IRS
+            </button>
+          </div>
+          
+          <div className="bg-white/5 border border-white/20 rounded-lg p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-white font-medium">Other Authorities</h4>
+              <Plus className="w-5 h-5 text-gray-400" />
+            </div>
+            <p className="text-gray-400 text-sm mb-3">Add other tax jurisdictions</p>
+            <button className="w-full mt-3 bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-lg text-sm">
+              Add Authority
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Banking Integration */}
+      <div className="bg-black/40 border border-white/20 rounded-xl p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h3 className="text-xl font-semibold text-white flex items-center">
+              <Banknote className="w-6 h-6 mr-3 text-green-400" />
+              Banking Integration
+            </h3>
+            <p className="text-gray-400">Connect bank accounts and payment systems</p>
+          </div>
+          <div className="flex items-center space-x-3">
+            <span className="px-3 py-1 bg-red-500/20 text-red-400 text-sm rounded-full">Not Connected</span>
+            <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg">
+              Connect Bank
+            </button>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-white/5 border border-white/20 rounded-lg p-4">
+            <h4 className="text-white font-medium mb-3">Open Banking (UK)</h4>
+            <p className="text-gray-400 text-sm mb-4">Connect via Open Banking API</p>
+            <div className="space-y-2 text-sm mb-4">
+              <div className="flex justify-between">
+                <span className="text-gray-400">Status:</span>
+                <span className="text-red-400">Not Connected</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Provider:</span>
+                <span className="text-white">Not Selected</span>
+              </div>
+            </div>
+            <button className="w-full bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg text-sm">
+              Connect Open Banking
+            </button>
+          </div>
+          
+          <div className="bg-white/5 border border-white/20 rounded-lg p-4">
+            <h4 className="text-white font-medium mb-3">Traditional Banking</h4>
+            <p className="text-gray-400 text-sm mb-4">Manual bank account connection</p>
+            <div className="space-y-2 text-sm mb-4">
+              <div className="flex justify-between">
+                <span className="text-gray-400">Status:</span>
+                <span className="text-red-400">Not Connected</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Accounts:</span>
+                <span className="text-white">0</span>
+              </div>
+            </div>
+            <button className="w-full bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-lg text-sm">
+              Add Bank Account
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* KYC & Identity Management */}
+      <div className="bg-black/40 border border-white/20 rounded-xl p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h3 className="text-xl font-semibold text-white flex items-center">
+              <UserCheck className="w-6 h-6 mr-3 text-purple-400" />
+              KYC & Identity Management
+            </h3>
+            <p className="text-gray-400">Know Your Customer verification and identity documents</p>
+          </div>
+          <div className="flex items-center space-x-3">
+            <span className="px-3 py-1 bg-green-500/20 text-green-400 text-sm rounded-full">Verified</span>
+            <button className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg">
+              Manage Identity
+            </button>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white/5 border border-white/20 rounded-lg p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-white font-medium">Personal Identity</h4>
+              <CheckCircle2 className="w-5 h-5 text-green-400" />
+            </div>
+            <p className="text-gray-400 text-sm mb-3">Individual verification complete</p>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-400">Status:</span>
+                <span className="text-green-400">Verified</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Method:</span>
+                <span className="text-white">Digital ID</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Verified:</span>
+                <span className="text-white">20 Jan 2024</span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white/5 border border-white/20 rounded-lg p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-white font-medium">Business Verification</h4>
+              <CheckCircle2 className="w-5 h-5 text-green-400" />
+            </div>
+            <p className="text-gray-400 text-sm mb-3">Business entity verified</p>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-400">Status:</span>
+                <span className="text-green-400">Verified</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Method:</span>
+                <span className="text-white">Companies House</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Verified:</span>
+                <span className="text-white">15 Jan 2024</span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white/5 border border-white/20 rounded-lg p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-white font-medium">Address Verification</h4>
+              <CheckCircle2 className="w-5 h-5 text-green-400" />
+            </div>
+            <p className="text-gray-400 text-sm mb-3">Address verification complete</p>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-400">Status:</span>
+                <span className="text-green-400">Verified</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Method:</span>
+                <span className="text-white">Utility Bill</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Verified:</span>
+                <span className="text-white">18 Jan 2024</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Compliance Reporting */}
+      <div className="bg-black/40 border border-white/20 rounded-xl p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h3 className="text-xl font-semibold text-white flex items-center">
+              <FileTextIcon className="w-6 h-6 mr-3 text-indigo-400" />
+              Compliance Reporting
+            </h3>
+            <p className="text-gray-400">Regulatory reporting and compliance monitoring</p>
+          </div>
+          <button className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg">
+            Generate Reports
+          </button>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <h4 className="text-white font-medium">Upcoming Reports</h4>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                <div>
+                  <div className="text-white font-medium">VAT Return</div>
+                  <div className="text-gray-400 text-sm">Quarterly filing</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-yellow-400 text-sm">Due: 30 Apr 2024</div>
+                  <div className="text-gray-400 text-xs">2 months</div>
+                </div>
+              </div>
+              
+              <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                <div>
+                  <div className="text-white font-medium">Corporation Tax</div>
+                  <div className="text-gray-400 text-sm">Annual filing</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-yellow-400 text-sm">Due: 31 Jan 2025</div>
+                  <div className="text-gray-400 text-xs">11 months</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="space-y-4">
+            <h4 className="text-white font-medium">Recent Reports</h4>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                <div>
+                  <div className="text-white font-medium">Confirmation Statement</div>
+                  <div className="text-gray-400 text-sm">Companies House</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-green-400 text-sm">Filed: 15 Jan 2024</div>
+                  <div className="text-gray-400 text-xs">On time</div>
+                </div>
+              </div>
+              
+              <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                <div>
+                  <div className="text-white font-medium">VAT Return</div>
+                  <div className="text-gray-400 text-sm">Q4 2023</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-green-400 text-sm">Filed: 31 Jan 2024</div>
+                  <div className="text-gray-400 text-xs">On time</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
   return (
     <div className="absolute inset-0 top-24 overflow-y-auto px-6 pb-8">
       {/* Header */}
@@ -409,7 +801,8 @@ export default function WalletsView({ organizations, selectedOrganization }: Wal
           { id: 'overview', label: 'Overview', icon: Grid },
           { id: 'wallets', label: 'Wallets', icon: Wallet },
           { id: 'builder', label: 'Builder', icon: Zap },
-          { id: 'integrations', label: 'Integrations', icon: Link }
+          { id: 'integrations', label: 'Integrations', icon: Link },
+          { id: 'registration', label: 'Registration', icon: ShieldIcon }
         ].map(tab => {
           const Icon = tab.icon
           return (
@@ -434,6 +827,7 @@ export default function WalletsView({ organizations, selectedOrganization }: Wal
       {activeTab === 'wallets' && renderWallets()}
       {activeTab === 'builder' && renderBuilder()}
       {activeTab === 'integrations' && renderIntegrations()}
+      {activeTab === 'registration' && renderRegistration()}
     </div>
   )
 }

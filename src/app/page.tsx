@@ -4476,19 +4476,19 @@ function DashboardContentInner() {
                 </div>
               </button>
               
-              <button
-                onClick={() => setCurrentView('registration')}
-                className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
-                  currentView === 'registration' 
-                    ? 'bg-white/20 text-white' 
-                    : 'text-gray-400 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                <div className="flex items-center space-x-2">
-                  <ShieldIcon className="w-4 h-4" />
-                  <span className="text-sm">Registration</span>
-                </div>
-              </button>
+                          <button
+              onClick={() => setCurrentView('registration')}
+              className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
+                currentView === 'registration' 
+                  ? 'bg-white/20 text-white' 
+                  : 'text-gray-400 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              <div className="flex items-center space-x-2">
+                <ShieldIcon className="w-4 h-4" />
+                <span className="text-sm">Register</span>
+              </div>
+            </button>
               
               <button
                 onClick={() => setCurrentView('launchpad')}
@@ -4642,7 +4642,7 @@ function DashboardContentInner() {
 
                     <button onClick={() => { setCurrentView('integrations'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Integrations</button>
 
-                    <button onClick={() => { setCurrentView('registration'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Registration</button>
+                    <button onClick={() => { setCurrentView('registration'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Register</button>
                     <div className="border-t border-white/10 my-1"></div>
                     <button onClick={() => { setCurrentView('billing'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Billing & Plans</button>
                     <button onClick={() => { setCurrentView('settings'); setMobileMenuOpen(false) }} className="w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Settings</button>
@@ -4897,7 +4897,7 @@ function FloatingAIAssistant({
   const [dragStartTime, setDragStartTime] = useState(0)
   const [isResizing, setIsResizing] = useState(false)
   const [resizeDirection, setResizeDirection] = useState<'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw' | null>(null)
-  const [size, setSize] = useState({ width: 1200, height: 48 })
+  const [size, setSize] = useState({ width: 1200, height: 600 })
   const assistantRef = React.useRef<HTMLDivElement>(null)
 
   // Load saved position and size after mount to avoid SSR/CSR mismatch

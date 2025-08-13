@@ -901,20 +901,20 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
       rf.fitView({ 
         padding: 0.8, 
         includeHiddenNodes: false,
-        minZoom: 0.65,
-        maxZoom: 0.65
+        minZoom: 0.75,
+        maxZoom: 0.75
       });
       
-      // Ensure zoom is exactly 65% for optimal visual appeal
+      // Ensure zoom is exactly 75% for optimal visual appeal
       setTimeout(() => {
         const viewport = rf.getViewport();
         rf.setViewport({ 
           x: viewport.x, 
           y: viewport.y, 
-          zoom: 0.65 
+          zoom: 0.75 
         });
-        setCanvasScale(65);
-        console.log('🎨 Created visually appealing layout with 65% zoom and perfect node spacing');
+        setCanvasScale(75);
+        console.log('🎨 Created visually appealing layout with 75% zoom and perfect node spacing');
       }, 200);
     }
   }, [rf])
@@ -950,8 +950,8 @@ function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick
       fitViewOptions={{ 
         padding: 0.8, 
         includeHiddenNodes: false,
-        minZoom: 0.65,
-        maxZoom: 0.65
+        minZoom: 0.75,
+        maxZoom: 0.75
       }}
       minZoom={0.1}
       maxZoom={2}

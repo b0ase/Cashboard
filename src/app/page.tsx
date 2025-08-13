@@ -4891,6 +4891,9 @@ function FloatingAIAssistant({
   isMobile: boolean
 }) {
   const [inputMessage, setInputMessage] = useState('')
+  const [position, setPosition] = useState({ x: 0, y: 0 })
+  const [isDragging, setIsDragging] = useState(false)
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
   const assistantRef = React.useRef<HTMLDivElement>(null)
 
   const handleSendMessage = (e: React.FormEvent) => {
@@ -4900,6 +4903,54 @@ function FloatingAIAssistant({
       setInputMessage('')
     }
   }
+
+  const handleDragStart = (e: React.MouseEvent) => {
+    e.preventDefault()
+    setIsDragging(true)
+    
+    const rect = assistantRef.current?.getBoundingClientRect()
+    if (rect) {
+      setDragOffset({
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+      })
+    }
+  }
+
+  const handleDragMove = (e: MouseEvent) => {
+    if (!isDragging) return
+    
+    e.preventDefault()
+    
+    const newX = e.clientX - dragOffset.x
+    const newY = e.clientY - dragOffset.y
+    
+    // Keep within viewport bounds
+    const maxX = window.innerWidth - 400
+    const maxY = window.innerHeight - 200
+    
+    setPosition({
+      x: Math.max(0, Math.min(newX, maxX)),
+      y: Math.max(0, Math.min(newY, maxY))
+    })
+  }
+
+  const handleDragEnd = () => {
+    setIsDragging(false)
+  }
+
+  // Add drag event listeners
+  React.useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleDragMove)
+      document.addEventListener('mouseup', handleDragEnd)
+      
+      return () => {
+        document.removeEventListener('mousemove', handleDragMove)
+        document.removeEventListener('mouseup', handleDragEnd)
+      }
+    }
+  }, [isDragging])
 
 
 
@@ -4927,16 +4978,26 @@ function FloatingAIAssistant({
         </button>
       )}
 
-      {/* Simple Chat Window */}
+      {/* Wide and Short Chat Window */}
       {isOpen && (
         <div 
           ref={assistantRef}
-          className="ai-assistant fixed bottom-6 right-6 z-50 bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl shadow-2xl overflow-hidden flex flex-col"
+          className="ai-assistant fixed z-50 bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl shadow-2xl overflow-hidden flex flex-col"
           style={{
-            width: isMobile ? '320px' : '400px',
-            height: isMobile ? '400px' : '500px'
+            left: position.x || '50%',
+            top: position.y || 'auto',
+            bottom: position.y === 0 ? '24px' : 'auto',
+            transform: position.x === 0 ? 'translateX(-50%)' : 'none',
+            width: isMobile ? '320px' : '800px',
+            height: isMobile ? '200px' : '250px'
           }}
         >
+          {/* Drag Handle */}
+          <div 
+            className="absolute top-0 left-0 right-0 h-6 bg-blue-500/30 hover:bg-blue-500/50 cursor-grab active:cursor-grabbing transition-colors"
+            onMouseDown={handleDragStart}
+            title="Drag to move"
+          ></div>
           {/* Close Button */}
           <button
             onClick={onToggle}
@@ -4947,7 +5008,7 @@ function FloatingAIAssistant({
           </button>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto space-y-2 pl-8 pr-4 pt-4 pb-2 max-h-48">
+          <div className="flex-1 overflow-y-auto space-y-2 pl-8 pr-4 pt-10 pb-2">
             {messages.length === 0 ? (
               <div className="text-gray-400 text-center py-4">
                 <Bot className="w-8 h-8 mx-auto mb-2 text-blue-400" />

@@ -395,38 +395,10 @@ export default function WalletsView({ organizations, selectedOrganization }: Wal
 
   const renderIntegrations = () => (
     <div className="space-y-6">
+      {/* Wallet Connection Services */}
       <div className="bg-black/40 border border-white/20 rounded-xl p-6">
-        <h3 className="text-xl font-semibold text-white mb-4">Identity & Authentication</h3>
-        <p className="text-gray-400 mb-6">Connect your identity and authenticate with different services</p>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white/5 border border-white/20 rounded-lg p-4 text-center">
-            <div className="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center mx-auto mb-3">
-              <svg className="w-6 h-6" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10" fill="#22c55e"/>
-                <path d="M12 6v6l4 2" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
-            <h4 className="text-white font-medium mb-2">HandCash</h4>
-            <p className="text-gray-400 text-sm mb-3">Sign in with your HandCash wallet</p>
-            <button 
-              onClick={() => {
-                // TODO: Implement HandCash sign-in
-                console.log('HandCash sign-in clicked')
-              }}
-              className="w-full bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg text-sm transition-colors"
-            >
-              Sign in with HandCash
-            </button>
-          </div>
-          
-
-        </div>
-      </div>
-
-      <div className="bg-black/40 border border-white/20 rounded-xl p-6">
-        <h3 className="text-xl font-semibold text-white mb-4">Wallet Integrations</h3>
-        <p className="text-gray-400 mb-6">Connect external wallets and services</p>
+        <h3 className="text-xl font-semibold text-white mb-4">Connect Your Wallets</h3>
+        <p className="text-gray-400 mb-6">Connect external wallets to manage them in one place</p>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-white/5 border border-white/20 rounded-lg p-4 text-center">
@@ -460,6 +432,72 @@ export default function WalletsView({ organizations, selectedOrganization }: Wal
             <button className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg text-sm">
               Connect
             </button>
+          </div>
+        </div>
+      </div>
+
+      {/* External Services */}
+      <div className="bg-black/40 border border-white/20 rounded-xl p-6">
+        <h3 className="text-xl font-semibold text-white mb-4">External Services</h3>
+        <p className="text-gray-400 mb-6">Connect to additional financial and blockchain services</p>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-white/5 border border-white/20 rounded-lg p-4 text-center">
+            <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center mx-auto mb-3">
+              <svg className="w-6 h-6 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4z"/>
+              </svg>
+            </div>
+            <h4 className="text-white font-medium mb-2">Exchange APIs</h4>
+            <p className="text-gray-400 text-sm mb-3">Connect to trading platforms</p>
+            <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm">
+              Connect
+            </button>
+          </div>
+          
+          <div className="bg-white/5 border border-white/20 rounded-lg p-4 text-center">
+            <div className="w-12 h-12 bg-indigo-500/20 rounded-lg flex items-center justify-center mx-auto mb-3">
+              <svg className="w-6 h-6 text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+              </svg>
+            </div>
+            <h4 className="text-white font-medium mb-2">DeFi Protocols</h4>
+            <p className="text-gray-400 text-sm mb-3">Connect to DeFi services</p>
+            <button className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm">
+              Connect
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Connection Status */}
+      <div className="bg-black/40 border border-white/20 rounded-xl p-6">
+        <h3 className="text-xl font-semibold text-white mb-4">Connection Status</h3>
+        <p className="text-gray-400 mb-6">Monitor your wallet connections and service integrations</p>
+        
+        <div className="space-y-3">
+          <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+            <div className="flex items-center space-x-3">
+              <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+              <span className="text-white">HandCash - Connected</span>
+            </div>
+            <span className="text-green-400 text-sm">Last sync: 2 min ago</span>
+          </div>
+          
+          <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+            <div className="flex items-center space-x-3">
+              <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
+              <span className="text-white">MetaMask - Not Connected</span>
+            </div>
+            <button className="text-blue-400 hover:text-blue-300 text-sm">Connect</button>
+          </div>
+          
+          <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+            <div className="flex items-center space-x-3">
+              <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
+              <span className="text-white">Hardware Wallet - Not Connected</span>
+            </div>
+            <button className="text-blue-400 hover:text-blue-300 text-sm">Connect</button>
           </div>
         </div>
       </div>

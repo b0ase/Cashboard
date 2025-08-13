@@ -4785,16 +4785,28 @@ function FloatingAIAssistant({
   const [position, setPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 })
   const [dragStartTime, setDragStartTime] = useState(0)
   const [isExpanded, setIsExpanded] = useState(false)
+  const [isResizing, setIsResizing] = useState(false)
+  const [resizeDirection, setResizeDirection] = useState<'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw' | null>(null)
+  const [size, setSize] = useState({ width: 1200, height: 48 })
   const assistantRef = React.useRef<HTMLDivElement>(null)
 
-  // Load saved position after mount to avoid SSR/CSR mismatch
+  // Load saved position and size after mount to avoid SSR/CSR mismatch
   useEffect(() => {
     try {
       const saved = typeof window !== 'undefined' ? localStorage.getItem('aiAssistantPosition') : null
+      const savedSize = typeof window !== 'undefined' ? localStorage.getItem('aiAssistantSize') : null
+      
       if (saved) {
         const parsed = JSON.parse(saved)
         if (typeof parsed?.x === 'number' && typeof parsed?.y === 'number') {
           setPosition(parsed)
+        }
+      }
+      
+      if (savedSize) {
+        const parsedSize = JSON.parse(savedSize)
+        if (typeof parsedSize?.width === 'number' && typeof parsedSize?.height === 'number') {
+          setSize(parsedSize)
         }
       }
     } catch {
@@ -4903,6 +4915,84 @@ function FloatingAIAssistant({
     }
   }, [isDragging, handleDragMove, handleDragEnd])
 
+  // Resize handlers
+  const handleResizeStart = React.useCallback((e: React.MouseEvent, direction: 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw') => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    setIsResizing(true)
+    setResizeDirection(direction)
+    
+    document.body.style.userSelect = 'none'
+    document.body.style.cursor = direction.includes('e') || direction.includes('w') ? 'ew-resize' : 'ns-resize'
+  }, [])
+
+  const handleResizeMove = React.useCallback((e: MouseEvent) => {
+    if (!isResizing || !assistantRef.current) return
+    
+    e.preventDefault()
+    
+    const rect = assistantRef.current.getBoundingClientRect()
+    const deltaX = e.clientX - rect.left
+    const deltaY = e.clientY - rect.top
+    
+    let newWidth = size.width
+    let newHeight = size.height
+    
+    // Calculate new dimensions based on resize direction
+    if (resizeDirection?.includes('e')) {
+      newWidth = Math.max(400, deltaX)
+    }
+    if (resizeDirection?.includes('w')) {
+      newWidth = Math.max(400, size.width - (e.clientX - rect.right))
+    }
+    if (resizeDirection?.includes('s')) {
+      newHeight = Math.max(200, deltaY)
+    }
+    if (resizeDirection?.includes('n')) {
+      newHeight = Math.max(200, size.height - (e.clientY - rect.bottom))
+    }
+    
+    // Constrain to viewport
+    const maxWidth = window.innerWidth - 32
+    const maxHeight = window.innerHeight - 32
+    
+    newWidth = Math.min(newWidth, maxWidth)
+    newHeight = Math.min(newHeight, maxHeight)
+    
+    setSize({ width: newWidth, height: newHeight })
+  }, [isResizing, resizeDirection, size])
+
+  const handleResizeEnd = React.useCallback(() => {
+    if (!isResizing) return
+    
+    setIsResizing(false)
+    setResizeDirection(null)
+    
+    document.body.style.userSelect = ''
+    document.body.style.cursor = ''
+    
+    // Save size to localStorage
+    try {
+      localStorage.setItem('aiAssistantSize', JSON.stringify(size))
+    } catch (error) {
+      console.warn('Failed to save AI Assistant size:', error)
+    }
+  }, [isResizing, size])
+
+  // Set up resize event listeners
+  React.useEffect(() => {
+    if (isResizing) {
+      document.addEventListener('mousemove', handleResizeMove)
+      document.addEventListener('mouseup', handleResizeEnd)
+      
+      return () => {
+        document.removeEventListener('mousemove', handleResizeMove)
+        document.removeEventListener('mouseup', handleResizeEnd)
+      }
+    }
+  }, [isResizing, handleResizeMove, handleResizeEnd])
+
   return (
     <>
       {/* Floating Toggle Button */}
@@ -4925,10 +5015,6 @@ function FloatingAIAssistant({
           ref={assistantRef}
           className={`ai-assistant fixed z-50 bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl shadow-2xl overflow-hidden flex flex-col transition-all duration-200 ${
             isDragging ? 'cursor-grabbing shadow-3xl scale-[1.02] border-blue-400/50' : 'cursor-grab hover:shadow-3xl'
-          } ${
-            isMobile 
-              ? isExpanded ? 'h-96 w-full max-w-md' : 'h-72 w-80'
-              : isExpanded ? 'h-80 w-[1400px]' : 'h-48 w-[1200px]'
           }`}
           style={{
             left: position.x === 0 && position.y === 0 
@@ -4944,6 +5030,8 @@ function FloatingAIAssistant({
             transform: position.x === 0 && position.y === 0 && !isMobile 
               ? 'translateX(-50%)' 
               : 'none',
+            width: isMobile ? (isExpanded ? 'calc(100vw - 32px)' : '320px') : `${size.width}px`,
+            height: isMobile ? (isExpanded ? '384px' : '288px') : `${size.height}px`,
             opacity: isDragging ? 0.95 : 1,
             userSelect: 'none',
             pointerEvents: 'auto',
@@ -4960,10 +5048,72 @@ function FloatingAIAssistant({
             title="Drag to move"
           ></div>
 
+          {/* Resize Handles */}
+          {/* North (top) */}
+          <div 
+            className="absolute top-0 left-0 right-0 h-2 cursor-ns-resize hover:bg-blue-400/20 transition-colors"
+            onMouseDown={(e) => handleResizeStart(e, 'n')}
+            title="Resize height"
+          ></div>
+          
+          {/* South (bottom) */}
+          <div 
+            className="absolute bottom-0 left-0 right-0 h-2 cursor-ns-resize hover:bg-blue-400/20 transition-colors"
+            onMouseDown={(e) => handleResizeStart(e, 's')}
+            title="Resize height"
+          ></div>
+          
+          {/* East (right) */}
+          <div 
+            className="absolute top-0 right-0 bottom-0 w-2 cursor-ew-resize hover:bg-blue-400/20 transition-colors"
+            onMouseDown={(e) => handleResizeStart(e, 'e')}
+            title="Resize width"
+          ></div>
+          
+          {/* West (left) */}
+          <div 
+            className="absolute top-0 left-0 bottom-0 w-2 cursor-ew-resize hover:bg-blue-400/20 transition-colors"
+            onMouseDown={(e) => handleResizeStart(e, 'w')}
+            title="Resize width"
+          ></div>
+          
+          {/* Corner handles */}
+          <div 
+            className="absolute top-0 right-0 w-3 h-3 cursor-nw-resize hover:bg-blue-400/30 transition-colors"
+            onMouseDown={(e) => handleResizeStart(e, 'ne')}
+            title="Resize diagonally"
+          ></div>
+          
+          <div 
+            className="absolute top-0 left-0 w-3 h-3 cursor-ne-resize hover:bg-blue-400/30 transition-colors"
+            onMouseDown={(e) => handleResizeStart(e, 'nw')}
+            title="Resize diagonally"
+          ></div>
+          
+          <div 
+            className="absolute bottom-0 right-0 w-3 h-3 cursor-ne-resize hover:bg-blue-400/30 transition-colors"
+            onMouseDown={(e) => handleResizeStart(e, 'se')}
+            title="Resize diagonally"
+          ></div>
+          
+          <div 
+            className="absolute bottom-0 left-0 w-3 h-3 cursor-nw-resize hover:bg-blue-400/30 transition-colors"
+            onMouseDown={(e) => handleResizeStart(e, 'sw')}
+            title="Resize diagonally"
+          ></div>
+
           {/* Expand/Collapse Toggle */}
           <button
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="absolute right-2 top-2 p-1 bg-white/10 hover:bg-white/20 rounded-lg transition-colors text-white"
+            onClick={() => {
+              setIsExpanded(!isExpanded)
+              // Update size when expanding/collapsing
+              if (!isExpanded) {
+                setSize({ width: 1400, height: 80 })
+              } else {
+                setSize({ width: 1200, height: 48 })
+              }
+            }}
+            className="absolute right-2 top-2 p-1 bg-white/10 hover:bg-white/20 rounded-lg transition-colors text-white z-10"
             title={isExpanded ? "Collapse" : "Expand"}
           >
             {isExpanded ? (

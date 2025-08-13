@@ -333,76 +333,79 @@ export default function WorkflowsView({
       </div>
 
       {/* Simple Category Buttons */}
-      <div className="flex flex-wrap items-center gap-3 mb-6">
+      <div className="flex flex-wrap items-center gap-3 mb-6 p-4 bg-red-500/20 border border-red-500/50">
+        <div className="w-full text-red-400 text-sm mb-2">DEBUG: Category buttons should be below</div>
+        <div className="w-full text-red-400 text-sm mb-2">Active View: {activeView}</div>
+        <div className="w-full text-red-400 text-sm mb-2">Total Workflows: {workflows.length}</div>
         <button
           onClick={() => setActiveView('examples')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+          className={`px-6 py-3 rounded-lg text-lg font-bold transition-all duration-200 ${
             activeView === 'examples'
-              ? 'bg-blue-500 text-white shadow-lg'
-              : 'bg-gray-600 hover:bg-gray-700 text-white'
+              ? 'bg-green-500 text-white shadow-lg'
+              : 'bg-yellow-500 hover:bg-yellow-600 text-black'
           }`}
         >
-          Examples
+          🎯 EXAMPLES
         </button>
         <button
           onClick={() => setActiveView('organizations')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+          className={`px-6 py-3 rounded-lg text-lg font-bold transition-all duration-200 ${
             activeView === 'organizations'
-              ? 'bg-blue-500 text-white shadow-lg'
-              : 'bg-gray-600 hover:bg-gray-700 text-white'
+              ? 'bg-green-500 text-white shadow-lg'
+              : 'bg-yellow-500 hover:bg-yellow-600 text-black'
           }`}
         >
-          Organizations
+          🏢 ORGANIZATIONS
         </button>
         <button
           onClick={() => setActiveView('roles')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+          className={`px-6 py-3 rounded-lg text-lg font-bold transition-all duration-200 ${
             activeView === 'roles'
-              ? 'bg-blue-500 text-white shadow-lg'
-              : 'text-gray-400 hover:text-white hover:bg-white/10'
+              ? 'bg-green-500 text-white shadow-lg'
+              : 'bg-yellow-500 hover:bg-yellow-600 text-black'
           }`}
         >
-          Roles
+          👥 ROLES
         </button>
         <button
           onClick={() => setActiveView('agents')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+          className={`px-6 py-3 rounded-lg text-lg font-bold transition-all duration-200 ${
             activeView === 'agents'
-              ? 'bg-blue-500 text-white shadow-lg'
-              : 'bg-gray-600 hover:bg-gray-700 text-white'
+              ? 'bg-green-500 text-white shadow-lg'
+              : 'bg-yellow-500 hover:bg-yellow-600 text-black'
           }`}
         >
-          Agents
+          🤖 AGENTS
         </button>
         <button
           onClick={() => setActiveView('instruments')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+          className={`px-6 py-3 rounded-lg text-lg font-bold transition-all duration-200 ${
             activeView === 'instruments'
-              ? 'bg-blue-500 text-white shadow-lg'
-              : 'bg-gray-600 hover:bg-gray-700 text-white'
+              ? 'bg-green-500 text-white shadow-lg'
+              : 'bg-yellow-500 hover:bg-yellow-600 text-black'
           }`}
         >
-          Instruments
+          💰 INSTRUMENTS
         </button>
         <button
           onClick={() => setActiveView('contracts')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+          className={`px-6 py-3 rounded-lg text-lg font-bold transition-all duration-200 ${
             activeView === 'contracts'
-              ? 'bg-blue-500 text-white shadow-lg'
-              : 'text-gray-400 hover:text-white hover:bg-white/10'
+              ? 'bg-green-500 text-white shadow-lg'
+              : 'bg-yellow-500 hover:bg-yellow-600 text-black'
           }`}
         >
-          Contracts
+          📋 CONTRACTS
         </button>
         <button
           onClick={() => setActiveView('user-folders')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+          className={`px-6 py-3 rounded-lg text-lg font-bold transition-all duration-200 ${
             activeView === 'user-folders'
-              ? 'bg-blue-500 text-white shadow-lg'
-              : 'bg-gray-600 hover:bg-gray-700 text-white'
+              ? 'bg-green-500 text-white shadow-lg'
+              : 'bg-yellow-500 hover:bg-yellow-600 text-black'
           }`}
         >
-          User Folders
+          📁 USER FOLDERS
         </button>
       </div>
 

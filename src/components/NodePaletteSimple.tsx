@@ -31,6 +31,12 @@ export default function NodePaletteSimple({
   const [isDragging, setIsDragging] = useState(false)
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
   const [position, setPosition] = useState({ x: 0, y: 0 })
+  
+  // Resizing state
+  const [isResizing, setIsResizing] = useState(false)
+  const [resizeDirection, setResizeDirection] = useState<'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw' | null>(null)
+  const [size, setSize] = useState({ width: 260, height: 400 })
+  
   const paletteRef = useRef<HTMLDivElement>(null)
   
   const handleDragStart = useCallback((e: React.MouseEvent) => {
@@ -70,6 +76,64 @@ export default function NodePaletteSimple({
     document.body.style.cursor = ''
   }, [isDragging])
   
+  // Resize handlers
+  const handleResizeStart = useCallback((e: React.MouseEvent, direction: 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw') => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    setIsResizing(true)
+    setResizeDirection(direction)
+    
+    document.body.style.userSelect = 'none'
+    document.body.style.cursor = direction.includes('e') || direction.includes('w') ? 'ew-resize' : 'ns-resize'
+  }, [])
+
+  const handleResizeMove = useCallback((e: MouseEvent) => {
+    if (!isResizing || !paletteRef.current) return
+    
+    e.preventDefault()
+    
+    const rect = paletteRef.current.getBoundingClientRect()
+    const deltaX = e.clientX - rect.left
+    const deltaY = e.clientY - rect.top
+    
+    let newWidth = size.width
+    let newHeight = size.height
+    
+    // Calculate new dimensions based on resize direction
+    if (resizeDirection?.includes('e')) {
+      newWidth = Math.max(200, deltaX)
+    }
+    if (resizeDirection?.includes('w')) {
+      newWidth = Math.max(200, size.width - (e.clientX - rect.right))
+    }
+    if (resizeDirection?.includes('s')) {
+      newHeight = Math.max(300, deltaY)
+    }
+    if (resizeDirection?.includes('n')) {
+      newHeight = Math.max(300, size.height - (e.clientY - rect.bottom))
+    }
+    
+    // Constrain to reasonable limits
+    const maxWidth = 800
+    const maxHeight = 800
+    
+    newWidth = Math.min(newWidth, maxWidth)
+    newHeight = Math.min(newHeight, maxHeight)
+    
+    setSize({ width: newWidth, height: newHeight })
+  }, [isResizing, resizeDirection, size])
+
+  const handleResizeEnd = useCallback(() => {
+    if (!isResizing) return
+    
+    setIsResizing(false)
+    setResizeDirection(null)
+    
+    document.body.style.userSelect = ''
+    document.body.style.cursor = ''
+  }, [isResizing])
+
   // Set up drag event listeners
   React.useEffect(() => {
     if (isDragging) {
@@ -83,6 +147,19 @@ export default function NodePaletteSimple({
     }
   }, [isDragging, handleDragMove, handleDragEnd])
 
+  // Set up resize event listeners
+  React.useEffect(() => {
+    if (isResizing) {
+      document.addEventListener('mousemove', handleResizeMove)
+      document.addEventListener('mouseup', handleResizeEnd)
+      
+      return () => {
+        document.removeEventListener('mousemove', handleResizeMove)
+        document.removeEventListener('mouseup', handleResizeEnd)
+      }
+    }
+  }, [isResizing, handleResizeMove, handleResizeEnd])
+
   if (!visible) {
     return null
   }
@@ -90,15 +167,72 @@ export default function NodePaletteSimple({
   return (
     <div 
       ref={paletteRef}
-      className={`bg-black/80 backdrop-blur-xl border border-white/20 rounded-lg p-3 min-w-[260px] w-[260px] max-h-[70vh] overflow-y-auto transition-all ${
+      className={`bg-black/80 backdrop-blur-xl border border-white/20 rounded-lg p-3 overflow-y-auto transition-all relative ${
         isDragging ? 'shadow-2xl scale-[1.02] border-blue-400/50' : 'shadow-lg'
       }`}
       style={{
-        transform: `translate(${position.x}px, ${position.y}px)`
+        transform: `translate(${position.x}px, ${position.y}px)`,
+        width: `${size.width}px`,
+        height: `${size.height}px`,
+        minWidth: '200px',
+        minHeight: '300px'
       }}
     >
+      {/* Additional Resize Handles for the main container */}
+      {/* North (top) */}
       <div 
-        className="flex items-center justify-between mb-2 cursor-grab active:cursor-grabbing hover:bg-white/5 p-2 -m-2 mb-0 rounded transition-colors"
+        className="absolute top-0 left-0 right-0 h-2 cursor-ns-resize hover:bg-blue-400/20 transition-colors z-10"
+        onMouseDown={(e) => handleResizeStart(e, 'n')}
+        title="Resize height"
+      ></div>
+      
+      {/* South (bottom) */}
+      <div 
+        className="absolute bottom-0 left-0 right-0 h-2 cursor-ns-resize hover:bg-blue-400/20 transition-colors z-10"
+        onMouseDown={(e) => handleResizeStart(e, 's')}
+        title="Resize height"
+      ></div>
+      
+      {/* East (right) */}
+      <div 
+        className="absolute top-0 right-0 bottom-0 w-2 cursor-ew-resize hover:bg-blue-400/20 transition-colors z-10"
+        onMouseDown={(e) => handleResizeStart(e, 'e')}
+        title="Resize width"
+      ></div>
+      
+      {/* West (left) */}
+      <div 
+        className="absolute top-0 left-0 bottom-0 w-2 cursor-ew-resize hover:bg-blue-400/20 transition-colors z-10"
+        onMouseDown={(e) => handleResizeStart(e, 'w')}
+        title="Resize width"
+      ></div>
+      
+      {/* Corner handles */}
+      <div 
+        className="absolute top-0 right-0 w-3 h-3 cursor-nw-resize hover:bg-blue-400/30 transition-colors z-10"
+        onMouseDown={(e) => handleResizeStart(e, 'ne')}
+        title="Resize diagonally"
+      ></div>
+      
+      <div 
+        className="absolute top-0 left-0 w-3 h-3 cursor-ne-resize hover:bg-blue-400/30 transition-colors z-10"
+        onMouseDown={(e) => handleResizeStart(e, 'nw')}
+        title="Resize diagonally"
+      ></div>
+      
+      <div 
+        className="absolute bottom-0 right-0 w-3 h-3 cursor-ne-resize hover:bg-blue-400/30 transition-colors z-10"
+        onMouseDown={(e) => handleResizeStart(e, 'se')}
+        title="Resize diagonally"
+      ></div>
+      
+      <div 
+        className="absolute bottom-0 left-0 w-3 h-3 cursor-nw-resize hover:bg-blue-400/30 transition-colors z-10"
+        onMouseDown={(e) => handleResizeStart(e, 'sw')}
+        title="Resize diagonally"
+      ></div>
+      <div 
+        className="flex items-center justify-between mb-2 cursor-grab active:cursor-grabbing hover:bg-white/5 p-2 -m-2 mb-0 rounded transition-colors relative"
         onMouseDown={handleDragStart}
         title="Drag to move palette"
       >
@@ -119,6 +253,60 @@ export default function NodePaletteSimple({
         >
           Collapse
         </button>
+        
+        {/* Resize Handles */}
+        {/* North (top) */}
+        <div 
+          className="absolute top-0 left-0 right-0 h-1 cursor-ns-resize hover:bg-blue-400/20 transition-colors"
+          onMouseDown={(e) => handleResizeStart(e, 'n')}
+          title="Resize height"
+        ></div>
+        
+        {/* South (bottom) */}
+        <div 
+          className="absolute bottom-0 left-0 right-0 h-1 cursor-ns-resize hover:bg-blue-400/20 transition-colors"
+          onMouseDown={(e) => handleResizeStart(e, 's')}
+          title="Resize height"
+        ></div>
+        
+        {/* East (right) */}
+        <div 
+          className="absolute top-0 right-0 bottom-0 w-1 cursor-ew-resize hover:bg-blue-400/20 transition-colors"
+          onMouseDown={(e) => handleResizeStart(e, 'e')}
+          title="Resize width"
+        ></div>
+        
+        {/* West (left) */}
+        <div 
+          className="absolute top-0 left-0 bottom-0 w-1 cursor-ew-resize hover:bg-blue-400/20 transition-colors"
+          onMouseDown={(e) => handleResizeStart(e, 'w')}
+          title="Resize width"
+        ></div>
+        
+        {/* Corner handles */}
+        <div 
+          className="absolute top-0 right-0 w-2 h-2 cursor-nw-resize hover:bg-blue-400/30 transition-colors"
+          onMouseDown={(e) => handleResizeStart(e, 'ne')}
+          title="Resize diagonally"
+        ></div>
+        
+        <div 
+          className="absolute top-0 left-0 w-2 h-2 cursor-ne-resize hover:bg-blue-400/30 transition-colors"
+          onMouseDown={(e) => handleResizeStart(e, 'nw')}
+          title="Resize diagonally"
+        ></div>
+        
+        <div 
+          className="absolute bottom-0 right-0 w-2 h-2 cursor-ne-resize hover:bg-blue-400/30 transition-colors"
+          onMouseDown={(e) => handleResizeStart(e, 'se')}
+          title="Resize diagonally"
+        ></div>
+        
+        <div 
+          className="absolute bottom-0 left-0 w-2 h-2 cursor-nw-resize hover:bg-blue-400/30 transition-colors"
+          onMouseDown={(e) => handleResizeStart(e, 'sw')}
+          title="Resize diagonally"
+        ></div>
       </div>
       
       {categories.map((cat) => (

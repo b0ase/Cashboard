@@ -104,13 +104,43 @@ export default function DashboardPage() {
               className="w-full rounded-lg shadow-2xl"
               poster="/cashboard.png"
               preload="metadata"
+              onError={(e) => {
+                console.error('Video error:', e);
+                const videoElement = e.target as HTMLVideoElement;
+                console.error('Video element:', videoElement);
+                console.error('Error details:', videoElement?.error);
+              }}
+              onLoadStart={() => console.log('Video loading started')}
+              onCanPlay={() => console.log('Video can play')}
+              onLoadedData={() => console.log('Video data loaded')}
+              onLoad={() => console.log('Video load event')}
             >
               <source src="/cashboard.mp4" type="video/mp4" />
+              <source src="cashboard.mp4" type="video/mp4" />
+              <source src="./cashboard.mp4" type="video/mp4" />
               Your browser does not support the video tag.
             </video>
+            
+            {/* Fallback download link */}
+            <div className="mt-4 text-center">
+              <a 
+                href="/cashboard.mp4" 
+                download="cashboard-demo.mp4"
+                className="inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+              >
+                📥 Download Video (if player doesn't work)
+              </a>
+            </div>
+            
             <div className="mt-4 text-center">
               <p className="text-sm text-gray-400">
                 Click play to watch the full Cashboard demonstration
+              </p>
+              <p className="text-xs text-gray-500 mt-2">
+                Video source: /cashboard.mp4 (Size: 1.4MB)
+              </p>
+              <p className="text-xs text-gray-400 mt-1">
+                If video doesn't play, check browser console for errors or download the video
               </p>
             </div>
           </div>

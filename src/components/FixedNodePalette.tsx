@@ -37,7 +37,7 @@ export function FixedNodePalette({
 
   return (
     <div 
-      className={`fixed right-0 top-0 h-[80vh] bg-black/90 backdrop-blur-xl border-l border-white/20 transition-all duration-300 z-50 ${
+      className={`fixed right-8 top-24 h-[85vh] bg-black/90 backdrop-blur-xl border-l border-white/20 transition-all duration-300 z-50 ${
         collapsed ? 'w-12' : 'w-80'
       }`}
     >
@@ -55,7 +55,6 @@ export function FixedNodePalette({
         {/* Header */}
         <div className="p-4 border-b border-white/10">
           <h2 className="text-lg font-semibold text-white">{title}</h2>
-          <p className="text-sm text-gray-400 mt-1">{nodeTypes.length} node types available</p>
         </div>
 
         {/* Node Categories */}
@@ -93,13 +92,6 @@ export function FixedNodePalette({
               )}
             </div>
           ))}
-        </div>
-
-        {/* Footer */}
-        <div className="p-4 border-t border-white/10">
-          <p className="text-xs text-gray-500 text-center">
-            Drag nodes from here to the canvas
-          </p>
         </div>
       </div>
     </div>

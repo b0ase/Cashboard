@@ -4063,9 +4063,21 @@ function DashboardContentInner() {
       chatMessages: [...prev.chatMessages, userMessage]
     }))
 
+    // Redirect to AUDEX workflow canvas
+    setCurrentView('workflow')
+    
+    // Find and set the AUDEX workflow (ID: '2')
+    const audexWorkflow = appState.workflows.find(w => w.id === '2')
+    if (audexWorkflow) {
+      setAppState(prev => ({
+        ...prev,
+        currentWorkflow: audexWorkflow
+      }))
+    }
+
     // Simulate AI processing
     setTimeout(() => {
-      const aiResponse = processAICommand(content)
+      const aiResponse = "Welcome to the AUDEX workflow canvas! I've opened the Example AUDEX workflow for you. This shows the complete music streaming and royalty distribution system with YouTube revenue, Spotify royalties, NFT sales, and artist distribution. Explore the nodes and connections to see how money flows through the system."
       const aiMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         type: 'ai',
@@ -4662,12 +4674,37 @@ function DashboardContentInner() {
 
         {/* Content Views */}
         {currentView === 'dashboard' && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            {/* Blank Dashboard Page */}
-            <div className="text-center">
-              <h1 className="text-4xl font-bold text-white mb-4">Cashboard Dashboard</h1>
-              <p className="text-gray-400 text-lg">Welcome to the main dashboard</p>
-              <p className="text-gray-500 text-sm mt-2">Use the sidebar to navigate to different sections</p>
+          <div className="absolute inset-0 flex items-start justify-center bg-black pt-12">
+            {/* Larger Letterboxed Video Player */}
+            <div className="w-2/3 h-2/3 bg-black mt-8 relative">
+              {/* Main video */}
+              <video
+                ref={(el) => {
+                  if (el) {
+                    el.onended = () => {
+                      // When main video ends, go straight to AUDEX workflow canvas
+                      const audexWorkflow = appState.workflows.find(w => w.id === '2')
+                      if (audexWorkflow) {
+                        setAppState(prev => ({
+                          ...prev,
+                          currentWorkflow: audexWorkflow
+                        }))
+                        setCurrentView('workflow')
+                      }
+                    };
+                  }
+                }}
+                autoPlay
+                muted
+                className="w-full h-full object-cover"
+                style={{
+                  filter: 'contrast(1.5) brightness(0.8) saturate(0.8)'
+                }}
+                preload="metadata"
+              >
+                <source src="/cashboard.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
             </div>
           </div>
         )}

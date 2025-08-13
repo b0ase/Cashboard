@@ -332,31 +332,31 @@ export default function WorkflowsView({
         </div>
       </div>
 
-      {/* View Tabs */}
-      <div className="flex items-center space-x-1 mb-6 p-2 bg-black/60 backdrop-blur-xl rounded-xl border border-white/20 relative z-10 shadow-lg overflow-x-auto">
+      {/* Simple Category Buttons */}
+      <div className="flex flex-wrap items-center gap-3 mb-6">
         <button
           onClick={() => setActiveView('examples')}
-          className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
             activeView === 'examples'
               ? 'bg-blue-500 text-white shadow-lg'
-              : 'text-gray-400 hover:text-white hover:bg-white/10'
+              : 'bg-gray-600 hover:bg-gray-700 text-white'
           }`}
         >
           Examples
         </button>
         <button
           onClick={() => setActiveView('organizations')}
-          className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
             activeView === 'organizations'
               ? 'bg-blue-500 text-white shadow-lg'
-              : 'text-gray-400 hover:text-white hover:bg-white/10'
+              : 'bg-gray-600 hover:bg-gray-700 text-white'
           }`}
         >
           Organizations
         </button>
         <button
           onClick={() => setActiveView('roles')}
-          className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
             activeView === 'roles'
               ? 'bg-blue-500 text-white shadow-lg'
               : 'text-gray-400 hover:text-white hover:bg-white/10'
@@ -366,27 +366,27 @@ export default function WorkflowsView({
         </button>
         <button
           onClick={() => setActiveView('agents')}
-          className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
             activeView === 'agents'
               ? 'bg-blue-500 text-white shadow-lg'
-              : 'text-gray-400 hover:text-white hover:bg-white/10'
+              : 'bg-gray-600 hover:bg-gray-700 text-white'
           }`}
         >
           Agents
         </button>
         <button
           onClick={() => setActiveView('instruments')}
-          className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
             activeView === 'instruments'
               ? 'bg-blue-500 text-white shadow-lg'
-              : 'text-gray-400 hover:text-white hover:bg-white/10'
+              : 'bg-gray-600 hover:bg-gray-700 text-white'
           }`}
         >
           Instruments
         </button>
         <button
           onClick={() => setActiveView('contracts')}
-          className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
             activeView === 'contracts'
               ? 'bg-blue-500 text-white shadow-lg'
               : 'text-gray-400 hover:text-white hover:bg-white/10'
@@ -396,10 +396,10 @@ export default function WorkflowsView({
         </button>
         <button
           onClick={() => setActiveView('user-folders')}
-          className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
             activeView === 'user-folders'
               ? 'bg-blue-500 text-white shadow-lg'
-              : 'text-gray-400 hover:text-white hover:bg-white/10'
+              : 'bg-gray-600 hover:bg-gray-700 text-white'
           }`}
         >
           User Folders

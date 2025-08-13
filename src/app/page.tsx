@@ -4891,38 +4891,7 @@ function FloatingAIAssistant({
   isMobile: boolean
 }) {
   const [inputMessage, setInputMessage] = useState('')
-  const [isDragging, setIsDragging] = useState(false)
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
-  const [position, setPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 })
-  const [dragStartTime, setDragStartTime] = useState(0)
-  const [isResizing, setIsResizing] = useState(false)
-  const [resizeDirection, setResizeDirection] = useState<'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw' | null>(null)
-  const [size, setSize] = useState({ width: 1200, height: 600 })
   const assistantRef = React.useRef<HTMLDivElement>(null)
-
-  // Load saved position and size after mount to avoid SSR/CSR mismatch
-  useEffect(() => {
-    try {
-      const saved = typeof window !== 'undefined' ? localStorage.getItem('aiAssistantPosition') : null
-      const savedSize = typeof window !== 'undefined' ? localStorage.getItem('aiAssistantSize') : null
-      
-      if (saved) {
-        const parsed = JSON.parse(saved)
-        if (typeof parsed?.x === 'number' && typeof parsed?.y === 'number') {
-          setPosition(parsed)
-        }
-      }
-      
-      if (savedSize) {
-        const parsedSize = JSON.parse(savedSize)
-        if (typeof parsedSize?.width === 'number' && typeof parsedSize?.height === 'number') {
-          setSize(parsedSize)
-        }
-      }
-    } catch {
-      // ignore
-    }
-  }, [])
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault()
@@ -4932,110 +4901,13 @@ function FloatingAIAssistant({
     }
   }
 
-  // Improved drag handlers with better precision and smoothness
-  const handleDragStart = React.useCallback((e: React.MouseEvent | React.TouchEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    
-    setIsDragging(true)
-    setDragStartTime(Date.now())
-    
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
-    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
-    
-    const rect = assistantRef.current?.getBoundingClientRect()
-    if (rect) {
-      setDragOffset({
-        x: clientX - rect.left,
-        y: clientY - rect.top
-      })
-    }
-    
-    // Add dragging class for immediate visual feedback
-    document.body.style.userSelect = 'none'
-    document.body.style.cursor = 'grabbing'
-  }, [])
 
-  const handleDragMove = React.useCallback((e: MouseEvent | TouchEvent) => {
-    if (!isDragging || !assistantRef.current) return
-    
-    e.preventDefault()
-    
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
-    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
-    
-    const newX = clientX - dragOffset.x
-    const newY = clientY - dragOffset.y
-    
-    // Get dynamic dimensions for better constraint calculation
-    const rect = assistantRef.current.getBoundingClientRect()
-    const viewportWidth = window.innerWidth
-    const viewportHeight = window.innerHeight
-    
-    // Improved viewport constraints with padding
-    const padding = 16
-    const maxX = viewportWidth - rect.width - padding
-    const maxY = viewportHeight - rect.height - padding
-    
-    const constrainedX = Math.max(padding, Math.min(newX, maxX))
-    const constrainedY = Math.max(padding, Math.min(newY, maxY))
-    
-    // Use requestAnimationFrame for smoother updates
-    requestAnimationFrame(() => {
-      setPosition({ x: constrainedX, y: constrainedY })
-    })
-  }, [isDragging, dragOffset])
 
-  const handleDragEnd = React.useCallback(() => {
-    if (!isDragging) return
-    
-    setIsDragging(false)
-    
-    // Restore body styles
-    document.body.style.userSelect = ''
-    document.body.style.cursor = ''
-    
-    // Save position to localStorage with error handling
-    try {
-      localStorage.setItem('aiAssistantPosition', JSON.stringify(position))
-    } catch (error) {
-      console.warn('Failed to save AI Assistant position:', error)
-    }
-  }, [isDragging, position])
 
-  // Set up global event listeners for drag
-  React.useEffect(() => {
-    if (isDragging) {
-      const handleTouchMove = (e: TouchEvent) => {
-        e.preventDefault() // Prevent scrolling
-        handleDragMove(e)
-      }
 
-      document.addEventListener('mousemove', handleDragMove)
-      document.addEventListener('mouseup', handleDragEnd)
-      document.addEventListener('touchmove', handleTouchMove, { passive: false })
-      document.addEventListener('touchend', handleDragEnd)
 
-      return () => {
-        document.removeEventListener('mousemove', handleDragMove)
-        document.removeEventListener('mouseup', handleDragEnd)
-        document.removeEventListener('touchmove', handleTouchMove)
-        document.removeEventListener('touchend', handleDragEnd)
-      }
-    }
-  }, [isDragging, handleDragMove, handleDragEnd])
 
-  // Resize handlers
-  const handleResizeStart = React.useCallback((e: React.MouseEvent, direction: 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw') => {
-    e.preventDefault()
-    e.stopPropagation()
-    
-    setIsResizing(true)
-    setResizeDirection(direction)
-    
-    document.body.style.userSelect = 'none'
-    document.body.style.cursor = direction.includes('e') || direction.includes('w') ? 'ew-resize' : 'ns-resize'
-  }, [])
+
 
   const handleResizeMove = React.useCallback((e: MouseEvent) => {
     if (!isResizing || !assistantRef.current) return
@@ -5156,99 +5028,16 @@ function FloatingAIAssistant({
         </button>
       )}
 
-      {/* Floating Chat Window */}
+      {/* Simple Chat Window */}
       {isOpen && (
         <div 
           ref={assistantRef}
-          className={`ai-assistant fixed z-50 bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl shadow-2xl overflow-hidden flex flex-col transition-all duration-200 ${
-            isDragging ? 'cursor-grabbing shadow-3xl scale-[1.02] border-blue-400/50' : 'cursor-grab hover:shadow-3xl'
-          }`}
+          className="ai-assistant fixed bottom-6 right-6 z-50 bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl shadow-2xl overflow-hidden flex flex-col"
           style={{
-            left: position.x === 0 && position.y === 0 
-              ? isMobile ? '16px' : '50%'
-              : `${position.x}px`,
-            right: position.x === 0 && position.y === 0 && isMobile ? '16px' : 'auto',
-            bottom: position.x === 0 && position.y === 0 
-              ? isMobile ? '16px' : '24px'
-              : 'auto',
-            top: position.x === 0 && position.y === 0 
-              ? 'auto' 
-              : `${position.y}px`,
-            transform: position.x === 0 && position.y === 0 && !isMobile 
-              ? 'translateX(-50%)' 
-              : 'none',
-            width: isMobile ? '320px' : `${size.width}px`,
-            height: isMobile ? '288px' : `${size.height}px`,
-            opacity: isDragging ? 0.95 : 1,
-            userSelect: 'none',
-            pointerEvents: 'auto',
-            willChange: isDragging ? 'transform' : 'auto'
+            width: isMobile ? '320px' : '400px',
+            height: isMobile ? '400px' : '500px'
           }}
         >
-
-
-          {/* Draggable Handle */}
-          <div 
-            className="absolute left-0 top-0 bottom-0 w-4 bg-blue-400/30 hover:bg-blue-400/50 cursor-grab active:cursor-grabbing transition-colors"
-            onMouseDown={handleDragStart}
-            onTouchStart={handleDragStart}
-            title="Drag to move"
-          ></div>
-
-          {/* Resize Handles */}
-          {/* North (top) */}
-          <div 
-            className="absolute top-0 left-0 right-0 h-2 cursor-ns-resize hover:bg-blue-400/20 transition-colors"
-            onMouseDown={(e) => handleResizeStart(e, 'n')}
-            title="Resize height"
-          ></div>
-          
-          {/* South (bottom) */}
-          <div 
-            className="absolute bottom-0 left-0 right-0 h-2 cursor-ns-resize hover:bg-blue-400/20 transition-colors"
-            onMouseDown={(e) => handleResizeStart(e, 's')}
-            title="Resize height"
-          ></div>
-          
-          {/* East (right) */}
-          <div 
-            className="absolute top-0 right-0 bottom-0 w-2 cursor-ew-resize hover:bg-blue-400/20 transition-colors"
-            onMouseDown={(e) => handleResizeStart(e, 'e')}
-            title="Resize width"
-          ></div>
-          
-          {/* West (left) */}
-          <div 
-            className="absolute top-0 left-0 bottom-0 w-2 cursor-ew-resize hover:bg-blue-400/20 transition-colors"
-            onMouseDown={(e) => handleResizeStart(e, 'w')}
-            title="Resize width"
-          ></div>
-          
-          {/* Corner handles */}
-          <div 
-            className="absolute top-0 right-0 w-3 h-3 cursor-nw-resize hover:bg-blue-400/30 transition-colors"
-            onMouseDown={(e) => handleResizeStart(e, 'ne')}
-            title="Resize diagonally"
-          ></div>
-          
-          <div 
-            className="absolute top-0 left-0 w-3 h-3 cursor-ne-resize hover:bg-blue-400/30 transition-colors"
-            onMouseDown={(e) => handleResizeStart(e, 'nw')}
-            title="Resize diagonally"
-          ></div>
-          
-          <div 
-            className="absolute bottom-0 right-0 w-3 h-3 cursor-ne-resize hover:bg-blue-400/30 transition-colors"
-            onMouseDown={(e) => handleResizeStart(e, 'se')}
-            title="Resize diagonally"
-          ></div>
-          
-          <div 
-            className="absolute bottom-0 left-0 w-3 h-3 cursor-nw-resize hover:bg-blue-400/30 transition-colors"
-            onMouseDown={(e) => handleResizeStart(e, 'sw')}
-            title="Resize diagonally"
-          ></div>
-
           {/* Close Button */}
           <button
             onClick={onToggle}

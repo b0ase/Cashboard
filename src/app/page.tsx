@@ -8486,28 +8486,84 @@ function WorkflowView({
                   Contracts: {contracts.length}
                 </p>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                {(showBusinessModal === 'workflow' ? workflows :
-                  showBusinessModal === 'organization' ? organizations :
-                  showBusinessModal === 'role' ? roles :
-                  showBusinessModal === 'member' ? (organizations.flatMap(o => o.members).map(m => ({ id: m.id, name: m.displayName || m.handle, description: m.handle }))) :
-                  showBusinessModal === 'instrument' ? instruments :
-                  showBusinessModal === 'contract' ? contracts :
-                  showBusinessModal === 'wallets' ? wallets :
-                  showBusinessModal === 'integration' ? [] :
-                  []).map((item: BusinessItem) => (
-                  <button
-                    key={item.id}
-                    onClick={() => handleBusinessItemSelect(item)}
-                    className="text-left bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-xl p-3 transition-all"
-                  >
-                    <div className="font-medium text-white truncate">{item.name}</div>
-                    {item.description && (
-                      <div className="text-xs text-gray-400 mt-1 line-clamp-2">{item.description}</div>
-                    )}
-                  </button>
-                ))}
-              </div>
+              {/* Special handling for member profiles */}
+              {showBusinessModal === 'member' ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {organizations.flatMap(o => o.members).map((member) => (
+                    <div key={member.id} className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-all">
+                      {/* Member Header */}
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                            {member.displayName?.charAt(0) || member.handle.charAt(1)}
+                          </div>
+                          <div>
+                            <h3 className="text-white font-semibold text-lg">{member.displayName}</h3>
+                            <p className="text-blue-400 text-sm font-mono">{member.handle}</p>
+                            {getWalletBadge(member.walletType)}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-sm text-gray-400">{member.organizationId === '1' ? 'TechCorp Inc.' : 'Organization'}</div>
+                          <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium mt-1 ${
+                            member.kycStatus === 'approved' ? 'bg-green-500/20 text-green-400' :
+                            member.kycStatus === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
+                            'bg-red-500/20 text-red-400'
+                          }`}>
+                            {member.kycStatus === 'approved' ? '✓' : member.kycStatus === 'pending' ? '⏳' : '✗'}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Member Details */}
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Email:</span>
+                          <span className="text-white">{member.email}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Address:</span>
+                          <span className="text-white font-mono">{member.publicAddress?.substring(0, 8)}...</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Last Active:</span>
+                          <span className="text-white">{new Date(member.lastActive).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                      
+                      {/* Action Button */}
+                      <button
+                        onClick={() => handleBusinessItemSelect({ id: member.id, name: member.displayName || member.handle, description: member.handle })}
+                        className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-all duration-200 hover:scale-[1.02] flex items-center justify-center space-x-2"
+                      >
+                        <span>Click to view profile →</span>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                  {(showBusinessModal === 'workflow' ? workflows :
+                    showBusinessModal === 'organization' ? organizations :
+                    showBusinessModal === 'role' ? roles :
+                    showBusinessModal === 'instrument' ? instruments :
+                    showBusinessModal === 'contract' ? contracts :
+                    showBusinessModal === 'wallets' ? wallets :
+                    showBusinessModal === 'integration' ? [] :
+                    []).map((item: BusinessItem) => (
+                    <button
+                      key={item.id}
+                      onClick={() => handleBusinessItemSelect(item)}
+                      className="text-left bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-xl p-3 transition-all"
+                    >
+                      <div className="font-medium text-white truncate">{item.name}</div>
+                      {item.description && (
+                        <div className="text-xs text-gray-400 mt-1 line-clamp-2">{item.description}</div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>

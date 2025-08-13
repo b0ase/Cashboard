@@ -88,6 +88,35 @@ export default function DashboardPage() {
         <p className="text-gray-300 mt-2">Your home base for navigation, docs, and community.</p>
       </section>
 
+      {/* Video Demo Section */}
+      <section className="mb-12">
+        <div className="glass-card p-6">
+          <h2 className="text-2xl font-semibold mb-4 flex items-center gap-3">
+            <span className="text-blue-400">🎬</span>
+            Cashboard Demo Video
+          </h2>
+          <p className="text-gray-300 mb-6">
+            Watch a demonstration of Cashboard's workflow management and canvas features.
+          </p>
+          <div className="relative w-full max-w-4xl mx-auto">
+            <video
+              controls
+              className="w-full rounded-lg shadow-2xl"
+              poster="/cashboard.png"
+              preload="metadata"
+            >
+              <source src="/cashboard.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+            <div className="mt-4 text-center">
+              <p className="text-sm text-gray-400">
+                Click play to watch the full Cashboard demonstration
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {cards.map((card) => {
           const Icon = card.icon

@@ -188,6 +188,116 @@ export default function WorkflowDashboard({ onSelectWorkflow, onCreateWorkflow }
           >
             {viewMode === 'grid' ? <List className="w-4 h-4" /> : <Grid className="w-4 h-4" />}
           </button>
+          
+          {/* Hidden file input for import */}
+          <input
+            type="file"
+            id="workflow-import"
+            accept=".json"
+            className="hidden"
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                  try {
+                    const importData = JSON.parse(e.target?.result as string);
+                    console.log('📥 Imported workflow data:', importData);
+                    
+                    // Check if this is a Cashboard workflow export
+                    const isCashboardExport = importData.metadata?.type === 'workflow_export';
+                    
+                    if (isCashboardExport && importData.workflow && importData.workflow.nodes) {
+                      // Import Cashboard workflow export
+                      console.log('📋 Importing Cashboard workflow export to dashboard');
+                      
+                      const newWorkflow: WorkflowMetadata = {
+                        id: `imported_${Date.now()}`,
+                        name: importData.metadata.name || 'Imported Workflow',
+                        version: importData.metadata.version || '1.0.0',
+                        metadata: {
+                          company: {
+                            name: importData.metadata.name || 'Imported Company',
+                            ticker: 'IMP',
+                            jurisdiction: 'US',
+                            description: importData.metadata.description || 'Imported workflow from Cashboard'
+                          },
+                          industry: 'Technology',
+                          type: 'workflow_import',
+                          created: new Date().toISOString(),
+                          updated: new Date().toISOString(),
+                          author: importData.metadata.author || 'Cashboard User',
+                          tags: ['imported', 'workflow', 'cashboard'],
+                          folder: 'imported'
+                        },
+                        nodes: importData.workflow.nodes || [],
+                        connections: importData.workflow.edges || []
+                      };
+                      
+                      // Add to workflows list
+                      setWorkflows(prev => [...prev, newWorkflow]);
+                      
+                      // Show success message with details
+                      const nodeCount = importData.workflow.nodes.length;
+                      const edgeCount = importData.workflow.edges?.length || 0;
+                      alert(`✅ Cashboard workflow imported successfully!\n\n📊 Details:\n• ${nodeCount} nodes\n• ${edgeCount} connections\n• Canvas settings preserved\n\nWorkflow: ${newWorkflow.name}`);
+                      
+                    } else if (importData.metadata && importData.workflow && importData.workflow.nodes) {
+                      // Handle generic workflow format
+                      console.log('📋 Importing generic workflow format to dashboard');
+                      
+                      const newWorkflow: WorkflowMetadata = {
+                        id: `imported_${Date.now()}`,
+                        name: importData.metadata.name || 'Imported Workflow',
+                        version: importData.metadata.version || '1.0.0',
+                        metadata: {
+                          company: {
+                            name: importData.metadata.name || 'Imported Company',
+                            ticker: 'IMP',
+                            jurisdiction: 'US',
+                            description: importData.metadata.description || 'Imported workflow'
+                          },
+                          industry: 'Technology',
+                          type: 'workflow_import',
+                          created: new Date().toISOString(),
+                          updated: new Date().toISOString(),
+                          author: importData.metadata.author || 'Cashboard User',
+                          tags: ['imported', 'workflow'],
+                          folder: 'imported'
+                        },
+                        nodes: importData.workflow.nodes || [],
+                        connections: importData.workflow.edges || []
+                      };
+                      
+                      // Add to workflows list
+                      setWorkflows(prev => [...prev, newWorkflow]);
+                      
+                      // Show success message
+                      alert(`✅ Workflow "${newWorkflow.name}" imported successfully!`);
+                    } else {
+                      throw new Error('Invalid workflow file format - missing required data structure');
+                    }
+                  } catch (error) {
+                    console.error('❌ Failed to import workflow:', error);
+                    alert('❌ Failed to import workflow.\n\nPlease ensure the file is a valid workflow JSON file exported from Cashboard or another compatible workflow tool.');
+                  }
+                };
+                reader.readAsText(file);
+              }
+              // Reset the input
+              event.target.value = '';
+            }}
+          />
+          
+          <button
+            onClick={() => document.getElementById('workflow-import')?.click()}
+            className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors"
+            title="Import workflow from JSON file"
+          >
+            <Download className="w-4 h-4 rotate-180" />
+            Import
+          </button>
+          
           <button
             onClick={onCreateWorkflow}
             className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"

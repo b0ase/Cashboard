@@ -462,7 +462,7 @@ interface Connection {
   id: string
   from: string
   to: string
-  type: 'success' | 'failure' | 'conditional' | 'payment' | 'task'
+  type: 'success' | 'failure' | 'conditional' | 'payment' | 'task' | 'data' | 'service' | 'workflow' | 'organization' | 'role' | 'member' | 'instrument' | 'integration' | 'contract' | 'wallet' | 'control' | 'trigger' | 'decision' | 'milestone' | 'team' | 'kpi' | 'employee' | 'deliverable' | 'asset' | 'mint' | 'payroll' | 'production' | 'marketing' | 'sales' | 'legal' | 'finance' | 'hr' | 'it' | 'operations' | 'api' | 'database' | 'loop' | 'condition' | 'webhook' | 'email' | 'sms' | 'notification' | 'approval' | 'review' | 'timer' | 'counter' | 'calculator' | 'transformer' | 'validator' | 'aggregator' | 'filter' | 'sorter' | 'merger' | 'splitter' | 'gateway' | 'function' | 'script' | 'switch' | 'router' | 'youtube' | 'listener' | 'shareholder' | 'artist' | 'delay' | 'queue' | 'batch' | 'parallel' | 'sequence' | 'retry' | 'ai-agent' | 'instagram' | 'snapchat' | 'threads' | 'twitter' | 'facebook' | 'linkedin' | 'tiktok' | 'discord' | 'telegram' | 'whatsapp' | 'reddit' | 'voice' | 'elevenlabs' | 'midjourney' | 'veo3' | 'openai' | 'anthropic' | 'stability' | 'runway' | 'replicate' | 'huggingface' | 'cohere' | 'perplexity' | 'salesforce' | 'hubspot' | 'pipedrive' | 'googlesheets' | 'excel' | 'airtable' | 'notion' | 'stripe' | 'paypal' | 'square' | 'slack' | 'teams' | 'zoom' | 'wallets' | 'workflow' | 'contact' | 'assessment' | 'material' | 'product'
   condition?: string
   amount?: number
 }
@@ -4345,11 +4345,9 @@ function DashboardContentInner() {
 
               <button
                 onClick={() => {
-                  setAppState(prev => ({ 
-                    ...prev, 
-                    currentView: 'workflow',
-                    selectedWorkflow: null // Always go to workflows dashboard
-                  }))
+                  setCurrentView('workflow')
+                  // Clear any selected workflow to show the dashboard
+                  setAppState(prev => ({ ...prev, currentWorkflow: null }))
                 }}
                 className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
                   currentView === 'workflow' 
@@ -4664,28 +4662,12 @@ function DashboardContentInner() {
 
         {/* Content Views */}
         {currentView === 'dashboard' && (
-          <div className="absolute inset-0">
-            {/* Main React Flow Canvas */}
-            <div className="w-full h-full">
-              <WorkflowReactFlowCanvas
-                workflow={getExampleBusinessWorkflow()}
-                tabTitle="EXAMPLE Business Workflow - Asset & Monetary Flows"
-                connectionStyle="smoothstep"
-                templates={{
-                  organizationTemplates: getOrganizationTemplates(),
-                  roleTemplates: getRoleTemplates(),
-                  agentTemplates: getAgentTemplates(),
-                  instrumentTemplates: getInstrumentTemplates(),
-                  contractTemplates: getContractTemplates(),
-                  integrationTemplates: getIntegrationTemplates()
-                }}
-                onTemplateSelect={(template) => {
-                  console.log('Template selected in dashboard:', template)
-                }}
-                onAddNode={(type: string) => {
-                  console.log('Adding node to dashboard:', type)
-                }}
-              />
+          <div className="absolute inset-0 flex items-center justify-center">
+            {/* Blank Dashboard Page */}
+            <div className="text-center">
+              <h1 className="text-4xl font-bold text-white mb-4">Cashboard Dashboard</h1>
+              <p className="text-gray-400 text-lg">Welcome to the main dashboard</p>
+              <p className="text-gray-500 text-sm mt-2">Use the sidebar to navigate to different sections</p>
             </div>
           </div>
         )}

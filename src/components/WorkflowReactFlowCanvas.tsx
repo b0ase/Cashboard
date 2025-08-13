@@ -18,7 +18,7 @@ import ReactFlow, {
   MarkerType,
 } from 'reactflow'
 import 'reactflow/dist/style.css'
-import NodePaletteSimple from '@/components/NodePaletteSimple'
+import FixedNodePalette from '@/components/FixedNodePalette'
 import { getOrganizationTemplates, getRoleTemplates, getAgentTemplates, getInstrumentTemplates, getContractTemplates, getIntegrationTemplates, getCryptoTemplates, getWalletTemplates, TemplateItem } from '@/data/templates'
 import { getOrganizationCanvasTemplate } from '@/data/organizationCanvasTemplates'
 import NodeEditor from '@/components/NodeEditor'
@@ -526,6 +526,9 @@ export default function WorkflowReactFlowCanvas({
   const [currentCanvasIndex, setCurrentCanvasIndex] = React.useState(0)
   const currentCanvas = navigationStack[currentCanvasIndex]
 
+  // Palette state
+  const [isPaletteCollapsed, setIsPaletteCollapsed] = React.useState(false)
+
   // Navigation functions
   const navigateToNodeCanvas = (node: Node<RFNodeData>) => {
     const config = NODE_CANVAS_CONFIGS[node.data.kind as keyof typeof NODE_CANVAS_CONFIGS]
@@ -692,8 +695,6 @@ export default function WorkflowReactFlowCanvas({
   const [editingNode, setEditingNode] = useState<Node<RFNodeData> | null>(null)
   const [nodeCanvasModal, setNodeCanvasModal] = useState<Node<RFNodeData> | null>(null)
   
-
-
   // External node addition function for chatbot
   const addNodeToCanvas = useCallback((type: string) => {
     const existingNodes = nodes
@@ -754,7 +755,17 @@ export default function WorkflowReactFlowCanvas({
       if (type === 'organization') items = pick(live.organizations)
       else if (type === 'instrument') items = pick(live.instruments)
       else if (type === 'role') items = pick(live.roles)
-      else if (type === 'member') items = pick(live.agents)
+      else if (type === 'member') {
+        // Get members from organizations
+        const allMembers = live.organizations?.flatMap((org: any) => org.members || []) || []
+        items = allMembers.map((member: any) => ({
+          id: member.id,
+          name: member.displayName,
+          description: member.role,
+          type: 'member',
+          category: 'People'
+        }))
+      }
       else if (type === 'contract') items = pick(live.contracts)
       else if (type === 'workflow') items = [ { id: 'wf-blank', name: 'Blank Workflow' } ]
       else if (type === 'integration') items = pick(live.integrations)
@@ -839,6 +850,8 @@ export default function WorkflowReactFlowCanvas({
           currentCanvasIndex={currentCanvasIndex}
           navigateBack={navigateBack}
           navigateToCanvas={navigateToCanvas}
+          isPaletteCollapsed={isPaletteCollapsed}
+          setIsPaletteCollapsed={setIsPaletteCollapsed}
         />
         
         {/* Node Editor Modal */}
@@ -862,8 +875,8 @@ export default function WorkflowReactFlowCanvas({
   )
 }
 
-function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick, palette, templateModal, setTemplateModal, setNodes, setEdges, onTemplateSelect, onNodeClick, onNodeDoubleClick, tabTitle, connectionStyle, navigationStack, currentCanvasIndex, navigateBack, navigateToCanvas }:
-  { nodes: Node<RFNodeData>[]; edges: Edge[]; onNodesChange: any; onEdgesChange: any; onConnect: any; onPick: (type: string, rf: any) => void; palette: any[]; templateModal: { kind: string; items: TemplateItem[] } | null; setTemplateModal: (v: any) => void; setNodes: any; setEdges: any; onTemplateSelect?: (template: TemplateItem) => void; onNodeClick?: (event: React.MouseEvent, node: Node<RFNodeData>) => void; onNodeDoubleClick?: (event: React.MouseEvent, node: Node<RFNodeData>) => void; tabTitle?: string; connectionStyle?: 'bezier' | 'smoothstep' | 'straight'; navigationStack: CanvasNavItem[]; currentCanvasIndex: number; navigateBack: () => void; navigateToCanvas: (index: number) => void }) {
+function InnerRF({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onPick, palette, templateModal, setTemplateModal, setNodes, setEdges, onTemplateSelect, onNodeClick, onNodeDoubleClick, tabTitle, connectionStyle, navigationStack, currentCanvasIndex, navigateBack, navigateToCanvas, isPaletteCollapsed, setIsPaletteCollapsed }:
+  { nodes: Node<RFNodeData>[]; edges: Edge[]; onNodesChange: any; onEdgesChange: any; onConnect: any; onPick: (type: string, rf: any) => void; palette: any[]; templateModal: { kind: string; items: TemplateItem[] } | null; setTemplateModal: (v: any) => void; setNodes: any; setEdges: any; onTemplateSelect?: (template: TemplateItem) => void; onNodeClick?: (event: React.MouseEvent, node: Node<RFNodeData>) => void; onNodeDoubleClick?: (event: React.MouseEvent, node: Node<RFNodeData>) => void; tabTitle?: string; connectionStyle?: 'bezier' | 'smoothstep' | 'straight'; navigationStack: CanvasNavItem[]; currentCanvasIndex: number; navigateBack: () => void; navigateToCanvas: (index: number) => void; isPaletteCollapsed: boolean; setIsPaletteCollapsed: (v: boolean) => void }) {
   
   // Canvas control states
   const [isRunning, setIsRunning] = React.useState(false)
@@ -1201,19 +1214,211 @@ React.useEffect(() => {
             >
               💾 Save
             </button>
+            
+            <button
+              onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+                // Export workflow data
+                const canvasName = tabTitle || 'workflow';
+                const exportData = {
+                  metadata: {
+                    name: canvasName,
+                    description: `${canvasName} workflow exported from Cashboard`,
+                    version: "1.0.0",
+                    exportedAt: new Date().toISOString(),
+                    author: "Cashboard User",
+                    type: "workflow_export",
+                    canvasInfo: {
+                      totalNodes: nodes.length,
+                      totalEdges: edges.length,
+                      canvasScale: canvasScale,
+                      isRunning: isRunning,
+                      autoMode: autoMode
+                    }
+                  },
+                  workflow: {
+                    nodes: nodes.map(node => ({
+                      id: node.id,
+                      position: node.position,
+                      data: node.data,
+                      type: node.type
+                    })),
+                    edges: edges.map(edge => ({
+                      id: edge.id,
+                      source: edge.source,
+                      target: edge.target,
+                      type: edge.type,
+                      data: edge.data
+                    })),
+                    viewport: rf.getViewport(),
+                    settings: {
+                      connectionStyle: currentConnectionStyle,
+                      gridSnap: true,
+                      showGrid: true
+                    }
+                  }
+                };
+                
+                // Create and download JSON file
+                const dataStr = JSON.stringify(exportData, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `${canvasName.replace(/[^a-zA-Z0-9]/g, '_')}_workflow_${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                
+                // Visual feedback
+                const button = event.currentTarget as HTMLButtonElement;
+                const originalClass = button.className;
+                button.className = 'px-2 py-1 rounded text-xs bg-blue-500/60 text-white transition-all';
+                setTimeout(() => {
+                  button.className = originalClass;
+                }, 500);
+                
+                console.log('📤 Workflow exported:', exportData);
+              }}
+              className="px-2 py-1 rounded text-xs bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 transition-all"
+              title="Export current workflow as JSON file with all nodes and connections"
+            >
+              📤 Export
+            </button>
+            
+            {/* Hidden file input for import */}
+            <input
+              type="file"
+              id="canvas-workflow-import"
+              accept=".json"
+              className="hidden"
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                if (file) {
+                  const reader = new FileReader();
+                  reader.onload = (e) => {
+                    try {
+                      const importData = JSON.parse(e.target?.result as string);
+                      console.log('📥 Importing workflow to canvas:', importData);
+                      
+                      // Validate the imported data structure
+                      if (importData.workflow && importData.workflow.nodes) {
+                        // Check if this is a workflow export from Cashboard
+                        const isCashboardExport = importData.metadata?.type === 'workflow_export';
+                        
+                        if (isCashboardExport) {
+                          console.log('📋 Importing Cashboard workflow export');
+                          
+                          // Import nodes with proper positioning
+                          if (importData.workflow.nodes.length > 0) {
+                            const importedNodes = importData.workflow.nodes.map((node: any) => ({
+                              id: node.id,
+                              type: node.type || 'colored',
+                              position: node.position || { x: 0, y: 0 },
+                              data: node.data || { label: 'Imported Node', kind: 'workflow' }
+                            }));
+                            
+                            // Add imported nodes to canvas
+                            setNodes((prev: Node<RFNodeData>[]) => [...prev, ...importedNodes]);
+                            
+                            // Import edges
+                            if (importData.workflow.edges && importData.workflow.edges.length > 0) {
+                              const importedEdges = importData.workflow.edges.map((edge: any) => ({
+                                id: edge.id,
+                                source: edge.source,
+                                target: edge.target,
+                                type: edge.type || 'default',
+                                data: edge.data
+                              }));
+                              
+                              // Add imported edges to canvas
+                              setEdges((prev: Edge[]) => [...prev, ...importedEdges]);
+                            }
+                            
+                            // Set viewport if available
+                            if (importData.workflow.viewport) {
+                              rf.setViewport(importData.workflow.viewport);
+                            }
+                            
+                            // Apply settings if available
+                            if (importData.workflow.settings) {
+                              if (importData.workflow.settings.connectionStyle) {
+                                // Update connection style if it exists in the current component
+                                console.log('🔄 Applying imported connection style:', importData.workflow.settings.connectionStyle);
+                              }
+                            }
+                            
+                            // Show success message with details
+                            const nodeCount = importedNodes.length;
+                            const edgeCount = importData.workflow.edges?.length || 0;
+                            console.log(`✅ Cashboard workflow imported successfully! Added ${nodeCount} nodes and ${edgeCount} edges.`);
+                            
+                            // Show user-friendly alert
+                            alert(`✅ Workflow imported successfully!\n\n📊 Details:\n• ${nodeCount} nodes added\n• ${edgeCount} connections added\n• Canvas view restored\n\nWorkflow: ${importData.metadata?.name || 'Unknown'}`);
+                          }
+                        } else {
+                          // Handle generic JSON workflow format
+                          console.log('📋 Importing generic workflow format');
+                          
+                          const importedNodes = importData.workflow.nodes.map((node: any) => ({
+                            id: node.id || `imported_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                            type: node.type || 'colored',
+                            position: node.position || { x: Math.random() * 500, y: Math.random() * 500 },
+                            data: node.data || { label: node.name || 'Imported Node', kind: 'workflow' }
+                          }));
+                          
+                          setNodes((prev: Node<RFNodeData>[]) => [...prev, ...importedNodes]);
+                          
+                          if (importData.workflow.edges) {
+                            const importedEdges = importData.workflow.edges.map((edge: any) => ({
+                              id: edge.id || `edge_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                              source: edge.source || edge.from,
+                              target: edge.target || edge.to,
+                              type: edge.type || 'default',
+                              data: edge.data
+                            }));
+                            
+                            setEdges((prev: Edge[]) => [...prev, ...importedEdges]);
+                          }
+                          
+                          console.log(`✅ Generic workflow imported successfully! Added ${importedNodes.length} nodes.`);
+                          alert(`✅ Generic workflow imported successfully!\n\n📊 Added ${importedNodes.length} nodes to the canvas.`);
+                        }
+                      } else {
+                        throw new Error('Invalid workflow file format - missing workflow.nodes');
+                      }
+                    } catch (error) {
+                      console.error('❌ Failed to import workflow to canvas:', error);
+                      alert('❌ Failed to import workflow.\n\nPlease ensure the file is a valid workflow JSON file exported from Cashboard or another compatible workflow tool.');
+                    }
+                  };
+                  reader.readAsText(file);
+                }
+                // Reset the input
+                event.target.value = '';
+              }}
+            />
+            
+            <button
+              onClick={() => document.getElementById('canvas-workflow-import')?.click()}
+              className="px-2 py-1 rounded text-xs bg-green-500/20 text-green-300 hover:bg-green-500/30 transition-all"
+              title="Import workflow from JSON file into current canvas"
+            >
+              📥 Import
+            </button>
           </div>
         </div>
       </Panel>
 
-      <div className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10">
-        <NodePaletteSimple
-          title="Add Nodes"
-          nodeTypes={palette as any}
-          categories={[...new Set(palette.map((p) => p.category))]}
-          onPick={(t) => onPick(t, rf)}
-          visible={true}
-        />
-      </div>
+      <FixedNodePalette
+        title="Add Nodes"
+        nodeTypes={PALETTE}
+        categories={[...new Set(PALETTE.map((p) => p.category))]}
+        onPick={(t) => onPick(t, rf)}
+        visible={true}
+        collapsed={isPaletteCollapsed}
+        onToggleCollapsed={() => setIsPaletteCollapsed(!isPaletteCollapsed)}
+      />
       {templateModal && (
         <div 
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"

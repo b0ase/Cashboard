@@ -23,6 +23,7 @@ export default function NodePaletteSimple({
   onPick: (type: string) => void
   visible?: boolean
 }) {
+  console.log('NodePaletteSimple props:', { title, nodeTypes, categories, visible })
   const [open, setOpen] = useState<Record<string, boolean>>(
     Object.fromEntries(categories.map((c) => [c, true])) as Record<string, boolean>
   )
@@ -30,7 +31,7 @@ export default function NodePaletteSimple({
   // Dragging state
   const [isDragging, setIsDragging] = useState(false)
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
-  const [position, setPosition] = useState({ x: 0, y: 0 })
+  const [position, setPosition] = useState({ x: 100, y: 100 })
   
   // Resizing state
   const [isResizing, setIsResizing] = useState(false)
@@ -60,13 +61,26 @@ export default function NodePaletteSimple({
     
     e.preventDefault()
     
-    const newX = e.clientX - dragOffset.x
-    const newY = e.clientY - dragOffset.y
+    let newX = e.clientX - dragOffset.x
+    let newY = e.clientY - dragOffset.y
+    
+    // Boundary constraints to keep palette on screen
+    const viewportWidth = window.innerWidth
+    const viewportHeight = window.innerHeight
+    
+    // Prevent going off the left edge
+    if (newX < 0) newX = 0
+    // Prevent going off the right edge
+    if (newX + size.width > viewportWidth) newX = viewportWidth - size.width
+    // Prevent going off the top edge
+    if (newY < 0) newY = 0
+    // Prevent going off the bottom edge
+    if (newY + size.height > viewportHeight) newY = viewportHeight - size.height
     
     // Update position state and transform
     setPosition({ x: newX, y: newY })
     paletteRef.current.style.transform = `translate(${newX}px, ${newY}px)`
-  }, [isDragging, dragOffset])
+  }, [isDragging, dragOffset, size.width, size.height])
   
   const handleDragEnd = useCallback(() => {
     if (!isDragging) return
@@ -197,9 +211,35 @@ export default function NodePaletteSimple({
     }
   }, [isResizing, handleResizeMove, handleResizeEnd])
 
+  // Position palette on right side after mount and handle window resize
+  React.useEffect(() => {
+    const positionPalette = () => {
+      // Ensure palette stays within viewport bounds
+      const maxX = Math.max(20, window.innerWidth - size.width - 20)
+      const newX = Math.min(maxX, 280) // Don't go too far right
+      const newY = Math.min(100, window.innerHeight - size.height - 20)
+      console.log('Positioning palette at:', { x: newX, y: newY, windowWidth: window.innerWidth })
+      setPosition({ x: newX, y: newY })
+    }
+
+    // Position on mount
+    positionPalette()
+
+    // Handle window resize
+    const handleWindowResize = () => {
+      positionPalette()
+    }
+
+    window.addEventListener('resize', handleWindowResize)
+    return () => window.removeEventListener('resize', handleWindowResize)
+  }, [size.width, size.height])
+
   if (!visible) {
+    console.log('NodePaletteSimple not visible, returning null')
     return null
   }
+
+  console.log('NodePaletteSimple rendering with position:', position, 'size:', size, 'visible:', visible)
 
   return (
     <div 
@@ -208,11 +248,14 @@ export default function NodePaletteSimple({
         isDragging ? 'shadow-2xl scale-[1.02] border-blue-400/50' : 'shadow-lg'
       }`}
       style={{
-        transform: `translate(${position.x}px, ${position.y}px)`,
+        position: 'absolute',
+        left: `${position.x}px`,
+        top: `${position.y}px`,
         width: `${size.width}px`,
         height: `${size.height}px`,
         minWidth: '200px',
-        minHeight: '300px'
+        minHeight: '300px',
+        zIndex: 9999
       }}
     >
       {/* Additional Resize Handles for the main container */}
@@ -269,7 +312,7 @@ export default function NodePaletteSimple({
         title="Resize diagonally"
       ></div>
       <div 
-        className="flex items-center justify-between mb-2 cursor-grab active:cursor-grabbing hover:bg-white/5 p-2 -m-2 mb-0 rounded transition-colors relative"
+        className="flex items-center justify-between mb-2 cursor-grab active:cursor-grabbing hover:bg-white/10 p-2 -m-2 mb-0 rounded transition-colors relative border-b border-white/10"
         onMouseDown={handleDragStart}
         title="Drag to move palette"
       >
@@ -277,9 +320,9 @@ export default function NodePaletteSimple({
           <div className="text-gray-400 hover:text-white">
             <GripVertical className="w-4 h-4" />
           </div>
-          <div className="text-xs text-gray-400">
-            {title} <span className="text-[10px] text-gray-500">({nodeTypes.length})</span>
-          </div>
+                  <div className="text-xs text-white font-bold">
+          {title} <span className="text-[10px] text-white">({nodeTypes.length})</span>
+        </div>
         </div>
         <button
           onClick={(e) => {

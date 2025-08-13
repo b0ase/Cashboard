@@ -146,7 +146,7 @@ export default function WorkflowsView({
   const [selectedFolder, setSelectedFolder] = useState<string | null>(null)
   const [newWorkflowFolder, setNewWorkflowFolder] = useState('')
   const [showFolderMenu, setShowFolderMenu] = useState<string | null>(null)
-  const [activeView, setActiveView] = useState<'examples' | 'user' | 'library'>('examples')
+  const [activeView, setActiveView] = useState<'examples' | 'organizations' | 'roles' | 'agents' | 'instruments' | 'contracts' | 'user-folders'>('examples')
 
   React.useEffect(() => {
     const handleClickOutside = () => {
@@ -212,16 +212,29 @@ export default function WorkflowsView({
       case 'examples':
         filtered = workflows.filter(w => w.name.includes('Example') || w.name.includes('AUDEX') || w.name.includes('DeFi') || w.name.includes('Supply Chain'))
         break
-      case 'user':
-        filtered = workflows.filter(w => !w.name.includes('Example') && !w.name.includes('AUDEX') && !w.name.includes('DeFi') && !w.name.includes('Supply Chain'))
+      case 'organizations':
+        filtered = workflows.filter(w => w.name.includes('Organization') || w.name.includes('Corp') || w.name.includes('LLC') || w.name.includes('Ltd'))
         break
-      case 'library':
-        filtered = workflows.filter(w => w.name.includes('Template') || w.name.includes('Library'))
+      case 'roles':
+        filtered = workflows.filter(w => w.name.includes('Role') || w.name.includes('Employee') || w.name.includes('Team') || w.name.includes('Position'))
+        break
+      case 'agents':
+        filtered = workflows.filter(w => w.name.includes('AI') || w.name.includes('Agent') || w.name.includes('Bot') || w.name.includes('Assistant'))
+        break
+      case 'instruments':
+        filtered = workflows.filter(w => w.name.includes('Token') || w.name.includes('Share') || w.name.includes('Bond') || w.name.includes('Instrument'))
+        break
+      case 'contracts':
+        filtered = workflows.filter(w => w.name.includes('Contract') || w.name.includes('Agreement') || w.name.includes('Deal') || w.name.includes('Terms'))
+        break
+      case 'user-folders':
+        // Show all workflows organized by folders
+        filtered = workflows
         break
     }
     
-    // Filter by folder if selected
-    if (selectedFolder) {
+    // Filter by folder if selected (only for user-folders view)
+    if (selectedFolder && activeView === 'user-folders') {
       filtered = filtered.filter(w => w.folder === selectedFolder)
     }
     
@@ -287,9 +300,13 @@ export default function WorkflowsView({
           </h1>
           <p className="text-gray-400">
             {activeView === 'examples' && 'Ready-to-use workflow examples and templates • '}
-            {activeView === 'user' && 'Your custom workflows and business processes • '}
-            {activeView === 'library' && 'Workflow library and community templates • '}
-            {filteredWorkflows.length} workflow{filteredWorkflows.length !== 1 ? 's' : ''} {selectedFolder ? `in "${selectedFolder}"` : ''}
+            {activeView === 'organizations' && 'Organization and corporate structure workflows • '}
+            {activeView === 'roles' && 'Role and team management workflows • '}
+            {activeView === 'agents' && 'AI agent and automation workflows • '}
+            {activeView === 'instruments' && 'Financial instrument and token workflows • '}
+            {activeView === 'contracts' && 'Contract and agreement workflows • '}
+            {activeView === 'user-folders' && 'Your custom workflows organized by folders • '}
+            {filteredWorkflows.length} workflow{filteredWorkflows.length !== 1 ? 's' : ''} {selectedFolder && activeView === 'user-folders' ? `in "${selectedFolder}"` : ''}
           </p>
         </div>
         
@@ -316,10 +333,10 @@ export default function WorkflowsView({
       </div>
 
       {/* View Tabs */}
-      <div className="flex items-center space-x-1 mb-6 p-2 bg-black/60 backdrop-blur-xl rounded-xl border border-white/20 relative z-10 shadow-lg">
+      <div className="flex items-center space-x-1 mb-6 p-2 bg-black/60 backdrop-blur-xl rounded-xl border border-white/20 relative z-10 shadow-lg overflow-x-auto">
         <button
           onClick={() => setActiveView('examples')}
-          className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+          className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 whitespace-nowrap ${
             activeView === 'examples'
               ? 'bg-blue-500 text-white shadow-lg'
               : 'text-gray-400 hover:text-white hover:bg-white/10'
@@ -328,28 +345,69 @@ export default function WorkflowsView({
           Examples
         </button>
         <button
-          onClick={() => setActiveView('user')}
-          className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
-            activeView === 'user'
+          onClick={() => setActiveView('organizations')}
+          className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+            activeView === 'organizations'
               ? 'bg-blue-500 text-white shadow-lg'
               : 'text-gray-400 hover:text-white hover:bg-white/10'
           }`}
         >
-          User Workflows
+          Organizations
         </button>
         <button
-          onClick={() => setActiveView('library')}
-          className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
-            activeView === 'library'
+          onClick={() => setActiveView('roles')}
+          className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+            activeView === 'roles'
               ? 'bg-blue-500 text-white shadow-lg'
               : 'text-gray-400 hover:text-white hover:bg-white/10'
           }`}
         >
-          Library
+          Roles
+        </button>
+        <button
+          onClick={() => setActiveView('agents')}
+          className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+            activeView === 'agents'
+              ? 'bg-blue-500 text-white shadow-lg'
+              : 'text-gray-400 hover:text-white hover:bg-white/10'
+          }`}
+        >
+          Agents
+        </button>
+        <button
+          onClick={() => setActiveView('instruments')}
+          className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+            activeView === 'instruments'
+              ? 'bg-blue-500 text-white shadow-lg'
+              : 'text-gray-400 hover:text-white hover:bg-white/10'
+          }`}
+        >
+          Instruments
+        </button>
+        <button
+          onClick={() => setActiveView('contracts')}
+          className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+            activeView === 'contracts'
+              ? 'bg-blue-500 text-white shadow-lg'
+              : 'text-gray-400 hover:text-white hover:bg-white/10'
+          }`}
+        >
+          Contracts
+        </button>
+        <button
+          onClick={() => setActiveView('user-folders')}
+          className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+            activeView === 'user-folders'
+              ? 'bg-blue-500 text-white shadow-lg'
+              : 'text-gray-400 hover:text-white hover:bg-white/10'
+          }`}
+        >
+          User Folders
         </button>
       </div>
 
-      {folders.length > 0 && (
+      {/* Folder Navigation - Only show in user-folders view */}
+      {activeView === 'user-folders' && folders.length > 0 && (
         <div className="flex items-center space-x-2 mb-6 overflow-x-auto pb-2">
           <button
             onClick={() => setSelectedFolder(null)}
@@ -387,8 +445,12 @@ export default function WorkflowsView({
             <Zap className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-white mb-2">
               {activeView === 'examples' && 'No Examples Available'}
-              {activeView === 'user' && 'No User Workflows Yet'}
-              {activeView === 'library' && 'No Library Templates'}
+              {activeView === 'organizations' && 'No Organization Workflows'}
+              {activeView === 'roles' && 'No Role Workflows'}
+              {activeView === 'agents' && 'No Agent Workflows'}
+              {activeView === 'instruments' && 'No Instrument Workflows'}
+              {activeView === 'contracts' && 'No Contract Workflows'}
+              {activeView === 'user-folders' && 'No User Workflows Yet'}
             </h3>
             <p className="text-gray-400 mb-6">
               {activeView === 'examples' && 'Ready-to-use workflow examples will appear here for you to explore and customize.'}

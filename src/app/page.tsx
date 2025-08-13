@@ -8476,8 +8476,18 @@ function WorkflowView({
               </button>
             </div>
             <div className="p-4 overflow-y-auto max-h-[70vh]">
+              {/* Debug info */}
+              <div className="mb-4 p-3 bg-blue-500/20 border border-blue-500/30 rounded-lg">
+                <p className="text-blue-400 text-sm">
+                  <strong>Debug:</strong> Modal: {showBusinessModal} | 
+                  Organizations: {organizations.length} | 
+                  Roles: {roles.length} | 
+                  Instruments: {instruments.length} | 
+                  Contracts: {contracts.length}
+                </p>
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                {(showBusinessModal === 'workflow' ? allWorkflows :
+                {(showBusinessModal === 'workflow' ? workflows :
                   showBusinessModal === 'organization' ? organizations :
                   showBusinessModal === 'role' ? roles :
                   showBusinessModal === 'member' ? (organizations.flatMap(o => o.members).map(m => ({ id: m.id, name: m.displayName || m.handle, description: m.handle }))) :

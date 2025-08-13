@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import WorkflowReactFlowCanvas from '@/components/WorkflowReactFlowCanvas'
 import WorkflowDashboard from '@/components/WorkflowDashboard'
 import { HandCashAuthButton, UserProfileCard } from '@/components/HandCashAuth'
+import WalletsView from '@/components/dashboard/WalletsView'
 import { useAuth } from '@/contexts/AuthContext'
 import { 
   getOrganizationTemplates, 
@@ -4684,13 +4685,12 @@ function DashboardContentInner() {
             workflows={workflows}
           />
         )}
-
-        {currentView === 'wallets' && (
-          <WalletsView
-            organizations={organizations}
-            selectedOrganization={selectedOrganization}
-          />
-        )}
+{currentView === 'wallets' && (
+  <WalletsView
+    organizations={organizations}
+    selectedOrganization={selectedOrganization}
+  />
+)}
 
         {currentView === 'integrations' && (
           <IntegrationsView />
@@ -13998,7 +13998,7 @@ function BillingView() {
 }
 
 // Wallets View Component
-function WalletsView({ organizations, selectedOrganization }: WalletsViewProps) {
+function LocalWalletsView({ organizations, selectedOrganization }: WalletsViewProps) {
   const [showCreateWallet, setShowCreateWallet] = useState(false)
   const [showWalletTemplates, setShowWalletTemplates] = useState(false)
   const [selectedWallet, setSelectedWallet] = useState<Wallet | null>(null)

@@ -7611,7 +7611,7 @@ function WorkflowView({
     { type: 'decision' as const, name: 'Decision', icon: getColoredNodeIcon('decision'), category: 'Basic' },
     { type: 'payment' as const, name: 'Payment', icon: getColoredNodeIcon('payment'), category: 'Basic' },
     { type: 'milestone' as const, name: 'Milestone', icon: getColoredNodeIcon('milestone'), category: 'Basic' },
-    { type: 'contract' as const, name: 'Contract', icon: getColoredNodeIcon('contract'), category: 'Basic' },
+    { type: 'contract' as const, name: 'Contract', icon: getColoredNodeIcon('contract'), category: 'Business' },
     { type: 'team' as const, name: 'Team', icon: getColoredNodeIcon('team'), category: 'Basic' },
     
     // Business Entities
@@ -7621,7 +7621,7 @@ function WorkflowView({
     { type: 'ai-agent' as const, name: 'Agents', icon: getColoredNodeIcon('ai-agent'), category: 'Business' },
     { type: 'member' as const, name: 'People', icon: getColoredNodeIcon('member'), category: 'Business' },
     { type: 'instrument' as const, name: 'Instruments', icon: getColoredNodeIcon('instrument'), category: 'Business' },
-    { type: 'contract' as const, name: 'Contracts', icon: getColoredNodeIcon('contract'), category: 'Business' },
+
     { type: 'wallets' as const, name: 'Wallets', icon: getColoredNodeIcon('wallets'), category: 'Business' },
     { type: 'integration' as const, name: 'Integrations', icon: getColoredNodeIcon('integration'), category: 'Business' },
     { type: 'contact' as const, name: 'Contact', icon: getColoredNodeIcon('contact'), category: 'Business' },

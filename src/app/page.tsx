@@ -4612,8 +4612,8 @@ function DashboardContentInner() {
         {currentView === 'workflow' && currentWorkflow && (
           <div className="relative h-[calc(100vh-140px)]">
             <WorkflowReactFlowCanvas 
-              workflow={getExampleBusinessWorkflow()} 
-              tabTitle="EXAMPLE Business Workflow - Asset & Monetary Flows"
+              workflow={currentWorkflow} 
+              tabTitle={currentWorkflow.name}
               onAddNode={() => {}}
             />
           </div>

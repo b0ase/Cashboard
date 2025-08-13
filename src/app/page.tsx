@@ -2363,7 +2363,7 @@ function DashboardContentInner() {
       status: 'sent'
     }
   ],
-  isChatOpen: true,
+  isChatOpen: false,
   isMobile: false,
       instruments: [
       {
@@ -4687,7 +4687,8 @@ function DashboardContentInner() {
                       if (audexWorkflow) {
                         setAppState(prev => ({
                           ...prev,
-                          currentWorkflow: audexWorkflow
+                          currentWorkflow: audexWorkflow,
+                          isChatOpen: true // Open AI Assistant when going to workflow
                         }))
                         setCurrentView('workflow')
                       }

@@ -756,8 +756,87 @@ export default function WorkflowReactFlowCanvas({
       else if (type === 'instrument') items = pick(live.instruments)
       else if (type === 'role') items = pick(live.roles)
       else if (type === 'member') {
-        // Get members from organizations
-        const allMembers = live.organizations?.flatMap((org: any) => org.members || []) || []
+        // Get members from organizations with fallback to hardcoded people
+        let allMembers = live.organizations?.flatMap((org: any) => org.members || []) || []
+        
+        // If no members found, use hardcoded people
+        if (allMembers.length === 0) {
+          allMembers = [
+            {
+              id: 'alice-johnson',
+              displayName: 'Alice Johnson',
+              role: 'Senior Developer',
+              handle: '$alice_dev',
+              email: 'alice@techcorp.com',
+              publicAddress: '1A1zP1eP...',
+              lastActive: '1/20/2024',
+              status: '✓',
+              walletType: 'HandCash',
+              organization: 'TechCorp Inc.'
+            },
+            {
+              id: 'bob-smith',
+              displayName: 'Bob Smith',
+              role: 'Product Manager',
+              handle: '$bob_tech',
+              email: 'bob@techcorp.com',
+              publicAddress: '3FUpjxWp...',
+              lastActive: '1/19/2024',
+              status: '⏳',
+              walletType: 'Phantom',
+              organization: 'TechCorp Inc.'
+            },
+            {
+              id: 'sarah-wilson',
+              displayName: 'Sarah Wilson',
+              role: 'Marketing Director',
+              handle: '$sarah_marketing',
+              email: 'sarah@techcorp.com',
+              publicAddress: '1BvBMSEY...',
+              lastActive: '1/20/2024',
+              status: '✓',
+              walletType: 'MetaMask',
+              organization: 'TechCorp Inc.'
+            },
+            {
+              id: 'mike-chen',
+              displayName: 'Mike Chen',
+              role: 'Financial Analyst',
+              handle: '$mike_finance',
+              email: 'mike@techcorp.com',
+              publicAddress: '34xp4vRo...',
+              lastActive: '1/18/2024',
+              status: '✗',
+              walletType: 'HandCash',
+              organization: 'TechCorp Inc.'
+            },
+            {
+              id: 'emma-davis',
+              displayName: 'Emma Davis',
+              role: 'UX Designer',
+              handle: '$emma_design',
+              email: 'emma@techcorp.com',
+              publicAddress: 'bc1qxy2k...',
+              lastActive: '1/20/2024',
+              status: '✓',
+              walletType: 'Bitcoin',
+              organization: 'TechCorp Inc.'
+            },
+            {
+              id: 'david-wilson',
+              displayName: 'David Wilson',
+              role: 'Operations Manager',
+              handle: '$david_ops',
+              email: 'david@techcorp.com',
+              publicAddress: '0x742d35...',
+              lastActive: '1/19/2024',
+              status: '⏳',
+              walletType: 'Ethereum',
+              organization: 'TechCorp Inc.'
+            }
+          ]
+        }
+        
         items = allMembers.map((member: any) => ({
           id: member.id,
           name: member.displayName,

@@ -450,7 +450,7 @@ const PALETTE = [
   { type: 'organization', name: 'Organizations', category: 'Business', icon: <Building className="w-6 h-6 text-blue-500" /> },
   { type: 'role', name: 'Roles', category: 'Business', icon: <Crown className="w-6 h-6 text-amber-500" /> },
   { type: 'ai-agent', name: 'Agents', category: 'Business', icon: <Bot className="w-6 h-6 text-purple-500" /> },
-  { type: 'member', name: 'People', category: 'Business', icon: <UserCheck className="w-6 h-6 text-purple-500" /> },
+  { type: 'people', name: 'People', category: 'Business', icon: <UserCheck className="w-6 h-6 text-purple-500" /> },
   { type: 'instrument', name: 'Instruments', category: 'Business', icon: <TrendingUp className="w-6 h-6 text-orange-500" /> },
   { type: 'wallets', name: 'Wallets', category: 'Business', icon: <Wallet className="w-6 h-6 text-amber-500" /> },
   { type: 'contract', name: 'Contract', category: 'Business', icon: <FileText className="w-6 h-6 text-gray-500" /> },
@@ -488,7 +488,7 @@ const PALETTE = [
   { type: 'schema-media', name: 'Media Schema', category: 'Bitcoin Schema', icon: <Camera className="w-6 h-6 text-purple-600" /> },
 ]
 
-const BUSINESS_KINDS = new Set(['workflow','organization','role','ai-agent','member','instrument','wallets','contract','integration','scrypt-multisig','scrypt-escrow','scrypt-token','scrypt-auction','scrypt-oracle','scrypt-voting','scrypt-timelock','scrypt-nft','schema-post','schema-profile','schema-like','schema-follow','schema-media'])
+const BUSINESS_KINDS = new Set(['workflow','organization','role','ai-agent','people','instrument','wallets','contract','integration','scrypt-multisig','scrypt-escrow','scrypt-token','scrypt-auction','scrypt-oracle','scrypt-voting','scrypt-timelock','scrypt-nft','schema-post','schema-profile','schema-like','schema-follow','schema-media'])
 
 
 
@@ -755,13 +755,24 @@ export default function WorkflowReactFlowCanvas({
       if (type === 'organization') items = pick(live.organizations)
       else if (type === 'instrument') items = pick(live.instruments)
       else if (type === 'role') items = pick(live.roles)
-      else if (type === 'member') {
-        // Get members from organizations with fallback to hardcoded people
-        let allMembers = live.organizations?.flatMap((org: any) => org.members || []) || []
+      else if (type === 'ai-agent') {
+        // Get AI agents from templates
+        const agentTemplates = getAgentTemplates()
+        items = agentTemplates.map((agent: any) => ({
+          id: agent.id,
+          name: agent.name,
+          description: agent.description,
+          type: 'ai-agent',
+          category: 'AI Agents'
+        }))
+      }
+      else if (type === 'people') {
+        // Get people from organizations with fallback to hardcoded people
+        let allPeople = live.organizations?.flatMap((org: any) => org.members || []) || []
         
-        // If no members found, use hardcoded people
-        if (allMembers.length === 0) {
-          allMembers = [
+        // If no people found, use hardcoded people
+        if (allPeople.length === 0) {
+          allPeople = [
             {
               id: 'alice-johnson',
               displayName: 'Alice Johnson',
@@ -837,11 +848,11 @@ export default function WorkflowReactFlowCanvas({
           ]
         }
         
-        items = allMembers.map((member: any) => ({
-          id: member.id,
-          name: member.displayName,
-          description: member.role,
-          type: 'member',
+        items = allPeople.map((person: any) => ({
+          id: person.id,
+          name: person.displayName,
+          description: person.role,
+          type: 'people',
           category: 'People'
         }))
       }

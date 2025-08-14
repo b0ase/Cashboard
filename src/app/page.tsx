@@ -3018,6 +3018,8 @@ function DashboardContentInner() {
     const checkMobile = () => {
       const mobile = window.innerWidth <= 768 || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
       setIsMobile(mobile)
+      // Ensure mobile menu is closed on mobile detection
+      setMobileMenuOpen(false)
       setAppState(prev => ({
         ...prev,
         isMobile: mobile,
@@ -4699,8 +4701,8 @@ function DashboardContentInner() {
         {/* Content Views */}
         {currentView === 'dashboard' && (
           <div className="absolute inset-0 flex items-start justify-center bg-black pt-12">
-            {/* Larger Letterboxed Video Player */}
-            <div className="w-2/3 h-2/3 bg-black mt-8 relative">
+            {/* Responsive Letterboxed Video Player */}
+            <div className={`${isMobile ? 'w-3/4 h-1/3' : 'w-2/3 h-2/3'} bg-black mt-8 relative`}>
               {/* Main video */}
               <video
                 ref={(el) => {

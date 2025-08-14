@@ -473,23 +473,44 @@ export default function WorkflowsView({
         <div className={`grid gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
           <div
             onClick={() => setShowCreateModal(true)}
-            className="bg-black/20 backdrop-blur-xl border-2 border-dashed border-white/20 rounded-xl p-6 hover:bg-black/30 hover:border-white/30 transition-all duration-200 cursor-pointer group flex flex-col items-center justify-center min-h-[280px]"
+            className={`${
+              isMobile 
+                ? 'bg-black/20 backdrop-blur-xl border-2 border-dashed border-white/20 rounded-lg p-3 hover:bg-black/30 hover:border-white/30 transition-all duration-200 cursor-pointer group flex items-center justify-center min-h-[60px]'
+                : 'bg-black/20 backdrop-blur-xl border-2 border-dashed border-white/20 rounded-xl p-6 hover:bg-black/30 hover:border-white/30 transition-all duration-200 cursor-pointer group flex flex-col items-center justify-center min-h-[280px]'
+            }`}
           >
-            <div className="text-center">
-              <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mb-4 group-hover:bg-blue-500/30 transition-colors">
-                <Plus className="w-8 h-8 text-blue-400" />
+            {isMobile ? (
+              // Mobile: Compact button layout
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center group-hover:bg-blue-500/30 transition-colors">
+                  <Plus className="w-4 h-4 text-blue-400" />
+                </div>
+                <div className="text-left">
+                  <h3 className="text-sm font-semibold text-white">Create New Workflow</h3>
+                </div>
               </div>
-              <h3 className="text-lg font-semibold text-white mb-2">Create New Workflow</h3>
-              <p className="text-gray-400 text-sm">
-                Build automated business processes and team coordination workflows
-              </p>
-            </div>
+            ) : (
+              // Desktop: Full card layout
+              <div className="text-center">
+                <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mb-4 group-hover:bg-blue-500/30 transition-colors">
+                  <Plus className="w-8 h-8 text-blue-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-white mb-2">Create New Workflow</h3>
+                <p className="text-gray-400 text-sm">
+                  Build automated business processes and team coordination workflows
+                </p>
+              </div>
+            )}
           </div>
 
           {filteredWorkflows.map((workflow) => (
             <div
               key={workflow.id}
-              className={`bg-black/40 backdrop-blur-xl border rounded-xl p-6 hover:bg-black/60 transition-all duration-200 cursor-pointer group overflow-hidden ${
+              className={`${
+                isMobile 
+                  ? 'bg-black/40 backdrop-blur-xl border rounded-lg p-3 hover:bg-black/60 transition-all duration-200 cursor-pointer group' 
+                  : 'bg-black/40 backdrop-blur-xl border rounded-xl p-6 hover:bg-black/60 transition-all duration-200 cursor-pointer group overflow-hidden'
+              } ${
                 workflow.name === 'Example Organisation Workflow: AUDEX' 
                   ? 'border-gradient-demo animate-pulse-glow shadow-2xl shadow-blue-500/20' 
                   : 'border-white/20'
@@ -498,66 +519,107 @@ export default function WorkflowsView({
               }`}
               onClick={() => onOpenWorkflow(workflow.id)}
             >
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-lg font-semibold text-white mb-1 truncate">
-                    {workflow.name}
-                  </h3>
-                  {workflow.folder && (
-                    <div className="flex items-center gap-1 mb-2">
-                      <Folder className="w-3 h-3 text-blue-400" />
-                      <span className="text-xs text-blue-400 truncate">{workflow.folder}</span>
+              {isMobile ? (
+                // Mobile: Compact button-like layout
+                <div className="flex items-center justify-between">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-base font-semibold text-white mb-1 truncate">
+                      {workflow.name}
+                    </h3>
+                    {workflow.folder && (
+                      <div className="flex items-center gap-1">
+                        <Folder className="w-3 h-3 text-blue-400" />
+                        <span className="text-xs text-blue-400 truncate">{workflow.folder}</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center space-x-2 ml-3">
+                    <div className={`w-2 h-2 rounded-full ${getStatusColor(workflow.workflowStatus)}`}></div>
+                    <span className="text-xs text-gray-400 whitespace-nowrap">
+                      {getStatusText(workflow.workflowStatus)}
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                // Desktop: Full card layout
+                <>
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-lg font-semibold text-white mb-1 truncate">
+                        {workflow.name}
+                      </h3>
+                      {workflow.folder && (
+                        <div className="flex items-center gap-1 mb-2">
+                          <Folder className="w-3 h-3 text-blue-400" />
+                          <span className="text-xs text-blue-400 truncate">{workflow.folder}</span>
+                        </div>
+                      )}
+                      <p className="text-gray-400 text-sm line-clamp-2 break-words overflow-hidden">
+                        {workflow.description}
+                      </p>
                     </div>
-                  )}
-                  <p className="text-gray-400 text-sm line-clamp-2 break-words overflow-hidden">
-                    {workflow.description}
-                  </p>
-                </div>
-                
-                <div className={`flex items-center space-x-2 ml-4 flex-shrink-0`}>
-                  <div className={`w-2 h-2 rounded-full ${getStatusColor(workflow.workflowStatus)}`}></div>
-                  <span className="text-xs text-gray-400 whitespace-nowrap">
-                    {getStatusText(workflow.workflowStatus)}
-                  </span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                <div className="text-center">
-                  <div className="text-lg font-semibold text-white">
-                    {workflow.nodes.length}
+                    
+                    <div className={`flex items-center space-x-2 ml-4 flex-shrink-0`}>
+                      <div className={`w-2 h-2 rounded-full ${getStatusColor(workflow.workflowStatus)}`}></div>
+                      <span className="text-xs text-gray-400 whitespace-nowrap">
+                        {getStatusText(workflow.workflowStatus)}
+                      </span>
+                    </div>
                   </div>
-                  <div className="text-xs text-gray-400">Nodes</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-lg font-semibold text-white">
-                    {workflow.connections.length}
+
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="text-center">
+                      <div className="text-lg font-semibold text-white">
+                        {workflow.nodes.length}
+                      </div>
+                      <div className="text-xs text-gray-400">Nodes</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-lg font-semibold text-white">
+                        {workflow.connections.length}
+                      </div>
+                      <div className="text-xs text-gray-400">Connections</div>
+                    </div>
                   </div>
-                  <div className="text-xs text-gray-400">Connections</div>
-                </div>
-              </div>
 
-              <div className="mb-4">
-                <WorkflowPreview workflow={workflow} />
-              </div>
+                  <div className="mb-4">
+                    <WorkflowPreview workflow={workflow} />
+                  </div>
 
-              <div className="flex items-center justify-between">
-                <div className="text-xs text-gray-400">
-                  Updated {new Date(workflow.updatedAt).toLocaleDateString()}
-                </div>
-                
-                <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      onOpenWorkflow(workflow.id)
-                    }}
-                    className="p-1 text-gray-400 hover:text-white transition-colors"
-                    title="Open Workflow"
-                  >
-                    <Maximize2 className="w-4 h-4" />
-                  </button>
-                  <div className="relative">
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs text-gray-400">
+                      Updated {new Date(workflow.updatedAt).toLocaleDateString()}
+                    </div>
+                    
+                    <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          onOpenWorkflow(workflow.id)
+                        }}
+                        className="p-1 text-gray-400 hover:text-white transition-colors"
+                        title="Open Workflow"
+                      >
+                        <Maximize2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
+              
+              {/* Action buttons - show on both mobile and desktop */}
+              <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onOpenWorkflow(workflow.id)
+                  }}
+                  className="p-1 text-gray-400 hover:text-white transition-colors"
+                  title="Open Workflow"
+                >
+                  <Maximize2 className="w-4 h-4" />
+                </button>
+                <div className="relative">
                     <button
                       onClick={(e) => {
                         e.stopPropagation()
